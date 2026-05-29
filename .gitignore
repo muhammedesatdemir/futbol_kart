@@ -41,7 +41,6 @@ data-pipeline/cache
 
 # AI/ham görseller — büyük ve optimize edilmiş webp'ler zaten public/hero/'da
 # (orijinalleri yerel diskte sakla, git'e gönderme)
-assets/
 
 PLAN.md
 

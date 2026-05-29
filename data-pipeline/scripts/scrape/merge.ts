@@ -43,7 +43,9 @@ const COUNTRY_CODE: Record<string, string> = {
   Germany: 'DE', Almanya: 'DE',
   Italy: 'IT', İtalya: 'IT',
   England: 'EN', İngiltere: 'EN', 'United Kingdom': 'EN',
-  Scotland: 'SCO', Wales: 'WLS', 'Northern Ireland': 'NIR',
+  // Scotland/Wales/NI'yi de "EN" (Birleşik Krallık) altına alıyoruz — schema 2 karakter zorunlu;
+  // q14_distinct_club_countries pratikte UK'yi tek ülke kabul ediyor.
+  Scotland: 'EN', Wales: 'EN', 'Northern Ireland': 'EN',
   Ireland: 'IE',
   Netherlands: 'NL', Hollanda: 'NL',
   Belgium: 'BE', Belçika: 'BE',
@@ -208,12 +210,12 @@ function seasonToYear(seasonId: number): number {
   return seasonId;
 }
 
-function tmToPlayer(tm: TmPlayer): Player | null {
+function tmToPlayer(tm: TmPlayer, slugOverride?: string): Player | null {
   const m = tm.meta;
   if (!m.lifeDates?.dateOfBirth || !m.shortName) {
     return null;
   }
-  const slug = slugify(m.shortName);
+  const slug = slugOverride ?? slugify(m.shortName);
   const id = `p_${slug}`;
 
   const birthCountry = countryNameFromId(m.birthPlaceDetails?.countryOfBirthId);
@@ -261,10 +263,13 @@ function tmToPlayer(tm: TmPlayer): Player | null {
   return {
     id,
     slug,
-    // name: tam resmi ad (q26 ad uzunluğu, q27 sesli harf için)
-    name: m.displayName || m.shortName,
-    // displayName: kart üstünde görünen kısa ad
-    displayName: m.shortName,
+    // name: TAM resmi ad — q26 (ad uzunluğu) ve q27 (sesli harf) için
+    //   displayName: TM "Full name:" field (sahne adı kullananlarda dolu — Pelé, Vinicius)
+    //   name:        TM standart ad ("Lionel Messi", "Zinédine Zidane") — orta form, hemen hep dolu
+    //   shortName:   TM kısaltma ("L. Messi", "Z. Zidane") — son fallback
+    name: m.displayName || m.name || m.shortName,
+    // displayName (kart üstü): okunabilir orta form. shortName "L. Messi" çok kuru.
+    displayName: m.name || m.shortName,
     birthDate: m.lifeDates.dateOfBirth,
     birthCity: m.birthPlaceDetails?.placeOfBirth,
     birthCountry,
@@ -329,43 +334,89 @@ async function main() {
   const tmClubs = await fetchClubs([...allTmClubIds]);
   console.log(`[merge]   ${tmClubs.length} kulüp döndü`);
 
-  // 4. Mevcut clubs.json'a ekle (varsa atla)
+  // 4. Mevcut clubs.json'a ekle
+  // TM kulüpleri her seferinde TAZE yazılır (manuel kulüpler — "galatasaray" gibi
+  // slug id'liler — dokunulmaz). Bu sayede merge.ts'teki ülke kodu / koord düzeltmeleri
+  // mevcut tm_ kayıtlarına da uygulanır.
   const seedClubs = (await readJson<Club[]>(SEED_CLUBS)) ?? [];
-  const existingClubIds = new Set(seedClubs.map((c) => c.id));
-  let addedClubs = 0;
-  for (const tc of tmClubs) {
-    const club = tmClubToClub(tc);
-    if (existingClubIds.has(club.id)) continue;
-    seedClubs.push(club);
-    existingClubIds.add(club.id);
-    addedClubs++;
-  }
-  await writeFile(SEED_CLUBS, JSON.stringify(seedClubs, null, 2) + '\n');
-  console.log(`[merge] clubs.json: +${addedClubs} yeni, toplam ${seedClubs.length}`);
+  const manualClubs = seedClubs.filter((c) => !c.id.startsWith('tm_'));
+  const droppedTmClubs = seedClubs.length - manualClubs.length;
+  const freshTmClubs = tmClubs.map(tmClubToClub);
+  const finalClubs = [...manualClubs, ...freshTmClubs];
+  await writeFile(SEED_CLUBS, JSON.stringify(finalClubs, null, 2) + '\n');
+  console.log(
+    `[merge] clubs.json: ${manualClubs.length} manuel + ${freshTmClubs.length} TM (önceki ${droppedTmClubs} TM yenilendi) = ${finalClubs.length}`,
+  );
 
   // 5. Oyuncuları merge
-  // Önceki TM-kaynaklı kayıtları çıkar (clubStint clubId "tm_" ile başlıyorsa TM kaynaklı).
-  // Manuel 50 efsane oyuncu (clubs[].clubId = "barcelona" gibi slug) korunur.
+  // Davranış:
+  //   - default: TM-kaynaklı kayıtları taze üret; manuel kayıtlar korunur
+  //   - --replace-manual: cache/manual-ids.json'da tmId'si bilinen manuel kayıtlar da
+  //     TM'den taze üretilir (mevcut manuel slug'lar çıkar, TM versiyonu yenisinin yerini alır)
+  const replaceManual = process.argv.includes('--replace-manual');
+
   const seedPlayers = (await readJson<Player[]>(SEED_PLAYERS)) ?? [];
-  const manualPlayers = seedPlayers.filter(
-    (p) => !p.clubs.some((s) => s.clubId.startsWith('tm_')),
+
+  // Manuel ID mapping: { manualSlug: tmId } — bu turda TM'den yenilenen seed slug'larını izle
+  const manualIdMap = await readJson<Record<string, { slug: string; tmId?: number; status: string }>>(
+    join(CACHE_DIR, 'manual-ids.json'),
   );
-  const droppedTmPlayers = seedPlayers.length - manualPlayers.length;
-  console.log(`[merge] mevcut seed: ${seedPlayers.length} oyuncu`);
-  if (droppedTmPlayers > 0) {
-    console.log(`[merge]   ↳ ${droppedTmPlayers} önceki TM kaydı çıkarıldı, taze üretilecek`);
+  const replacedSlugs = new Set<string>();
+  if (replaceManual && manualIdMap) {
+    for (const entry of Object.values(manualIdMap)) {
+      // Bu manuel oyuncunun TM versiyonu cache'te varsa, manuel kaydı çıkaracağız
+      if (entry.tmId && entry.status === 'matched' && tmCache[String(entry.tmId)]) {
+        replacedSlugs.add(entry.slug);
+      }
+    }
   }
-  console.log(`[merge]   ↳ ${manualPlayers.length} manuel efsane korunuyor`);
+
+  const droppedTmCount = seedPlayers.filter((p) =>
+    p.clubs.some((s) => s.clubId.startsWith('tm_')),
+  ).length;
+  const droppedManualCount = seedPlayers.filter(
+    (p) => !p.clubs.some((s) => s.clubId.startsWith('tm_')) && replacedSlugs.has(p.slug),
+  ).length;
+
+  const preservedPlayers = seedPlayers.filter((p) => {
+    const isTmSourced = p.clubs.some((s) => s.clubId.startsWith('tm_'));
+    if (isTmSourced) return false; // TM kayıtları her zaman taze üretilir
+    if (replacedSlugs.has(p.slug)) return false; // bu turda manuel kayıt TM'den yenileniyor
+    return true;
+  });
+
+  console.log(`[merge] mevcut seed: ${seedPlayers.length} oyuncu`);
+  if (droppedTmCount > 0) {
+    console.log(`[merge]   ↳ ${droppedTmCount} önceki TM kaydı çıkarıldı, taze üretilecek`);
+  }
+  if (droppedManualCount > 0) {
+    console.log(`[merge]   ↳ --replace-manual: ${droppedManualCount} manuel kayıt TM'den yenileniyor`);
+  }
+  console.log(`[merge]   ↳ ${preservedPlayers.length} kayıt korunuyor`);
   console.log(`[merge] TM cache: ${Object.keys(tmCache).length} oyuncu`);
 
-  const existingSlugs = new Set(manualPlayers.map((p) => p.slug));
-  const final: Player[] = [...manualPlayers];
+  // Korunan manuel slug'lar — TM cache'ten yeni slug aynısıysa çakışmasın
+  const existingSlugs = new Set(preservedPlayers.map((p) => p.slug));
+  // Ayrıca: bu turda yenilenen manuel slug'ları TM'nin ürettiği yeni slug ile MAP'lemek
+  // gerekebilir (örn. seed slug "lionel-messi", TM shortName "L. Messi" → "l-messi"
+  // farklı slug üretir; iki kayıt çakışmasın diye yeni slug seed'tekiyle aynı olsun).
+  const tmIdToSeedSlug = new Map<number, string>();
+  if (replaceManual && manualIdMap) {
+    for (const entry of Object.values(manualIdMap)) {
+      if (entry.tmId && replacedSlugs.has(entry.slug)) {
+        tmIdToSeedSlug.set(entry.tmId, entry.slug);
+      }
+    }
+  }
+  const final: Player[] = [...preservedPlayers];
   let added = 0;
   let skippedExisting = 0;
   let skippedInvalid = 0;
 
   for (const tm of Object.values(tmCache)) {
-    const player = tmToPlayer(tm);
+    // Manuel kayıttan yenilenen oyuncular için seed'teki orijinal slug'ı koru
+    const slugOverride = tmIdToSeedSlug.get(tm.tmId);
+    const player = tmToPlayer(tm, slugOverride);
     if (!player) {
       skippedInvalid++;
       continue;

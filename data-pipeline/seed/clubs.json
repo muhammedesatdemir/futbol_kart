@@ -517,6 +517,1066 @@
     "founded": 2018
   },
   {
+    "id": "tm_895",
+    "name": "Cannes",
+    "city": "Cannes La Bocca",
+    "country": "France",
+    "countryCode": "FR",
+    "continent": "Europe",
+    "lat": 43.553001,
+    "lng": 6.9631709
+  },
+  {
+    "id": "tm_9323",
+    "name": "France U21",
+    "city": "",
+    "country": "France",
+    "countryCode": "FR",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_40",
+    "name": "G. Bordeaux",
+    "city": "Le Haillan",
+    "country": "France",
+    "countryCode": "FR",
+    "continent": "Europe",
+    "lat": 44.8774763,
+    "lng": -0.6728692
+  },
+  {
+    "id": "tm_3377",
+    "name": "France",
+    "city": "Paris",
+    "country": "France",
+    "countryCode": "FR",
+    "continent": "Europe",
+    "lat": 48.8502391,
+    "lng": 2.2959188
+  },
+  {
+    "id": "tm_506",
+    "name": "Juventus",
+    "city": "Torino",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 45.1128156,
+    "lng": 7.6337703
+  },
+  {
+    "id": "tm_42237",
+    "name": "All-Star-Team",
+    "city": "",
+    "country": "San Marino",
+    "countryCode": "XX",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_418",
+    "name": "Real Madrid",
+    "city": "Madrid",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 40.4523571,
+    "lng": -3.6867885
+  },
+  {
+    "id": "tm_585",
+    "name": "São Paulo",
+    "city": "São Paulo",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": -23.6000361,
+    "lng": -46.7201724
+  },
+  {
+    "id": "tm_7658",
+    "name": "Brazil U20",
+    "city": "",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_3439",
+    "name": "Brazil",
+    "city": "Andar Barra da Tijuca RIO DE JANEIRO",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": -22.9748705,
+    "lng": -43.3677578
+  },
+  {
+    "id": "tm_5",
+    "name": "AC Milan",
+    "city": "Milano",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 45.4858841,
+    "lng": 9.1484143
+  },
+  {
+    "id": "tm_45604",
+    "name": "Orlando",
+    "city": "Lake Mary, Florida",
+    "country": "United States",
+    "countryCode": "US",
+    "continent": "North America",
+    "lat": 28.7849823,
+    "lng": -81.3588655
+  },
+  {
+    "id": "tm_23130",
+    "name": "Brazil U17",
+    "city": "",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_210",
+    "name": "Grêmio",
+    "city": "Porto Alegre",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": -29.974003,
+    "lng": -51.194885
+  },
+  {
+    "id": "tm_53818",
+    "name": "Brazil Olympic",
+    "city": "",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": -22.9748705,
+    "lng": -43.3677578
+  },
+  {
+    "id": "tm_37018",
+    "name": "Brazil U23",
+    "city": "",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_583",
+    "name": "PSG",
+    "city": "Paris",
+    "country": "France",
+    "countryCode": "FR",
+    "continent": "Europe",
+    "lat": 48.841438,
+    "lng": 2.2530801
+  },
+  {
+    "id": "tm_131",
+    "name": "Barcelona",
+    "city": "Barcelona",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 41.3795811,
+    "lng": 2.1193902
+  },
+  {
+    "id": "tm_614",
+    "name": "Flamengo",
+    "city": "Rio de Janeiro",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": -22.9783536,
+    "lng": -43.2202716
+  },
+  {
+    "id": "tm_330",
+    "name": "Atlético-MG",
+    "city": "Belo Horizonte",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": -19.927205,
+    "lng": -43.9465522
+  },
+  {
+    "id": "tm_2462",
+    "name": "Fluminense",
+    "city": "Rio de Janeiro",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": -22.9364364,
+    "lng": -43.1851284
+  },
+  {
+    "id": "tm_4961",
+    "name": "Querétaro FC",
+    "city": "Santiago de Querétaro, Querétaro",
+    "country": "Mexico",
+    "countryCode": "MX",
+    "continent": "North America",
+    "lat": 20.5701626,
+    "lng": -100.3638252
+  },
+  {
+    "id": "tm_141",
+    "name": "Galatasaray",
+    "city": "Sarıyer / İstanbul",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 41.099779777228,
+    "lng": 28.986402489245
+  },
+  {
+    "id": "tm_9568",
+    "name": "Türkiye U21",
+    "city": "",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_3381",
+    "name": "Turkiye",
+    "city": "İstanbul",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 37.228191955454,
+    "lng": 38.562209196389
+  },
+  {
+    "id": "tm_124",
+    "name": "Rangers",
+    "city": "Glasgow",
+    "country": "Scotland",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 55.853172,
+    "lng": -4.3092686
+  },
+  {
+    "id": "tm_164",
+    "name": "Blackburn",
+    "city": "Blackburn, Lancashire",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 53.7285943,
+    "lng": -2.4891959
+  },
+  {
+    "id": "tm_189",
+    "name": "Boca Juniors",
+    "city": "Buenos Aires",
+    "country": "Argentina",
+    "countryCode": "AR",
+    "continent": "South America",
+    "lat": -34.635671,
+    "lng": -58.3647023
+  },
+  {
+    "id": "tm_3437",
+    "name": "Argentina",
+    "city": "Buenos Aires",
+    "country": "Argentina",
+    "countryCode": "AR",
+    "continent": "South America",
+    "lat": -34.607568127801,
+    "lng": -58.437089659274
+  },
+  {
+    "id": "tm_11940",
+    "name": "Argentina U20",
+    "city": "Buenos Aires",
+    "country": "Argentina",
+    "countryCode": "AR",
+    "continent": "South America",
+    "lat": -34.607568127801,
+    "lng": -58.437089659274
+  },
+  {
+    "id": "tm_52540",
+    "name": "Argentina U23",
+    "city": "",
+    "country": "Argentina",
+    "countryCode": "AR",
+    "continent": "South America",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_1050",
+    "name": "Villarreal",
+    "city": "Villarreal",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 39.9389639,
+    "lng": -0.1211441
+  },
+  {
+    "id": "tm_53819",
+    "name": "Argentina",
+    "city": "Buenos Aires City",
+    "country": "Argentina",
+    "countryCode": "AR",
+    "continent": "South America",
+    "lat": -34.6005959,
+    "lng": -58.386247
+  },
+  {
+    "id": "tm_1030",
+    "name": "Argentinos Jrs.",
+    "city": "Buenos Aires",
+    "country": "Argentina",
+    "countryCode": "AR",
+    "continent": "South America",
+    "lat": -34.5914124,
+    "lng": -58.4696201
+  },
+  {
+    "id": "tm_1164",
+    "name": "Le Mans FC",
+    "city": "Mulsanne",
+    "country": "France",
+    "countryCode": "FR",
+    "continent": "Europe",
+    "lat": 47.9361925,
+    "lng": 0.221578
+  },
+  {
+    "id": "tm_855",
+    "name": "Guingamp",
+    "city": "Guingamp",
+    "country": "France",
+    "countryCode": "FR",
+    "continent": "Europe",
+    "lat": 48.5568037,
+    "lng": -3.1433639
+  },
+  {
+    "id": "tm_3591",
+    "name": "Ivory Coast",
+    "city": "Abidjan 01",
+    "country": "Cote d'Ivoire",
+    "countryCode": "XX",
+    "continent": "Europe",
+    "lat": 5.3599517,
+    "lng": -4.0082563
+  },
+  {
+    "id": "tm_244",
+    "name": "Marseille",
+    "city": "Marseille",
+    "country": "France",
+    "countryCode": "FR",
+    "continent": "Europe",
+    "lat": 43.300805099272,
+    "lng": 5.4672690108418
+  },
+  {
+    "id": "tm_631",
+    "name": "Chelsea",
+    "city": "London",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 51.4775198,
+    "lng": -0.20159
+  },
+  {
+    "id": "tm_3183",
+    "name": "SH Shenhua",
+    "city": "Shanghai",
+    "country": "China",
+    "countryCode": "XX",
+    "continent": "Asia",
+    "lat": 31.1485528,
+    "lng": 121.5665417
+  },
+  {
+    "id": "tm_4078",
+    "name": "Montréal",
+    "city": "Montreal, Quebec",
+    "country": "Canada",
+    "countryCode": "CA",
+    "continent": "North America",
+    "lat": 45.561144,
+    "lng": -73.554178
+  },
+  {
+    "id": "tm_33414",
+    "name": "Phoenix Rising",
+    "city": "Phoenix, Arizona",
+    "country": "United States",
+    "countryCode": "US",
+    "continent": "North America",
+    "lat": 33.459024,
+    "lng": -112.068634
+  },
+  {
+    "id": "tm_33775",
+    "name": "Spain U16",
+    "city": "",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_12395",
+    "name": "Spain U17",
+    "city": "Las Rozas (Madrid)",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 40.5213853,
+    "lng": -3.8983077
+  },
+  {
+    "id": "tm_20947",
+    "name": "Spain U18",
+    "city": "Las Rozas (Madrid)",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 40.5213853,
+    "lng": -3.8983077
+  },
+  {
+    "id": "tm_9567",
+    "name": "Spain U21",
+    "city": "Las Rozas (Madrid)",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 40.5213853,
+    "lng": -3.8983077
+  },
+  {
+    "id": "tm_20911",
+    "name": "Spain U20",
+    "city": "Las Rozas (Madrid)",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 40.5213853,
+    "lng": -3.8983077
+  },
+  {
+    "id": "tm_3375",
+    "name": "Spain",
+    "city": "Las Rozas (Madrid)",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 40.5213853,
+    "lng": -3.8983077
+  },
+  {
+    "id": "tm_6767",
+    "name": "RM Castilla",
+    "city": "Madrid",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 40.4523571,
+    "lng": -3.6867885
+  },
+  {
+    "id": "tm_720",
+    "name": "Porto",
+    "city": "Porto",
+    "country": "Portugal",
+    "countryCode": "PT",
+    "continent": "Europe",
+    "lat": 41.237556,
+    "lng": -8.355235
+  },
+  {
+    "id": "tm_3434",
+    "name": "Cameroon",
+    "city": "Yaoundé",
+    "country": "Cameroon",
+    "countryCode": "CM",
+    "continent": "Africa",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_1244",
+    "name": "CD Leganés",
+    "city": "Leganés",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 40.3395999,
+    "lng": -3.7627152
+  },
+  {
+    "id": "tm_714",
+    "name": "Espanyol",
+    "city": "Barcelona",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 41.3474593,
+    "lng": 2.0777679
+  },
+  {
+    "id": "tm_237",
+    "name": "RCD Mallorca",
+    "city": "Palma de Mallorca",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 39.593429,
+    "lng": 2.6342748
+  },
+  {
+    "id": "tm_53843",
+    "name": "Cameroon",
+    "city": "",
+    "country": "Cameroon",
+    "countryCode": "CM",
+    "continent": "Africa",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_46",
+    "name": "Inter",
+    "city": "Milano",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 45.482487524697,
+    "lng": 9.1940599679947
+  },
+  {
+    "id": "tm_2700",
+    "name": "Anzhi",
+    "city": "Kaspiysk",
+    "country": "Russia",
+    "countryCode": "RU",
+    "continent": "Europe",
+    "lat": 42.8419167,
+    "lng": 47.6052326
+  },
+  {
+    "id": "tm_1038",
+    "name": "Sampdoria",
+    "city": "Genova",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 44.4039723,
+    "lng": 8.9482354
+  },
+  {
+    "id": "tm_29",
+    "name": "Everton",
+    "city": "Liverpool",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 53.438787,
+    "lng": -2.9663193
+  },
+  {
+    "id": "tm_589",
+    "name": "Antalyaspor",
+    "city": "Muratpaşa/ANTALYA",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 36.887242191266274,
+    "lng": 30.664639672633612
+  },
+  {
+    "id": "tm_51521",
+    "name": "Team America",
+    "city": "",
+    "country": "United States",
+    "countryCode": "US",
+    "continent": "North America",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_2293",
+    "name": "Konyaspor",
+    "city": "Selçuklu, Konya",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 37.947387391755186,
+    "lng": 32.48788650859539
+  },
+  {
+    "id": "tm_965",
+    "name": "Qatar SC",
+    "city": "Doha",
+    "country": "Qatar",
+    "countryCode": "XX",
+    "continent": "Asia",
+    "lat": 25.293650617179,
+    "lng": 51.545643769205
+  },
+  {
+    "id": "tm_34684",
+    "name": "Netherlands U15",
+    "city": "",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_202",
+    "name": "FC Groningen",
+    "city": "Groningen",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 53.2067858,
+    "lng": 6.5919917
+  },
+  {
+    "id": "tm_11944",
+    "name": "Netherlands U21",
+    "city": "AM Zeist",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 52.0867437,
+    "lng": 5.2880755
+  },
+  {
+    "id": "tm_16342",
+    "name": "Netherlands U20",
+    "city": "",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_16341",
+    "name": "Netherlands U19",
+    "city": "AM Zeist",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 52.0867437,
+    "lng": 5.2880755
+  },
+  {
+    "id": "tm_3379",
+    "name": "Netherlands",
+    "city": "AM Zeist",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 52.0867437,
+    "lng": 5.2880755
+  },
+  {
+    "id": "tm_383",
+    "name": "PSV",
+    "city": "Eindhoven",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 51.4412299,
+    "lng": 5.4666692
+  },
+  {
+    "id": "tm_27",
+    "name": "Bayern Munich",
+    "city": "München",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 48.1018482,
+    "lng": 11.5727913
+  },
+  {
+    "id": "tm_23133",
+    "name": "Italy U17",
+    "city": "",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_23243",
+    "name": "Italy U16",
+    "city": "",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_130",
+    "name": "Parma",
+    "city": "Parma",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 44.796096,
+    "lng": 10.337488
+  },
+  {
+    "id": "tm_21746",
+    "name": "Italy U18",
+    "city": "",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_11947",
+    "name": "Italy U21",
+    "city": "Roma",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 41.9152954,
+    "lng": 12.4944314
+  },
+  {
+    "id": "tm_3376",
+    "name": "Italy",
+    "city": "Roma",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 41.9152954,
+    "lng": 12.4944314
+  },
+  {
+    "id": "tm_762",
+    "name": "Newcastle",
+    "city": "Newcastle upon Tyne",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 54.975556,
+    "lng": -1.621667
+  },
+  {
+    "id": "tm_36",
+    "name": "Fenerbahçe",
+    "city": "Kadıköy / İstanbul",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 40.983855123644,
+    "lng": 29.039839804173
+  },
+  {
+    "id": "tm_13",
+    "name": "Atlético",
+    "city": "Madrid",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 40.4017297,
+    "lng": -3.7206353
+  },
+  {
+    "id": "tm_6890",
+    "name": "Basaksehir",
+    "city": "Istanbul",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 41.118020029168,
+    "lng": 29.85024612397
+  },
+  {
+    "id": "tm_19",
+    "name": "Brescia",
+    "city": "Brescia",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 45.5318743,
+    "lng": 10.2207613
+  },
+  {
+    "id": "tm_53840",
+    "name": "Italy",
+    "city": "",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 41.9152954,
+    "lng": 12.4944314
+  },
+  {
+    "id": "tm_1386",
+    "name": "Reggina",
+    "city": "Reggio Calabria",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 38.230838333422,
+    "lng": 15.740245878696
+  },
+  {
+    "id": "tm_40058",
+    "name": "New York City",
+    "city": "New York City, New York",
+    "country": "United States",
+    "countryCode": "US",
+    "continent": "North America",
+    "lat": 40.749248,
+    "lng": -73.975785
+  },
+  {
+    "id": "tm_2464",
+    "name": "Barça Atlètic",
+    "city": "Barcelona",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 41.3795811,
+    "lng": 2.1193902
+  },
+  {
+    "id": "tm_12609",
+    "name": "Spain U19",
+    "city": "Las Rozas (Madrid)",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 40.5213853,
+    "lng": -3.8983077
+  },
+  {
+    "id": "tm_3958",
+    "name": "Vissel Kobe",
+    "city": "Kobe, Hyogo",
+    "country": "Japan",
+    "countryCode": "JP",
+    "continent": "Asia",
+    "lat": 34.6568109,
+    "lng": 135.1674342
+  },
+  {
+    "id": "tm_15542",
+    "name": "Emirates Club",
+    "city": "Ras Al-Khaimah",
+    "country": "United Arab Emirates",
+    "countryCode": "XX",
+    "continent": "Asia",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_53824",
+    "name": "Spain",
+    "city": "Las Rozas (Madrid)",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 40.5213853,
+    "lng": -3.8983077
+  },
+  {
+    "id": "tm_656",
+    "name": "Al-Sadd",
+    "city": "Doha",
+    "country": "Qatar",
+    "countryCode": "XX",
+    "continent": "Asia",
+    "lat": 25.293650617179,
+    "lng": 51.545643769205
+  },
+  {
+    "id": "tm_6195",
+    "name": "Napoli",
+    "city": "Napoli",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 40.83588481341,
+    "lng": 14.24876768142
+  },
+  {
+    "id": "tm_368",
+    "name": "Sevilla FC",
+    "city": "Sevilla",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 37.3840603,
+    "lng": -5.9718187
+  },
+  {
+    "id": "tm_30503",
+    "name": "Portugal U15",
+    "city": "",
+    "country": "Portugal",
+    "countryCode": "PT",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_23137",
+    "name": "Portugal U17",
+    "city": "",
+    "country": "Portugal",
+    "countryCode": "PT",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_16374",
+    "name": "Portugal U21",
+    "city": "",
+    "country": "Portugal",
+    "countryCode": "PT",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_16373",
+    "name": "Portugal U20",
+    "city": "",
+    "country": "Portugal",
+    "countryCode": "PT",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_336",
+    "name": "Sporting",
+    "city": "Lisboa",
+    "country": "Portugal",
+    "countryCode": "PT",
+    "continent": "Europe",
+    "lat": 38.7619078,
+    "lng": -9.1630336
+  },
+  {
+    "id": "tm_3300",
+    "name": "Portugal",
+    "city": "Oeiras",
+    "country": "Portugal",
+    "countryCode": "PT",
+    "continent": "Europe",
+    "lat": 38.709924672047,
+    "lng": -9.2689351721723
+  },
+  {
+    "id": "tm_985",
+    "name": "Man Utd",
+    "city": "Manchester",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 53.463401287522,
+    "lng": -2.2892509291034
+  },
+  {
+    "id": "tm_53807",
+    "name": "Portugal",
+    "city": "",
+    "country": "Portugal",
+    "countryCode": "PT",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_18544",
+    "name": "Al-Nassr",
+    "city": "Riyadh",
+    "country": "Saudi Arabia",
+    "countryCode": "SA",
+    "continent": "Asia",
+    "lat": 25.661565292007,
+    "lng": 45.539740920067
+  },
+  {
+    "id": "tm_221",
+    "name": "Santos",
+    "city": "Santos",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": -23.951381926096,
+    "lng": -46.340331025422
+  },
+  {
+    "id": "tm_776",
+    "name": "Coritiba FC",
+    "city": "Curitiba",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": -25.4210008,
+    "lng": -49.2597503
+  },
+  {
+    "id": "tm_1023",
+    "name": "Palmeiras",
+    "city": "São Paulo",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": -23.5282819,
+    "lng": -46.6796091
+  },
+  {
+    "id": "tm_609",
+    "name": "Cruzeiro",
+    "city": "Belo Horizonte",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": -19.835033,
+    "lng": -44.004793
+  },
+  {
     "id": "tm_10831",
     "name": "France U17",
     "city": "",
@@ -525,6 +1585,976 @@
     "continent": "Europe",
     "lat": 0,
     "lng": 0
+  },
+  {
+    "id": "tm_1041",
+    "name": "Lyon",
+    "city": "Décines-Charpieu",
+    "country": "France",
+    "countryCode": "FR",
+    "continent": "Europe",
+    "lat": 45.76706620794103,
+    "lng": 5.012739622638681
+  },
+  {
+    "id": "tm_7813",
+    "name": "Olymp. Lyon U19",
+    "city": "Décines-Charpieu",
+    "country": "France",
+    "countryCode": "FR",
+    "continent": "Europe",
+    "lat": 45.76706620794103,
+    "lng": 5.012739622638681
+  },
+  {
+    "id": "tm_23101",
+    "name": "France U19",
+    "city": "Paris",
+    "country": "France",
+    "countryCode": "FR",
+    "continent": "Europe",
+    "lat": 48.8502391,
+    "lng": 2.2959188
+  },
+  {
+    "id": "tm_8023",
+    "name": "Al-Ittihad",
+    "city": "Jeddah",
+    "country": "Saudi Arabia",
+    "countryCode": "SA",
+    "continent": "Asia",
+    "lat": 21.5471939,
+    "lng": 39.2103892
+  },
+  {
+    "id": "tm_1114",
+    "name": "Al-Hilal",
+    "city": "Riyadh",
+    "country": "Saudi Arabia",
+    "countryCode": "SA",
+    "continent": "Asia",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_142",
+    "name": "Real Zaragoza",
+    "city": "Zaragoza",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 41.6381875,
+    "lng": -0.9030882
+  },
+  {
+    "id": "tm_22462",
+    "name": "Türkiye U17",
+    "city": "",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_22585",
+    "name": "Türkiye U19",
+    "city": "İstanbul",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 37.228191955454,
+    "lng": 38.562209196389
+  },
+  {
+    "id": "tm_1267",
+    "name": "Manisaspor",
+    "city": "MANİSA",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 38.6214758,
+    "lng": 27.3937352
+  },
+  {
+    "id": "tm_2407",
+    "name": "Monterrey",
+    "city": "Guadalupe, Nuevo León",
+    "country": "Mexico",
+    "countryCode": "MX",
+    "continent": "North America",
+    "lat": 25.6679193,
+    "lng": -100.2417743
+  },
+  {
+    "id": "tm_1234",
+    "name": "Independiente",
+    "city": "Avellaneda, Buenos Aires",
+    "country": "Argentina",
+    "countryCode": "AR",
+    "continent": "South America",
+    "lat": -34.688352258771,
+    "lng": -58.336141716685
+  },
+  {
+    "id": "tm_281",
+    "name": "Man City",
+    "city": "Manchester",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 53.4831381,
+    "lng": -2.2003953
+  },
+  {
+    "id": "tm_419",
+    "name": "Dinamo Zagreb",
+    "city": "Zagreb",
+    "country": "Croatia",
+    "countryCode": "HR",
+    "continent": "Europe",
+    "lat": 45.8190577,
+    "lng": 16.0177921
+  },
+  {
+    "id": "tm_11943",
+    "name": "Croatia U21",
+    "city": "Zagreb",
+    "country": "Croatia",
+    "countryCode": "HR",
+    "continent": "Europe",
+    "lat": 45.8071,
+    "lng": 15.9644
+  },
+  {
+    "id": "tm_6808",
+    "name": "Zrinjski Mostar",
+    "city": "Mostar",
+    "country": "Bosnia-Herzegovina",
+    "countryCode": "XX",
+    "continent": "Europe",
+    "lat": 43.3467541,
+    "lng": 17.7985546
+  },
+  {
+    "id": "tm_17379",
+    "name": "Croatia U19",
+    "city": "Zagreb",
+    "country": "Croatia",
+    "countryCode": "HR",
+    "continent": "Europe",
+    "lat": 45.8071,
+    "lng": 15.9644
+  },
+  {
+    "id": "tm_918",
+    "name": "Inker",
+    "city": "Zapresic  ",
+    "country": "Croatia",
+    "countryCode": "HR",
+    "continent": "Europe",
+    "lat": 45.8632294,
+    "lng": 15.7991278
+  },
+  {
+    "id": "tm_3556",
+    "name": "Croatia",
+    "city": "Zagreb",
+    "country": "Croatia",
+    "countryCode": "HR",
+    "continent": "Europe",
+    "lat": 45.8071,
+    "lng": 15.9644
+  },
+  {
+    "id": "tm_148",
+    "name": "Tottenham",
+    "city": "London",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 51.6032123,
+    "lng": -0.0657389
+  },
+  {
+    "id": "tm_69261",
+    "name": "Miami",
+    "city": "Fort Lauderdale, Florida",
+    "country": "United States",
+    "countryCode": "US",
+    "continent": "North America",
+    "lat": 26.198774,
+    "lng": -80.17273
+  },
+  {
+    "id": "tm_4269",
+    "name": "RW Essen U19",
+    "city": "Essen",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 51.4858,
+    "lng": 6.97651
+  },
+  {
+    "id": "tm_1463",
+    "name": "Schalke 04 U19",
+    "city": "Gelsenkirchen",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 51.5595364,
+    "lng": 7.0621706
+  },
+  {
+    "id": "tm_34",
+    "name": "Schalke 04 II",
+    "city": "Gelsenkirchen",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 51.5595364,
+    "lng": 7.0621706
+  },
+  {
+    "id": "tm_33",
+    "name": "FC Schalke 04",
+    "city": "Gelsenkirchen",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 51.5595364,
+    "lng": 7.0621706
+  },
+  {
+    "id": "tm_5710",
+    "name": "Germany U19",
+    "city": "",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_86",
+    "name": "Werder Bremen",
+    "city": "Bremen",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 53.066281,
+    "lng": 8.8387808
+  },
+  {
+    "id": "tm_3817",
+    "name": "Germany U21",
+    "city": "",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_3262",
+    "name": "Germany",
+    "city": "Frankfurt (Main)",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 50.081287,
+    "lng": 8.654611
+  },
+  {
+    "id": "tm_11",
+    "name": "Arsenal",
+    "city": "London",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 51.5567623,
+    "lng": -0.1063327
+  },
+  {
+    "id": "tm_101288",
+    "name": "Basaksehir Res",
+    "city": "",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_9109",
+    "name": "Znicz Pruszkow",
+    "city": "Pruszków",
+    "country": "Poland",
+    "countryCode": "PL",
+    "continent": "Europe",
+    "lat": 52.1702404,
+    "lng": 20.8157068
+  },
+  {
+    "id": "tm_9324",
+    "name": "Poland U21",
+    "city": "",
+    "country": "Poland",
+    "countryCode": "PL",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_3442",
+    "name": "Poland",
+    "city": "Warszawa",
+    "country": "Poland",
+    "countryCode": "PL",
+    "continent": "Europe",
+    "lat": 52.2127349,
+    "lng": 20.970634
+  },
+  {
+    "id": "tm_238",
+    "name": "Lech Poznan",
+    "city": "Poznań",
+    "country": "Poland",
+    "countryCode": "PL",
+    "continent": "Europe",
+    "lat": 52.3980538,
+    "lng": 16.8601631
+  },
+  {
+    "id": "tm_16",
+    "name": "Dortmund",
+    "city": "Dortmund",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 51.4980718,
+    "lng": 7.4509452
+  },
+  {
+    "id": "tm_209",
+    "name": "River Plate",
+    "city": "Ciudad Autónoma de Buenos Aires",
+    "country": "Argentina",
+    "countryCode": "AR",
+    "continent": "South America",
+    "lat": -34.561231306349,
+    "lng": -58.456515275737
+  },
+  {
+    "id": "tm_28266",
+    "name": "Colombia U20",
+    "city": "",
+    "country": "Colombia",
+    "countryCode": "CO",
+    "continent": "South America",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_3816",
+    "name": "Colombia",
+    "city": "Bogotá",
+    "country": "Colombia",
+    "countryCode": "CO",
+    "continent": "South America",
+    "lat": 4.652953935755,
+    "lng": -74.083564504981
+  },
+  {
+    "id": "tm_162",
+    "name": "Monaco",
+    "city": "Monaco",
+    "country": "Monaco",
+    "countryCode": "XX",
+    "continent": "Europe",
+    "lat": 43.7279671,
+    "lng": 7.4149749
+  },
+  {
+    "id": "tm_9251",
+    "name": "Man Utd U21",
+    "city": "Manchester",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 53.463401287522,
+    "lng": -2.2892509291034
+  },
+  {
+    "id": "tm_367",
+    "name": "Rayo Vallecano",
+    "city": "Madrid",
+    "country": "Spain",
+    "countryCode": "ES",
+    "continent": "Europe",
+    "lat": 40.387659,
+    "lng": -3.6602353
+  },
+  {
+    "id": "tm_2350",
+    "name": "Millonarios",
+    "city": "Bogotá D.C.",
+    "country": "Colombia",
+    "countryCode": "CO",
+    "continent": "South America",
+    "lat": 4.645877159431411,
+    "lng": -74.07738234673171
+  },
+  {
+    "id": "tm_23219",
+    "name": "Belgium U17",
+    "city": "",
+    "country": "Belgium",
+    "countryCode": "BE",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_1082",
+    "name": "Lille",
+    "city": "Camphin-en-Pévèle",
+    "country": "France",
+    "countryCode": "FR",
+    "continent": "Europe",
+    "lat": 50.597822,
+    "lng": 3.248101
+  },
+  {
+    "id": "tm_16338",
+    "name": "Belgium U19",
+    "city": "Brussel",
+    "country": "Belgium",
+    "countryCode": "BE",
+    "continent": "Europe",
+    "lat": 50.891766,
+    "lng": 4.336307
+  },
+  {
+    "id": "tm_3382",
+    "name": "Belgium",
+    "city": "Brussel",
+    "country": "Belgium",
+    "countryCode": "BE",
+    "continent": "Europe",
+    "lat": 50.891766,
+    "lng": 4.336307
+  },
+  {
+    "id": "tm_9250",
+    "name": "Chelsea U21",
+    "city": "London",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 51.4775198,
+    "lng": -0.20159
+  },
+  {
+    "id": "tm_1389",
+    "name": "AGOVV Apeldoorn",
+    "city": "Apeldoorn",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 52.2095057,
+    "lng": 5.9278443
+  },
+  {
+    "id": "tm_200",
+    "name": "Utrecht",
+    "city": "Utrecht",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 52.0789238,
+    "lng": 5.1462439
+  },
+  {
+    "id": "tm_12001",
+    "name": "Sampdoria U19",
+    "city": "",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_1184",
+    "name": "Genk",
+    "city": "Genk",
+    "country": "Belgium",
+    "countryCode": "BE",
+    "continent": "Europe",
+    "lat": 51.0050257,
+    "lng": 5.533332
+  },
+  {
+    "id": "tm_16337",
+    "name": "Belgium U18",
+    "city": "",
+    "country": "Belgium",
+    "countryCode": "BE",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_9315",
+    "name": "Belgium U21",
+    "city": "",
+    "country": "Belgium",
+    "countryCode": "BE",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_82",
+    "name": "Wolfsburg",
+    "city": "Wolfsburg",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 52.4326297,
+    "lng": 10.8039391
+  },
+  {
+    "id": "tm_21068",
+    "name": "Karlsruhe U17",
+    "city": "Karlsruhe ",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 49.0191516,
+    "lng": 8.4122398
+  },
+  {
+    "id": "tm_28161",
+    "name": "Turkey U16",
+    "city": "",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_5370",
+    "name": "Karlsruhe U19",
+    "city": "Karlsruhe",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 49.0191516,
+    "lng": 8.4122398
+  },
+  {
+    "id": "tm_48",
+    "name": "Karlsruher SC",
+    "city": "Karlsruhe",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 49.0191516,
+    "lng": 8.4122398
+  },
+  {
+    "id": "tm_22586",
+    "name": "Türkiye U20",
+    "city": "",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_41",
+    "name": "Hamburg",
+    "city": "Hamburg",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 53.550341135553,
+    "lng": 10.000653862953
+  },
+  {
+    "id": "tm_15",
+    "name": "Leverkusen",
+    "city": "Leverkusen",
+    "country": "Germany",
+    "countryCode": "DE",
+    "continent": "Europe",
+    "lat": 51.0374376,
+    "lng": 6.9992234
+  },
+  {
+    "id": "tm_23260",
+    "name": "England U17",
+    "city": "",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_21340",
+    "name": "England U19",
+    "city": "London",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 51.5151487,
+    "lng": -0.1314501
+  },
+  {
+    "id": "tm_1150",
+    "name": "Leyton Orient",
+    "city": "London  ",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 51.5605788,
+    "lng": -0.0118805
+  },
+  {
+    "id": "tm_9565",
+    "name": "England U21",
+    "city": "",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_1028",
+    "name": "Millwall",
+    "city": "London  ",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 51.4858294,
+    "lng": -0.0536694
+  },
+  {
+    "id": "tm_9254",
+    "name": "Tottenham U21",
+    "city": "London",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 51.6032123,
+    "lng": -0.0657389
+  },
+  {
+    "id": "tm_22907",
+    "name": "England U20",
+    "city": "",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_1003",
+    "name": "Leicester",
+    "city": "Leicester",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 52.6203662,
+    "lng": -1.1421895
+  },
+  {
+    "id": "tm_1123",
+    "name": "Norwich",
+    "city": "Norwich",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 52.6227255,
+    "lng": 1.3117356
+  },
+  {
+    "id": "tm_33614",
+    "name": "Norwich U21",
+    "city": "Norwich",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 52.6227255,
+    "lng": 1.3117356
+  },
+  {
+    "id": "tm_3299",
+    "name": "England",
+    "city": "London",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 51.5151487,
+    "lng": -0.1314501
+  },
+  {
+    "id": "tm_14725",
+    "name": "Groningen U21",
+    "city": "Groningen",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 53.2067858,
+    "lng": 6.5919917
+  },
+  {
+    "id": "tm_25512",
+    "name": "Uruguay U17",
+    "city": "",
+    "country": "Uruguay",
+    "countryCode": "UY",
+    "continent": "South America",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_371",
+    "name": "Celtic",
+    "city": "Glasgow",
+    "country": "Scotland",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 55.849696,
+    "lng": -4.2055427
+  },
+  {
+    "id": "tm_180",
+    "name": "Southampton",
+    "city": "Southampton",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 50.9067364,
+    "lng": -1.390595
+  },
+  {
+    "id": "tm_31",
+    "name": "Liverpool",
+    "city": "Liverpool",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 53.4308416,
+    "lng": -2.9608234
+  },
+  {
+    "id": "tm_36546",
+    "name": "Southampton U21",
+    "city": "",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_873",
+    "name": "Crystal Palace",
+    "city": "London",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 51.3979743,
+    "lng": -0.0860576
+  },
+  {
+    "id": "tm_603",
+    "name": "Cardiff",
+    "city": "Cardiff",
+    "country": "Wales",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 51.4713851,
+    "lng": -3.1980992
+  },
+  {
+    "id": "tm_78435",
+    "name": "Charlotte",
+    "city": "Charlotte, North Carolina",
+    "country": "United States",
+    "countryCode": "US",
+    "continent": "North America",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_3369",
+    "name": "El Mokawloon",
+    "city": "Kairo",
+    "country": "Egypt",
+    "countryCode": "EG",
+    "continent": "Africa",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_28206",
+    "name": "Egypt U19",
+    "city": "Gezira, Kairo",
+    "country": "Egypt",
+    "countryCode": "EG",
+    "continent": "Africa",
+    "lat": 30.0537418,
+    "lng": 31.2182528
+  },
+  {
+    "id": "tm_3672",
+    "name": "Egypt",
+    "city": "Gezira, Kairo",
+    "country": "Egypt",
+    "countryCode": "EG",
+    "continent": "Africa",
+    "lat": 30.0537418,
+    "lng": 31.2182528
+  },
+  {
+    "id": "tm_30951",
+    "name": "Egypt U23",
+    "city": "",
+    "country": "Egypt",
+    "countryCode": "EG",
+    "continent": "Africa",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_16121",
+    "name": "Egypt U20",
+    "city": "",
+    "country": "Egypt",
+    "countryCode": "EG",
+    "continent": "Africa",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_53825",
+    "name": "Egypt",
+    "city": "Gezira, Kairo",
+    "country": "Egypt",
+    "countryCode": "EG",
+    "continent": "Africa",
+    "lat": 30.0537418,
+    "lng": 31.2182528
+  },
+  {
+    "id": "tm_26",
+    "name": "Basel",
+    "city": "Basel",
+    "country": "Switzerland",
+    "countryCode": "CH",
+    "continent": "Europe",
+    "lat": 47.5387879,
+    "lng": 7.6214156
+  },
+  {
+    "id": "tm_430",
+    "name": "Fiorentina",
+    "city": "Firenze",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 43.780831,
+    "lng": 11.2826806
+  },
+  {
+    "id": "tm_12",
+    "name": "Roma",
+    "city": "Roma",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 41.746304,
+    "lng": 12.468301
+  },
+  {
+    "id": "tm_20",
+    "name": "Bursaspor",
+    "city": "Nilüfer / Bursa",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 40.214568084525,
+    "lng": 28.914716430008
+  },
+  {
+    "id": "tm_22584",
+    "name": "Türkiye U18",
+    "city": "",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_11282",
+    "name": "Alanyaspor",
+    "city": "Alanya / Antalya",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 36.5436,
+    "lng": 31.9997
+  },
+  {
+    "id": "tm_7804",
+    "name": "Fenerbahce U21",
+    "city": "Kadıköy / İstanbul",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 40.983855123644,
+    "lng": 29.039839804173
+  },
+  {
+    "id": "tm_1010",
+    "name": "Watford",
+    "city": "Watford",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 51.6489342,
+    "lng": -0.4060653
+  },
+  {
+    "id": "tm_3008",
+    "name": "Hull City",
+    "city": "Hull",
+    "country": "England",
+    "countryCode": "EN",
+    "continent": "Europe",
+    "lat": 53.7460934,
+    "lng": -0.3682974
+  },
+  {
+    "id": "tm_449",
+    "name": "Trabzonspor",
+    "city": "Trabzon",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 41.0002147,
+    "lng": 39.7776186
   },
   {
     "id": "tm_8154",
@@ -547,16 +2577,6 @@
     "lng": 0
   },
   {
-    "id": "tm_9323",
-    "name": "France U21",
-    "city": "",
-    "country": "France",
-    "countryCode": "FR",
-    "continent": "Europe",
-    "lat": 0,
-    "lng": 0
-  },
-  {
     "id": "tm_273",
     "name": "Stade Rennais",
     "city": "Rennes",
@@ -567,54 +2587,64 @@
     "lng": -1.7128875
   },
   {
-    "id": "tm_23101",
-    "name": "France U19",
-    "city": "Paris",
-    "country": "France",
-    "countryCode": "FR",
+    "id": "tm_12381",
+    "name": "1461 Trabzon",
+    "city": "Trabzon",
+    "country": "Türkiye",
+    "countryCode": "TR",
     "continent": "Europe",
-    "lat": 48.8502391,
-    "lng": 2.2959188
+    "lat": 40.994779,
+    "lng": 39.779475
   },
   {
-    "id": "tm_3377",
-    "name": "France",
-    "city": "Paris",
-    "country": "France",
-    "countryCode": "FR",
+    "id": "tm_10949",
+    "name": "Sporting B",
+    "city": "Lisboa",
+    "country": "Portugal",
+    "countryCode": "PT",
     "continent": "Europe",
-    "lat": 48.8502391,
-    "lng": 2.2959188
+    "lat": 38.7619078,
+    "lng": -9.1630336
   },
   {
-    "id": "tm_16",
-    "name": "Dortmund",
-    "city": "Dortmund",
-    "country": "Germany",
-    "countryCode": "DE",
+    "id": "tm_35119",
+    "name": "Alcanenense",
+    "city": "",
+    "country": "Portugal",
+    "countryCode": "PT",
     "continent": "Europe",
-    "lat": 51.4980718,
-    "lng": 7.4509452
+    "lat": 0,
+    "lng": 0
   },
   {
-    "id": "tm_131",
-    "name": "Barcelona",
-    "city": "Barcelona",
-    "country": "Spain",
-    "countryCode": "ES",
+    "id": "tm_6574",
+    "name": "Sassuolo",
+    "city": "Sassuolo",
+    "country": "Italy",
+    "countryCode": "IT",
     "continent": "Europe",
-    "lat": 41.3795811,
-    "lng": 2.1193902
+    "lat": 44.5404485,
+    "lng": 10.7878668
   },
   {
-    "id": "tm_583",
-    "name": "PSG",
-    "city": "Paris",
-    "country": "France",
-    "countryCode": "FR",
+    "id": "tm_800",
+    "name": "Atalanta",
+    "city": "Bergamo",
+    "country": "Italy",
+    "countryCode": "IT",
     "continent": "Europe",
-    "lat": 48.841438,
-    "lng": 2.2530801
+    "lat": 45.5713331,
+    "lng": 9.6124933
+  },
+  {
+    "id": "tm_18487",
+    "name": "Al-Ahli",
+    "city": "Jeddah",
+    "country": "Saudi Arabia",
+    "countryCode": "SA",
+    "continent": "Asia",
+    "lat": 21.581008877317,
+    "lng": 39.165360890329
   },
   {
     "id": "tm_45508",
@@ -625,16 +2655,6 @@
     "continent": "Europe",
     "lat": 0,
     "lng": 0
-  },
-  {
-    "id": "tm_162",
-    "name": "Monaco",
-    "city": "Monaco",
-    "country": "Monaco",
-    "countryCode": "XX",
-    "continent": "Europe",
-    "lat": 43.7279671,
-    "lng": 7.4149749
   },
   {
     "id": "tm_9668",
@@ -655,16 +2675,6 @@
     "continent": "Europe",
     "lat": 43.7279671,
     "lng": 7.4149749
-  },
-  {
-    "id": "tm_418",
-    "name": "Real Madrid",
-    "city": "Madrid",
-    "country": "Spain",
-    "countryCode": "ES",
-    "continent": "Europe",
-    "lat": 40.4523571,
-    "lng": -3.6867885
   },
   {
     "id": "tm_16574",
@@ -807,26 +2817,6 @@
     "lng": -1.9729
   },
   {
-    "id": "tm_762",
-    "name": "Newcastle",
-    "city": "Newcastle upon Tyne",
-    "country": "England",
-    "countryCode": "EN",
-    "continent": "Europe",
-    "lat": 54.975556,
-    "lng": -1.621667
-  },
-  {
-    "id": "tm_31",
-    "name": "Liverpool",
-    "city": "Liverpool",
-    "country": "England",
-    "countryCode": "EN",
-    "continent": "Europe",
-    "lat": 53.4308416,
-    "lng": -2.9608234
-  },
-  {
     "id": "tm_37709",
     "name": "Ireland U18",
     "city": "",
@@ -917,26 +2907,6 @@
     "lng": 0
   },
   {
-    "id": "tm_3299",
-    "name": "England",
-    "city": "London",
-    "country": "England",
-    "countryCode": "EN",
-    "continent": "Europe",
-    "lat": 51.5151487,
-    "lng": -0.1314501
-  },
-  {
-    "id": "tm_11",
-    "name": "Arsenal",
-    "city": "London",
-    "country": "England",
-    "countryCode": "EN",
-    "continent": "Europe",
-    "lat": 51.5567623,
-    "lng": -0.1063327
-  },
-  {
     "id": "tm_861",
     "name": "Peñarol",
     "city": "Montevideo",
@@ -947,8 +2917,18 @@
     "lng": -56.1823751
   },
   {
-    "id": "tm_25512",
-    "name": "Uruguay U17",
+    "id": "tm_48143",
+    "name": "Brazil U15",
+    "city": "",
+    "country": "Brazil",
+    "countryCode": "BR",
+    "continent": "South America",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_116699",
+    "name": "Uruguay U18",
     "city": "",
     "country": "Uruguay",
     "countryCode": "UY",
@@ -977,26 +2957,6 @@
     "lng": 0
   },
   {
-    "id": "tm_116699",
-    "name": "Uruguay U18",
-    "city": "",
-    "country": "Uruguay",
-    "countryCode": "UY",
-    "continent": "South America",
-    "lat": 0,
-    "lng": 0
-  },
-  {
-    "id": "tm_6767",
-    "name": "RM Castilla",
-    "city": "Madrid",
-    "country": "Spain",
-    "countryCode": "ES",
-    "continent": "Europe",
-    "lat": 40.4523571,
-    "lng": -3.6867885
-  },
-  {
     "id": "tm_41596",
     "name": "Real Madrid YL",
     "city": "",
@@ -1017,54 +2977,44 @@
     "lng": -8.40802
   },
   {
-    "id": "tm_48143",
-    "name": "Brazil U15",
-    "city": "",
-    "country": "Brazil",
-    "countryCode": "BR",
-    "continent": "South America",
-    "lat": 0,
-    "lng": 0
+    "id": "tm_44006",
+    "name": "Bodrum FK",
+    "city": "Bodrum / Muğla",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 37.032173123714,
+    "lng": 27.575044557452
   },
   {
-    "id": "tm_614",
-    "name": "Flamengo",
-    "city": "Rio de Janeiro",
-    "country": "Brazil",
-    "countryCode": "BR",
-    "continent": "South America",
-    "lat": -22.9783536,
-    "lng": -43.2202716
+    "id": "tm_20699",
+    "name": "Karacabey Bld",
+    "city": "Karacabey / Bursa",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 40.22407064847,
+    "lng": 28.366982191801
   },
   {
-    "id": "tm_23130",
-    "name": "Brazil U17",
-    "city": "",
-    "country": "Brazil",
-    "countryCode": "BR",
-    "continent": "South America",
-    "lat": 0,
-    "lng": 0
+    "id": "tm_37956",
+    "name": "24 Erzincanspor",
+    "city": "Erzincan",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 39.746797,
+    "lng": 39.491124
   },
   {
-    "id": "tm_7658",
-    "name": "Brazil U20",
-    "city": "",
-    "country": "Brazil",
-    "countryCode": "BR",
-    "continent": "South America",
-    "lat": 0,
-    "lng": 0
-  },
-  {
-    "id": "tm_3439",
-    "name": "Brazil",
-    "city": "Andar Barra da Tijuca RIO DE JANEIRO",
-    "country": "Brazil",
-    "countryCode": "BR",
-    "continent": "South America",
-    "lat": -22.9748705,
-    "lng": -43.3677578
+    "id": "tm_294",
+    "name": "Benfica",
+    "city": "Lisboa",
+    "country": "Portugal",
+    "countryCode": "PT",
+    "continent": "Europe",
+    "lat": 38.7561674,
+    "lng": -9.1822884
   },
   {
     "id": "tm_1057",
@@ -1197,28 +3147,8 @@
     "lng": 0
   },
   {
-    "id": "tm_281",
-    "name": "Man City",
-    "city": "Manchester",
-    "country": "England",
-    "countryCode": "EN",
-    "continent": "Europe",
-    "lat": 53.4831381,
-    "lng": -2.2003953
-  },
-  {
     "id": "tm_53638",
     "name": "England U15",
-    "city": "",
-    "country": "England",
-    "countryCode": "EN",
-    "continent": "Europe",
-    "lat": 0,
-    "lng": 0
-  },
-  {
-    "id": "tm_23260",
-    "name": "England U17",
     "city": "",
     "country": "England",
     "countryCode": "EN",
@@ -1247,16 +3177,6 @@
     "lng": -0.1063327
   },
   {
-    "id": "tm_21340",
-    "name": "England U19",
-    "city": "London",
-    "country": "England",
-    "countryCode": "EN",
-    "continent": "Europe",
-    "lat": 51.5151487,
-    "lng": -0.1314501
-  },
-  {
     "id": "tm_9249",
     "name": "Arsenal U21",
     "city": "London",
@@ -1269,16 +3189,6 @@
   {
     "id": "tm_31269",
     "name": "England U18",
-    "city": "",
-    "country": "England",
-    "countryCode": "EN",
-    "continent": "Europe",
-    "lat": 0,
-    "lng": 0
-  },
-  {
-    "id": "tm_9565",
-    "name": "England U21",
     "city": "",
     "country": "England",
     "countryCode": "EN",
@@ -1377,14 +3287,84 @@
     "lng": 12.339056
   },
   {
-    "id": "tm_23137",
-    "name": "Portugal U17",
+    "id": "tm_2862",
+    "name": "Feyenoord U19",
+    "city": "Rotterdam",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 51.8938598,
+    "lng": 4.523193
+  },
+  {
+    "id": "tm_51654",
+    "name": "Feyenoord U17",
     "city": "",
-    "country": "Portugal",
-    "countryCode": "PT",
+    "country": "Netherlands",
+    "countryCode": "NL",
     "continent": "Europe",
     "lat": 0,
     "lng": 0
+  },
+  {
+    "id": "tm_10933",
+    "name": "Netherlands U17",
+    "city": "",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_234",
+    "name": "Feyenoord",
+    "city": "Rotterdam",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 51.8938598,
+    "lng": 4.523193
+  },
+  {
+    "id": "tm_24366",
+    "name": "Feyenoord U21",
+    "city": "",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_62101",
+    "name": "Feyenoord YL",
+    "city": "",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_16340",
+    "name": "Netherlands U18",
+    "city": "",
+    "country": "Netherlands",
+    "countryCode": "NL",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_114",
+    "name": "Besiktas",
+    "city": "Beşiktaş / İstanbul",
+    "country": "Türkiye",
+    "countryCode": "TR",
+    "continent": "Europe",
+    "lat": 41.041634604405,
+    "lng": 28.998225666583
   },
   {
     "id": "tm_41588",
@@ -1417,26 +3397,6 @@
     "lng": -9.2689351721723
   },
   {
-    "id": "tm_720",
-    "name": "Porto",
-    "city": "Porto",
-    "country": "Portugal",
-    "countryCode": "PT",
-    "continent": "Europe",
-    "lat": 41.237556,
-    "lng": -8.355235
-  },
-  {
-    "id": "tm_16374",
-    "name": "Portugal U21",
-    "city": "",
-    "country": "Portugal",
-    "countryCode": "PT",
-    "continent": "Europe",
-    "lat": 0,
-    "lng": 0
-  },
-  {
     "id": "tm_10331",
     "name": "FC Porto B",
     "city": "Porto",
@@ -1467,14 +3427,114 @@
     "lng": -2.1318009
   },
   {
-    "id": "tm_3300",
-    "name": "Portugal",
-    "city": "Oeiras",
-    "country": "Portugal",
-    "countryCode": "PT",
+    "id": "tm_25740",
+    "name": "Georgia U19",
+    "city": "Tiflis",
+    "country": "Georgia",
+    "countryCode": "GE",
     "continent": "Europe",
-    "lat": 38.709924672047,
-    "lng": -9.2689351721723
+    "lat": 41.7102546,
+    "lng": 44.7535775
+  },
+  {
+    "id": "tm_25787",
+    "name": "Georgia U17",
+    "city": "",
+    "country": "Georgia",
+    "countryCode": "GE",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_663",
+    "name": "Dinamo Tbilisi",
+    "city": "Tbilisi",
+    "country": "Georgia",
+    "countryCode": "GE",
+    "continent": "Europe",
+    "lat": 41.7229449,
+    "lng": 44.7898526
+  },
+  {
+    "id": "tm_40458",
+    "name": "Georgia U16",
+    "city": "",
+    "country": "Georgia",
+    "countryCode": "GE",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_1799",
+    "name": "Rustavi",
+    "city": "Rustavi",
+    "country": "Georgia",
+    "countryCode": "GE",
+    "continent": "Europe",
+    "lat": 41.5192537,
+    "lng": 45.0329456
+  },
+  {
+    "id": "tm_48174",
+    "name": "Georgia U18",
+    "city": "",
+    "country": "Georgia",
+    "countryCode": "GE",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_3669",
+    "name": "Georgia",
+    "city": "Tiflis",
+    "country": "Georgia",
+    "countryCode": "GE",
+    "continent": "Europe",
+    "lat": 41.7102546,
+    "lng": 44.7535775
+  },
+  {
+    "id": "tm_932",
+    "name": "Loko Moscow",
+    "city": "Moskau",
+    "country": "Russia",
+    "countryCode": "RU",
+    "continent": "Europe",
+    "lat": 55.8035855,
+    "lng": 37.7411726
+  },
+  {
+    "id": "tm_2698",
+    "name": "Rubin Kazan",
+    "city": "Kazan",
+    "country": "Russia",
+    "countryCode": "RU",
+    "continent": "Europe",
+    "lat": 55.8540624,
+    "lng": 49.0847762
+  },
+  {
+    "id": "tm_12148",
+    "name": "Georgia U21",
+    "city": "Tiflis",
+    "country": "Georgia",
+    "countryCode": "GE",
+    "continent": "Europe",
+    "lat": 41.7102546,
+    "lng": 44.7535775
+  },
+  {
+    "id": "tm_11344",
+    "name": "Dinamo Batumi",
+    "city": "Batumi",
+    "country": "Georgia",
+    "countryCode": "GE",
+    "continent": "Europe",
+    "lat": 41.615152,
+    "lng": 41.625191
   },
   {
     "id": "tm_11994",
@@ -1507,16 +3567,6 @@
     "lng": -0.9826326
   },
   {
-    "id": "tm_873",
-    "name": "Crystal Palace",
-    "city": "London",
-    "country": "England",
-    "countryCode": "EN",
-    "continent": "Europe",
-    "lat": 51.3979743,
-    "lng": -0.0860576
-  },
-  {
     "id": "tm_6945",
     "name": "Palace U21",
     "city": "London",
@@ -1547,16 +3597,6 @@
     "lng": 0
   },
   {
-    "id": "tm_27",
-    "name": "Bayern Munich",
-    "city": "München",
-    "country": "Germany",
-    "countryCode": "DE",
-    "continent": "Europe",
-    "lat": 48.1018482,
-    "lng": 11.5727913
-  },
-  {
     "id": "tm_6930",
     "name": "Man City U18",
     "city": "Manchester",
@@ -1585,16 +3625,6 @@
     "continent": "Europe",
     "lat": 0,
     "lng": 0
-  },
-  {
-    "id": "tm_631",
-    "name": "Chelsea",
-    "city": "London",
-    "country": "England",
-    "countryCode": "EN",
-    "continent": "Europe",
-    "lat": 51.4775198,
-    "lng": -0.20159
   },
   {
     "id": "tm_6918",
@@ -1657,16 +3687,6 @@
     "lng": 11.5727913
   },
   {
-    "id": "tm_3262",
-    "name": "Germany",
-    "city": "Frankfurt (Main)",
-    "country": "Germany",
-    "countryCode": "DE",
-    "continent": "Europe",
-    "lat": 50.081287,
-    "lng": 8.654611
-  },
-  {
     "id": "tm_6938",
     "name": "Birmingham U18",
     "city": "Birmingham",
@@ -1705,26 +3725,6 @@
     "continent": "Europe",
     "lat": 50.9071024,
     "lng": 6.9070198
-  },
-  {
-    "id": "tm_15",
-    "name": "Leverkusen",
-    "city": "Leverkusen",
-    "country": "Germany",
-    "countryCode": "DE",
-    "continent": "Europe",
-    "lat": 51.0374376,
-    "lng": 6.9992234
-  },
-  {
-    "id": "tm_3817",
-    "name": "Germany U21",
-    "city": "",
-    "country": "Germany",
-    "countryCode": "DE",
-    "continent": "Europe",
-    "lat": 0,
-    "lng": 0
   },
   {
     "id": "tm_4713",
@@ -1767,56 +3767,6 @@
     "lng": -3.6341765302915
   },
   {
-    "id": "tm_3375",
-    "name": "Spain",
-    "city": "Las Rozas (Madrid)",
-    "country": "Spain",
-    "countryCode": "ES",
-    "continent": "Europe",
-    "lat": 40.5213853,
-    "lng": -3.8983077
-  },
-  {
-    "id": "tm_9567",
-    "name": "Spain U21",
-    "city": "Las Rozas (Madrid)",
-    "country": "Spain",
-    "countryCode": "ES",
-    "continent": "Europe",
-    "lat": 40.5213853,
-    "lng": -3.8983077
-  },
-  {
-    "id": "tm_53824",
-    "name": "Spain",
-    "city": "Las Rozas (Madrid)",
-    "country": "Spain",
-    "countryCode": "ES",
-    "continent": "Europe",
-    "lat": 40.5213853,
-    "lng": -3.8983077
-  },
-  {
-    "id": "tm_2464",
-    "name": "Barça Atlètic",
-    "city": "Barcelona",
-    "country": "Spain",
-    "countryCode": "ES",
-    "continent": "Europe",
-    "lat": 41.3795811,
-    "lng": 2.1193902
-  },
-  {
-    "id": "tm_30503",
-    "name": "Portugal U15",
-    "city": "",
-    "country": "Portugal",
-    "countryCode": "PT",
-    "continent": "Europe",
-    "lat": 0,
-    "lng": 0
-  },
-  {
     "id": "tm_10330",
     "name": "Benfica B",
     "city": "Lisboa",
@@ -1847,26 +3797,6 @@
     "lng": 0
   },
   {
-    "id": "tm_294",
-    "name": "Benfica",
-    "city": "Lisboa",
-    "country": "Portugal",
-    "countryCode": "PT",
-    "continent": "Europe",
-    "lat": 38.7561674,
-    "lng": -9.1822884
-  },
-  {
-    "id": "tm_12395",
-    "name": "Spain U17",
-    "city": "Las Rozas (Madrid)",
-    "country": "Spain",
-    "countryCode": "ES",
-    "continent": "Europe",
-    "lat": 40.5213853,
-    "lng": -3.8983077
-  },
-  {
     "id": "tm_472",
     "name": "UD Las Palmas",
     "city": "Las Palmas de Gran Canaria",
@@ -1875,26 +3805,6 @@
     "continent": "Europe",
     "lat": 28.125327,
     "lng": -15.4324881
-  },
-  {
-    "id": "tm_12609",
-    "name": "Spain U19",
-    "city": "Las Rozas (Madrid)",
-    "country": "Spain",
-    "countryCode": "ES",
-    "continent": "Europe",
-    "lat": 40.5213853,
-    "lng": -3.8983077
-  },
-  {
-    "id": "tm_20947",
-    "name": "Spain U18",
-    "city": "Las Rozas (Madrid)",
-    "country": "Spain",
-    "countryCode": "ES",
-    "continent": "Europe",
-    "lat": 40.5213853,
-    "lng": -3.8983077
   },
   {
     "id": "tm_35742",
@@ -2037,14 +3947,34 @@
     "lng": 0
   },
   {
-    "id": "tm_36",
-    "name": "Fenerbahçe",
-    "city": "Kadıköy / İstanbul",
-    "country": "Türkiye",
-    "countryCode": "TR",
+    "id": "tm_41101",
+    "name": "Juve Next Gen",
+    "city": "",
+    "country": "Italy",
+    "countryCode": "IT",
     "continent": "Europe",
-    "lat": 40.983855123644,
-    "lng": 29.039839804173
+    "lat": 0,
+    "lng": 0
+  },
+  {
+    "id": "tm_11008",
+    "name": "Juventus U20",
+    "city": "Torino",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 45.1128156,
+    "lng": 7.6337703
+  },
+  {
+    "id": "tm_41592",
+    "name": "Juventus YL",
+    "city": "",
+    "country": "Italy",
+    "countryCode": "IT",
+    "continent": "Europe",
+    "lat": 0,
+    "lng": 0
   },
   {
     "id": "tm_41854",
@@ -2055,36 +3985,6 @@
     "continent": "Europe",
     "lat": 40.983855123644,
     "lng": 29.039839804173
-  },
-  {
-    "id": "tm_22462",
-    "name": "Türkiye U17",
-    "city": "",
-    "country": "Türkiye",
-    "countryCode": "TR",
-    "continent": "Europe",
-    "lat": 0,
-    "lng": 0
-  },
-  {
-    "id": "tm_22584",
-    "name": "Türkiye U18",
-    "city": "",
-    "country": "Türkiye",
-    "countryCode": "TR",
-    "continent": "Europe",
-    "lat": 0,
-    "lng": 0
-  },
-  {
-    "id": "tm_3381",
-    "name": "Turkiye",
-    "city": "İstanbul",
-    "country": "Türkiye",
-    "countryCode": "TR",
-    "continent": "Europe",
-    "lat": 37.228191955454,
-    "lng": 38.562209196389
   },
   {
     "id": "tm_7874",
@@ -2107,26 +4007,6 @@
     "lng": 0
   },
   {
-    "id": "tm_33775",
-    "name": "Spain U16",
-    "city": "",
-    "country": "Spain",
-    "countryCode": "ES",
-    "continent": "Europe",
-    "lat": 0,
-    "lng": 0
-  },
-  {
-    "id": "tm_3591",
-    "name": "Ivory Coast",
-    "city": "Abidjan 01",
-    "country": "Cote d'Ivoire",
-    "countryCode": "XX",
-    "continent": "Europe",
-    "lat": 5.3599517,
-    "lng": -4.0082563
-  },
-  {
     "id": "tm_34868",
     "name": "Ivory Coast U23",
     "city": "",
@@ -2135,15 +4015,5 @@
     "continent": "Europe",
     "lat": 0,
     "lng": 0
-  },
-  {
-    "id": "tm_1244",
-    "name": "CD Leganés",
-    "city": "Leganés",
-    "country": "Spain",
-    "countryCode": "ES",
-    "continent": "Europe",
-    "lat": 40.3395999,
-    "lng": -3.7627152
   }
 ]

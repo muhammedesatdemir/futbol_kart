@@ -1,6 +1,37 @@
 slug,field,value,source_note
 # Manuel duzeltme dosyasi - pipeline bunu uygular ve seed verisini override eder.
 # format: slug, field path (nokta ile nested), value (JSON-parsable), aciklama
-# ornek:
-# messi,stats.last5LeagueGoals,5,2024-25 sezon basi guncellendi
-# ronaldo,heightCm,187,resmi kulup sayfasindan duzeltildi
+#
+# Bu duzeltmeler TM API'sinin eksik veri tuttugu (1960 oncesi) oyuncular icindir.
+# Modern oyuncular (1980 sonrasi) TM'den dogru cekiliyor; duzeltme gerekmez.
+#
+# Kaynak: FIFA + RSSSF + Santos FC resmi arsivi + bilinen Guinness kayitlari
+# Ornek format:
+#   slug,field,value,aciklama
+#   messi,stats.last5LeagueGoals,5,2024-25 guncellendi
+
+# ============================================================================
+# PELÉ — TM performance-game'de sadece milli takim + Libertadores var.
+#        Santos lig maclari (1956-1974 Brezilya Serie A) TM'de dijital degil.
+#        TM su an: 111 mac / 101 G. Gercek: ~831 mac / 757 gol.
+# ============================================================================
+pele,stats.totalApps,831,Santos 656 + NY Cosmos 64 + Brezilya milli 92 (RSSSF)
+pele,stats.totalGoals,757,Santos 643 + NY Cosmos 37 + Brezilya milli 77 (RSSSF)
+pele,stats.totalAssists,108,Toplam tahmini (RSSSF kismi kayit)
+pele,stats.maxSeasonGoals,75,1958 Santos sezonu 58 lig + 17 milli/kupa (RSSSF)
+pele,stats.careerYears,21,1956-1977 aktif kariyer
+pele,stats.nationalCaps,92,Brezilya A milli (TM ile ayni)
+pele,stats.nationalGoals,77,Brezilya A milli (TM ile ayni)
+
+# ============================================================================
+# MARADONA — TM performance-game'de Argentinos Juniors 1976-1980 donemi cok
+#            eksik (sadece 7 mac kayitli, gercek 167 mac 116 gol).
+#            TM su an: 442 mac / 200 G. Gercek: ~588 mac / 312 gol.
+# ============================================================================
+diego-maradona,stats.totalApps,588,Argentinos 167 + Boca 40 + Barca 58 + Napoli 188 + Sevilla 29 + Newell's 5 + Argentina 91 + U20 10
+diego-maradona,stats.totalGoals,312,Argentinos 116 + Boca 28 + Barca 38 + Napoli 115 + Sevilla 5 + Newell's 0 + Argentina 34 + U20 8 (RSSSF)
+diego-maradona,stats.nationalCaps,91,Argentina A milli (RSSSF)
+diego-maradona,stats.nationalGoals,34,Argentina A milli (RSSSF)
+diego-maradona,stats.careerYears,22,1976-1997 profesyonel kariyer
+diego-maradona,heightCm,165,Bilinen resmi boy (TM API'de eksik)
+diego-maradona,preferredFoot,L,Sol ayak (TM API'de eksik)

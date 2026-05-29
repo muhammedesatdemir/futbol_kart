@@ -1,0 +1,302 @@
+[
+  {
+    "id": "q01_jersey_sum",
+    "category": "numeric",
+    "title": { "tr": "Kariyer boyunca giydiği forma numaralarının toplamı fazla olan kazanır" },
+    "field": "jerseyNumbers",
+    "compute": "sum",
+    "compareOp": "max",
+    "tiebreakers": ["clubs.length:min"],
+    "requiresFields": ["jerseyNumbers"]
+  },
+  {
+    "id": "q02_total_goals",
+    "category": "numeric",
+    "title": { "tr": "Kariyer toplam gol sayısı fazla olan kazanır" },
+    "field": "stats.totalGoals",
+    "compute": "identity",
+    "compareOp": "max",
+    "tiebreakers": ["stats.totalApps:min"],
+    "requiresFields": ["stats.totalGoals"]
+  },
+  {
+    "id": "q03_max_season_goals",
+    "category": "numeric",
+    "title": { "tr": "Tek sezonda en çok gol atan kazanır" },
+    "field": "stats.maxSeasonGoals",
+    "compute": "identity",
+    "compareOp": "max",
+    "tiebreakers": ["stats.totalGoals:max"],
+    "requiresFields": ["stats.maxSeasonGoals"]
+  },
+  {
+    "id": "q04_total_apps",
+    "category": "numeric",
+    "title": { "tr": "Toplam profesyonel maç sayısı fazla olan kazanır" },
+    "field": "stats.totalApps",
+    "compute": "identity",
+    "compareOp": "max",
+    "tiebreakers": ["stats.totalGoals:max"],
+    "requiresFields": ["stats.totalApps"]
+  },
+  {
+    "id": "q05_club_count",
+    "category": "numeric",
+    "title": { "tr": "Daha fazla kulüpte oynamış olan kazanır" },
+    "field": "clubs",
+    "compute": "count",
+    "compareOp": "max",
+    "tiebreakers": ["stats.totalApps:max"],
+    "requiresFields": ["clubs"]
+  },
+  {
+    "id": "q06_height",
+    "category": "numeric",
+    "title": { "tr": "Daha uzun boylu olan kazanır" },
+    "field": "heightCm",
+    "compute": "identity",
+    "compareOp": "max",
+    "tiebreakers": [],
+    "requiresFields": ["heightCm"]
+  },
+  {
+    "id": "q07_younger",
+    "category": "numeric",
+    "title": { "tr": "Daha genç olan kazanır" },
+    "field": "birthDate",
+    "compute": "identity",
+    "compareOp": "max",
+    "tiebreakers": ["stats.totalApps:min"],
+    "requiresFields": ["birthDate"]
+  },
+  {
+    "id": "q08_national_caps",
+    "category": "numeric",
+    "title": { "tr": "Milli takım maç sayısı fazla olan kazanır" },
+    "field": "stats.nationalCaps",
+    "compute": "identity",
+    "compareOp": "max",
+    "tiebreakers": ["stats.nationalGoals:max"],
+    "requiresFields": ["stats.nationalCaps"]
+  },
+  {
+    "id": "q09_national_goals",
+    "category": "numeric",
+    "title": { "tr": "Milli takım gol sayısı fazla olan kazanır" },
+    "field": "stats.nationalGoals",
+    "compute": "identity",
+    "compareOp": "max",
+    "tiebreakers": ["stats.nationalCaps:max"],
+    "requiresFields": ["stats.nationalGoals"]
+  },
+  {
+    "id": "q10_total_assists",
+    "category": "numeric",
+    "title": { "tr": "Toplam asist sayısı fazla olan kazanır" },
+    "field": "stats.totalAssists",
+    "compute": "identity",
+    "compareOp": "max",
+    "tiebreakers": ["stats.totalGoals:max"],
+    "requiresFields": ["stats.totalAssists"]
+  },
+  {
+    "id": "q11_equator_dist",
+    "category": "geo",
+    "title": { "tr": "Doğum yeri ekvatora daha yakın olan kazanır" },
+    "field": "birthLat",
+    "compute": "custom",
+    "compareOp": "min",
+    "tiebreakers": [],
+    "requiresFields": ["birthLat"]
+  },
+  {
+    "id": "q12_istanbul_dist",
+    "category": "geo",
+    "title": { "tr": "Doğum yeri İstanbul'a daha yakın olan kazanır" },
+    "field": "birth",
+    "compute": "distance",
+    "compareOp": "min",
+    "tiebreakers": [],
+    "requiresFields": ["birthLat", "birthLng"]
+  },
+  {
+    "id": "q13_more_north",
+    "category": "geo",
+    "title": { "tr": "Daha kuzeyde doğmuş olan kazanır" },
+    "field": "birthLat",
+    "compute": "identity",
+    "compareOp": "max",
+    "tiebreakers": [],
+    "requiresFields": ["birthLat"]
+  },
+  {
+    "id": "q14_distinct_club_countries",
+    "category": "geo",
+    "title": { "tr": "Daha çok farklı ülkenin kulübünde oynamış olan kazanır" },
+    "field": "clubs",
+    "compute": "custom",
+    "compareOp": "max",
+    "tiebreakers": ["clubs.length:max"],
+    "requiresFields": ["clubs"]
+  },
+  {
+    "id": "q15_first_last_club_dist",
+    "category": "geo",
+    "title": { "tr": "İlk kulübü ile son kulübü arasındaki mesafe kısa olan kazanır" },
+    "field": "clubs",
+    "compute": "custom",
+    "compareOp": "min",
+    "tiebreakers": ["clubs.length:min"],
+    "requiresFields": ["clubs"]
+  },
+  {
+    "id": "q16_two_continents",
+    "category": "geo",
+    "title": { "tr": "Birden fazla kıtada kulüp oynamış olan kazanır" },
+    "field": "clubs",
+    "compute": "custom",
+    "compareOp": "bool",
+    "tiebreakers": ["clubs.length:max"],
+    "requiresFields": ["clubs"]
+  },
+  {
+    "id": "q17_capital_birth",
+    "category": "geo",
+    "title": { "tr": "Doğum yeri başkent olan kazanır" },
+    "field": "birthCity",
+    "compute": "custom",
+    "compareOp": "bool",
+    "tiebreakers": [],
+    "requiresFields": ["birthCity"]
+  },
+  {
+    "id": "q18_earlier_debut",
+    "category": "time",
+    "title": { "tr": "Profesyonel kariyerine daha erken başlayan kazanır" },
+    "field": "stats.proDebutYear",
+    "compute": "identity",
+    "compareOp": "min",
+    "tiebreakers": ["stats.careerYears:max"],
+    "requiresFields": ["stats.proDebutYear"]
+  },
+  {
+    "id": "q19_longest_stint",
+    "category": "time",
+    "title": { "tr": "Tek bir kulüpte en uzun süre kalan kazanır" },
+    "field": "clubs",
+    "compute": "custom",
+    "compareOp": "max",
+    "tiebreakers": ["stats.totalApps:max"],
+    "requiresFields": ["clubs"]
+  },
+  {
+    "id": "q20_decade_spread",
+    "category": "time",
+    "title": { "tr": "Kariyeri daha çok on yıla yayılmış olan kazanır" },
+    "field": "clubs",
+    "compute": "custom",
+    "compareOp": "max",
+    "tiebreakers": ["stats.careerYears:max"],
+    "requiresFields": ["clubs"]
+  },
+  {
+    "id": "q21_ucl_final",
+    "category": "time",
+    "title": { "tr": "Şampiyonlar Ligi finalinde oynamış olan kazanır" },
+    "field": "achievements.hasUCLFinal",
+    "compute": "identity",
+    "compareOp": "bool",
+    "tiebreakers": [],
+    "requiresFields": ["achievements.hasUCLFinal"]
+  },
+  {
+    "id": "q22_world_cup",
+    "category": "time",
+    "title": { "tr": "Dünya Kupası finallerinde oynamış olan kazanır" },
+    "field": "achievements.hasWorldCup",
+    "compute": "identity",
+    "compareOp": "bool",
+    "tiebreakers": ["stats.nationalCaps:max"],
+    "requiresFields": ["achievements.hasWorldCup"]
+  },
+  {
+    "id": "q23_still_active",
+    "category": "time",
+    "title": { "tr": "Hâlâ aktif futbolcu olan kazanır" },
+    "field": "isActive",
+    "compute": "identity",
+    "compareOp": "bool",
+    "tiebreakers": ["stats.careerYears:max"],
+    "requiresFields": ["isActive"]
+  },
+  {
+    "id": "q24_career_years",
+    "category": "time",
+    "title": { "tr": "Toplam kariyer yılı fazla olan kazanır" },
+    "field": "stats.careerYears",
+    "compute": "identity",
+    "compareOp": "max",
+    "tiebreakers": ["stats.totalApps:max"],
+    "requiresFields": ["stats.careerYears"]
+  },
+  {
+    "id": "q25_last5_league_goals",
+    "category": "time",
+    "title": { "tr": "Son sezonun ilk 5 lig maçında daha çok gol atan kazanır" },
+    "field": "stats.last5LeagueGoals",
+    "compute": "identity",
+    "compareOp": "max",
+    "tiebreakers": ["stats.totalGoals:max"],
+    "requiresFields": ["stats.last5LeagueGoals"]
+  },
+  {
+    "id": "q26_longer_name",
+    "category": "creative",
+    "title": { "tr": "Tam adı (harf sayısı olarak) daha uzun olan kazanır" },
+    "field": "name",
+    "compute": "custom",
+    "compareOp": "max",
+    "tiebreakers": [],
+    "requiresFields": ["name"]
+  },
+  {
+    "id": "q27_more_vowels",
+    "category": "creative",
+    "title": { "tr": "Tam adında daha çok sesli harf bulunan kazanır" },
+    "field": "name",
+    "compute": "custom",
+    "compareOp": "max",
+    "tiebreakers": [],
+    "requiresFields": ["name"]
+  },
+  {
+    "id": "q28_prime_jersey",
+    "category": "creative",
+    "title": { "tr": "Kariyerinde asal sayılı forma giymiş olan kazanır" },
+    "field": "jerseyNumbers",
+    "compute": "custom",
+    "compareOp": "bool",
+    "tiebreakers": [],
+    "requiresFields": ["jerseyNumbers"]
+  },
+  {
+    "id": "q29_max_transfer_fee",
+    "category": "creative",
+    "title": { "tr": "Rekor transfer bedeli yüksek olan kazanır" },
+    "field": "stats.maxTransferFeeEUR",
+    "compute": "identity",
+    "compareOp": "max",
+    "tiebreakers": [],
+    "requiresFields": ["stats.maxTransferFeeEUR"]
+  },
+  {
+    "id": "q30_later_birth_month",
+    "category": "creative",
+    "title": { "tr": "Doğum ayı yıl içinde daha geç olan kazanır" },
+    "field": "birthDate",
+    "compute": "custom",
+    "compareOp": "max",
+    "tiebreakers": [],
+    "requiresFields": ["birthDate"]
+  }
+]

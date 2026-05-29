@@ -1,0 +1,21 @@
+{
+  "name": "futbol-kart",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Futbolcu karti oyunu - dijital surum (MVP)",
+  "scripts": {
+    "dev": "pnpm --filter @futbol-kart/web dev",
+    "build": "pnpm --filter @futbol-kart/web build",
+    "start": "pnpm --filter @futbol-kart/web start",
+    "lint": "pnpm -r lint",
+    "typecheck": "pnpm -r typecheck",
+    "test": "pnpm -r test"
+  },
+  "packageManager": "pnpm@10.17.1",
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "sharp": "^0.34.5"
+  }
+}

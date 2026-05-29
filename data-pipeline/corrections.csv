@@ -1,0 +1,6 @@
+slug,field,value,source_note
+# Manuel duzeltme dosyasi - pipeline bunu uygular ve seed verisini override eder.
+# format: slug, field path (nokta ile nested), value (JSON-parsable), aciklama
+# ornek:
+# messi,stats.last5LeagueGoals,5,2024-25 sezon basi guncellendi
+# ronaldo,heightCm,187,resmi kulup sayfasindan duzeltildi

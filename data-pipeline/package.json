@@ -1,0 +1,21 @@
+{
+  "name": "@futbol-kart/data-pipeline",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "tsx scripts/build.ts",
+    "report": "tsx scripts/report.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@futbol-kart/shared-types": "workspace:*",
+    "@futbol-kart/question-templates": "workspace:*",
+    "zod": "^3.23.8"
+  },
+  "devDependencies": {
+    "@types/node": "^20.16.5",
+    "tsx": "^4.19.1",
+    "typescript": "^5.5.4"
+  }
+}

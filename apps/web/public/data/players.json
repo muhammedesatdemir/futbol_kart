@@ -1,0 +1,3119 @@
+[
+  {
+    "id": "p_messi",
+    "slug": "lionel-messi",
+    "name": "Lionel Andrés Messi",
+    "displayName": "Messi",
+    "birthDate": "1987-06-24",
+    "birthCity": "Rosario",
+    "birthCountry": "Arjantin",
+    "birthCountryCode": "AR",
+    "birthLat": -32.9442,
+    "birthLng": -60.6505,
+    "nationality": "Arjantin",
+    "nationalityCode": "AR",
+    "position": "FWD",
+    "preferredFoot": "L",
+    "heightCm": 170,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "newells",
+        "fromYear": 1995,
+        "toYear": 2000,
+        "apps": 0,
+        "goals": 0
+      },
+      {
+        "clubId": "barcelona",
+        "fromYear": 2004,
+        "toYear": 2021,
+        "apps": 778,
+        "goals": 672,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "psg",
+        "fromYear": 2021,
+        "toYear": 2023,
+        "apps": 75,
+        "goals": 32,
+        "jerseyNo": 30
+      },
+      {
+        "clubId": "miami",
+        "fromYear": 2023,
+        "toYear": null,
+        "apps": 60,
+        "goals": 50,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      19,
+      30
+    ],
+    "stats": {
+      "totalGoals": 850,
+      "totalAssists": 380,
+      "totalApps": 1080,
+      "nationalCaps": 191,
+      "nationalGoals": 112,
+      "maxSeasonGoals": 73,
+      "last5LeagueGoals": 4,
+      "maxTransferFeeEUR": 0,
+      "proDebutYear": 2004,
+      "careerYears": 21
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": true,
+      "hasBallonDor": true
+    }
+  },
+  {
+    "id": "p_ronaldo",
+    "slug": "cristiano-ronaldo",
+    "name": "Cristiano Ronaldo dos Santos Aveiro",
+    "displayName": "Ronaldo",
+    "birthDate": "1985-02-05",
+    "birthCity": "Funchal",
+    "birthCountry": "Portekiz",
+    "birthCountryCode": "PT",
+    "birthLat": 32.6669,
+    "birthLng": -16.9241,
+    "nationality": "Portekiz",
+    "nationalityCode": "PT",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 187,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "sporting",
+        "fromYear": 2002,
+        "toYear": 2003,
+        "apps": 31,
+        "goals": 5,
+        "jerseyNo": 28
+      },
+      {
+        "clubId": "man-united",
+        "fromYear": 2003,
+        "toYear": 2009,
+        "apps": 292,
+        "goals": 118,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "real-madrid",
+        "fromYear": 2009,
+        "toYear": 2018,
+        "apps": 438,
+        "goals": 450,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "juventus",
+        "fromYear": 2018,
+        "toYear": 2021,
+        "apps": 134,
+        "goals": 101,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "man-united",
+        "fromYear": 2021,
+        "toYear": 2022,
+        "apps": 54,
+        "goals": 27,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "al-nassr",
+        "fromYear": 2023,
+        "toYear": null,
+        "apps": 90,
+        "goals": 78,
+        "jerseyNo": 7
+      }
+    ],
+    "jerseyNumbers": [
+      7,
+      9,
+      17,
+      28
+    ],
+    "stats": {
+      "totalGoals": 920,
+      "totalAssists": 240,
+      "totalApps": 1250,
+      "nationalCaps": 219,
+      "nationalGoals": 138,
+      "maxSeasonGoals": 61,
+      "last5LeagueGoals": 6,
+      "maxTransferFeeEUR": 100000000,
+      "proDebutYear": 2002,
+      "careerYears": 22
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": true,
+      "hasBallonDor": true
+    }
+  },
+  {
+    "id": "p_ronaldinho",
+    "slug": "ronaldinho",
+    "name": "Ronaldo de Assis Moreira",
+    "displayName": "Ronaldinho",
+    "birthDate": "1980-03-21",
+    "birthCity": "Porto Alegre",
+    "birthCountry": "Brezilya",
+    "birthCountryCode": "BR",
+    "birthLat": -30.0346,
+    "birthLng": -51.2177,
+    "nationality": "Brezilya",
+    "nationalityCode": "BR",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 181,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "gremio",
+        "fromYear": 1998,
+        "toYear": 2001,
+        "apps": 89,
+        "goals": 35,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "psg",
+        "fromYear": 2001,
+        "toYear": 2003,
+        "apps": 77,
+        "goals": 25,
+        "jerseyNo": 21
+      },
+      {
+        "clubId": "barcelona",
+        "fromYear": 2003,
+        "toYear": 2008,
+        "apps": 207,
+        "goals": 94,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "milan",
+        "fromYear": 2008,
+        "toYear": 2011,
+        "apps": 95,
+        "goals": 26,
+        "jerseyNo": 80
+      },
+      {
+        "clubId": "flamengo",
+        "fromYear": 2011,
+        "toYear": 2012,
+        "apps": 33,
+        "goals": 15,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      21,
+      80,
+      11
+    ],
+    "stats": {
+      "totalGoals": 245,
+      "totalAssists": 160,
+      "totalApps": 614,
+      "nationalCaps": 97,
+      "nationalGoals": 33,
+      "maxSeasonGoals": 26,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 32000000,
+      "proDebutYear": 1998,
+      "careerYears": 17
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": true,
+      "hasUCLTitle": true,
+      "hasBallonDor": true
+    }
+  },
+  {
+    "id": "p_etoo",
+    "slug": "samuel-etoo",
+    "name": "Samuel Eto'o Fils",
+    "displayName": "Eto'o",
+    "birthDate": "1981-03-10",
+    "birthCity": "Nkon",
+    "birthCountry": "Kamerun",
+    "birthCountryCode": "CM",
+    "birthLat": 3.848,
+    "birthLng": 11.5021,
+    "nationality": "Kamerun",
+    "nationalityCode": "CM",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 180,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "real-madrid",
+        "fromYear": 1997,
+        "toYear": 2000,
+        "apps": 3,
+        "goals": 0,
+        "jerseyNo": 24
+      },
+      {
+        "clubId": "mallorca",
+        "fromYear": 2000,
+        "toYear": 2004,
+        "apps": 133,
+        "goals": 54,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "barcelona",
+        "fromYear": 2004,
+        "toYear": 2009,
+        "apps": 199,
+        "goals": 130,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "inter",
+        "fromYear": 2009,
+        "toYear": 2011,
+        "apps": 102,
+        "goals": 53,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "anzhi",
+        "fromYear": 2011,
+        "toYear": 2013,
+        "apps": 71,
+        "goals": 36,
+        "jerseyNo": 99
+      }
+    ],
+    "jerseyNumbers": [
+      9,
+      99,
+      25,
+      24
+    ],
+    "stats": {
+      "totalGoals": 358,
+      "totalAssists": 88,
+      "totalApps": 728,
+      "nationalCaps": 118,
+      "nationalGoals": 56,
+      "maxSeasonGoals": 36,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 30000000,
+      "proDebutYear": 1997,
+      "careerYears": 22
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_iniesta",
+    "slug": "andres-iniesta",
+    "name": "Andrés Iniesta Luján",
+    "displayName": "Iniesta",
+    "birthDate": "1984-05-11",
+    "birthCity": "Fuentealbilla",
+    "birthCountry": "İspanya",
+    "birthCountryCode": "ES",
+    "birthLat": 39.2167,
+    "birthLng": -1.5167,
+    "nationality": "İspanya",
+    "nationalityCode": "ES",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 171,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "barcelona",
+        "fromYear": 2002,
+        "toYear": 2018,
+        "apps": 442,
+        "goals": 35,
+        "jerseyNo": 8
+      },
+      {
+        "clubId": "vissel-kobe",
+        "fromYear": 2018,
+        "toYear": 2023,
+        "apps": 119,
+        "goals": 17,
+        "jerseyNo": 8
+      }
+    ],
+    "jerseyNumbers": [
+      8,
+      24,
+      34
+    ],
+    "stats": {
+      "totalGoals": 73,
+      "totalAssists": 140,
+      "totalApps": 760,
+      "nationalCaps": 131,
+      "nationalGoals": 14,
+      "maxSeasonGoals": 10,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 0,
+      "proDebutYear": 2002,
+      "careerYears": 22
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_kvaratskhelia",
+    "slug": "khvicha-kvaratskhelia",
+    "name": "Khvicha Kvaratskhelia",
+    "displayName": "Kvaratskhelia",
+    "birthDate": "2001-02-12",
+    "birthCity": "Tbilisi",
+    "birthCountry": "Gürcistan",
+    "birthCountryCode": "GE",
+    "birthLat": 41.7151,
+    "birthLng": 44.8271,
+    "nationality": "Gürcistan",
+    "nationalityCode": "GE",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 183,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "napoli",
+        "fromYear": 2022,
+        "toYear": null,
+        "apps": 95,
+        "goals": 30,
+        "jerseyNo": 77
+      }
+    ],
+    "jerseyNumbers": [
+      77,
+      7,
+      11
+    ],
+    "stats": {
+      "totalGoals": 65,
+      "totalAssists": 35,
+      "totalApps": 180,
+      "nationalCaps": 35,
+      "nationalGoals": 13,
+      "maxSeasonGoals": 14,
+      "last5LeagueGoals": 3,
+      "maxTransferFeeEUR": 75000000,
+      "proDebutYear": 2018,
+      "careerYears": 7
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_mbappe",
+    "slug": "kylian-mbappe",
+    "name": "Kylian Mbappé Lottin",
+    "displayName": "Mbappé",
+    "birthDate": "1998-12-20",
+    "birthCity": "Paris",
+    "birthCountry": "Fransa",
+    "birthCountryCode": "FR",
+    "birthLat": 48.8566,
+    "birthLng": 2.3522,
+    "nationality": "Fransa",
+    "nationalityCode": "FR",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 178,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "monaco",
+        "fromYear": 2015,
+        "toYear": 2018,
+        "apps": 60,
+        "goals": 27,
+        "jerseyNo": 29
+      },
+      {
+        "clubId": "psg",
+        "fromYear": 2017,
+        "toYear": 2024,
+        "apps": 308,
+        "goals": 256,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "real-madrid",
+        "fromYear": 2024,
+        "toYear": null,
+        "apps": 40,
+        "goals": 30,
+        "jerseyNo": 9
+      }
+    ],
+    "jerseyNumbers": [
+      7,
+      9,
+      10,
+      29
+    ],
+    "stats": {
+      "totalGoals": 320,
+      "totalAssists": 130,
+      "totalApps": 450,
+      "nationalCaps": 86,
+      "nationalGoals": 51,
+      "maxSeasonGoals": 44,
+      "last5LeagueGoals": 5,
+      "maxTransferFeeEUR": 180000000,
+      "proDebutYear": 2015,
+      "careerYears": 10
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": false
+    }
+  },
+  {
+    "id": "p_haaland",
+    "slug": "erling-haaland",
+    "name": "Erling Braut Haaland",
+    "displayName": "Haaland",
+    "birthDate": "2000-07-21",
+    "birthCity": "Leeds",
+    "birthCountry": "İngiltere",
+    "birthCountryCode": "EN",
+    "birthLat": 53.8008,
+    "birthLng": -1.5491,
+    "nationality": "Norveç",
+    "nationalityCode": "NO",
+    "position": "FWD",
+    "preferredFoot": "L",
+    "heightCm": 195,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "dortmund",
+        "fromYear": 2020,
+        "toYear": 2022,
+        "apps": 89,
+        "goals": 86,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "man-city",
+        "fromYear": 2022,
+        "toYear": null,
+        "apps": 100,
+        "goals": 95,
+        "jerseyNo": 9
+      }
+    ],
+    "jerseyNumbers": [
+      9,
+      23,
+      11
+    ],
+    "stats": {
+      "totalGoals": 230,
+      "totalAssists": 40,
+      "totalApps": 290,
+      "nationalCaps": 38,
+      "nationalGoals": 35,
+      "maxSeasonGoals": 52,
+      "last5LeagueGoals": 7,
+      "maxTransferFeeEUR": 60000000,
+      "proDebutYear": 2016,
+      "careerYears": 9
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": false,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_modric",
+    "slug": "luka-modric",
+    "name": "Luka Modric",
+    "displayName": "Modric",
+    "birthDate": "1985-09-09",
+    "birthCity": "Zadar",
+    "birthCountry": "Hırvatistan",
+    "birthCountryCode": "HR",
+    "birthLat": 44.1194,
+    "birthLng": 15.2314,
+    "nationality": "Hırvatistan",
+    "nationalityCode": "HR",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 172,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tottenham",
+        "fromYear": 2008,
+        "toYear": 2012,
+        "apps": 159,
+        "goals": 17,
+        "jerseyNo": 14
+      },
+      {
+        "clubId": "real-madrid",
+        "fromYear": 2012,
+        "toYear": null,
+        "apps": 480,
+        "goals": 38,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      14,
+      19
+    ],
+    "stats": {
+      "totalGoals": 130,
+      "totalAssists": 165,
+      "totalApps": 870,
+      "nationalCaps": 180,
+      "nationalGoals": 27,
+      "maxSeasonGoals": 8,
+      "last5LeagueGoals": 1,
+      "maxTransferFeeEUR": 35000000,
+      "proDebutYear": 2003,
+      "careerYears": 22
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": true,
+      "hasBallonDor": true
+    }
+  },
+  {
+    "id": "p_benzema",
+    "slug": "karim-benzema",
+    "name": "Karim Mostafa Benzema",
+    "displayName": "Benzema",
+    "birthDate": "1987-12-19",
+    "birthCity": "Lyon",
+    "birthCountry": "Fransa",
+    "birthCountryCode": "FR",
+    "birthLat": 45.764,
+    "birthLng": 4.8357,
+    "nationality": "Fransa",
+    "nationalityCode": "FR",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 185,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "lyon",
+        "fromYear": 2005,
+        "toYear": 2009,
+        "apps": 148,
+        "goals": 66,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "real-madrid",
+        "fromYear": 2009,
+        "toYear": 2023,
+        "apps": 648,
+        "goals": 354,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "al-hilal",
+        "fromYear": 2023,
+        "toYear": null,
+        "apps": 40,
+        "goals": 20,
+        "jerseyNo": 9
+      }
+    ],
+    "jerseyNumbers": [
+      9,
+      10,
+      19
+    ],
+    "stats": {
+      "totalGoals": 460,
+      "totalAssists": 180,
+      "totalApps": 920,
+      "nationalCaps": 97,
+      "nationalGoals": 37,
+      "maxSeasonGoals": 44,
+      "last5LeagueGoals": 2,
+      "maxTransferFeeEUR": 35000000,
+      "proDebutYear": 2004,
+      "careerYears": 21
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": false,
+      "hasUCLTitle": true,
+      "hasBallonDor": true
+    }
+  },
+  {
+    "id": "p_lewandowski",
+    "slug": "robert-lewandowski",
+    "name": "Robert Lewandowski",
+    "displayName": "Lewandowski",
+    "birthDate": "1988-08-21",
+    "birthCity": "Warsaw",
+    "birthCountry": "Polonya",
+    "birthCountryCode": "PL",
+    "birthLat": 52.2297,
+    "birthLng": 21.0122,
+    "nationality": "Polonya",
+    "nationalityCode": "PL",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 185,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "dortmund",
+        "fromYear": 2010,
+        "toYear": 2014,
+        "apps": 187,
+        "goals": 103,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "bayern",
+        "fromYear": 2014,
+        "toYear": 2022,
+        "apps": 375,
+        "goals": 344,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "barcelona",
+        "fromYear": 2022,
+        "toYear": null,
+        "apps": 100,
+        "goals": 70,
+        "jerseyNo": 9
+      }
+    ],
+    "jerseyNumbers": [
+      9,
+      14,
+      23
+    ],
+    "stats": {
+      "totalGoals": 650,
+      "totalAssists": 160,
+      "totalApps": 900,
+      "nationalCaps": 156,
+      "nationalGoals": 85,
+      "maxSeasonGoals": 55,
+      "last5LeagueGoals": 3,
+      "maxTransferFeeEUR": 45000000,
+      "proDebutYear": 2006,
+      "careerYears": 19
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": false,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_neymar",
+    "slug": "neymar-jr",
+    "name": "Neymar da Silva Santos Junior",
+    "displayName": "Neymar",
+    "birthDate": "1992-02-05",
+    "birthCity": "Mogi das Cruzes",
+    "birthCountry": "Brezilya",
+    "birthCountryCode": "BR",
+    "birthLat": -23.5226,
+    "birthLng": -46.1881,
+    "nationality": "Brezilya",
+    "nationalityCode": "BR",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 175,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "santos",
+        "fromYear": 2009,
+        "toYear": 2013,
+        "apps": 225,
+        "goals": 136,
+        "jerseyNo": 11
+      },
+      {
+        "clubId": "barcelona",
+        "fromYear": 2013,
+        "toYear": 2017,
+        "apps": 186,
+        "goals": 105,
+        "jerseyNo": 11
+      },
+      {
+        "clubId": "psg",
+        "fromYear": 2017,
+        "toYear": 2023,
+        "apps": 173,
+        "goals": 118,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "al-hilal",
+        "fromYear": 2023,
+        "toYear": null,
+        "apps": 10,
+        "goals": 3,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      11,
+      7
+    ],
+    "stats": {
+      "totalGoals": 470,
+      "totalAssists": 250,
+      "totalApps": 720,
+      "nationalCaps": 128,
+      "nationalGoals": 79,
+      "maxSeasonGoals": 39,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 222000000,
+      "proDebutYear": 2009,
+      "careerYears": 16
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": false,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_salah",
+    "slug": "mohamed-salah",
+    "name": "Mohamed Salah Hamed Mahrous Ghaly",
+    "displayName": "Salah",
+    "birthDate": "1992-06-15",
+    "birthCity": "Başyun",
+    "birthCountry": "Mısır",
+    "birthCountryCode": "EG",
+    "birthLat": 30.9395,
+    "birthLng": 30.8175,
+    "nationality": "Mısır",
+    "nationalityCode": "EG",
+    "position": "FWD",
+    "preferredFoot": "L",
+    "heightCm": 175,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "chelsea",
+        "fromYear": 2014,
+        "toYear": 2016,
+        "apps": 19,
+        "goals": 2,
+        "jerseyNo": 15
+      },
+      {
+        "clubId": "roma",
+        "fromYear": 2015,
+        "toYear": 2017,
+        "apps": 83,
+        "goals": 34,
+        "jerseyNo": 11
+      },
+      {
+        "clubId": "liverpool",
+        "fromYear": 2017,
+        "toYear": null,
+        "apps": 350,
+        "goals": 220,
+        "jerseyNo": 11
+      }
+    ],
+    "jerseyNumbers": [
+      11,
+      15,
+      22
+    ],
+    "stats": {
+      "totalGoals": 320,
+      "totalAssists": 130,
+      "totalApps": 600,
+      "nationalCaps": 100,
+      "nationalGoals": 55,
+      "maxSeasonGoals": 44,
+      "last5LeagueGoals": 4,
+      "maxTransferFeeEUR": 42000000,
+      "proDebutYear": 2010,
+      "careerYears": 15
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": false,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_debruyne",
+    "slug": "kevin-de-bruyne",
+    "name": "Kevin De Bruyne",
+    "displayName": "De Bruyne",
+    "birthDate": "1991-06-28",
+    "birthCity": "Drongen",
+    "birthCountry": "Belçika",
+    "birthCountryCode": "BE",
+    "birthLat": 51.0667,
+    "birthLng": 3.65,
+    "nationality": "Belçika",
+    "nationalityCode": "BE",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 181,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "chelsea",
+        "fromYear": 2012,
+        "toYear": 2014,
+        "apps": 9,
+        "goals": 0,
+        "jerseyNo": 15
+      },
+      {
+        "clubId": "leverkusen",
+        "fromYear": 2014,
+        "toYear": 2015,
+        "apps": 28,
+        "goals": 10,
+        "jerseyNo": 6
+      },
+      {
+        "clubId": "man-city",
+        "fromYear": 2015,
+        "toYear": null,
+        "apps": 380,
+        "goals": 100,
+        "jerseyNo": 17
+      }
+    ],
+    "jerseyNumbers": [
+      17,
+      6,
+      15
+    ],
+    "stats": {
+      "totalGoals": 150,
+      "totalAssists": 250,
+      "totalApps": 700,
+      "nationalCaps": 108,
+      "nationalGoals": 30,
+      "maxSeasonGoals": 19,
+      "last5LeagueGoals": 1,
+      "maxTransferFeeEUR": 76000000,
+      "proDebutYear": 2008,
+      "careerYears": 17
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": false,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_kane",
+    "slug": "harry-kane",
+    "name": "Harry Edward Kane",
+    "displayName": "Kane",
+    "birthDate": "1993-07-28",
+    "birthCity": "Londra",
+    "birthCountry": "İngiltere",
+    "birthCountryCode": "EN",
+    "birthLat": 51.5074,
+    "birthLng": -0.1278,
+    "nationality": "Ingiltere",
+    "nationalityCode": "EN",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 188,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tottenham",
+        "fromYear": 2011,
+        "toYear": 2023,
+        "apps": 435,
+        "goals": 280,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "bayern",
+        "fromYear": 2023,
+        "toYear": null,
+        "apps": 70,
+        "goals": 60,
+        "jerseyNo": 9
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      9,
+      18
+    ],
+    "stats": {
+      "totalGoals": 360,
+      "totalAssists": 105,
+      "totalApps": 580,
+      "nationalCaps": 100,
+      "nationalGoals": 70,
+      "maxSeasonGoals": 41,
+      "last5LeagueGoals": 5,
+      "maxTransferFeeEUR": 100000000,
+      "proDebutYear": 2009,
+      "careerYears": 16
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_vinicius",
+    "slug": "vinicius-junior",
+    "name": "Vinicius Jose Paixao de Oliveira Junior",
+    "displayName": "Vinicius Jr",
+    "birthDate": "2000-07-12",
+    "birthCity": "Sao Goncalo",
+    "birthCountry": "Brezilya",
+    "birthCountryCode": "BR",
+    "birthLat": -22.8267,
+    "birthLng": -43.0537,
+    "nationality": "Brezilya",
+    "nationalityCode": "BR",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 176,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "flamengo",
+        "fromYear": 2017,
+        "toYear": 2018,
+        "apps": 38,
+        "goals": 7,
+        "jerseyNo": 11
+      },
+      {
+        "clubId": "real-madrid",
+        "fromYear": 2018,
+        "toYear": null,
+        "apps": 270,
+        "goals": 95,
+        "jerseyNo": 7
+      }
+    ],
+    "jerseyNumbers": [
+      7,
+      11,
+      20
+    ],
+    "stats": {
+      "totalGoals": 110,
+      "totalAssists": 80,
+      "totalApps": 310,
+      "nationalCaps": 35,
+      "nationalGoals": 5,
+      "maxSeasonGoals": 24,
+      "last5LeagueGoals": 3,
+      "maxTransferFeeEUR": 45000000,
+      "proDebutYear": 2017,
+      "careerYears": 8
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": false,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_zidane",
+    "slug": "zinedine-zidane",
+    "name": "Zinedine Yazid Zidane",
+    "displayName": "Zidane",
+    "birthDate": "1972-06-23",
+    "birthCity": "Marsilya",
+    "birthCountry": "Fransa",
+    "birthCountryCode": "FR",
+    "birthLat": 43.2965,
+    "birthLng": 5.3698,
+    "nationality": "Fransa",
+    "nationalityCode": "FR",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 185,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "juventus",
+        "fromYear": 1996,
+        "toYear": 2001,
+        "apps": 151,
+        "goals": 24,
+        "jerseyNo": 21
+      },
+      {
+        "clubId": "real-madrid",
+        "fromYear": 2001,
+        "toYear": 2006,
+        "apps": 155,
+        "goals": 37,
+        "jerseyNo": 5
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      5,
+      21
+    ],
+    "stats": {
+      "totalGoals": 125,
+      "totalAssists": 120,
+      "totalApps": 506,
+      "nationalCaps": 108,
+      "nationalGoals": 31,
+      "maxSeasonGoals": 9,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 77500000,
+      "proDebutYear": 1989,
+      "careerYears": 17
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": true,
+      "hasBallonDor": true
+    }
+  },
+  {
+    "id": "p_maradona",
+    "slug": "diego-maradona",
+    "name": "Diego Armando Maradona",
+    "displayName": "Maradona",
+    "birthDate": "1960-10-30",
+    "birthCity": "Lanus",
+    "birthCountry": "Arjantin",
+    "birthCountryCode": "AR",
+    "birthLat": -34.7042,
+    "birthLng": -58.3922,
+    "nationality": "Arjantin",
+    "nationalityCode": "AR",
+    "position": "MID",
+    "preferredFoot": "L",
+    "heightCm": 165,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "boca",
+        "fromYear": 1981,
+        "toYear": 1982,
+        "apps": 40,
+        "goals": 28,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "barcelona",
+        "fromYear": 1982,
+        "toYear": 1984,
+        "apps": 58,
+        "goals": 38,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "napoli",
+        "fromYear": 1984,
+        "toYear": 1991,
+        "apps": 259,
+        "goals": 115,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      10
+    ],
+    "stats": {
+      "totalGoals": 312,
+      "totalAssists": 130,
+      "totalApps": 491,
+      "nationalCaps": 91,
+      "nationalGoals": 34,
+      "maxSeasonGoals": 19,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 7600000,
+      "proDebutYear": 1976,
+      "careerYears": 21
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": true
+    }
+  },
+  {
+    "id": "p_pele",
+    "slug": "pele",
+    "name": "Edson Arantes do Nascimento",
+    "displayName": "Pelé",
+    "birthDate": "1940-10-23",
+    "birthCity": "Tres Coracoes",
+    "birthCountry": "Brezilya",
+    "birthCountryCode": "BR",
+    "birthLat": -21.6997,
+    "birthLng": -45.2522,
+    "nationality": "Brezilya",
+    "nationalityCode": "BR",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 173,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "santos",
+        "fromYear": 1956,
+        "toYear": 1974,
+        "apps": 656,
+        "goals": 643,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      10
+    ],
+    "stats": {
+      "totalGoals": 757,
+      "totalAssists": 200,
+      "totalApps": 831,
+      "nationalCaps": 92,
+      "nationalGoals": 77,
+      "maxSeasonGoals": 75,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 0,
+      "proDebutYear": 1956,
+      "careerYears": 21
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": true
+    }
+  },
+  {
+    "id": "p_xavi",
+    "slug": "xavi-hernandez",
+    "name": "Xavier Hernández Creus",
+    "displayName": "Xavi",
+    "birthDate": "1980-01-25",
+    "birthCity": "Terrassa",
+    "birthCountry": "İspanya",
+    "birthCountryCode": "ES",
+    "birthLat": 41.5667,
+    "birthLng": 2.0167,
+    "nationality": "İspanya",
+    "nationalityCode": "ES",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 170,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "barcelona",
+        "fromYear": 1998,
+        "toYear": 2015,
+        "apps": 505,
+        "goals": 58,
+        "jerseyNo": 6
+      },
+      {
+        "clubId": "al-nassr",
+        "fromYear": 2015,
+        "toYear": 2019,
+        "apps": 110,
+        "goals": 10,
+        "jerseyNo": 6
+      }
+    ],
+    "jerseyNumbers": [
+      6,
+      8
+    ],
+    "stats": {
+      "totalGoals": 85,
+      "totalAssists": 195,
+      "totalApps": 770,
+      "nationalCaps": 133,
+      "nationalGoals": 13,
+      "maxSeasonGoals": 6,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 0,
+      "proDebutYear": 1998,
+      "careerYears": 21
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_buffon",
+    "slug": "gianluigi-buffon",
+    "name": "Gianluigi Buffon",
+    "displayName": "Buffon",
+    "birthDate": "1978-01-28",
+    "birthCity": "Carrara",
+    "birthCountry": "İtalya",
+    "birthCountryCode": "IT",
+    "birthLat": 44.0793,
+    "birthLng": 10.0975,
+    "nationality": "Italya",
+    "nationalityCode": "IT",
+    "position": "GK",
+    "preferredFoot": "R",
+    "heightCm": 192,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "juventus",
+        "fromYear": 2001,
+        "toYear": 2018,
+        "apps": 656,
+        "goals": 0,
+        "jerseyNo": 1
+      },
+      {
+        "clubId": "psg",
+        "fromYear": 2018,
+        "toYear": 2019,
+        "apps": 25,
+        "goals": 0,
+        "jerseyNo": 1
+      },
+      {
+        "clubId": "juventus",
+        "fromYear": 2019,
+        "toYear": 2021,
+        "apps": 41,
+        "goals": 0,
+        "jerseyNo": 77
+      }
+    ],
+    "jerseyNumbers": [
+      1,
+      77,
+      88
+    ],
+    "stats": {
+      "totalGoals": 0,
+      "totalAssists": 1,
+      "totalApps": 1100,
+      "nationalCaps": 176,
+      "nationalGoals": 0,
+      "maxSeasonGoals": 0,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 53000000,
+      "proDebutYear": 1995,
+      "careerYears": 28
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": false
+    }
+  },
+  {
+    "id": "p_casillas",
+    "slug": "iker-casillas",
+    "name": "Iker Casillas Fernández",
+    "displayName": "Casillas",
+    "birthDate": "1981-05-20",
+    "birthCity": "Móstoles",
+    "birthCountry": "İspanya",
+    "birthCountryCode": "ES",
+    "birthLat": 40.3214,
+    "birthLng": -3.8649,
+    "nationality": "İspanya",
+    "nationalityCode": "ES",
+    "position": "GK",
+    "preferredFoot": "R",
+    "heightCm": 185,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "real-madrid",
+        "fromYear": 1999,
+        "toYear": 2015,
+        "apps": 510,
+        "goals": 0,
+        "jerseyNo": 1
+      },
+      {
+        "clubId": "porto",
+        "fromYear": 2015,
+        "toYear": 2020,
+        "apps": 156,
+        "goals": 0,
+        "jerseyNo": 1
+      }
+    ],
+    "jerseyNumbers": [
+      1
+    ],
+    "stats": {
+      "totalGoals": 0,
+      "totalAssists": 1,
+      "totalApps": 780,
+      "nationalCaps": 167,
+      "nationalGoals": 0,
+      "maxSeasonGoals": 0,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 0,
+      "proDebutYear": 1999,
+      "careerYears": 21
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_pirlo",
+    "slug": "andrea-pirlo",
+    "name": "Andrea Pirlo",
+    "displayName": "Pirlo",
+    "birthDate": "1979-05-19",
+    "birthCity": "Flero",
+    "birthCountry": "İtalya",
+    "birthCountryCode": "IT",
+    "birthLat": 45.4881,
+    "birthLng": 10.2017,
+    "nationality": "Italya",
+    "nationalityCode": "IT",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 177,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "inter",
+        "fromYear": 1998,
+        "toYear": 2001,
+        "apps": 22,
+        "goals": 0,
+        "jerseyNo": 21
+      },
+      {
+        "clubId": "milan",
+        "fromYear": 2001,
+        "toYear": 2011,
+        "apps": 284,
+        "goals": 32,
+        "jerseyNo": 21
+      },
+      {
+        "clubId": "juventus",
+        "fromYear": 2011,
+        "toYear": 2015,
+        "apps": 119,
+        "goals": 16,
+        "jerseyNo": 21
+      }
+    ],
+    "jerseyNumbers": [
+      21
+    ],
+    "stats": {
+      "totalGoals": 73,
+      "totalAssists": 110,
+      "totalApps": 540,
+      "nationalCaps": 116,
+      "nationalGoals": 13,
+      "maxSeasonGoals": 7,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 18000000,
+      "proDebutYear": 1995,
+      "careerYears": 22
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_drogba",
+    "slug": "didier-drogba",
+    "name": "Didier Yves Drogba Tébily",
+    "displayName": "Drogba",
+    "birthDate": "1978-03-11",
+    "birthCity": "Abidjan",
+    "birthCountry": "Fildişi Sahili",
+    "birthCountryCode": "CI",
+    "birthLat": 5.36,
+    "birthLng": -4.0083,
+    "nationality": "Fildişi Sahili",
+    "nationalityCode": "CI",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 189,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "marseille",
+        "fromYear": 2003,
+        "toYear": 2004,
+        "apps": 35,
+        "goals": 18,
+        "jerseyNo": 11
+      },
+      {
+        "clubId": "chelsea",
+        "fromYear": 2004,
+        "toYear": 2012,
+        "apps": 226,
+        "goals": 100,
+        "jerseyNo": 11
+      },
+      {
+        "clubId": "galatasaray",
+        "fromYear": 2013,
+        "toYear": 2014,
+        "apps": 37,
+        "goals": 15,
+        "jerseyNo": 11
+      },
+      {
+        "clubId": "chelsea",
+        "fromYear": 2014,
+        "toYear": 2015,
+        "apps": 28,
+        "goals": 7,
+        "jerseyNo": 15
+      }
+    ],
+    "jerseyNumbers": [
+      11,
+      15
+    ],
+    "stats": {
+      "totalGoals": 350,
+      "totalAssists": 120,
+      "totalApps": 670,
+      "nationalCaps": 105,
+      "nationalGoals": 65,
+      "maxSeasonGoals": 37,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 38000000,
+      "proDebutYear": 1998,
+      "careerYears": 20
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": false,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_arda",
+    "slug": "arda-turan",
+    "name": "Arda Turan",
+    "displayName": "Arda Turan",
+    "birthDate": "1987-01-30",
+    "birthCity": "İstanbul",
+    "birthCountry": "Türkiye",
+    "birthCountryCode": "TR",
+    "birthLat": 41.0082,
+    "birthLng": 28.9784,
+    "nationality": "Türkiye",
+    "nationalityCode": "TR",
+    "position": "MID",
+    "preferredFoot": "L",
+    "heightCm": 177,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "galatasaray",
+        "fromYear": 2006,
+        "toYear": 2011,
+        "apps": 145,
+        "goals": 25,
+        "jerseyNo": 66
+      },
+      {
+        "clubId": "atletico",
+        "fromYear": 2011,
+        "toYear": 2015,
+        "apps": 178,
+        "goals": 22,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "barcelona",
+        "fromYear": 2015,
+        "toYear": 2018,
+        "apps": 55,
+        "goals": 15,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "basaksehir",
+        "fromYear": 2018,
+        "toYear": 2020,
+        "apps": 32,
+        "goals": 4,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "galatasaray",
+        "fromYear": 2020,
+        "toYear": 2022,
+        "apps": 38,
+        "goals": 4,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      66,
+      7
+    ],
+    "stats": {
+      "totalGoals": 95,
+      "totalAssists": 120,
+      "totalApps": 540,
+      "nationalCaps": 100,
+      "nationalGoals": 17,
+      "maxSeasonGoals": 8,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 34000000,
+      "proDebutYear": 2005,
+      "careerYears": 17
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false,
+      "hasUCLTitle": false
+    }
+  },
+  {
+    "id": "p_emre-belozoglu",
+    "slug": "emre-belozoglu",
+    "name": "Emre Belözoğlu",
+    "displayName": "Emre Belözoğlu",
+    "birthDate": "1980-09-07",
+    "birthCity": "İstanbul",
+    "birthCountry": "Türkiye",
+    "birthCountryCode": "TR",
+    "birthLat": 41.0082,
+    "birthLng": 28.9784,
+    "nationality": "Türkiye",
+    "nationalityCode": "TR",
+    "position": "MID",
+    "preferredFoot": "L",
+    "heightCm": 170,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "galatasaray",
+        "fromYear": 1996,
+        "toYear": 2001,
+        "apps": 95,
+        "goals": 5,
+        "jerseyNo": 8
+      },
+      {
+        "clubId": "inter",
+        "fromYear": 2001,
+        "toYear": 2005,
+        "apps": 65,
+        "goals": 4,
+        "jerseyNo": 8
+      },
+      {
+        "clubId": "fenerbahce",
+        "fromYear": 2008,
+        "toYear": 2013,
+        "apps": 121,
+        "goals": 12,
+        "jerseyNo": 5
+      },
+      {
+        "clubId": "atletico",
+        "fromYear": 2005,
+        "toYear": 2008,
+        "apps": 75,
+        "goals": 5,
+        "jerseyNo": 6
+      },
+      {
+        "clubId": "basaksehir",
+        "fromYear": 2017,
+        "toYear": 2019,
+        "apps": 56,
+        "goals": 5,
+        "jerseyNo": 8
+      }
+    ],
+    "jerseyNumbers": [
+      8,
+      5,
+      6
+    ],
+    "stats": {
+      "totalGoals": 50,
+      "totalAssists": 85,
+      "totalApps": 580,
+      "nationalCaps": 101,
+      "nationalGoals": 9,
+      "maxSeasonGoals": 4,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 10000000,
+      "proDebutYear": 1996,
+      "careerYears": 23
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": true,
+      "hasUCLTitle": false
+    }
+  },
+  {
+    "id": "p_alex",
+    "slug": "alex-de-souza",
+    "name": "Alex de Souza",
+    "displayName": "Alex",
+    "birthDate": "1977-09-14",
+    "birthCity": "Curitiba",
+    "birthCountry": "Brezilya",
+    "birthCountryCode": "BR",
+    "birthLat": -25.4284,
+    "birthLng": -49.2733,
+    "nationality": "Brezilya",
+    "nationalityCode": "BR",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 178,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "fenerbahce",
+        "fromYear": 2004,
+        "toYear": 2012,
+        "apps": 240,
+        "goals": 110,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      10
+    ],
+    "stats": {
+      "totalGoals": 240,
+      "totalAssists": 180,
+      "totalApps": 650,
+      "nationalCaps": 49,
+      "nationalGoals": 6,
+      "maxSeasonGoals": 21,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 12000000,
+      "proDebutYear": 1995,
+      "careerYears": 19
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false,
+      "hasUCLTitle": false
+    }
+  },
+  {
+    "id": "p_kerem",
+    "slug": "kerem-akturkoglu",
+    "name": "Kerem Aktürkoğlu",
+    "displayName": "Kerem Aktürkoğlu",
+    "birthDate": "1998-10-21",
+    "birthCity": "İstanbul",
+    "birthCountry": "Türkiye",
+    "birthCountryCode": "TR",
+    "birthLat": 41.0082,
+    "birthLng": 28.9784,
+    "nationality": "Türkiye",
+    "nationalityCode": "TR",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 177,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "galatasaray",
+        "fromYear": 2020,
+        "toYear": 2024,
+        "apps": 145,
+        "goals": 40,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "benfica",
+        "fromYear": 2024,
+        "toYear": null,
+        "apps": 40,
+        "goals": 14,
+        "jerseyNo": 7
+      }
+    ],
+    "jerseyNumbers": [
+      7,
+      27
+    ],
+    "stats": {
+      "totalGoals": 60,
+      "totalAssists": 35,
+      "totalApps": 220,
+      "nationalCaps": 30,
+      "nationalGoals": 9,
+      "maxSeasonGoals": 16,
+      "last5LeagueGoals": 2,
+      "maxTransferFeeEUR": 11000000,
+      "proDebutYear": 2018,
+      "careerYears": 7
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_calhanoglu",
+    "slug": "hakan-calhanoglu",
+    "name": "Hakan Çalhanoğlu",
+    "displayName": "Çalhanoğlu",
+    "birthDate": "1994-02-08",
+    "birthCity": "Mannheim",
+    "birthCountry": "Almanya",
+    "birthCountryCode": "DE",
+    "birthLat": 49.4875,
+    "birthLng": 8.466,
+    "nationality": "Türkiye",
+    "nationalityCode": "TR",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 178,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "leverkusen",
+        "fromYear": 2014,
+        "toYear": 2017,
+        "apps": 99,
+        "goals": 17,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "milan",
+        "fromYear": 2017,
+        "toYear": 2021,
+        "apps": 130,
+        "goals": 16,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "inter",
+        "fromYear": 2021,
+        "toYear": null,
+        "apps": 130,
+        "goals": 30,
+        "jerseyNo": 20
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      20,
+      8
+    ],
+    "stats": {
+      "totalGoals": 90,
+      "totalAssists": 110,
+      "totalApps": 470,
+      "nationalCaps": 90,
+      "nationalGoals": 22,
+      "maxSeasonGoals": 13,
+      "last5LeagueGoals": 3,
+      "maxTransferFeeEUR": 24000000,
+      "proDebutYear": 2011,
+      "careerYears": 14
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_yildiz",
+    "slug": "kenan-yildiz",
+    "name": "Kenan Yıldız",
+    "displayName": "Kenan Yıldız",
+    "birthDate": "2005-05-04",
+    "birthCity": "Regensburg",
+    "birthCountry": "Almanya",
+    "birthCountryCode": "DE",
+    "birthLat": 49.0134,
+    "birthLng": 12.1016,
+    "nationality": "Türkiye",
+    "nationalityCode": "TR",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 185,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "juventus",
+        "fromYear": 2023,
+        "toYear": null,
+        "apps": 55,
+        "goals": 12,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      10
+    ],
+    "stats": {
+      "totalGoals": 12,
+      "totalAssists": 6,
+      "totalApps": 55,
+      "nationalCaps": 15,
+      "nationalGoals": 4,
+      "maxSeasonGoals": 8,
+      "last5LeagueGoals": 3,
+      "maxTransferFeeEUR": 6000000,
+      "proDebutYear": 2023,
+      "careerYears": 2
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_guler",
+    "slug": "arda-guler",
+    "name": "Arda Güler",
+    "displayName": "Arda Güler",
+    "birthDate": "2005-02-25",
+    "birthCity": "Ankara",
+    "birthCountry": "Türkiye",
+    "birthCountryCode": "TR",
+    "birthLat": 39.9334,
+    "birthLng": 32.8597,
+    "nationality": "Türkiye",
+    "nationalityCode": "TR",
+    "position": "MID",
+    "preferredFoot": "L",
+    "heightCm": 182,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "fenerbahce",
+        "fromYear": 2021,
+        "toYear": 2023,
+        "apps": 51,
+        "goals": 6,
+        "jerseyNo": 11
+      },
+      {
+        "clubId": "real-madrid",
+        "fromYear": 2023,
+        "toYear": null,
+        "apps": 30,
+        "goals": 7,
+        "jerseyNo": 24
+      }
+    ],
+    "jerseyNumbers": [
+      11,
+      24,
+      15
+    ],
+    "stats": {
+      "totalGoals": 13,
+      "totalAssists": 8,
+      "totalApps": 81,
+      "nationalCaps": 18,
+      "nationalGoals": 6,
+      "maxSeasonGoals": 6,
+      "last5LeagueGoals": 2,
+      "maxTransferFeeEUR": 20000000,
+      "proDebutYear": 2021,
+      "careerYears": 4
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_kokcu",
+    "slug": "orkun-kokcu",
+    "name": "Orkun Kökçü",
+    "displayName": "Kökçü",
+    "birthDate": "2000-12-29",
+    "birthCity": "Haarlem",
+    "birthCountry": "Hollanda",
+    "birthCountryCode": "NL",
+    "birthLat": 52.3874,
+    "birthLng": 4.6462,
+    "nationality": "Türkiye",
+    "nationalityCode": "TR",
+    "position": "MID",
+    "preferredFoot": "L",
+    "heightCm": 174,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "benfica",
+        "fromYear": 2023,
+        "toYear": null,
+        "apps": 70,
+        "goals": 12,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      8
+    ],
+    "stats": {
+      "totalGoals": 30,
+      "totalAssists": 20,
+      "totalApps": 200,
+      "nationalCaps": 22,
+      "nationalGoals": 3,
+      "maxSeasonGoals": 9,
+      "last5LeagueGoals": 1,
+      "maxTransferFeeEUR": 25000000,
+      "proDebutYear": 2018,
+      "careerYears": 7
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_demiral",
+    "slug": "merih-demiral",
+    "name": "Merih Demiral",
+    "displayName": "Demiral",
+    "birthDate": "1998-03-05",
+    "birthCity": "Karamürsel",
+    "birthCountry": "Türkiye",
+    "birthCountryCode": "TR",
+    "birthLat": 40.6905,
+    "birthLng": 29.6178,
+    "nationality": "Türkiye",
+    "nationalityCode": "TR",
+    "position": "DEF",
+    "preferredFoot": "R",
+    "heightCm": 192,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "sporting",
+        "fromYear": 2018,
+        "toYear": 2019,
+        "apps": 4,
+        "goals": 0,
+        "jerseyNo": 32
+      },
+      {
+        "clubId": "juventus",
+        "fromYear": 2019,
+        "toYear": 2022,
+        "apps": 45,
+        "goals": 1,
+        "jerseyNo": 28
+      },
+      {
+        "clubId": "atletico",
+        "fromYear": 2021,
+        "toYear": 2022,
+        "apps": 28,
+        "goals": 1,
+        "jerseyNo": 17
+      },
+      {
+        "clubId": "al-hilal",
+        "fromYear": 2023,
+        "toYear": null,
+        "apps": 40,
+        "goals": 5,
+        "jerseyNo": 6
+      }
+    ],
+    "jerseyNumbers": [
+      6,
+      28,
+      17,
+      32
+    ],
+    "stats": {
+      "totalGoals": 18,
+      "totalAssists": 4,
+      "totalApps": 200,
+      "nationalCaps": 50,
+      "nationalGoals": 5,
+      "maxSeasonGoals": 5,
+      "last5LeagueGoals": 1,
+      "maxTransferFeeEUR": 22000000,
+      "proDebutYear": 2017,
+      "careerYears": 8
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_cakir",
+    "slug": "ugurcan-cakir",
+    "name": "Uğurcan Çakır",
+    "displayName": "Uğurcan",
+    "birthDate": "1996-04-05",
+    "birthCity": "Antalya",
+    "birthCountry": "Türkiye",
+    "birthCountryCode": "TR",
+    "birthLat": 36.8841,
+    "birthLng": 30.7056,
+    "nationality": "Türkiye",
+    "nationalityCode": "TR",
+    "position": "GK",
+    "preferredFoot": "R",
+    "heightCm": 191,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "trabzonspor",
+        "fromYear": 2017,
+        "toYear": null,
+        "apps": 220,
+        "goals": 0,
+        "jerseyNo": 1
+      }
+    ],
+    "jerseyNumbers": [
+      1
+    ],
+    "stats": {
+      "totalGoals": 0,
+      "totalAssists": 0,
+      "totalApps": 220,
+      "nationalCaps": 32,
+      "nationalGoals": 0,
+      "maxSeasonGoals": 0,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 12000000,
+      "proDebutYear": 2017,
+      "careerYears": 8
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_zaha",
+    "slug": "wilfried-zaha",
+    "name": "Dazet Wilfried Armel Zaha",
+    "displayName": "Zaha",
+    "birthDate": "1992-11-10",
+    "birthCity": "Abidjan",
+    "birthCountry": "Fildişi Sahili",
+    "birthCountryCode": "CI",
+    "birthLat": 5.36,
+    "birthLng": -4.0083,
+    "nationality": "Fildişi Sahili",
+    "nationalityCode": "CI",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 180,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "man-united",
+        "fromYear": 2013,
+        "toYear": 2015,
+        "apps": 4,
+        "goals": 0,
+        "jerseyNo": 21
+      },
+      {
+        "clubId": "galatasaray",
+        "fromYear": 2023,
+        "toYear": 2024,
+        "apps": 50,
+        "goals": 11,
+        "jerseyNo": 11
+      }
+    ],
+    "jerseyNumbers": [
+      11,
+      21,
+      7
+    ],
+    "stats": {
+      "totalGoals": 100,
+      "totalAssists": 70,
+      "totalApps": 450,
+      "nationalCaps": 9,
+      "nationalGoals": 1,
+      "maxSeasonGoals": 14,
+      "last5LeagueGoals": 1,
+      "maxTransferFeeEUR": 17000000,
+      "proDebutYear": 2010,
+      "careerYears": 15
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_icardi",
+    "slug": "mauro-icardi",
+    "name": "Mauro Emanuel Icardi Rivero",
+    "displayName": "Icardi",
+    "birthDate": "1993-02-19",
+    "birthCity": "Rosario",
+    "birthCountry": "Arjantin",
+    "birthCountryCode": "AR",
+    "birthLat": -32.9442,
+    "birthLng": -60.6505,
+    "nationality": "Arjantin",
+    "nationalityCode": "AR",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 181,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "inter",
+        "fromYear": 2013,
+        "toYear": 2019,
+        "apps": 219,
+        "goals": 124,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "psg",
+        "fromYear": 2019,
+        "toYear": 2022,
+        "apps": 92,
+        "goals": 38,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "galatasaray",
+        "fromYear": 2022,
+        "toYear": null,
+        "apps": 78,
+        "goals": 55,
+        "jerseyNo": 9
+      }
+    ],
+    "jerseyNumbers": [
+      9,
+      7,
+      18
+    ],
+    "stats": {
+      "totalGoals": 230,
+      "totalAssists": 50,
+      "totalApps": 480,
+      "nationalCaps": 8,
+      "nationalGoals": 0,
+      "maxSeasonGoals": 29,
+      "last5LeagueGoals": 3,
+      "maxTransferFeeEUR": 50000000,
+      "proDebutYear": 2011,
+      "careerYears": 14
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_mertens",
+    "slug": "dries-mertens",
+    "name": "Dries Mertens",
+    "displayName": "Mertens",
+    "birthDate": "1987-05-06",
+    "birthCity": "Leuven",
+    "birthCountry": "Belçika",
+    "birthCountryCode": "BE",
+    "birthLat": 50.8798,
+    "birthLng": 4.7005,
+    "nationality": "Belçika",
+    "nationalityCode": "BE",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 169,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "psv",
+        "fromYear": 2011,
+        "toYear": 2013,
+        "apps": 67,
+        "goals": 27,
+        "jerseyNo": 14
+      },
+      {
+        "clubId": "napoli",
+        "fromYear": 2013,
+        "toYear": 2022,
+        "apps": 397,
+        "goals": 148,
+        "jerseyNo": 14
+      },
+      {
+        "clubId": "galatasaray",
+        "fromYear": 2022,
+        "toYear": null,
+        "apps": 70,
+        "goals": 18,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      14,
+      17
+    ],
+    "stats": {
+      "totalGoals": 220,
+      "totalAssists": 110,
+      "totalApps": 620,
+      "nationalCaps": 109,
+      "nationalGoals": 21,
+      "maxSeasonGoals": 28,
+      "last5LeagueGoals": 2,
+      "maxTransferFeeEUR": 9500000,
+      "proDebutYear": 2005,
+      "careerYears": 20
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_falcao",
+    "slug": "radamel-falcao",
+    "name": "Radamel Falcao Garcia",
+    "displayName": "Falcao",
+    "birthDate": "1986-02-10",
+    "birthCity": "Santa Marta",
+    "birthCountry": "Kolombiya",
+    "birthCountryCode": "CO",
+    "birthLat": 11.2408,
+    "birthLng": -74.199,
+    "nationality": "Kolombiya",
+    "nationalityCode": "CO",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 177,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "porto",
+        "fromYear": 2009,
+        "toYear": 2011,
+        "apps": 87,
+        "goals": 72,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "atletico",
+        "fromYear": 2011,
+        "toYear": 2013,
+        "apps": 91,
+        "goals": 70,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "monaco",
+        "fromYear": 2013,
+        "toYear": 2019,
+        "apps": 109,
+        "goals": 56,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "galatasaray",
+        "fromYear": 2019,
+        "toYear": 2021,
+        "apps": 43,
+        "goals": 20,
+        "jerseyNo": 9
+      }
+    ],
+    "jerseyNumbers": [
+      9,
+      3
+    ],
+    "stats": {
+      "totalGoals": 350,
+      "totalAssists": 60,
+      "totalApps": 620,
+      "nationalCaps": 105,
+      "nationalGoals": 36,
+      "maxSeasonGoals": 36,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 60000000,
+      "proDebutYear": 2005,
+      "careerYears": 18
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_terim",
+    "slug": "tugay-kerimoglu",
+    "name": "Tugay Kerimoğlu",
+    "displayName": "Tugay",
+    "birthDate": "1970-08-24",
+    "birthCity": "İstanbul",
+    "birthCountry": "Türkiye",
+    "birthCountryCode": "TR",
+    "birthLat": 41.0082,
+    "birthLng": 28.9784,
+    "nationality": "Türkiye",
+    "nationalityCode": "TR",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 168,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "galatasaray",
+        "fromYear": 1988,
+        "toYear": 1999,
+        "apps": 250,
+        "goals": 22,
+        "jerseyNo": 8
+      },
+      {
+        "clubId": "leicester",
+        "fromYear": 2000,
+        "toYear": 2001,
+        "apps": 9,
+        "goals": 0,
+        "jerseyNo": 8
+      }
+    ],
+    "jerseyNumbers": [
+      8,
+      21
+    ],
+    "stats": {
+      "totalGoals": 32,
+      "totalAssists": 60,
+      "totalApps": 540,
+      "nationalCaps": 94,
+      "nationalGoals": 2,
+      "maxSeasonGoals": 5,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 4500000,
+      "proDebutYear": 1988,
+      "careerYears": 21
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": true
+    }
+  },
+  {
+    "id": "p_belozoglu-junior",
+    "slug": "ozan-tufan",
+    "name": "Ozan Tufan",
+    "displayName": "Ozan Tufan",
+    "birthDate": "1995-03-23",
+    "birthCity": "Bursa",
+    "birthCountry": "Türkiye",
+    "birthCountryCode": "TR",
+    "birthLat": 40.1885,
+    "birthLng": 29.061,
+    "nationality": "Türkiye",
+    "nationalityCode": "TR",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 182,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "fenerbahce",
+        "fromYear": 2015,
+        "toYear": 2021,
+        "apps": 145,
+        "goals": 14,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "basaksehir",
+        "fromYear": 2021,
+        "toYear": null,
+        "apps": 80,
+        "goals": 12,
+        "jerseyNo": 8
+      }
+    ],
+    "jerseyNumbers": [
+      7,
+      8,
+      20
+    ],
+    "stats": {
+      "totalGoals": 45,
+      "totalAssists": 35,
+      "totalApps": 320,
+      "nationalCaps": 67,
+      "nationalGoals": 11,
+      "maxSeasonGoals": 8,
+      "last5LeagueGoals": 1,
+      "maxTransferFeeEUR": 8000000,
+      "proDebutYear": 2013,
+      "careerYears": 12
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_van-dijk",
+    "slug": "virgil-van-dijk",
+    "name": "Virgil van Dijk",
+    "displayName": "Van Dijk",
+    "birthDate": "1991-07-08",
+    "birthCity": "Breda",
+    "birthCountry": "Hollanda",
+    "birthCountryCode": "NL",
+    "birthLat": 51.5719,
+    "birthLng": 4.7683,
+    "nationality": "Hollanda",
+    "nationalityCode": "NL",
+    "position": "DEF",
+    "preferredFoot": "R",
+    "heightCm": 195,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "liverpool",
+        "fromYear": 2018,
+        "toYear": null,
+        "apps": 270,
+        "goals": 25,
+        "jerseyNo": 4
+      }
+    ],
+    "jerseyNumbers": [
+      4,
+      6,
+      23
+    ],
+    "stats": {
+      "totalGoals": 45,
+      "totalAssists": 20,
+      "totalApps": 500,
+      "nationalCaps": 75,
+      "nationalGoals": 10,
+      "maxSeasonGoals": 5,
+      "last5LeagueGoals": 1,
+      "maxTransferFeeEUR": 84500000,
+      "proDebutYear": 2011,
+      "careerYears": 14
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": false,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_pique",
+    "slug": "gerard-pique",
+    "name": "Gerard Pique Bernabeu",
+    "displayName": "Pique",
+    "birthDate": "1987-02-02",
+    "birthCity": "Barcelona",
+    "birthCountry": "İspanya",
+    "birthCountryCode": "ES",
+    "birthLat": 41.3851,
+    "birthLng": 2.1734,
+    "nationality": "İspanya",
+    "nationalityCode": "ES",
+    "position": "DEF",
+    "preferredFoot": "R",
+    "heightCm": 194,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "man-united",
+        "fromYear": 2004,
+        "toYear": 2008,
+        "apps": 23,
+        "goals": 2,
+        "jerseyNo": 16
+      },
+      {
+        "clubId": "barcelona",
+        "fromYear": 2008,
+        "toYear": 2022,
+        "apps": 450,
+        "goals": 36,
+        "jerseyNo": 3
+      }
+    ],
+    "jerseyNumbers": [
+      3,
+      16,
+      4
+    ],
+    "stats": {
+      "totalGoals": 53,
+      "totalAssists": 25,
+      "totalApps": 600,
+      "nationalCaps": 102,
+      "nationalGoals": 5,
+      "maxSeasonGoals": 7,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 5000000,
+      "proDebutYear": 2004,
+      "careerYears": 18
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_ramos",
+    "slug": "sergio-ramos",
+    "name": "Sergio Ramos Garcia",
+    "displayName": "Ramos",
+    "birthDate": "1986-03-30",
+    "birthCity": "Camas",
+    "birthCountry": "İspanya",
+    "birthCountryCode": "ES",
+    "birthLat": 37.3996,
+    "birthLng": -6.0356,
+    "nationality": "İspanya",
+    "nationalityCode": "ES",
+    "position": "DEF",
+    "preferredFoot": "R",
+    "heightCm": 184,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "real-madrid",
+        "fromYear": 2005,
+        "toYear": 2021,
+        "apps": 671,
+        "goals": 101,
+        "jerseyNo": 4
+      },
+      {
+        "clubId": "psg",
+        "fromYear": 2021,
+        "toYear": 2023,
+        "apps": 58,
+        "goals": 6,
+        "jerseyNo": 4
+      }
+    ],
+    "jerseyNumbers": [
+      4,
+      15,
+      19
+    ],
+    "stats": {
+      "totalGoals": 120,
+      "totalAssists": 45,
+      "totalApps": 800,
+      "nationalCaps": 180,
+      "nationalGoals": 23,
+      "maxSeasonGoals": 11,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 27000000,
+      "proDebutYear": 2004,
+      "careerYears": 21
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_kaka",
+    "slug": "kaka",
+    "name": "Ricardo Izecson dos Santos Leite",
+    "displayName": "Kaká",
+    "birthDate": "1982-04-22",
+    "birthCity": "Gama",
+    "birthCountry": "Brezilya",
+    "birthCountryCode": "BR",
+    "birthLat": -16.0144,
+    "birthLng": -48.0644,
+    "nationality": "Brezilya",
+    "nationalityCode": "BR",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 186,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "milan",
+        "fromYear": 2003,
+        "toYear": 2009,
+        "apps": 270,
+        "goals": 95,
+        "jerseyNo": 22
+      },
+      {
+        "clubId": "real-madrid",
+        "fromYear": 2009,
+        "toYear": 2013,
+        "apps": 120,
+        "goals": 29,
+        "jerseyNo": 8
+      },
+      {
+        "clubId": "milan",
+        "fromYear": 2013,
+        "toYear": 2014,
+        "apps": 37,
+        "goals": 9,
+        "jerseyNo": 22
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      22,
+      8
+    ],
+    "stats": {
+      "totalGoals": 200,
+      "totalAssists": 120,
+      "totalApps": 580,
+      "nationalCaps": 92,
+      "nationalGoals": 29,
+      "maxSeasonGoals": 24,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 65000000,
+      "proDebutYear": 2001,
+      "careerYears": 16
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": true,
+      "hasUCLTitle": true,
+      "hasBallonDor": true
+    }
+  },
+  {
+    "id": "p_riquelme",
+    "slug": "juan-roman-riquelme",
+    "name": "Juan Román Riquelme",
+    "displayName": "Riquelme",
+    "birthDate": "1978-06-24",
+    "birthCity": "San Fernando",
+    "birthCountry": "Arjantin",
+    "birthCountryCode": "AR",
+    "birthLat": -34.4419,
+    "birthLng": -58.5586,
+    "nationality": "Arjantin",
+    "nationalityCode": "AR",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 182,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "boca",
+        "fromYear": 1996,
+        "toYear": 2002,
+        "apps": 213,
+        "goals": 55,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "barcelona",
+        "fromYear": 2002,
+        "toYear": 2003,
+        "apps": 30,
+        "goals": 3,
+        "jerseyNo": 8
+      },
+      {
+        "clubId": "boca",
+        "fromYear": 2007,
+        "toYear": 2014,
+        "apps": 152,
+        "goals": 44,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      8
+    ],
+    "stats": {
+      "totalGoals": 200,
+      "totalAssists": 150,
+      "totalApps": 550,
+      "nationalCaps": 51,
+      "nationalGoals": 17,
+      "maxSeasonGoals": 17,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 10000000,
+      "proDebutYear": 1996,
+      "careerYears": 18
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_aguero",
+    "slug": "sergio-aguero",
+    "name": "Sergio Leonel Agüero",
+    "displayName": "Agüero",
+    "birthDate": "1988-06-02",
+    "birthCity": "Buenos Aires",
+    "birthCountry": "Arjantin",
+    "birthCountryCode": "AR",
+    "birthLat": -34.6037,
+    "birthLng": -58.3816,
+    "nationality": "Arjantin",
+    "nationalityCode": "AR",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 173,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "atletico",
+        "fromYear": 2006,
+        "toYear": 2011,
+        "apps": 175,
+        "goals": 74,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "man-city",
+        "fromYear": 2011,
+        "toYear": 2021,
+        "apps": 275,
+        "goals": 184,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "barcelona",
+        "fromYear": 2021,
+        "toYear": 2021,
+        "apps": 5,
+        "goals": 1,
+        "jerseyNo": 19
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      16,
+      19,
+      20
+    ],
+    "stats": {
+      "totalGoals": 380,
+      "totalAssists": 100,
+      "totalApps": 660,
+      "nationalCaps": 101,
+      "nationalGoals": 41,
+      "maxSeasonGoals": 33,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 45000000,
+      "proDebutYear": 2003,
+      "careerYears": 18
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": false
+    }
+  },
+  {
+    "id": "p_robben",
+    "slug": "arjen-robben",
+    "name": "Arjen Robben",
+    "displayName": "Robben",
+    "birthDate": "1984-01-23",
+    "birthCity": "Bedum",
+    "birthCountry": "Hollanda",
+    "birthCountryCode": "NL",
+    "birthLat": 53.3,
+    "birthLng": 6.6,
+    "nationality": "Hollanda",
+    "nationalityCode": "NL",
+    "position": "FWD",
+    "preferredFoot": "L",
+    "heightCm": 180,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "psv",
+        "fromYear": 2002,
+        "toYear": 2004,
+        "apps": 56,
+        "goals": 17,
+        "jerseyNo": 11
+      },
+      {
+        "clubId": "chelsea",
+        "fromYear": 2004,
+        "toYear": 2007,
+        "apps": 67,
+        "goals": 15,
+        "jerseyNo": 16
+      },
+      {
+        "clubId": "real-madrid",
+        "fromYear": 2007,
+        "toYear": 2009,
+        "apps": 50,
+        "goals": 11,
+        "jerseyNo": 11
+      },
+      {
+        "clubId": "bayern",
+        "fromYear": 2009,
+        "toYear": 2019,
+        "apps": 309,
+        "goals": 144,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      11,
+      16
+    ],
+    "stats": {
+      "totalGoals": 235,
+      "totalAssists": 165,
+      "totalApps": 590,
+      "nationalCaps": 96,
+      "nationalGoals": 37,
+      "maxSeasonGoals": 28,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 36000000,
+      "proDebutYear": 2000,
+      "careerYears": 20
+    },
+    "achievements": {
+      "hasUCLFinal": true,
+      "hasWorldCup": false,
+      "hasUCLTitle": true
+    }
+  },
+  {
+    "id": "p_hazard",
+    "slug": "eden-hazard",
+    "name": "Eden Michael Hazard",
+    "displayName": "Hazard",
+    "birthDate": "1991-01-07",
+    "birthCity": "La Louviere",
+    "birthCountry": "Belçika",
+    "birthCountryCode": "BE",
+    "birthLat": 50.4769,
+    "birthLng": 4.1881,
+    "nationality": "Belçika",
+    "nationalityCode": "BE",
+    "position": "FWD",
+    "preferredFoot": "R",
+    "heightCm": 175,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "lyon",
+        "fromYear": 2007,
+        "toYear": 2012,
+        "apps": 147,
+        "goals": 36,
+        "jerseyNo": 26
+      },
+      {
+        "clubId": "chelsea",
+        "fromYear": 2012,
+        "toYear": 2019,
+        "apps": 245,
+        "goals": 85,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "real-madrid",
+        "fromYear": 2019,
+        "toYear": 2023,
+        "apps": 76,
+        "goals": 7,
+        "jerseyNo": 7
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      7,
+      26
+    ],
+    "stats": {
+      "totalGoals": 175,
+      "totalAssists": 165,
+      "totalApps": 600,
+      "nationalCaps": 126,
+      "nationalGoals": 33,
+      "maxSeasonGoals": 21,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 115000000,
+      "proDebutYear": 2007,
+      "careerYears": 16
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false,
+      "hasUCLTitle": false
+    }
+  },
+  {
+    "id": "p_ozil",
+    "slug": "mesut-ozil",
+    "name": "Mesut Özil",
+    "displayName": "Mesut Özil",
+    "birthDate": "1988-10-15",
+    "birthCity": "Gelsenkirchen",
+    "birthCountry": "Almanya",
+    "birthCountryCode": "DE",
+    "birthLat": 51.5177,
+    "birthLng": 7.0857,
+    "nationality": "Almanya",
+    "nationalityCode": "DE",
+    "position": "MID",
+    "preferredFoot": "L",
+    "heightCm": 180,
+    "isActive": false,
+    "clubs": [
+      {
+        "clubId": "real-madrid",
+        "fromYear": 2010,
+        "toYear": 2013,
+        "apps": 159,
+        "goals": 27,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "arsenal",
+        "fromYear": 2013,
+        "toYear": 2021,
+        "apps": 254,
+        "goals": 44,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "fenerbahce",
+        "fromYear": 2021,
+        "toYear": 2022,
+        "apps": 39,
+        "goals": 9,
+        "jerseyNo": 67
+      },
+      {
+        "clubId": "basaksehir",
+        "fromYear": 2022,
+        "toYear": 2023,
+        "apps": 8,
+        "goals": 0,
+        "jerseyNo": 67
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      67,
+      11
+    ],
+    "stats": {
+      "totalGoals": 130,
+      "totalAssists": 210,
+      "totalApps": 600,
+      "nationalCaps": 92,
+      "nationalGoals": 23,
+      "maxSeasonGoals": 9,
+      "last5LeagueGoals": 0,
+      "maxTransferFeeEUR": 50000000,
+      "proDebutYear": 2006,
+      "careerYears": 17
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": true
+    }
+  }
+]

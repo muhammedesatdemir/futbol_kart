@@ -1,0 +1,53 @@
+# dependencies
+node_modules
+.pnpm-store
+
+# next.js
+.next
+out
+next-env.d.ts
+
+# build
+dist
+build
+
+# env (commit etme — secrets içerir)
+.env
+.env.local
+.env.*.local
+!.env.example
+
+# IDE
+.vscode
+.idea
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+pnpm-debug.log*
+
+# typescript
+*.tsbuildinfo
+
+# data-pipeline (cache + raw fetch)
+data-pipeline/raw
+data-pipeline/cache
+
+# AI/ham görseller — büyük ve optimize edilmiş webp'ler zaten public/hero/'da
+# (orijinalleri yerel diskte sakla, git'e gönderme)
+assets/
+
+PLAN.md
+
+# claude / cursor / aider gibi AI tool meta dosyaları
+.claude
+.cursor
+.aider*
+
+

@@ -1,0 +1,83 @@
+{
+  "common": {
+    "appName": "Futbol Kart Oyunu",
+    "newGame": "Yeni Oyun",
+    "continue": "Devam et",
+    "back": "Geri",
+    "home": "Ana sayfa",
+    "next": "Devam",
+    "playAgain": "Yeniden oyna"
+  },
+  "home": {
+    "kicker": "Futbolcu kartlarıyla bilgi düellosu",
+    "title": "Futbol Kart Oyunu",
+    "tagline": "Sürpriz sorular, kör kart seçimi, tek tur — tek karar.",
+    "howItWorks": "Nasıl oynanır",
+    "step1Title": "Kartlarını seç",
+    "step1Body": "8 futbolcudan oluşan elini hazırla. Hangi kartı hangi soruda oynayacağına sen karar verirsin.",
+    "step2Title": "Sürpriz soru",
+    "step2Body": "Her turda yeni bir karşılaştırma sorusu çıkar — kim daha çok, kim daha hızlı, kim daha uzakta?",
+    "step3Title": "Karşılaşma",
+    "step3Body": "İki oyuncu da kart sürer, istatistikler kıyaslanır, tur kazananı puan alır.",
+    "step4Title": "Kazanan",
+    "step4Body": "7 tur sonunda en çok puanı toplayan oyuncu kupayı kaldırır.",
+    "playCta": "Hemen oyna",
+    "demoCta": "Kart önizleme",
+    "version": "v0.4 · Tek-route deneyim"
+  },
+  "demo": {
+    "kicker": "Kart önizleme",
+    "title": "Kart galerisi",
+    "subtitle": "Saha temalı arayüz, sade kart yüzleri ve kapalı kart arka yüzleri.",
+    "openCards": "Açık kartlar",
+    "closedCards": "Kapalı kartlar (kör seçim)",
+    "scoreboardRound": "Tur",
+    "scoreboardPlayer1": "Oyuncu 1",
+    "scoreboardPlayer2": "Oyuncu 2"
+  },
+  "newGame": {
+    "title": "Nasıl oynamak istersin?",
+    "subtitle": "İki modumuz var — birini seç, başlayalım.",
+    "hotseatTitle": "Arkadaşına Karşı",
+    "hotseatBody": "İki oyuncu aynı ekranda sırayla oynar. Telefonu birbirine geçirerek kart seçersiniz.",
+    "vsBotTitle": "Bota karşı",
+    "vsBotBody": "Tek başına oyna; bot rastgele kart sürer. Akışı öğrenmek ve denemek için ideal.",
+    "start": "Devam"
+  },
+  "pick": {
+    "title": "Kartlarını seç",
+    "subtitle": "{count} kart seçmen gerekiyor. Bunlar elinde olacak — hangisini ne zaman oynayacağına sen karar vereceksin.",
+    "selectedOf": "{n} / {total} seçildi",
+    "randomFill": "Rastgele tamamla",
+    "clear": "Temizle",
+    "p1Heading": "Oyuncu 1 — elini hazırla",
+    "p2Heading": "Oyuncu 2 — elini hazırla",
+    "p1Done": "Oyuncu 1 hazır.",
+    "passDevice": "Cihazı diğer oyuncuya ver, sonra devam et.",
+    "iAmReady": "Hazırım",
+    "startMatch": "Maçı başlat"
+  },
+  "round": {
+    "label": "Tur",
+    "questionTitle": "Soru",
+    "p1Turn": "Sıra sende — bir kart seç",
+    "p2Turn": "Oyuncu 2'nin sırası — bir kart seçmesini bekle",
+    "botThinking": "Bot düşünüyor…",
+    "reveal": "Kartlar açılıyor",
+    "winner": "Tur kazananı",
+    "tie": "Berabere",
+    "tiebreakerUsed": "Eşitlik bozucu: {tb}",
+    "nextRound": "Sonraki tur",
+    "finish": "Maçı bitir",
+    "yourValue": "Senin değerin",
+    "botValue": "Bot değeri"
+  },
+  "final": {
+    "title": "Maç bitti",
+    "winnerLabel": "Kazanan",
+    "tieLabel": "Berabere",
+    "summary": "{p1} - {p2}",
+    "rematch": "Yeniden oyna",
+    "home": "Ana sayfa"
+  }
+}

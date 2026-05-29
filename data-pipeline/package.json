@@ -6,11 +6,16 @@
   "scripts": {
     "build": "tsx scripts/build.ts",
     "report": "tsx scripts/report.ts",
+    "scrape:list": "tsx scripts/scrape/list.ts",
+    "scrape:players": "tsx scripts/scrape/players.ts",
+    "scrape:merge": "tsx scripts/scrape/merge.ts",
+    "scrape:all": "pnpm scrape:list && pnpm scrape:players && pnpm scrape:merge",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@futbol-kart/shared-types": "workspace:*",
     "@futbol-kart/question-templates": "workspace:*",
+    "@futbol-kart/shared-types": "workspace:*",
+    "cheerio": "^1.0.0",
     "zod": "^3.23.8"
   },
   "devDependencies": {

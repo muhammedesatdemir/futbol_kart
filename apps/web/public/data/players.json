@@ -3115,5 +3115,1913 @@
       "hasUCLFinal": false,
       "hasWorldCup": true
     }
+  },
+  {
+    "id": "p_o-dembele",
+    "slug": "o-dembele",
+    "name": "O. Dembélé",
+    "displayName": "O. Dembélé",
+    "birthDate": "1997-05-15",
+    "birthCity": "Vernon",
+    "birthCountry": "France",
+    "birthCountryCode": "FR",
+    "nationality": "France",
+    "nationalityCode": "FR",
+    "position": "MID",
+    "preferredFoot": "B",
+    "heightCm": 178,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_8154",
+        "fromYear": 2014,
+        "toYear": 2015,
+        "apps": 22,
+        "goals": 13
+      },
+      {
+        "clubId": "tm_273",
+        "fromYear": 2015,
+        "toYear": 2015,
+        "apps": 29,
+        "goals": 12,
+        "jerseyNo": 23
+      },
+      {
+        "clubId": "tm_16",
+        "fromYear": 2016,
+        "toYear": 2017,
+        "apps": 50,
+        "goals": 10,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "tm_131",
+        "fromYear": 2017,
+        "toYear": 2022,
+        "apps": 185,
+        "goals": 40,
+        "jerseyNo": 11
+      },
+      {
+        "clubId": "tm_583",
+        "fromYear": 2023,
+        "toYear": 2025,
+        "apps": 134,
+        "goals": 60,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      11,
+      17,
+      15,
+      23,
+      7,
+      10
+    ],
+    "stats": {
+      "totalGoals": 147,
+      "totalAssists": 118,
+      "totalApps": 498,
+      "nationalCaps": 78,
+      "nationalGoals": 12,
+      "maxSeasonGoals": 35,
+      "last5LeagueGoals": 40,
+      "maxTransferFeeEUR": 120000000,
+      "proDebutYear": 2013,
+      "careerYears": 13
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/288230-1684148641.jpg"
+  },
+  {
+    "id": "p_k-mbappe",
+    "slug": "k-mbappe",
+    "name": "K. Mbappé",
+    "displayName": "K. Mbappé",
+    "birthDate": "1998-12-20",
+    "birthCity": "Paris",
+    "birthCountry": "France",
+    "birthCountryCode": "FR",
+    "nationality": "France",
+    "nationalityCode": "FR",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 180,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_45508",
+        "fromYear": 2014,
+        "toYear": 2014,
+        "apps": 1,
+        "goals": 0,
+        "jerseyNo": 25
+      },
+      {
+        "clubId": "tm_162",
+        "fromYear": 2015,
+        "toYear": 2017,
+        "apps": 60,
+        "goals": 27,
+        "jerseyNo": 29
+      },
+      {
+        "clubId": "tm_9668",
+        "fromYear": 2015,
+        "toYear": 2016,
+        "apps": 12,
+        "goals": 4
+      },
+      {
+        "clubId": "tm_9669",
+        "fromYear": 2015,
+        "toYear": 2015,
+        "apps": 2,
+        "goals": 3,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "tm_583",
+        "fromYear": 2017,
+        "toYear": 2023,
+        "apps": 308,
+        "goals": 256,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "tm_418",
+        "fromYear": 2024,
+        "toYear": 2025,
+        "apps": 103,
+        "goals": 86,
+        "jerseyNo": 9
+      }
+    ],
+    "jerseyNumbers": [
+      25,
+      29,
+      11,
+      10,
+      7,
+      9
+    ],
+    "stats": {
+      "totalGoals": 439,
+      "totalAssists": 181,
+      "totalApps": 595,
+      "nationalCaps": 109,
+      "nationalGoals": 63,
+      "maxSeasonGoals": 44,
+      "last5LeagueGoals": 140,
+      "maxTransferFeeEUR": 200000000,
+      "proDebutYear": 2014,
+      "careerYears": 12
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/342229-1682683695.jpg"
+  },
+  {
+    "id": "p_a-isak",
+    "slug": "a-isak",
+    "name": "A. Isak",
+    "displayName": "A. Isak",
+    "birthDate": "1999-09-21",
+    "birthCity": "Solna",
+    "birthCountry": "Sweden",
+    "birthCountryCode": "SE",
+    "nationality": "Sweden",
+    "nationalityCode": "SE",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 192,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_16574",
+        "fromYear": 2013,
+        "toYear": 2015,
+        "apps": 8,
+        "goals": 3,
+        "jerseyNo": 6
+      },
+      {
+        "clubId": "tm_272",
+        "fromYear": 2014,
+        "toYear": 2016,
+        "apps": 29,
+        "goals": 13,
+        "jerseyNo": 36
+      },
+      {
+        "clubId": "tm_41542",
+        "fromYear": 2014,
+        "toYear": 2015,
+        "apps": 1,
+        "goals": 0
+      },
+      {
+        "clubId": "tm_16",
+        "fromYear": 2016,
+        "toYear": 2018,
+        "apps": 13,
+        "goals": 1,
+        "jerseyNo": 14
+      },
+      {
+        "clubId": "tm_17",
+        "fromYear": 2016,
+        "toYear": 2018,
+        "apps": 12,
+        "goals": 5,
+        "jerseyNo": 24
+      },
+      {
+        "clubId": "tm_1464",
+        "fromYear": 2016,
+        "toYear": 2016,
+        "apps": 1,
+        "goals": 0,
+        "jerseyNo": 15
+      },
+      {
+        "clubId": "tm_41570",
+        "fromYear": 2017,
+        "toYear": 2017,
+        "apps": 1,
+        "goals": 1,
+        "jerseyNo": 14
+      },
+      {
+        "clubId": "tm_403",
+        "fromYear": 2018,
+        "toYear": 2018,
+        "apps": 18,
+        "goals": 14,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "tm_681",
+        "fromYear": 2019,
+        "toYear": 2022,
+        "apps": 132,
+        "goals": 44,
+        "jerseyNo": 19
+      },
+      {
+        "clubId": "tm_762",
+        "fromYear": 2022,
+        "toYear": 2025,
+        "apps": 109,
+        "goals": 62,
+        "jerseyNo": 14
+      },
+      {
+        "clubId": "tm_31",
+        "fromYear": 2025,
+        "toYear": 2025,
+        "apps": 22,
+        "goals": 4,
+        "jerseyNo": 9
+      }
+    ],
+    "jerseyNumbers": [
+      6,
+      36,
+      20,
+      17,
+      11,
+      9,
+      14,
+      24,
+      15,
+      19
+    ],
+    "stats": {
+      "totalGoals": 172,
+      "totalAssists": 44,
+      "totalApps": 436,
+      "nationalCaps": 90,
+      "nationalGoals": 25,
+      "maxSeasonGoals": 27,
+      "last5LeagueGoals": 64,
+      "maxTransferFeeEUR": 140000000,
+      "proDebutYear": 2014,
+      "careerYears": 12
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/349066-1680791339.jpg"
+  },
+  {
+    "id": "p_declan-rice",
+    "slug": "declan-rice",
+    "name": "Declan Rice",
+    "displayName": "Declan Rice",
+    "birthDate": "1999-01-14",
+    "birthCity": "London",
+    "birthCountry": "England",
+    "birthCountryCode": "EN",
+    "nationality": "England",
+    "nationalityCode": "EN",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 188,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_9267",
+        "fromYear": 2015,
+        "toYear": 2017,
+        "apps": 33,
+        "goals": 0,
+        "jerseyNo": 6
+      },
+      {
+        "clubId": "tm_379",
+        "fromYear": 2016,
+        "toYear": 2022,
+        "apps": 245,
+        "goals": 15,
+        "jerseyNo": 41
+      },
+      {
+        "clubId": "tm_9955",
+        "fromYear": 2016,
+        "toYear": 2016,
+        "apps": 1,
+        "goals": 0,
+        "jerseyNo": 6
+      },
+      {
+        "clubId": "tm_11",
+        "fromYear": 2023,
+        "toYear": 2025,
+        "apps": 157,
+        "goals": 21,
+        "jerseyNo": 41
+      }
+    ],
+    "jerseyNumbers": [
+      5,
+      6,
+      4,
+      41,
+      7
+    ],
+    "stats": {
+      "totalGoals": 44,
+      "totalAssists": 53,
+      "totalApps": 532,
+      "nationalCaps": 96,
+      "nationalGoals": 8,
+      "maxSeasonGoals": 9,
+      "last5LeagueGoals": 20,
+      "maxTransferFeeEUR": 120000000,
+      "proDebutYear": 2014,
+      "careerYears": 12
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/357662-1687962936.jpg"
+  },
+  {
+    "id": "p_f-valverde",
+    "slug": "f-valverde",
+    "name": "F. Valverde",
+    "displayName": "F. Valverde",
+    "birthDate": "1998-07-22",
+    "birthCity": "Montevideo",
+    "birthCountry": "Uruguay",
+    "birthCountryCode": "UY",
+    "nationality": "Uruguay",
+    "nationalityCode": "UY",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 182,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_861",
+        "fromYear": 2014,
+        "toYear": 2015,
+        "apps": 13,
+        "goals": 0,
+        "jerseyNo": 16
+      },
+      {
+        "clubId": "tm_6767",
+        "fromYear": 2016,
+        "toYear": 2016,
+        "apps": 30,
+        "goals": 3
+      },
+      {
+        "clubId": "tm_41596",
+        "fromYear": 2016,
+        "toYear": 2016,
+        "apps": 6,
+        "goals": 0,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "tm_897",
+        "fromYear": 2017,
+        "toYear": 2017,
+        "apps": 25,
+        "goals": 0,
+        "jerseyNo": 17
+      },
+      {
+        "clubId": "tm_418",
+        "fromYear": 2018,
+        "toYear": 2025,
+        "apps": 372,
+        "goals": 41,
+        "jerseyNo": 15
+      }
+    ],
+    "jerseyNumbers": [
+      16,
+      15,
+      10,
+      7,
+      17
+    ],
+    "stats": {
+      "totalGoals": 56,
+      "totalAssists": 52,
+      "totalApps": 535,
+      "nationalCaps": 89,
+      "nationalGoals": 12,
+      "maxSeasonGoals": 12,
+      "last5LeagueGoals": 20,
+      "maxTransferFeeEUR": 130000000,
+      "proDebutYear": 2014,
+      "careerYears": 12
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/369081-1731018042.jpg"
+  },
+  {
+    "id": "p_e-haaland",
+    "slug": "e-haaland",
+    "name": "E. Haaland",
+    "displayName": "E. Haaland",
+    "birthDate": "2000-07-21",
+    "birthCity": "Leeds",
+    "birthCountry": "England",
+    "birthCountryCode": "EN",
+    "nationality": "Norway",
+    "nationalityCode": "NO",
+    "position": "MID",
+    "preferredFoot": "L",
+    "heightCm": 195,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_1057",
+        "fromYear": 2014,
+        "toYear": 2015,
+        "apps": 16,
+        "goals": 0,
+        "jerseyNo": 19
+      },
+      {
+        "clubId": "tm_687",
+        "fromYear": 2016,
+        "toYear": 2018,
+        "apps": 50,
+        "goals": 20,
+        "jerseyNo": 30
+      },
+      {
+        "clubId": "tm_35022",
+        "fromYear": 2016,
+        "toYear": 2016,
+        "apps": 4,
+        "goals": 2
+      },
+      {
+        "clubId": "tm_62110",
+        "fromYear": 2017,
+        "toYear": 2017,
+        "apps": 1,
+        "goals": 0,
+        "jerseyNo": 30
+      },
+      {
+        "clubId": "tm_409",
+        "fromYear": 2018,
+        "toYear": 2019,
+        "apps": 27,
+        "goals": 29,
+        "jerseyNo": 30
+      },
+      {
+        "clubId": "tm_16",
+        "fromYear": 2019,
+        "toYear": 2021,
+        "apps": 89,
+        "goals": 86,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "tm_281",
+        "fromYear": 2022,
+        "toYear": 2025,
+        "apps": 198,
+        "goals": 162,
+        "jerseyNo": 9
+      }
+    ],
+    "jerseyNumbers": [
+      19,
+      10,
+      30,
+      14,
+      18,
+      9
+    ],
+    "stats": {
+      "totalGoals": 383,
+      "totalAssists": 75,
+      "totalApps": 473,
+      "nationalCaps": 88,
+      "nationalGoals": 84,
+      "maxSeasonGoals": 52,
+      "last5LeagueGoals": 134,
+      "maxTransferFeeEUR": 200000000,
+      "proDebutYear": 2015,
+      "careerYears": 11
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/418560-1709108116.png"
+  },
+  {
+    "id": "p_bukayo-saka",
+    "slug": "bukayo-saka",
+    "name": "Bukayo Saka",
+    "displayName": "Bukayo Saka",
+    "birthDate": "2001-09-05",
+    "birthCity": "London",
+    "birthCountry": "England",
+    "birthCountryCode": "EN",
+    "nationality": "England",
+    "nationalityCode": "EN",
+    "position": "MID",
+    "preferredFoot": "L",
+    "heightCm": 178,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_5679",
+        "fromYear": 2017,
+        "toYear": 2018,
+        "apps": 28,
+        "goals": 16,
+        "jerseyNo": 11
+      },
+      {
+        "clubId": "tm_11",
+        "fromYear": 2018,
+        "toYear": 2025,
+        "apps": 311,
+        "goals": 81,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "tm_9249",
+        "fromYear": 2018,
+        "toYear": 2019,
+        "apps": 25,
+        "goals": 6,
+        "jerseyNo": 11
+      }
+    ],
+    "jerseyNumbers": [
+      3,
+      17,
+      11,
+      7
+    ],
+    "stats": {
+      "totalGoals": 124,
+      "totalAssists": 110,
+      "totalApps": 444,
+      "nationalCaps": 80,
+      "nationalGoals": 21,
+      "maxSeasonGoals": 20,
+      "last5LeagueGoals": 54,
+      "maxTransferFeeEUR": 150000000,
+      "proDebutYear": 2015,
+      "careerYears": 11
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/433177-1684155052.jpg"
+  },
+  {
+    "id": "p_d-szoboszlai",
+    "slug": "d-szoboszlai",
+    "name": "D. Szoboszlai",
+    "displayName": "D. Szoboszlai",
+    "birthDate": "2000-10-25",
+    "birthCity": "Székesfehérvár",
+    "birthCountry": "Hungary",
+    "birthCountryCode": "HU",
+    "nationality": "Hungary",
+    "nationalityCode": "HU",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 187,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_11263",
+        "fromYear": 2016,
+        "toYear": 2016,
+        "apps": 4,
+        "goals": 1,
+        "jerseyNo": 13
+      },
+      {
+        "clubId": "tm_409",
+        "fromYear": 2017,
+        "toYear": 2020,
+        "apps": 83,
+        "goals": 26,
+        "jerseyNo": 14
+      },
+      {
+        "clubId": "tm_37024",
+        "fromYear": 2017,
+        "toYear": 2018,
+        "apps": 42,
+        "goals": 16,
+        "jerseyNo": 16
+      },
+      {
+        "clubId": "tm_50546",
+        "fromYear": 2017,
+        "toYear": 2017,
+        "apps": 6,
+        "goals": 1,
+        "jerseyNo": 16
+      },
+      {
+        "clubId": "tm_23826",
+        "fromYear": 2020,
+        "toYear": 2022,
+        "apps": 91,
+        "goals": 20,
+        "jerseyNo": 17
+      },
+      {
+        "clubId": "tm_31",
+        "fromYear": 2023,
+        "toYear": 2025,
+        "apps": 147,
+        "goals": 28,
+        "jerseyNo": 8
+      }
+    ],
+    "jerseyNumbers": [
+      16,
+      10,
+      13,
+      6,
+      14,
+      11,
+      17,
+      8
+    ],
+    "stats": {
+      "totalGoals": 118,
+      "totalAssists": 109,
+      "totalApps": 461,
+      "nationalCaps": 88,
+      "nationalGoals": 26,
+      "maxSeasonGoals": 13,
+      "last5LeagueGoals": 27,
+      "maxTransferFeeEUR": 100000000,
+      "proDebutYear": 2015,
+      "careerYears": 11
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/451276-1758715234.jpg"
+  },
+  {
+    "id": "p_vitinha",
+    "slug": "vitinha",
+    "name": "Vítor Machado Ferreira",
+    "displayName": "Vitinha",
+    "birthDate": "2000-02-13",
+    "birthCity": "Vila das Aves",
+    "birthCountry": "Portugal",
+    "birthCountryCode": "PT",
+    "nationality": "Portugal",
+    "nationalityCode": "PT",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 172,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_41588",
+        "fromYear": 2017,
+        "toYear": 2019,
+        "apps": 11,
+        "goals": 1,
+        "jerseyNo": 15
+      },
+      {
+        "clubId": "tm_720",
+        "fromYear": 2019,
+        "toYear": 2021,
+        "apps": 59,
+        "goals": 4,
+        "jerseyNo": 20
+      },
+      {
+        "clubId": "tm_10331",
+        "fromYear": 2019,
+        "toYear": 2019,
+        "apps": 18,
+        "goals": 9,
+        "jerseyNo": 77
+      },
+      {
+        "clubId": "tm_543",
+        "fromYear": 2020,
+        "toYear": 2020,
+        "apps": 22,
+        "goals": 1,
+        "jerseyNo": 20
+      },
+      {
+        "clubId": "tm_24226",
+        "fromYear": 2020,
+        "toYear": 2020,
+        "apps": 1,
+        "goals": 0,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "tm_583",
+        "fromYear": 2022,
+        "toYear": 2025,
+        "apps": 202,
+        "goals": 26,
+        "jerseyNo": 17
+      }
+    ],
+    "jerseyNumbers": [
+      14,
+      15,
+      6,
+      20,
+      7,
+      77,
+      23,
+      17
+    ],
+    "stats": {
+      "totalGoals": 45,
+      "totalAssists": 46,
+      "totalApps": 398,
+      "nationalCaps": 85,
+      "nationalGoals": 4,
+      "maxSeasonGoals": 10,
+      "last5LeagueGoals": 17,
+      "maxTransferFeeEUR": 110000000,
+      "proDebutYear": 2016,
+      "careerYears": 10
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/487469-1749415169.jpg"
+  },
+  {
+    "id": "p_m-olise",
+    "slug": "m-olise",
+    "name": "M. Olise",
+    "displayName": "M. Olise",
+    "birthDate": "2001-12-12",
+    "birthCity": "London",
+    "birthCountry": "England",
+    "birthCountryCode": "EN",
+    "nationality": "France",
+    "nationalityCode": "FR",
+    "position": "MID",
+    "preferredFoot": "L",
+    "heightCm": 184,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_11994",
+        "fromYear": 2017,
+        "toYear": 2019,
+        "apps": 16,
+        "goals": 2,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "tm_1032",
+        "fromYear": 2018,
+        "toYear": 2020,
+        "apps": 73,
+        "goals": 7,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "tm_36123",
+        "fromYear": 2018,
+        "toYear": 2019,
+        "apps": 22,
+        "goals": 6,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "tm_873",
+        "fromYear": 2021,
+        "toYear": 2023,
+        "apps": 90,
+        "goals": 16,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "tm_6945",
+        "fromYear": 2021,
+        "toYear": 2021,
+        "apps": 1,
+        "goals": 0,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "tm_27",
+        "fromYear": 2024,
+        "toYear": 2025,
+        "apps": 107,
+        "goals": 42,
+        "jerseyNo": 17
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      7,
+      11,
+      22,
+      17
+    ],
+    "stats": {
+      "totalGoals": 83,
+      "totalAssists": 109,
+      "totalApps": 342,
+      "nationalCaps": 33,
+      "nationalGoals": 10,
+      "maxSeasonGoals": 22,
+      "last5LeagueGoals": 41,
+      "maxTransferFeeEUR": 150000000,
+      "proDebutYear": 2017,
+      "careerYears": 9
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/566723-1762944477.jpg"
+  },
+  {
+    "id": "p_cole-palmer",
+    "slug": "cole-palmer",
+    "name": "Cole Palmer",
+    "displayName": "Cole Palmer",
+    "birthDate": "2002-05-06",
+    "birthCity": "Manchester",
+    "birthCountry": "England",
+    "birthCountryCode": "EN",
+    "nationality": "England",
+    "nationalityCode": "EN",
+    "position": "MID",
+    "preferredFoot": "L",
+    "heightCm": 185,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_6930",
+        "fromYear": 2017,
+        "toYear": 2019,
+        "apps": 32,
+        "goals": 20,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "tm_281",
+        "fromYear": 2019,
+        "toYear": 2023,
+        "apps": 41,
+        "goals": 6,
+        "jerseyNo": 80
+      },
+      {
+        "clubId": "tm_9265",
+        "fromYear": 2019,
+        "toYear": 2021,
+        "apps": 29,
+        "goals": 22,
+        "jerseyNo": 7
+      },
+      {
+        "clubId": "tm_41593",
+        "fromYear": 2019,
+        "toYear": 2019,
+        "apps": 3,
+        "goals": 0,
+        "jerseyNo": 15
+      },
+      {
+        "clubId": "tm_631",
+        "fromYear": 2023,
+        "toYear": 2025,
+        "apps": 131,
+        "goals": 54,
+        "jerseyNo": 20
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      16,
+      20,
+      80,
+      7,
+      15,
+      24
+    ],
+    "stats": {
+      "totalGoals": 113,
+      "totalAssists": 62,
+      "totalApps": 285,
+      "nationalCaps": 49,
+      "nationalGoals": 11,
+      "maxSeasonGoals": 27,
+      "last5LeagueGoals": 47,
+      "maxTransferFeeEUR": 130000000,
+      "proDebutYear": 2016,
+      "careerYears": 10
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/568177-1712320986.jpg"
+  },
+  {
+    "id": "p_j-musiala",
+    "slug": "j-musiala",
+    "name": "J. Musiala",
+    "displayName": "J. Musiala",
+    "birthDate": "2003-02-26",
+    "birthCity": "Stuttgart",
+    "birthCountry": "Germany",
+    "birthCountryCode": "DE",
+    "nationality": "Germany",
+    "nationalityCode": "DE",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 184,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_6918",
+        "fromYear": 2017,
+        "toYear": 2018,
+        "apps": 3,
+        "goals": 0,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "tm_27",
+        "fromYear": 2019,
+        "toYear": 2025,
+        "apps": 231,
+        "goals": 69,
+        "jerseyNo": 42
+      },
+      {
+        "clubId": "tm_28",
+        "fromYear": 2019,
+        "toYear": 2020,
+        "apps": 10,
+        "goals": 2,
+        "jerseyNo": 37
+      },
+      {
+        "clubId": "tm_1462",
+        "fromYear": 2019,
+        "toYear": 2019,
+        "apps": 6,
+        "goals": 0,
+        "jerseyNo": 15
+      },
+      {
+        "clubId": "tm_41585",
+        "fromYear": 2019,
+        "toYear": 2019,
+        "apps": 2,
+        "goals": 0,
+        "jerseyNo": 15
+      },
+      {
+        "clubId": "tm_21058",
+        "fromYear": 2019,
+        "toYear": 2019,
+        "apps": 12,
+        "goals": 6,
+        "jerseyNo": 10
+      }
+    ],
+    "jerseyNumbers": [
+      11,
+      10,
+      42,
+      23,
+      37,
+      15,
+      14
+    ],
+    "stats": {
+      "totalGoals": 95,
+      "totalAssists": 58,
+      "totalApps": 330,
+      "nationalCaps": 66,
+      "nationalGoals": 18,
+      "maxSeasonGoals": 21,
+      "last5LeagueGoals": 42,
+      "maxTransferFeeEUR": 140000000,
+      "proDebutYear": 2016,
+      "careerYears": 10
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/580195-1711745441.jpg"
+  },
+  {
+    "id": "p_j-bellingham",
+    "slug": "j-bellingham",
+    "name": "J. Bellingham",
+    "displayName": "J. Bellingham",
+    "birthDate": "2003-06-29",
+    "birthCity": "Stourbridge",
+    "birthCountry": "England",
+    "birthCountryCode": "EN",
+    "nationality": "England",
+    "nationalityCode": "EN",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 186,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_6938",
+        "fromYear": 2018,
+        "toYear": 2018,
+        "apps": 1,
+        "goals": 0
+      },
+      {
+        "clubId": "tm_337",
+        "fromYear": 2019,
+        "toYear": 2019,
+        "apps": 44,
+        "goals": 4,
+        "jerseyNo": 22
+      },
+      {
+        "clubId": "tm_16",
+        "fromYear": 2020,
+        "toYear": 2022,
+        "apps": 132,
+        "goals": 24,
+        "jerseyNo": 22
+      },
+      {
+        "clubId": "tm_418",
+        "fromYear": 2023,
+        "toYear": 2025,
+        "apps": 140,
+        "goals": 46,
+        "jerseyNo": 5
+      }
+    ],
+    "jerseyNumbers": [
+      8,
+      22,
+      10,
+      5
+    ],
+    "stats": {
+      "totalGoals": 87,
+      "totalAssists": 73,
+      "totalApps": 390,
+      "nationalCaps": 73,
+      "nationalGoals": 13,
+      "maxSeasonGoals": 23,
+      "last5LeagueGoals": 45,
+      "maxTransferFeeEUR": 180000000,
+      "proDebutYear": 2016,
+      "careerYears": 10
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/581678-1748102891.jpg"
+  },
+  {
+    "id": "p_f-wirtz",
+    "slug": "f-wirtz",
+    "name": "F. Wirtz",
+    "displayName": "F. Wirtz",
+    "birthDate": "2003-05-03",
+    "birthCity": "Pulheim",
+    "birthCountry": "Germany",
+    "birthCountryCode": "DE",
+    "nationality": "Germany",
+    "nationalityCode": "DE",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 177,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_21048",
+        "fromYear": 2018,
+        "toYear": 2019,
+        "apps": 24,
+        "goals": 12,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "tm_15",
+        "fromYear": 2019,
+        "toYear": 2024,
+        "apps": 197,
+        "goals": 57,
+        "jerseyNo": 27
+      },
+      {
+        "clubId": "tm_4713",
+        "fromYear": 2019,
+        "toYear": 2019,
+        "apps": 4,
+        "goals": 2,
+        "jerseyNo": 23
+      },
+      {
+        "clubId": "tm_31",
+        "fromYear": 2025,
+        "toYear": 2025,
+        "apps": 49,
+        "goals": 7,
+        "jerseyNo": 7
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      27,
+      7,
+      23,
+      17
+    ],
+    "stats": {
+      "totalGoals": 90,
+      "totalAssists": 93,
+      "totalApps": 329,
+      "nationalCaps": 55,
+      "nationalGoals": 12,
+      "maxSeasonGoals": 18,
+      "last5LeagueGoals": 34,
+      "maxTransferFeeEUR": 140000000,
+      "proDebutYear": 2017,
+      "careerYears": 9
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/598577-1689710503.jpg"
+  },
+  {
+    "id": "p_f-lopez",
+    "slug": "f-lopez",
+    "name": "F. López",
+    "displayName": "F. López",
+    "birthDate": "2003-05-11",
+    "birthCity": "El Campillo",
+    "birthCountry": "Spain",
+    "birthCountryCode": "ES",
+    "nationality": "Spain",
+    "nationalityCode": "ES",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 174,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_41584",
+        "fromYear": 2021,
+        "toYear": 2021,
+        "apps": 3,
+        "goals": 0,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "tm_12351",
+        "fromYear": 2022,
+        "toYear": 2022,
+        "apps": 40,
+        "goals": 12,
+        "jerseyNo": 10
+      },
+      {
+        "clubId": "tm_131",
+        "fromYear": 2023,
+        "toYear": 2025,
+        "apps": 136,
+        "goals": 32,
+        "jerseyNo": 16
+      },
+      {
+        "clubId": "tm_2464",
+        "fromYear": 2023,
+        "toYear": 2023,
+        "apps": 1,
+        "goals": 0,
+        "jerseyNo": 11
+      }
+    ],
+    "jerseyNumbers": [
+      10,
+      16,
+      22,
+      11
+    ],
+    "stats": {
+      "totalGoals": 51,
+      "totalAssists": 36,
+      "totalApps": 200,
+      "nationalCaps": 20,
+      "nationalGoals": 7,
+      "maxSeasonGoals": 13,
+      "last5LeagueGoals": 20,
+      "maxTransferFeeEUR": 100000000,
+      "proDebutYear": 2021,
+      "careerYears": 5
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/636703-1698086824.jpg"
+  },
+  {
+    "id": "p_joao-neves",
+    "slug": "joao-neves",
+    "name": "João Neves",
+    "displayName": "João Neves",
+    "birthDate": "2004-09-27",
+    "birthCity": "Tavira",
+    "birthCountry": "Portugal",
+    "birthCountryCode": "PT",
+    "nationality": "Portugal",
+    "nationalityCode": "PT",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 174,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_10330",
+        "fromYear": 2021,
+        "toYear": 2022,
+        "apps": 11,
+        "goals": 0,
+        "jerseyNo": 87
+      },
+      {
+        "clubId": "tm_41582",
+        "fromYear": 2021,
+        "toYear": 2022,
+        "apps": 14,
+        "goals": 1,
+        "jerseyNo": 20
+      },
+      {
+        "clubId": "tm_68780",
+        "fromYear": 2021,
+        "toYear": 2022,
+        "apps": 13,
+        "goals": 0
+      },
+      {
+        "clubId": "tm_294",
+        "fromYear": 2022,
+        "toYear": 2023,
+        "apps": 75,
+        "goals": 4,
+        "jerseyNo": 87
+      },
+      {
+        "clubId": "tm_583",
+        "fromYear": 2024,
+        "toYear": 2025,
+        "apps": 96,
+        "goals": 14,
+        "jerseyNo": 87
+      }
+    ],
+    "jerseyNumbers": [
+      8,
+      18,
+      87,
+      20,
+      15,
+      17
+    ],
+    "stats": {
+      "totalGoals": 26,
+      "totalAssists": 25,
+      "totalApps": 257,
+      "nationalCaps": 48,
+      "nationalGoals": 7,
+      "maxSeasonGoals": 7,
+      "last5LeagueGoals": 12,
+      "maxTransferFeeEUR": 110000000,
+      "proDebutYear": 2018,
+      "careerYears": 8
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/670681-1701295511.jpg"
+  },
+  {
+    "id": "p_pedri",
+    "slug": "pedri",
+    "name": "Pedro González López",
+    "displayName": "Pedri",
+    "birthDate": "2002-11-25",
+    "birthCity": "Tegueste",
+    "birthCountry": "Spain",
+    "birthCountryCode": "ES",
+    "nationality": "Spain",
+    "nationalityCode": "ES",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 174,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_131",
+        "fromYear": 2019,
+        "toYear": 2025,
+        "apps": 245,
+        "goals": 28,
+        "jerseyNo": 8
+      },
+      {
+        "clubId": "tm_472",
+        "fromYear": 2019,
+        "toYear": 2019,
+        "apps": 37,
+        "goals": 4,
+        "jerseyNo": 28
+      }
+    ],
+    "jerseyNumbers": [
+      18,
+      8,
+      21,
+      28,
+      10,
+      20,
+      16
+    ],
+    "stats": {
+      "totalGoals": 38,
+      "totalAssists": 47,
+      "totalApps": 341,
+      "nationalCaps": 59,
+      "nationalGoals": 6,
+      "maxSeasonGoals": 7,
+      "last5LeagueGoals": 19,
+      "maxTransferFeeEUR": 150000000,
+      "proDebutYear": 2018,
+      "careerYears": 8
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/683840-1744278342.jpg"
+  },
+  {
+    "id": "p_m-caicedo",
+    "slug": "m-caicedo",
+    "name": "M. Caicedo",
+    "displayName": "M. Caicedo",
+    "birthDate": "2001-11-02",
+    "birthCity": "Santo Domingo",
+    "birthCountry": "Ecuador",
+    "birthCountryCode": "EC",
+    "nationality": "Ecuador",
+    "nationalityCode": "EC",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 178,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_19309",
+        "fromYear": 2018,
+        "toYear": 2019,
+        "apps": 31,
+        "goals": 6,
+        "jerseyNo": 55
+      },
+      {
+        "clubId": "tm_39908",
+        "fromYear": 2019,
+        "toYear": 2019,
+        "apps": 3,
+        "goals": 1,
+        "jerseyNo": 5
+      },
+      {
+        "clubId": "tm_1237",
+        "fromYear": 2020,
+        "toYear": 2023,
+        "apps": 53,
+        "goals": 2,
+        "jerseyNo": 25
+      },
+      {
+        "clubId": "tm_39336",
+        "fromYear": 2020,
+        "toYear": 2021,
+        "apps": 5,
+        "goals": 0,
+        "jerseyNo": 8
+      },
+      {
+        "clubId": "tm_41274",
+        "fromYear": 2021,
+        "toYear": 2021,
+        "apps": 14,
+        "goals": 2,
+        "jerseyNo": 6
+      },
+      {
+        "clubId": "tm_631",
+        "fromYear": 2023,
+        "toYear": 2025,
+        "apps": 148,
+        "goals": 8,
+        "jerseyNo": 25
+      }
+    ],
+    "jerseyNumbers": [
+      55,
+      5,
+      23,
+      25,
+      8,
+      6
+    ],
+    "stats": {
+      "totalGoals": 22,
+      "totalAssists": 26,
+      "totalApps": 314,
+      "nationalCaps": 60,
+      "nationalGoals": 3,
+      "maxSeasonGoals": 7,
+      "last5LeagueGoals": 8,
+      "maxTransferFeeEUR": 110000000,
+      "proDebutYear": 2018,
+      "careerYears": 8
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/687626-1660729724.jpg"
+  },
+  {
+    "id": "p_h-ekitike",
+    "slug": "h-ekitike",
+    "name": "H. Ekitiké",
+    "displayName": "H. Ekitiké",
+    "birthDate": "2002-06-20",
+    "birthCity": "Reims",
+    "birthCountry": "France",
+    "birthCountryCode": "FR",
+    "nationality": "France",
+    "nationalityCode": "FR",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 190,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_11204",
+        "fromYear": 2019,
+        "toYear": 2021,
+        "apps": 14,
+        "goals": 6,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "tm_12774",
+        "fromYear": 2019,
+        "toYear": 2019,
+        "apps": 1,
+        "goals": 0,
+        "jerseyNo": 9
+      },
+      {
+        "clubId": "tm_1421",
+        "fromYear": 2020,
+        "toYear": 2021,
+        "apps": 28,
+        "goals": 11,
+        "jerseyNo": 22
+      },
+      {
+        "clubId": "tm_443",
+        "fromYear": 2020,
+        "toYear": 2020,
+        "apps": 11,
+        "goals": 3,
+        "jerseyNo": 23
+      },
+      {
+        "clubId": "tm_583",
+        "fromYear": 2022,
+        "toYear": 2023,
+        "apps": 33,
+        "goals": 4,
+        "jerseyNo": 44
+      },
+      {
+        "clubId": "tm_24",
+        "fromYear": 2023,
+        "toYear": 2024,
+        "apps": 64,
+        "goals": 26,
+        "jerseyNo": 11
+      },
+      {
+        "clubId": "tm_31",
+        "fromYear": 2025,
+        "toYear": 2025,
+        "apps": 45,
+        "goals": 17,
+        "jerseyNo": 22
+      }
+    ],
+    "jerseyNumbers": [
+      9,
+      22,
+      23,
+      17,
+      44,
+      11
+    ],
+    "stats": {
+      "totalGoals": 74,
+      "totalAssists": 33,
+      "totalApps": 215,
+      "nationalCaps": 19,
+      "nationalGoals": 7,
+      "maxSeasonGoals": 22,
+      "last5LeagueGoals": 43,
+      "maxTransferFeeEUR": 90000000,
+      "proDebutYear": 2019,
+      "careerYears": 7
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/709726-1758714741.jpg"
+  },
+  {
+    "id": "p_a-pavlovic",
+    "slug": "a-pavlovic",
+    "name": "A. Pavlovic",
+    "displayName": "A. Pavlovic",
+    "birthDate": "2004-05-03",
+    "birthCity": "München",
+    "birthCountry": "Germany",
+    "birthCountryCode": "DE",
+    "nationality": "Germany",
+    "nationalityCode": "DE",
+    "position": "MID",
+    "preferredFoot": "B",
+    "heightCm": 188,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_21058",
+        "fromYear": 2020,
+        "toYear": 2020,
+        "apps": 1,
+        "goals": 0,
+        "jerseyNo": 17
+      },
+      {
+        "clubId": "tm_1462",
+        "fromYear": 2021,
+        "toYear": 2022,
+        "apps": 29,
+        "goals": 3,
+        "jerseyNo": 6
+      },
+      {
+        "clubId": "tm_41585",
+        "fromYear": 2021,
+        "toYear": 2022,
+        "apps": 9,
+        "goals": 0,
+        "jerseyNo": 6
+      },
+      {
+        "clubId": "tm_27",
+        "fromYear": 2022,
+        "toYear": 2025,
+        "apps": 99,
+        "goals": 7,
+        "jerseyNo": 45
+      },
+      {
+        "clubId": "tm_28",
+        "fromYear": 2022,
+        "toYear": 2023,
+        "apps": 9,
+        "goals": 0,
+        "jerseyNo": 36
+      }
+    ],
+    "jerseyNumbers": [
+      17,
+      6,
+      45,
+      36,
+      5,
+      16
+    ],
+    "stats": {
+      "totalGoals": 11,
+      "totalAssists": 9,
+      "totalApps": 158,
+      "nationalCaps": 11,
+      "nationalGoals": 1,
+      "maxSeasonGoals": 4,
+      "last5LeagueGoals": 6,
+      "maxTransferFeeEUR": 90000000,
+      "proDebutYear": 2020,
+      "careerYears": 6
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/792380-1727098078.jpg"
+  },
+  {
+    "id": "p_desire-doue",
+    "slug": "desire-doue",
+    "name": "Désiré Doué",
+    "displayName": "Désiré Doué",
+    "birthDate": "2005-06-03",
+    "birthCity": "Angers",
+    "birthCountry": "France",
+    "birthCountryCode": "FR",
+    "nationality": "France",
+    "nationalityCode": "FR",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 181,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_273",
+        "fromYear": 2021,
+        "toYear": 2023,
+        "apps": 76,
+        "goals": 8,
+        "jerseyNo": 33
+      },
+      {
+        "clubId": "tm_8154",
+        "fromYear": 2021,
+        "toYear": 2023,
+        "apps": 11,
+        "goals": 1,
+        "jerseyNo": 8
+      },
+      {
+        "clubId": "tm_7874",
+        "fromYear": 2021,
+        "toYear": 2021,
+        "apps": 11,
+        "goals": 2
+      },
+      {
+        "clubId": "tm_583",
+        "fromYear": 2024,
+        "toYear": 2025,
+        "apps": 101,
+        "goals": 29,
+        "jerseyNo": 14
+      }
+    ],
+    "jerseyNumbers": [
+      33,
+      8,
+      10,
+      11,
+      6,
+      14,
+      20
+    ],
+    "stats": {
+      "totalGoals": 56,
+      "totalAssists": 43,
+      "totalApps": 248,
+      "nationalCaps": 49,
+      "nationalGoals": 16,
+      "maxSeasonGoals": 16,
+      "last5LeagueGoals": 20,
+      "maxTransferFeeEUR": 90000000,
+      "proDebutYear": 2021,
+      "careerYears": 5
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/914562-1667317075.jpg"
+  },
+  {
+    "id": "p_lamine-yamal",
+    "slug": "lamine-yamal",
+    "name": "Lamine Yamal Nasraoui Ebana",
+    "displayName": "Lamine Yamal",
+    "birthDate": "2007-07-13",
+    "birthCity": "Esplugues de Llobregat",
+    "birthCountry": "Spain",
+    "birthCountryCode": "ES",
+    "nationality": "Spain",
+    "nationalityCode": "ES",
+    "position": "MID",
+    "preferredFoot": "L",
+    "heightCm": 180,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_131",
+        "fromYear": 2022,
+        "toYear": 2025,
+        "apps": 151,
+        "goals": 49,
+        "jerseyNo": 19
+      },
+      {
+        "clubId": "tm_2464",
+        "fromYear": 2022,
+        "toYear": 2022,
+        "apps": 3,
+        "goals": 0,
+        "jerseyNo": 39
+      },
+      {
+        "clubId": "tm_41584",
+        "fromYear": 2022,
+        "toYear": 2022,
+        "apps": 6,
+        "goals": 0,
+        "jerseyNo": 7
+      }
+    ],
+    "jerseyNumbers": [
+      7,
+      10,
+      19,
+      39,
+      17
+    ],
+    "stats": {
+      "totalGoals": 67,
+      "totalAssists": 69,
+      "totalApps": 206,
+      "nationalCaps": 46,
+      "nationalGoals": 18,
+      "maxSeasonGoals": 24,
+      "last5LeagueGoals": 30,
+      "maxTransferFeeEUR": 200000000,
+      "proDebutYear": 2021,
+      "careerYears": 5
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/937958-1773173768.jpg"
+  },
+  {
+    "id": "p_y-diomande",
+    "slug": "y-diomande",
+    "name": "Y. Diomande",
+    "displayName": "Y. Diomande",
+    "birthDate": "2006-11-14",
+    "birthCity": "Abidjan",
+    "birthCountry": "Cote d'Ivoire",
+    "birthCountryCode": "XX",
+    "nationality": "Cote d'Ivoire",
+    "nationalityCode": "XX",
+    "position": "MID",
+    "preferredFoot": "R",
+    "heightCm": 180,
+    "isActive": true,
+    "clubs": [
+      {
+        "clubId": "tm_1244",
+        "fromYear": 2024,
+        "toYear": 2024,
+        "apps": 10,
+        "goals": 2,
+        "jerseyNo": 30
+      },
+      {
+        "clubId": "tm_23826",
+        "fromYear": 2025,
+        "toYear": 2025,
+        "apps": 36,
+        "goals": 13,
+        "jerseyNo": 49
+      }
+    ],
+    "jerseyNumbers": [
+      26,
+      14,
+      30,
+      49
+    ],
+    "stats": {
+      "totalGoals": 18,
+      "totalAssists": 11,
+      "totalApps": 56,
+      "nationalCaps": 10,
+      "nationalGoals": 3,
+      "maxSeasonGoals": 13,
+      "last5LeagueGoals": 14,
+      "maxTransferFeeEUR": 90000000,
+      "proDebutYear": 2023,
+      "careerYears": 3
+    },
+    "achievements": {
+      "hasUCLFinal": false,
+      "hasWorldCup": false
+    },
+    "imageUrl": "https://img.a.transfermarkt.technology/portrait/big/1390649-1759779499.jpg"
   }
 ]

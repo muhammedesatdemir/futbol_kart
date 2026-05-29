@@ -128,7 +128,16 @@ pnpm --filter @futbol-kart/db migrate
 pnpm --filter @futbol-kart/data-pipeline build
 ```
 
-`apps/web/public/data/players.json` ve `clubs.json` üretilir (50 oyuncu, 47 kulüp).
+`apps/web/public/data/players.json` ve `clubs.json` üretilir.
+
+**Veriyi genişletmek için (Transfermarkt scrape):**
+
+```bash
+pnpm --filter @futbol-kart/data-pipeline scrape:all
+pnpm --filter @futbol-kart/data-pipeline build
+```
+
+Detaylar: [data-pipeline/scripts/scrape/README.md](data-pipeline/scripts/scrape/README.md)
 
 ### 5. Çalıştır
 

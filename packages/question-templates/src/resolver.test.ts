@@ -205,12 +205,43 @@ describe('resolveRound', () => {
     expect(r.winner).toBe('P1');
   });
 
-  it('p01_is_forward: ikisi de forvet → tiebreaker (totalGoals)', () => {
+  it('p01_is_forward: ikisi de forvet → gerçek beraberlik, kazanan yok', () => {
     const t = templateById('p01_is_forward')!;
     const r = resolveRound(t, fixtureMessi, fixtureCR7, fixtureContext);
-    // Bool tie → tiebreaker totalGoals → CR7 920 > Messi 850
-    expect(r.winner).toBe('P2');
-    expect(r.tiebreakerUsed).toBe('stats.totalGoals:max');
+    // İkisi de forvet (Evet-Evet) → beraberlik. Tiebreaker ile rastgele/keyfi
+    // kazanan ASLA belirlenmez; eşitlik uzatma/penaltı fazlarıyla kırılır.
+    expect(r.winner).toBe('tie');
+    expect(r.tiebreakerUsed).toBeUndefined();
+  });
+
+  it('numeric tie: eşit değerler → beraberlik, kazanan yok', () => {
+    const t = templateById('n01_total_goals')!;
+    // Aynı oyuncuyu iki tarafa koyarsak değerler eşit → tie
+    const r = resolveRound(t, fixtureMessi, fixtureMessi, fixtureContext);
+    expect(r.winner).toBe('tie');
+  });
+});
+
+describe('parametrik şablon — param üretimi ve başlık interpolasyonu', () => {
+  it('pickParams int aralık + step içinde değer üretir', async () => {
+    const { pickParams } = await import('./resolver');
+    const t = templateById('x04_apps_proximity')!;
+    // step 100, from 200, to 900 → izin verilen değerler 200..900
+    for (let i = 0; i < 50; i++) {
+      const p = pickParams(t, () => i / 50);
+      const v = p['targetApps'] as number;
+      expect(v).toBeGreaterThanOrEqual(200);
+      expect(v).toBeLessThanOrEqual(900);
+      expect(v % 100).toBe(0);
+    }
+  });
+
+  it('interpolateTitle placeholder\'ı değerle değiştirir', async () => {
+    const { interpolateTitle } = await import('./resolver');
+    const t = templateById('x04_apps_proximity')!;
+    const out = interpolateTitle(t.title.tr, { targetApps: 500 });
+    expect(out).toContain('500');
+    expect(out).not.toContain('{targetApps}');
   });
 });
 
@@ -219,6 +250,68 @@ describe('templateApplicable', () => {
     for (const t of TEMPLATES) {
       expect(typeof templateApplicable(t, fixtureMessi), t.id).toBe('boolean');
       expect(typeof templateApplicable(t, fixtureCR7), t.id).toBe('boolean');
+    }
+  });
+});
+
+describe('regression — şablon/resolver senkronizasyonu', () => {
+  // Üç fixture'ı da kapsayacak geniş bir oyuncu seti
+  const fixtures = [fixtureMessi, fixtureCR7, fixtureRonaldinho];
+
+  it('compute:custom şablonların ID\'si resolver switch ile eşleşiyor (orphan yok)', () => {
+    // Bir şablon uygulanabilir olduğu HALDE computeValue null dönüyorsa,
+    // resolver'da o ID için case yok demektir (renamed/orphan bug).
+    for (const t of TEMPLATES) {
+      if (t.compute !== 'custom') continue;
+      const applicable = fixtures.filter((p) => templateApplicable(t, p));
+      if (applicable.length === 0) continue; // fixture kapsamı dışında
+      const anyKnown = applicable.some(
+        (p) => computeValue(t, p, fixtureContext) !== null,
+      );
+      expect(
+        anyKnown,
+        `${t.id}: uygulanabilir fixture'larda HEP null döndü — resolver case eksik/yanlış olabilir`,
+      ).toBe(true);
+    }
+  });
+
+  it('hiçbir şablon "random" tiebreaker içermiyor ve resolveRound rastgele kazanan üretmiyor', () => {
+    for (const t of TEMPLATES) {
+      expect(t.tiebreakers, t.id).not.toContain('random');
+    }
+    // Eşit değerlerde her zaman tie döner (tiebreaker uygulanmaz)
+    const t = templateById('p01_is_forward')!;
+    const r = resolveRound(t, fixtureMessi, fixtureCR7, fixtureContext);
+    expect(r.winner).toBe('tie');
+    expect(r.tiebreakerUsed).toBeUndefined();
+  });
+
+  it('e09/e10 dönüştürülen şablonlar sayısal değer üretiyor (bool değil)', () => {
+    const e09 = templateById('e09_national_dominant')!;
+    expect(e09.compareOp).toBe('max');
+    const v9 = computeValue(e09, fixtureMessi, fixtureContext);
+    expect(typeof v9).toBe('number');
+
+    const e10 = templateById('e10_high_value_active')!;
+    expect(e10.compareOp).toBe('max');
+    // Messi aktif → maxTransferFeeEUR varsa sayı, yoksa null (ama bool değil)
+    const v10 = computeValue(e10, fixtureMessi, fixtureContext);
+    expect(v10 === null || typeof v10 === 'number').toBe(true);
+  });
+
+  it('silinen şablonlar artık mevcut değil', () => {
+    for (const id of [
+      'k08_name_palindrome',
+      'f07_goals_round',
+      'f08_apps_4_digits',
+      'e01_tall_giant',
+      'e02_short_player',
+      'e03_1000_plus_apps',
+      'e04_500_plus_goals',
+      'e06_50_plus_season',
+      't11_career_decades_count',
+    ]) {
+      expect(templateById(id), `${id} silinmeli`).toBeUndefined();
     }
   });
 });

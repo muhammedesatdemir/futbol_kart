@@ -15,6 +15,8 @@ import { comparisonHint, formatValue } from '@/lib/valueFormat';
 interface RoundSceneProps {
   scene: Scene;
   question: Template | null;
+  /** Parametre değerleriyle doldurulmuş soru başlığı ({targetApps} → 500). */
+  questionTitle: string | null;
   activeSide: PlayerSide;
   botMode: boolean;
   p1Name: string;
@@ -32,6 +34,7 @@ interface RoundSceneProps {
 export function RoundScene({
   scene,
   question,
+  questionTitle,
   activeSide,
   botMode,
   p1Name,
@@ -82,7 +85,7 @@ export function RoundScene({
                 {t('questionTitle')}
               </div>
               <h2 className="mt-1 text-lg font-bold sm:text-xl">
-                {question.title.tr}
+                {questionTitle ?? question.title.tr}
               </h2>
               {turnLabel && (
                 <div className="mt-3 text-sm font-semibold text-white/80">

@@ -443,18 +443,6 @@
     "tags": ["age"]
   },
   {
-    "id": "t11_career_decades_count",
-    "category": "time",
-    "title": { "tr": "Profesyonel kariyerini daha fazla on yıla yaymış olan oyuncu kazanır." },
-    "formula": { "tr": "Kariyer süresince forma giydiği farklı on yılların (decade) sayısı karşılaştırılır." },
-    "field": "clubs",
-    "compute": "custom",
-    "compareOp": "max",
-    "tiebreakers": ["stats.careerYears:max"],
-    "requiresFields": ["clubs"],
-    "tags": ["longevity"]
-  },
-  {
     "id": "t12_active_years_now",
     "category": "time",
     "title": { "tr": "Şu ana kadar profesyonel kariyerini daha uzun süre devam ettirmiş aktif oyuncu kazanır." },
@@ -1004,19 +992,6 @@
     "tags": ["name", "boolean", "turkey"]
   },
   {
-    "id": "k08_name_palindrome",
-    "category": "boolean",
-    "title": { "tr": "Resmî tam adı (boşluklar hariç) tersten de aynı okunan (palindrom) olan oyuncu kazanır." },
-    "formula": { "tr": "Tam ad küçük harfe çevrilip yalnızca harfler bırakılır; tersten de aynı okunuyorsa kazanır." },
-    "field": "name",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["name"],
-    "minPoolCoverage": 0.005,
-    "tags": ["name", "boolean", "extreme"]
-  },
-  {
     "id": "k09_lastname_length",
     "category": "name",
     "title": { "tr": "Soyadındaki harf sayısı daha fazla olan oyuncu kazanır." },
@@ -1151,32 +1126,6 @@
     "tiebreakers": [],
     "requiresFields": ["birthDate"],
     "tags": ["fun", "boolean"]
-  },
-  {
-    "id": "f07_goals_round",
-    "category": "boolean",
-    "title": { "tr": "Toplam gol sayısı tam olarak 100'ün katı olan oyuncu kazanır." },
-    "formula": { "tr": "Toplam gol sayısı 100, 200, 300 gibi bir değerse kazanır." },
-    "field": "stats.totalGoals",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["stats.totalGoals"],
-    "minPoolCoverage": 0.02,
-    "tags": ["fun", "boolean"]
-  },
-  {
-    "id": "f08_apps_4_digits",
-    "category": "boolean",
-    "title": { "tr": "Toplam profesyonel maç sayısı dört basamağa (1000 veya üstüne) ulaşmış olan oyuncu kazanır." },
-    "formula": { "tr": "Toplam maç sayısı 1000 ya da üstüyse kazanır." },
-    "field": "stats.totalApps",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["stats.totalApps:max"],
-    "requiresFields": ["stats.totalApps"],
-    "minPoolCoverage": 0.02,
-    "tags": ["fun", "boolean", "extreme"]
   },
   {
     "id": "f09_jersey_palindrome",
@@ -1373,58 +1322,6 @@
     "tags": ["proximity", "national"]
   },
   {
-    "id": "e01_tall_giant",
-    "category": "extreme",
-    "title": { "tr": "Boyu 200 santimetre ve üzerinde olan dev oyuncu kazanır." },
-    "formula": { "tr": "Boy değeri 200 cm veya daha büyükse kazanır." },
-    "field": "heightCm",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["heightCm:max"],
-    "requiresFields": ["heightCm"],
-    "minPoolCoverage": 0.005,
-    "tags": ["extreme", "boolean", "physical"]
-  },
-  {
-    "id": "e02_short_player",
-    "category": "extreme",
-    "title": { "tr": "Boyu 170 santimetreden kısa olan oyuncu kazanır." },
-    "formula": { "tr": "Boy değeri 170 cm'in altındaysa kazanır." },
-    "field": "heightCm",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["heightCm:min"],
-    "requiresFields": ["heightCm"],
-    "minPoolCoverage": 0.05,
-    "tags": ["extreme", "boolean", "physical"]
-  },
-  {
-    "id": "e03_1000_plus_apps",
-    "category": "extreme",
-    "title": { "tr": "Profesyonel kariyerinde 1000 veya daha fazla resmi maç oynamış olan oyuncu kazanır." },
-    "formula": { "tr": "Toplam maç sayısı 1000 veya daha fazla ise kazanır." },
-    "field": "stats.totalApps",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["stats.totalApps:max"],
-    "requiresFields": ["stats.totalApps"],
-    "minPoolCoverage": 0.02,
-    "tags": ["extreme", "boolean", "longevity"]
-  },
-  {
-    "id": "e04_500_plus_goals",
-    "category": "extreme",
-    "title": { "tr": "Profesyonel kariyerinde 500 veya daha fazla resmi gol atmış olan oyuncu kazanır." },
-    "formula": { "tr": "Toplam gol sayısı 500 veya daha fazla ise kazanır." },
-    "field": "stats.totalGoals",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["stats.totalGoals:max"],
-    "requiresFields": ["stats.totalGoals"],
-    "minPoolCoverage": 0.005,
-    "tags": ["extreme", "boolean", "goals"]
-  },
-  {
     "id": "e05_20_plus_career",
     "category": "extreme",
     "title": { "tr": "Profesyonel kariyer süresi 20 yıl veya daha uzun olan oyuncu kazanır." },
@@ -1436,19 +1333,6 @@
     "requiresFields": ["stats.careerYears"],
     "minPoolCoverage": 0.05,
     "tags": ["extreme", "boolean", "longevity"]
-  },
-  {
-    "id": "e06_50_plus_season",
-    "category": "extreme",
-    "title": { "tr": "Tek bir sezonda 50 veya daha fazla gol atmış olan oyuncu kazanır." },
-    "formula": { "tr": "En verimli sezon golü 50 veya daha fazla ise kazanır." },
-    "field": "stats.maxSeasonGoals",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["stats.maxSeasonGoals:max"],
-    "requiresFields": ["stats.maxSeasonGoals"],
-    "minPoolCoverage": 0.005,
-    "tags": ["extreme", "boolean"]
   },
   {
     "id": "e07_3_plus_continents",
@@ -1479,28 +1363,28 @@
   {
     "id": "e09_national_dominant",
     "category": "extreme",
-    "title": { "tr": "Toplam gollerinin yarısından fazlasını A milli takımda atmış olan oyuncu kazanır." },
-    "formula": { "tr": "Milli gol bölü toplam gol oranı 0.5 veya daha büyükse kazanır." },
+    "title": { "tr": "Toplam gollerinin daha büyük oranını A milli takımda atmış olan oyuncu kazanır." },
+    "formula": { "tr": "Milli gol bölü toplam gol oranı (milli takım ağırlığı) daha yüksek olan kazanır." },
     "field": "stats.totalGoals",
     "compute": "custom",
-    "compareOp": "bool",
+    "compareOp": "max",
     "tiebreakers": ["stats.nationalGoals:max"],
     "requiresFields": ["stats.totalGoals", "stats.nationalGoals"],
-    "minPoolCoverage": 0.02,
-    "tags": ["extreme", "boolean", "national"]
+    "minPoolCoverage": 0.6,
+    "tags": ["extreme", "national"]
   },
   {
     "id": "e10_high_value_active",
     "category": "extreme",
-    "title": { "tr": "Hâlâ aktif ve en yüksek piyasa değeri 50 milyon avro veya üzerinde olan oyuncu kazanır." },
-    "formula": { "tr": "Aktif statüde ve en yüksek piyasa değeri 50.000.000 € veya üstünde ise kazanır." },
+    "title": { "tr": "Hâlâ aktif oyuncular arasında en yüksek piyasa değeri daha büyük olan oyuncu kazanır." },
+    "formula": { "tr": "Yalnızca aktif oyuncular için: kariyerdeki en yüksek piyasa değeri (€) karşılaştırılır." },
     "field": "stats.maxTransferFeeEUR",
     "compute": "custom",
-    "compareOp": "bool",
+    "compareOp": "max",
     "tiebreakers": ["stats.maxTransferFeeEUR:max"],
     "requiresFields": ["stats.maxTransferFeeEUR", "isActive"],
-    "minPoolCoverage": 0.05,
-    "tags": ["extreme", "boolean", "value"]
+    "minPoolCoverage": 0.4,
+    "tags": ["extreme", "value"]
   },
   {
     "id": "f02_jersey_has_target",

@@ -6,6 +6,7 @@
   "scripts": {
     "build": "tsx scripts/build.ts",
     "report": "tsx scripts/report.ts",
+    "audit:templates": "tsx scripts/auditTemplates.ts",
     "scrape:list": "tsx scripts/scrape/list.ts",
     "scrape:players": "tsx scripts/scrape/players.ts",
     "scrape:merge": "tsx scripts/scrape/merge.ts",

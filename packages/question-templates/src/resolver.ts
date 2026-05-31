@@ -1,13 +1,12 @@
 import type { Player } from '@futbol-kart/shared-types';
 // (ClubStint tipini doğrudan kullanmıyoruz; Player.clubs üzerinden erişiyoruz.)
-import type { Template, TemplateParams } from './schema';
+import type { ParamSpec, Template, TemplateParams } from './schema';
 import { haversineKm, ISTANBUL, isCapital } from './geo';
 import {
   countVowels,
   countConsonants,
   countLetter,
   hasTurkishChar,
-  isPalindrome,
   isPrime,
   isKnown,
   nameLetterCount,
@@ -41,6 +40,54 @@ export interface ClubLite {
   continent: string;
   lat: number;
   lng: number;
+}
+
+/**
+ * Parametrik bir şablon için runtime'da somut parametre değerleri üretir.
+ * rng() deterministik PRNG'dir (seed'e bağlı), böylece aynı maç tekrar
+ * oynatıldığında aynı değerler çıkar.
+ */
+export function pickParams(
+  template: Template,
+  rng: () => number,
+): TemplateParams {
+  const out: TemplateParams = {};
+  if (!template.params) return out;
+  for (const spec of template.params) {
+    out[spec.name] = pickParamValue(spec, rng);
+  }
+  return out;
+}
+
+function pickParamValue(spec: ParamSpec, rng: () => number): string | number {
+  if (spec.type === 'enum') {
+    const vals = spec.values ?? [];
+    if (vals.length === 0) return '';
+    return vals[Math.floor(rng() * vals.length)]!;
+  }
+  // int / float
+  const from = spec.from ?? 0;
+  const to = spec.to ?? from;
+  const step = spec.step ?? 1;
+  if (to <= from) return from;
+  const steps = Math.floor((to - from) / step);
+  const idx = Math.floor(rng() * (steps + 1));
+  const val = from + idx * step;
+  return spec.type === 'float' ? val : Math.round(val);
+}
+
+/**
+ * Şablon başlığındaki {paramAdı} placeholder'larını somut değerlerle değiştirir.
+ * Parametre yoksa başlık aynen döner.
+ */
+export function interpolateTitle(
+  title: string,
+  params: TemplateParams | undefined,
+): string {
+  if (!params) return title;
+  return title.replace(/\{(\w+)\}/g, (match, key: string) =>
+    key in params ? String(params[key]) : match,
+  );
 }
 
 export type ComputedValue = number | boolean | null;
@@ -132,6 +179,7 @@ function computeCustom(
     case 'n09_career_years': return player.stats.careerYears ?? null;
     case 'n10_pro_debut_year': return player.stats.proDebutYear ?? null;
     case 'n11_height_cm': return player.heightCm ?? null;
+    case 'n11b_height_cm_min': return player.heightCm ?? null;
     case 'n12_jersey_sum': return sum(player.jerseyNumbers);
     case 'n13_jersey_avg': return player.jerseyNumbers.length
       ? sum(player.jerseyNumbers) / player.jerseyNumbers.length
@@ -173,15 +221,11 @@ function computeCustom(
     case 't02_older':
       return player.birthDate ? -new Date(player.birthDate).getTime() : null;
     case 't03_birth_year': return birthYear(player.birthDate);
-    case 't04_birth_month': return birthMonth(player.birthDate);
-    case 't05_birth_day': return birthDay(player.birthDate);
     case 't06_earlier_debut': return player.stats.proDebutYear ?? null;
-    case 't07_debut_age': return computeDebutAge(player);
+    case 't07_debut_age_young': return computeDebutAge(player);
     case 't08_decade_spread': return decadeSpread(player);
     case 't09_still_active': return player.isActive;
-    case 't10_age_today': return ageYears(player.birthDate, REFERENCE_YEAR);
-    case 't11_career_decades_count': return decadeSpread(player);
-    case 't12_active_career_years':
+    case 't12_active_years_now':
       if (!player.isActive || !player.stats.proDebutYear) return null;
       return REFERENCE_YEAR - player.stats.proDebutYear;
 
@@ -227,10 +271,10 @@ function computeCustom(
     // ---------- KULÜP KARİYERİ ----------
     case 'c01_club_count': return player.clubs.length || null;
     case 'c02_longest_stint_years': return longestStintYears(player);
-    case 'c03_first_club_year':
+    case 'c03_first_club_year_early':
       if (player.clubs.length === 0) return null;
       return Math.min(...player.clubs.map((s) => s.fromYear));
-    case 'c04_last_club_year':
+    case 'c04_last_club_year_late':
       if (player.clubs.length === 0) return null;
       return Math.max(...player.clubs.map((s) => s.toYear ?? REFERENCE_YEAR));
     case 'c05_max_club_apps':
@@ -268,7 +312,6 @@ function computeCustom(
     case 'k05_name_consonants': return countConsonants(player.name);
     case 'k06_name_syllables': return syllableCount(player.name);
     case 'k07_name_has_turkish_char': return hasTurkishChar(player.name);
-    case 'k08_name_palindrome': return isPalindrome(player.name);
     case 'k09_lastname_length': return nameLetterCount(lastWord(player.name));
     case 'k10_firstname_length': return nameLetterCount(firstWord(player.name));
     case 'k11_uses_stage_name': // sahne adı = name ≠ displayName
@@ -308,10 +351,6 @@ function computeCustom(
       const y = birthYear(player.birthDate);
       return y === null ? null : y % 2 === 0;
     }
-    case 'f07_goals_round': // gol sayısı 100'ün katı mı
-      return player.stats.totalGoals > 0 && player.stats.totalGoals % 100 === 0;
-    case 'f08_apps_4_digits':
-      return player.stats.totalApps >= 1000;
     case 'f09_jersey_palindrome': // forma no palindrom mu (11, 22, 33...)
       return player.jerseyNumbers.some((n) => {
         const s = String(n);
@@ -319,7 +358,7 @@ function computeCustom(
       });
     case 'f10_height_ends_zero': // boyu 0'la bitiyor (170, 180, 190)
       return typeof player.heightCm === 'number' && player.heightCm % 10 === 0;
-    case 'f11_birth_season': {
+    case 'f11_birth_in_winter': {
       const s = birthSeason(player.birthDate);
       const want = String(ctx.params?.['season'] ?? 'winter');
       return s === want;
@@ -378,33 +417,20 @@ function computeCustom(
     }
 
     // ---------- EXTREME / NICHE ----------
-    case 'e01_tall_giant': // 200cm+
-      return typeof player.heightCm === 'number' && player.heightCm >= 200;
-    case 'e02_short_player': // 170cm altı
-      return typeof player.heightCm === 'number' && player.heightCm < 170;
-    case 'e03_1000_plus_apps':
-      return player.stats.totalApps >= 1000;
-    case 'e04_500_plus_goals':
-      return player.stats.totalGoals >= 500;
     case 'e05_20_plus_career':
       return (player.stats.careerYears ?? 0) >= 20;
-    case 'e06_50_plus_season':
-      return (player.stats.maxSeasonGoals ?? 0) >= 50;
     case 'e07_3_plus_continents':
       return distinctContinents(player, ctx) >= 3;
     case 'e08_5_plus_countries':
       return distinctClubCountries(player, ctx) >= 5;
     case 'e09_national_dominant':
-      // milli golleri toplam gollerinin %50'sinden fazla
+      // Milli takım gol oranı (milli gol / toplam gol). Yüksek olan kazanır.
       if (player.stats.totalGoals === 0) return null;
-      return player.stats.nationalGoals / player.stats.totalGoals >= 0.5;
+      return player.stats.nationalGoals / player.stats.totalGoals;
     case 'e10_high_value_active':
-      // hâlâ aktif ve 50M+ transfer değeri
-      return (
-        player.isActive &&
-        typeof player.stats.maxTransferFeeEUR === 'number' &&
-        player.stats.maxTransferFeeEUR >= 50_000_000
-      );
+      // Yalnızca aktif oyuncular; en yüksek piyasa değeri karşılaştırılır.
+      if (!player.isActive) return null;
+      return player.stats.maxTransferFeeEUR ?? null;
 
     // ---------- BOOLEAN (sınırlı: bireysel) ----------
     case 'b01_active_player': return player.isActive;
@@ -668,18 +694,11 @@ export function resolveRound(
   const v2 = computeValue(template, p2, ctx);
 
   const winnerByValue = compareValues(v1, v2, template.compareOp);
-  if (winnerByValue !== 'tie') {
-    return { winner: winnerByValue, p1Value: v1, p2Value: v2 };
-  }
-
-  for (const tb of template.tiebreakers) {
-    const outcome = applyTiebreaker(tb, p1, p2, ctx);
-    if (outcome.winner !== 'tie') {
-      return { ...outcome, p1Value: v1, p2Value: v2, tiebreakerUsed: tb };
-    }
-  }
-
-  return { winner: 'tie', p1Value: v1, p2Value: v2 };
+  // Gerçek beraberlik (Evet-Evet, Hayır-Hayır, 25-25 gibi) her zaman beraberlik
+  // kalır; hiçbir tarafa puan verilmez. Eşitlik maç sonunda uzatma → penaltı
+  // (sudden death) fazlarıyla kırılır (bkz. sessionMachine). Tiebreaker ile
+  // rastgele/keyfi kazanan ASLA belirlenmez.
+  return { winner: winnerByValue, p1Value: v1, p2Value: v2 };
 }
 
 function compareValues(
@@ -701,41 +720,6 @@ function compareValues(
   if (n1 === n2) return 'tie';
   if (op === 'max') return n1 > n2 ? 'P1' : 'P2';
   return n1 < n2 ? 'P1' : 'P2';
-}
-
-function applyTiebreaker(
-  tb: string,
-  p1: Player,
-  p2: Player,
-  ctx: ResolverContext,
-): { winner: 'P1' | 'P2' | 'tie' } {
-  if (tb === 'random') {
-    return { winner: ctx.rng() < 0.5 ? 'P1' : 'P2' };
-  }
-  const [path, op] = tb.split(':');
-  if (!path || !op) return { winner: 'tie' };
-  const v1 = numericPath(p1, path);
-  const v2 = numericPath(p2, path);
-  if (v1 === null && v2 === null) return { winner: 'tie' };
-  if (v1 === null) return { winner: 'P2' };
-  if (v2 === null) return { winner: 'P1' };
-  if (v1 === v2) return { winner: 'tie' };
-  if (op === 'max') return { winner: v1 > v2 ? 'P1' : 'P2' };
-  if (op === 'min') return { winner: v1 < v2 ? 'P1' : 'P2' };
-  return { winner: 'tie' };
-}
-
-function numericPath(player: Player, path: string): number | null {
-  // Özel kısayollar
-  if (path === 'clubs.length' || path === 'clubs') return player.clubs.length;
-  if (path === 'jerseyNumbers' || path === 'jerseyNumbers.length') {
-    return player.jerseyNumbers.length;
-  }
-  if (path === 'birthDate') {
-    return player.birthDate ? new Date(player.birthDate).getTime() : null;
-  }
-  const v = getByPath(player, path);
-  return typeof v === 'number' ? v : null;
 }
 
 export function templateApplicable(

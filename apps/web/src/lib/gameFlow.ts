@@ -3,7 +3,10 @@ import {
   TEMPLATES,
   templateApplicable,
   resolveRound,
+  pickParams,
+  interpolateTitle,
   type Template,
+  type TemplateParams,
   type ResolverContext,
   type ClubLite,
 } from '@futbol-kart/question-templates';
@@ -14,6 +17,8 @@ export interface FlowContext {
   playersById: Map<string, Player>;
   resolver: ResolverContext;
   usedQuestionIds: Set<string>;
+  /** Parametrik şablonlar için tur seçildiğinde üretilen somut değerler. */
+  paramsByQuestion: Map<string, TemplateParams>;
 }
 
 export function createFlowContext(
@@ -31,6 +36,7 @@ export function createFlowContext(
     playersById: new Map(players.map((p) => [p.id, p])),
     resolver,
     usedQuestionIds: new Set(),
+    paramsByQuestion: new Map(),
   };
 }
 
@@ -52,7 +58,19 @@ export function pickQuestion(
   if (candidates.length === 0) return null;
   const choice = candidates[Math.floor(ctx.prng.next() * candidates.length)]!;
   ctx.usedQuestionIds.add(choice.id);
+  // Parametrik şablon ise somut değerleri şimdi üret ve sakla (deterministik).
+  if (choice.params?.length && !ctx.paramsByQuestion.has(choice.id)) {
+    ctx.paramsByQuestion.set(choice.id, pickParams(choice, () => ctx.prng.next()));
+  }
   return choice;
+}
+
+/**
+ * Bir şablonun başlığını, o tur için üretilmiş parametre değerleriyle
+ * doldurarak döndürür ({targetApps} → 500 gibi). Parametre yoksa ham başlık.
+ */
+export function resolvedTitle(ctx: FlowContext, template: Template): string {
+  return interpolateTitle(template.title.tr, ctx.paramsByQuestion.get(template.id));
 }
 
 export function resolveCards(
@@ -66,6 +84,8 @@ export function resolveCards(
   if (!p1 || !p2) {
     throw new Error('resolveCards: player not found');
   }
+  // Bu tur için üretilmiş parametreleri resolver'a geçir (proximity hedefi vb.).
+  ctx.resolver.params = ctx.paramsByQuestion.get(template.id);
   return resolveRound(template, p1, p2, ctx.resolver);
 }
 

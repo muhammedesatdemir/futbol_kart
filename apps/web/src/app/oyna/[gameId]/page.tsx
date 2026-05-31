@@ -26,6 +26,7 @@ import {
   botPickCard,
   pickQuestion,
   resolveCards,
+  resolvedTitle,
 } from '@/lib/gameFlow';
 import { templateById } from '@futbol-kart/question-templates';
 
@@ -188,7 +189,7 @@ export default function GameSessionPage() {
       );
       dispatch({
         type: 'ROUND_RESOLVED',
-        questionTitle: template.title.tr ?? template.id,
+        questionTitle: resolvedTitle(flow, template) || template.id,
         p1Value: outcome.p1Value,
         p2Value: outcome.p2Value,
         winner: outcome.winner,
@@ -258,6 +259,9 @@ export default function GameSessionPage() {
 
   const currentTemplate = state.currentQuestionId
     ? templateById(state.currentQuestionId) ?? null
+    : null;
+  const currentQuestionTitle = currentTemplate
+    ? resolvedTitle(flow, currentTemplate)
     : null;
 
   const activeSide: 'P1' | 'P2' =
@@ -391,6 +395,7 @@ export default function GameSessionPage() {
             <RoundScene
               scene={state.scene}
               question={currentTemplate}
+              questionTitle={currentQuestionTitle}
               activeSide={activeSide}
               botMode={botMode}
               p1Name={p1Display}

@@ -74,7 +74,6 @@ const UNIT_BY_TEMPLATE: Record<string, string> = {
   c02_longest_stint_years: 'yıl',
   t12_active_years_now: 'yıl',
   t08_decade_spread: 'on yıl',
-  t11_career_decades_count: 'on yıl',
   // ad birimleri
   k01_name_letter_count: 'harf',
   k02_display_letter_count: 'harf',
@@ -107,7 +106,12 @@ export function formatValue(
       return `${numTR(value)} cm`;
 
     case 'n08_max_transfer_fee':
+    case 'e10_high_value_active':
       return fmtTransferFee(value);
+
+    case 'e09_national_dominant':
+      // Milli gol oranı (0..1) → yüzde
+      return `%${numTR(value * 100)}`;
 
     case 'n10_pro_debut_year':
     case 't03_birth_year':

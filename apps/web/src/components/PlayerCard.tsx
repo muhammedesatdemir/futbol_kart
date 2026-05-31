@@ -10,6 +10,7 @@ import {
   positionShort,
   positionTheme,
 } from '@/lib/playerDisplay';
+import { portraitFraming } from '@/lib/playerImageOverrides';
 import { SoccerBallIcon } from './icons';
 
 interface PlayerCardProps {
@@ -41,7 +42,7 @@ function CardFront({ player, selected }: { player: Player; selected?: boolean })
   return (
     <div
       className={cn(
-        'group/card relative h-full w-full overflow-hidden rounded-xl',
+        'group/card relative flex h-full w-full flex-col overflow-hidden rounded-xl',
         'shadow-card',
         selected && 'ring-2 ring-accent-goldHi',
       )}
@@ -62,26 +63,26 @@ function CardFront({ player, selected }: { player: Player; selected?: boolean })
         )}
       />
 
-      {/* Üst-orta parıltı (kart ışığı) */}
+      {/* Üst-orta parıltı (kart ışığı) — foto üstünde, z-10 */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-40 mix-blend-overlay"
+        className="pointer-events-none absolute inset-0 z-10 opacity-40 mix-blend-overlay"
         style={{
           backgroundImage:
             'radial-gradient(ellipse at 50% 8%, rgba(255,255,255,0.85), transparent 55%)',
         }}
       />
 
-      {/* Holo conic gradient — collectible hissi */}
+      {/* Holo conic gradient — collectible hissi, foto üstüne mix-blend */}
       <div
-        className="pointer-events-none absolute inset-0 opacity-[0.16] mix-blend-color-dodge"
+        className="pointer-events-none absolute inset-0 z-10 opacity-[0.18] mix-blend-color-dodge"
         style={{
           backgroundImage:
             'conic-gradient(from 210deg at 50% 50%, rgba(255,80,120,0.6), rgba(255,200,80,0.6), rgba(120,255,160,0.6), rgba(80,180,255,0.6), rgba(220,120,255,0.6), rgba(255,80,120,0.6))',
         }}
       />
 
-      {/* Shine band — hover'da geçer */}
-      <div className="pointer-events-none absolute inset-0 overflow-hidden" aria-hidden>
+      {/* Shine band — hover'da geçer, en üstte z-20 */}
+      <div className="pointer-events-none absolute inset-0 z-20 overflow-hidden" aria-hidden>
         <div
           className={cn(
             'absolute inset-y-0 w-[35%] -translate-x-full -skew-x-12',
@@ -93,60 +94,77 @@ function CardFront({ player, selected }: { player: Player; selected?: boolean })
         />
       </div>
 
-      {/* İç çerçeve — koyu altın */}
+      {/* İç çerçeve — koyu altın, en üstte */}
       <div
-        className="pointer-events-none absolute inset-[3px] rounded-[10px] border"
+        className="pointer-events-none absolute inset-[3px] z-20 rounded-[10px] border"
         style={{ borderColor: `${theme.hexDark}80` }}
       />
 
-      {/* === ÜST: numara rozeti (sol) + bayrak (sağ) === */}
-      <div className="relative flex items-start justify-between px-2 pt-2">
-        <span
-          className={cn(
-            'flex h-7 w-7 items-center justify-center rounded-lg text-sm font-black tabular-nums',
-            theme.badge,
-          )}
-        >
-          {number}
-        </span>
-        <span
-          className={cn(
-            'flex h-7 min-w-[28px] items-center justify-center rounded-lg px-1.5 text-base leading-none',
-            theme.badge,
-          )}
-          aria-label={player.nationality}
-          title={player.nationality}
-        >
-          {flag || player.nationalityCode}
-        </span>
-      </div>
-
-      {/* === ORTA: oyuncu görsel alanı (foto slot / monogram fallback) === */}
-      <div className="relative mx-auto mt-1 flex h-[42%] w-[78%] items-center justify-center">
+      {/* === MEDIA AREA: oyuncu portresi — kart yüksekliğinin ~%70'i (mobilde %74) === */}
+      <div className="relative z-0 h-[74%] w-full shrink-0 overflow-hidden rounded-t-[inherit] sm:h-[70%]">
         {player.imageUrl ? (
-          <PlayerPhoto src={player.imageUrl} alt={player.displayName} />
+          <PlayerPhoto
+            src={player.imageUrl}
+            alt={player.displayName}
+            playerId={player.id}
+            slug={player.slug}
+          />
         ) : (
           <PlayerMonogram name={player.displayName} theme={theme} />
         )}
+
+        {/* Portrenin altına doğru karartma — alt metin okunabilirliği için */}
+        <div
+          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3"
+          style={{
+            background: `linear-gradient(to bottom, transparent, ${theme.hexDark}cc)`,
+          }}
+        />
       </div>
 
-      {/* === ALT: ad + pozisyon === */}
-      <div className="relative mt-auto flex flex-col items-center px-2 pb-2 pt-1">
+      {/* Numara rozeti — kart genelinde z-30, foto + tüm overlay üstünde */}
+      <span
+        className={cn(
+          'absolute left-2 top-2 z-30',
+          'flex h-7 w-7 items-center justify-center rounded-lg text-sm font-black tabular-nums',
+          'shadow-[0_2px_8px_rgba(0,0,0,0.5)]',
+          theme.badge,
+        )}
+      >
+        {number}
+      </span>
+
+      {/* Bayrak rozeti — z-30 */}
+      <span
+        className={cn(
+          'absolute right-2 top-2 z-30',
+          'flex h-7 min-w-[28px] items-center justify-center rounded-lg px-1.5 text-base leading-none',
+          'shadow-[0_2px_8px_rgba(0,0,0,0.5)]',
+          theme.badge,
+        )}
+        aria-label={player.nationality}
+        title={player.nationality}
+      >
+        {flag || player.nationalityCode}
+      </span>
+
+      {/* === INFO AREA: ad + pozisyon — sabit alan, media'dan bağımsız === */}
+      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-2 pb-2 pt-1.5">
         {/* Ayırıcı çubuk */}
         <div
-          className="mb-1 h-px w-[60%]"
+          className="mb-1 h-px w-[55%]"
           style={{
             background: `linear-gradient(to right, transparent, ${theme.hexLight}aa, transparent)`,
           }}
         />
         <div
-          className="line-clamp-2 text-center text-[11px] font-extrabold uppercase leading-tight tracking-wider text-white"
+          className="line-clamp-1 text-center text-[12px] font-black uppercase leading-tight tracking-wide text-white sm:text-[13px]"
           title={player.name}
         >
           {player.displayName}
         </div>
         <div
-          className="mt-0.5 text-[9px] font-bold uppercase tracking-[0.18em]"
+          className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.18em]"
           style={{ color: theme.hexLight }}
         >
           {positionShort(player.position)}
@@ -156,14 +174,43 @@ function CardFront({ player, selected }: { player: Player; selected?: boolean })
   );
 }
 
-function PlayerPhoto({ src, alt }: { src: string; alt: string }) {
+function PlayerPhoto({
+  src,
+  alt,
+  playerId,
+  slug,
+}: {
+  src: string;
+  alt: string;
+  playerId: string;
+  slug?: string;
+}) {
+  const framing = portraitFraming(playerId, slug);
+  // Hover'da hafif ek zoom: base scale + 0.04 (örn. 1.08 -> 1.12).
+  // Scale CSS değişkeniyle sürülür ki inline transform hover class'ı ezmesin.
+  const hoverScale = framing.scale + 0.04;
   return (
-    <div className="relative h-full w-full overflow-hidden rounded-full">
-      <div className="absolute inset-0 rounded-full bg-white/20 blur-md" />
+    <div className="relative h-full w-full overflow-hidden">
+      {/* Arka plan blur (foto yüklenirken zarif fallback) */}
+      <div className="absolute inset-0 bg-gradient-to-b from-white/15 to-transparent blur-md" />
       <img
         src={src}
         alt={alt}
-        className="relative h-full w-full rounded-full object-cover"
+        className={cn(
+          // Görsel SADECE media area'ya göre scale edilir — cover + center top.
+          'relative h-full w-full object-cover',
+          'origin-top scale-[var(--img-scale)]',
+          // Hover'da hafif cinematic zoom — hissedilir ama göze batmaz
+          'transition-transform duration-500 ease-out',
+          'group-hover/card:scale-[var(--img-scale-hover)]',
+        )}
+        style={
+          {
+            objectPosition: framing.objectPosition,
+            '--img-scale': framing.scale,
+            '--img-scale-hover': hoverScale,
+          } as React.CSSProperties
+        }
         loading="lazy"
         decoding="async"
       />
@@ -179,15 +226,15 @@ function PlayerMonogram({
   theme: ReturnType<typeof positionTheme>;
 }) {
   return (
-    <div className="relative flex h-full w-full items-center justify-center">
+    <div className="relative flex h-full w-full items-center justify-center overflow-hidden">
       <div
-        className="absolute inset-0 rounded-full opacity-40 blur-md"
+        className="absolute inset-0 opacity-40 blur-md"
         style={{
-          background: `radial-gradient(circle, ${theme.hexLight}, transparent 70%)`,
+          background: `radial-gradient(circle at 50% 35%, ${theme.hexLight}, transparent 70%)`,
         }}
       />
       <div
-        className="relative flex h-full w-full items-center justify-center rounded-full bg-gradient-to-b from-white/95 to-white/70 text-2xl font-black shadow-inner sm:text-3xl"
+        className="relative flex h-full w-full items-center justify-center bg-gradient-to-b from-white/95 to-white/70 text-4xl font-black shadow-inner sm:text-5xl"
         style={{ color: theme.hexDark }}
       >
         {initialsOf(name)}
@@ -281,7 +328,8 @@ export function PlayerCard({
       onPointerLeave={onLeave}
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       className={cn(
-        'group relative aspect-[2/3] w-28 cursor-pointer select-none sm:w-32',
+        // Daha büyük kart — %30 boy artışı; foto agresif crop ile yüzler daha okunaklı
+        'group relative aspect-[2/3] w-36 cursor-pointer select-none sm:w-40 md:w-44',
         className,
       )}
       style={{

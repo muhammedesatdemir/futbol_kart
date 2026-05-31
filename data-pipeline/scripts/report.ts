@@ -34,25 +34,41 @@ function main(): void {
   console.log('-'.repeat(80));
 
   const lowCoverage: string[] = [];
+  const byCategory: Record<string, { total: number; ok: number }> = {};
+
   for (const t of TEMPLATES) {
     const ok = players.filter((p) => templateApplicable(t, p)).length;
-    const pct = (ok / total) * 100;
+    const pct = ok / total;
+    const threshold = t.minPoolCoverage ?? 0.8;
+    const okStatus = pct >= threshold ? 'OK' : 'LOW';
     console.log(
       pad(t.id, 36),
       pad(t.category, 10),
       pad(`${ok}/${total}`, 12),
-      colorPct(pct),
+      colorPct(pct * 100),
+      `(eşik: ${(threshold * 100).toFixed(0)}%)`,
+      okStatus === 'LOW' ? '\x1b[31m!\x1b[0m' : '',
     );
-    if (pct < 80) lowCoverage.push(`${t.id} (${pct.toFixed(0)}%)`);
+    if (okStatus === 'LOW') {
+      lowCoverage.push(`${t.id} (${(pct * 100).toFixed(0)}% < eşik ${(threshold * 100).toFixed(0)}%)`);
+    }
+    byCategory[t.category] ??= { total: 0, ok: 0 };
+    byCategory[t.category]!.total++;
+    if (okStatus !== 'LOW') byCategory[t.category]!.ok++;
+  }
+
+  console.log();
+  console.log('\x1b[1mKategori bazında:\x1b[0m');
+  for (const [cat, c] of Object.entries(byCategory)) {
+    console.log(`  ${pad(cat, 12)} ${c.ok}/${c.total} eşik üstü`);
   }
 
   console.log();
   if (lowCoverage.length === 0) {
-    console.log('\x1b[32mAll templates >= 80% coverage. Good to go.\x1b[0m');
+    console.log('\x1b[32mTüm şablonlar kendi eşiklerini geçti. Hazır.\x1b[0m');
   } else {
-    console.log(`\x1b[33m${lowCoverage.length} template(s) below 80% coverage:\x1b[0m`);
+    console.log(`\x1b[33m${lowCoverage.length} şablon eşiğin altında:\x1b[0m`);
     for (const w of lowCoverage) console.log(`  - ${w}`);
-    console.log('\nConsider: fill in missing fields via corrections.csv, or disable these templates at runtime.');
   }
 }
 

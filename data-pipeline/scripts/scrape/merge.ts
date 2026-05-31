@@ -29,6 +29,7 @@ const CACHE_DIR = join(PIPELINE_ROOT, 'cache');
 const PLAYERS_RAW = join(CACHE_DIR, 'players-raw.json');
 const SEED_PLAYERS = join(PIPELINE_ROOT, 'seed', 'players.json');
 const SEED_CLUBS = join(PIPELINE_ROOT, 'seed', 'clubs.json');
+const SEED_BLOCKLIST = join(PIPELINE_ROOT, 'seed', 'blocklist.json');
 
 /**
  * Ülke adı (TM English) → ISO 2 harfli kod.
@@ -130,13 +131,182 @@ function continentFromCountry(countryName: string): Continent {
   return 'Europe';
 }
 
+/**
+ * TM countryId → ISO 3166-1 alpha-2 doğrudan mapping.
+ *
+ * TM'in name lookup'ı karakter normalize / büyük-küçük harf sorunlarıyla
+ * yer yer false negative veriyor (örn. "Cote d'Ivoire" vs "Cote D'Ivoire").
+ * Bu sayısal ID tablosu güvenilir çünkü TM ID'leri sabit.
+ *
+ * Buraya sadece sık karşılaşılan futbol ülkeleri ekli; eksik olanlar
+ * sonra `countryNameById` üzerinden COUNTRY_CODE name lookup'a düşer.
+ *
+ * Kaynak: /quickselect/countries + Wikipedia ISO listesi.
+ */
+const COUNTRY_CODE_BY_TM_ID: Record<number, string> = {
+  // === AVRUPA ===
+  3: 'AL',   // Albania
+  127: 'AT', // Austria
+  18: 'BY',  // Belarus
+  19: 'BE',  // Belgium
+  24: 'BA',  // Bosnia-Herzegovina
+  28: 'BG',  // Bulgaria
+  37: 'HR',  // Croatia
+  188: 'CY', // Cyprus
+  172: 'CZ', // Czech Republic
+  39: 'DK',  // Denmark
+  189: 'EN', // England
+  47: 'EE',  // Estonia
+  208: 'FO', // Faroe Islands
+  49: 'FI',  // Finland
+  50: 'FR',  // France
+  40: 'DE',  // Germany
+  56: 'GR',  // Greece
+  178: 'HU', // Hungary
+  73: 'IS',  // Iceland
+  72: 'IE',  // Ireland
+  75: 'IT',  // Italy
+  244: 'XK', // Kosovo
+  92: 'LV',  // Latvia
+  98: 'LT',  // Lithuania
+  99: 'LU',  // Luxembourg
+  106: 'MT', // Malta
+  100: 'MK', // North Macedonia
+  216: 'ME', // Montenegro
+  122: 'NL', // Netherlands
+  192: 'EN', // Northern Ireland → EN (UK altında, 2-char schema)
+  125: 'NO', // Norway
+  135: 'PL', // Poland
+  136: 'PT', // Portugal
+  140: 'RO', // Romania
+  141: 'RU', // Russia
+  190: 'EN', // Scotland → EN (UK altında, 2-char schema)
+  215: 'RS', // Serbia
+  154: 'SK', // Slovakia
+  155: 'SI', // Slovenia
+  157: 'ES', // Spain
+  147: 'SE', // Sweden
+  148: 'CH', // Switzerland
+  174: 'TR', // Türkiye
+  177: 'UA', // Ukraine
+  191: 'EN', // Wales → EN (UK altında, 2-char schema)
+
+  // === GÜNEY AMERİKA ===
+  9: 'AR',   // Argentina
+  23: 'BO',  // Bolivia
+  26: 'BR',  // Brazil
+  33: 'CL',  // Chile
+  83: 'CO',  // Colombia
+  44: 'EC',  // Ecuador
+  132: 'PY', // Paraguay
+  133: 'PE', // Peru
+  179: 'UY', // Uruguay
+  182: 'VE', // Venezuela
+  161: 'SR', // Suriname
+
+  // === KUZEY AMERİKA & KARAYİPLER ===
+  80: 'CA',  // Canada
+  88: 'CU',  // Cuba
+  76: 'JM',  // Jamaica
+  110: 'MX', // Mexico
+  170: 'TT', // Trinidad and Tobago
+  184: 'US', // United States
+
+  // === AFRİKA ===
+  2: 'EG',   // Egypt
+  4: 'DZ',   // Algeria
+  6: 'AO',   // Angola
+  8: 'GQ',   // Equatorial Guinea
+  29: 'BF',  // Burkina Faso
+  31: 'CM',  // Cameroon
+  32: 'CV',  // Cape Verde
+  38: 'CI',  // Cote d'Ivoire
+  46: 'ER',  // Eritrea
+  51: 'GA',  // Gabon
+  52: 'GM',  // The Gambia
+  54: 'GH',  // Ghana
+  59: 'GN',  // Guinea
+  60: 'GW',  // Guinea-Bissau
+  82: 'KE',  // Kenya
+  85: 'CG',  // Congo
+  95: 'LR',  // Liberia
+  96: 'LY',  // Libya
+  101: 'MG', // Madagascar
+  102: 'MW', // Malawi
+  105: 'ML', // Mali
+  107: 'MA', // Morocco
+  108: 'MR', // Mauritania
+  115: 'MZ', // Mozambique
+  117: 'NA', // Namibia
+  123: 'NE', // Niger
+  124: 'NG', // Nigeria
+  139: 'RW', // Rwanda
+  142: 'ZM', // Zambia
+  149: 'SN', // Senegal
+  152: 'SL', // Sierra Leone
+  159: 'ZA', // South Africa
+  166: 'TZ', // Tanzania
+  168: 'TG', // Togo
+  173: 'TN', // Tunisia
+  176: 'UG', // Uganda
+  187: 'ZW', // Zimbabwe
+  193: 'CD', // DR Congo
+
+  // === ASYA & ORTA DOĞU ===
+  1: 'AF',   // Afghanistan
+  10: 'AM',  // Armenia
+  13: 'AZ',  // Azerbaijan
+  15: 'BH',  // Bahrain
+  34: 'CN',  // China
+  53: 'GE',  // Georgia
+  67: 'IN',  // India
+  68: 'ID',  // Indonesia
+  70: 'IQ',  // Iraq
+  71: 'IR',  // Iran
+  74: 'IL',  // Israel
+  77: 'JP',  // Japan
+  78: 'JO',  // Jordan
+  81: 'KZ',  // Kazakhstan
+  87: 'KR',  // South Korea
+  89: 'KW',  // Kuwait
+  94: 'LB',  // Lebanon
+  103: 'MY', // Malaysia
+  128: 'PK', // Pakistan
+  134: 'PH', // Philippines
+  137: 'QA', // Qatar
+  146: 'SA', // Saudi Arabia
+  153: 'SG', // Singapore
+  158: 'SY', // Syria
+  163: 'TW', // Taiwan
+  167: 'TH', // Thailand
+  180: 'UZ', // Uzbekistan
+  183: 'AE', // United Arab Emirates
+  185: 'VN', // Vietnam
+  186: 'YE', // Yemen
+  240: 'PS', // Palestine
+
+  // === OKYANUSYA ===
+  12: 'AU',  // Australia
+  120: 'NZ', // New Zealand
+};
+
 function isoFromCountryName(name: string | undefined): string | undefined {
   if (!name) return undefined;
-  return COUNTRY_CODE[name];
+  // Önce tam eşleşme
+  if (COUNTRY_CODE[name]) return COUNTRY_CODE[name];
+  // Sonra normalize: case-insensitive + trim
+  const norm = name.trim();
+  const lowerKey = Object.keys(COUNTRY_CODE).find(
+    (k) => k.toLowerCase() === norm.toLowerCase(),
+  );
+  return lowerKey ? COUNTRY_CODE[lowerKey] : undefined;
 }
 
 function isoFromCountryId(id: number | undefined): string | undefined {
   if (id === undefined) return undefined;
+  // 1) Sayısal ID lookup (en güvenilir)
+  if (COUNTRY_CODE_BY_TM_ID[id]) return COUNTRY_CODE_BY_TM_ID[id];
+  // 2) Fallback: name → COUNTRY_CODE map (case-insensitive)
   const name = countryNameById.get(id);
   return isoFromCountryName(name);
 }
@@ -162,13 +332,40 @@ async function readJson<T>(path: string): Promise<T | null> {
   return JSON.parse(await readFile(path, 'utf8')) as T;
 }
 
-function mapPosition(s: string | undefined): Position {
-  if (!s) return 'MID';
-  const lower = s.toLowerCase();
-  if (lower.includes('goalkeeper') || lower === 'gk') return 'GK';
-  if (lower.includes('back') || lower.includes('defender') || lower.includes('def')) return 'DEF';
-  if (lower.includes('midfield') || lower === 'mid') return 'MID';
-  if (lower.includes('forward') || lower.includes('winger') || lower.includes('striker') || lower === 'fwd') return 'FWD';
+/**
+ * TM position kodlarını oyunun 4 kategorisine eşler.
+ *
+ * Öncelik sırası:
+ *   1. positionGroup (FORWARD/MIDFIELDER/DEFENDER/GOALKEEPER) — TM'in resmi sınıflandırması
+ *   2. position.shortName (CF/AM/CB/CM/LW/RW/DM/GK/RB/LB/SS/RM/LM/SW) — kesin kod
+ *   3. Metin fallback (eski mantık)
+ */
+function mapPosition(
+  positionGroup: string | undefined,
+  shortName: string | undefined,
+): Position {
+  // 1. positionGroup ile direkt eşleştir (en güvenilir)
+  if (positionGroup) {
+    const g = positionGroup.toUpperCase();
+    if (g === 'GOALKEEPER') return 'GK';
+    if (g === 'DEFENDER') return 'DEF';
+    if (g === 'MIDFIELDER') return 'MID';
+    if (g === 'FORWARD') return 'FWD';
+  }
+
+  // 2. shortName ile (FIFA standart kısaltmalar)
+  if (shortName) {
+    const sn = shortName.toUpperCase();
+    if (sn === 'GK') return 'GK';
+    // Defans pozisyonları
+    if (['CB', 'RB', 'LB', 'RWB', 'LWB', 'SW'].includes(sn)) return 'DEF';
+    // Forvet pozisyonları
+    if (['CF', 'LW', 'RW', 'SS', 'ST', 'LF', 'RF'].includes(sn)) return 'FWD';
+    // Orta saha pozisyonları (kalan her şey orta saha)
+    if (['CM', 'AM', 'DM', 'RM', 'LM', 'OM'].includes(sn)) return 'MID';
+  }
+
+  // 3. Metin fallback (default güvenli)
   return 'MID';
 }
 
@@ -178,6 +375,26 @@ function mapPosition(s: string | undefined): Position {
  */
 function tmClubKey(tmClubId: string): string {
   return `tm_${tmClubId}`;
+}
+
+/**
+ * Kulüp adı altyapı/genç takımı işareti taşıyor mu?
+ *
+ * TM her oyuncunun U17/U19/U20/U21/U23 maçlarını da clubStints'e ekler;
+ * bunlar gerçek "profesyonel kulüp" sayılmaz (q05_club_count vb. şişer).
+ *
+ * Kapsam:
+ *   - "Real Madrid U21", "Barcelona U19", "Argentina U20" → altyapı
+ *   - "Real Madrid Castilla" → B takımı, profesyonel sayılır (kalır)
+ *   - "Real Madrid", "Bayern München" → A takımı (kalır)
+ *   - "Spain", "Brazil" → A milli (kalır, ayrı filtre)
+ *
+ * NOT: Yaralı veya yedek beklemiş oyuncuyu cezalandırmamak için
+ * minApps eşiği KULLANMIYORUZ. Sadece ad-bazlı altyapı işareti.
+ */
+function isYouthSquadName(name: string): boolean {
+  // U + 1-2 rakam (U17, U19, U20, U21, U23) — kelime sınırıyla, "U" tek başına eşleşmez.
+  return /\bU\d{1,2}\b/.test(name);
 }
 
 /**
@@ -210,7 +427,12 @@ function seasonToYear(seasonId: number): number {
   return seasonId;
 }
 
-function tmToPlayer(tm: TmPlayer, slugOverride?: string): Player | null {
+function tmToPlayer(
+  tm: TmPlayer,
+  clubNameById: Map<string, string>,
+  geocodeByKey: Map<string, { lat: number; lng: number }>,
+  slugOverride?: string,
+): Player | null {
   const m = tm.meta;
   if (!m.lifeDates?.dateOfBirth || !m.shortName) {
     return null;
@@ -226,7 +448,10 @@ function tmToPlayer(tm: TmPlayer, slugOverride?: string): Player | null {
   const nationalityCode = isoFromCountryId(m.nationalityDetails?.nationalities?.nationalityId)
     ?? birthCountryCode;
 
-  const position: Position = mapPosition(m.attributes?.position?.shortName ?? m.attributes?.positionGroup);
+  const position: Position = mapPosition(
+    m.attributes?.positionGroup,
+    m.attributes?.position?.shortName,
+  );
   const preferredFootRaw = m.attributes?.preferredFoot?.name;
   const preferredFoot = preferredFootRaw === 'left' ? 'L'
     : preferredFootRaw === 'right' ? 'R'
@@ -237,10 +462,17 @@ function tmToPlayer(tm: TmPlayer, slugOverride?: string): Player | null {
     ? Math.round(m.attributes.height * 100)
     : undefined;
 
-  // ClubStints: agg → ClubStint (milli takımları hariç tut; bunlar ayrı kavram)
-  // jerseyNo 0 ise yok say (TM bazı altyapı kayıtlarında 0 verir; pozitif olmalı)
+  // ClubStints: agg → ClubStint
+  //   - milli takımları (A milli + altyapı) ayrı tutuyoruz, kulüp listesine girmez
+  //   - altyapı kulüpleri (Real Madrid U21, Spain U17 vb.) — gerçek kulüp sayılmaz
+  //   - jerseyNo 0 ise undefined (TM bazı altyapı kayıtlarında 0 verir)
   const clubs: ClubStint[] = tm.stats.clubStints
-    .filter((s) => !s.isNational)
+    .filter((s) => {
+      if (s.isNational) return false;
+      const name = clubNameById.get(s.clubId) ?? '';
+      if (isYouthSquadName(name)) return false;
+      return true;
+    })
     .map((s) => ({
       clubId: tmClubKey(s.clubId),
       fromYear: seasonToYear(s.fromSeason),
@@ -252,10 +484,15 @@ function tmToPlayer(tm: TmPlayer, slugOverride?: string): Player | null {
         : undefined,
     }));
 
-  // jerseyNumbers: stint'lerdeki tüm forma no'ları unique
-  // TM bazı altyapı maçlarında 0 verir; geçerli forma değil — filtrele.
+  // jerseyNumbers: profesyonel kulüp stint'lerinden unique forma no'ları
+  // (altyapı kulüplerinin numaraları "kariyer formaları" sayılmaz)
   const jerseyNumbers = [...new Set(
     tm.stats.clubStints
+      .filter((s) => {
+        if (s.isNational) return false;
+        const name = clubNameById.get(s.clubId) ?? '';
+        return !isYouthSquadName(name);
+      })
       .map((s) => s.primaryJerseyNo)
       .filter((n): n is number => typeof n === 'number' && n > 0),
   )];
@@ -274,7 +511,15 @@ function tmToPlayer(tm: TmPlayer, slugOverride?: string): Player | null {
     birthCity: m.birthPlaceDetails?.placeOfBirth,
     birthCountry,
     birthCountryCode,
-    // birthLat/birthLng: TM API'sinde yok — corrections veya manuel mapping gerekir
+    // birthLat/birthLng: cache/geocode.json'dan (Nominatim ile çekildi)
+    ...(() => {
+      const city = m.birthPlaceDetails?.placeOfBirth;
+      const countryId = m.birthPlaceDetails?.countryOfBirthId;
+      if (!city || !countryId) return {};
+      const geo = geocodeByKey.get(`${city}|${countryId}`);
+      if (!geo) return {};
+      return { birthLat: geo.lat, birthLng: geo.lng };
+    })(),
     nationality,
     nationalityCode,
     position,
@@ -300,7 +545,8 @@ function tmToPlayer(tm: TmPlayer, slugOverride?: string): Player | null {
       hasUCLFinal: false,
       hasWorldCup: false,
     },
-    imageUrl: m.portraitUrl,
+    // Boş string TM'den gelebilir; URL validator boş string'i reddediyor
+    imageUrl: m.portraitUrl && m.portraitUrl.trim().length > 0 ? m.portraitUrl : undefined,
   };
 }
 
@@ -309,6 +555,22 @@ async function main() {
   if (!tmCache) {
     console.error('[merge] cache/players-raw.json yok. Önce scrape:players çalıştır.');
     process.exit(1);
+  }
+
+  // 0. Blocklist yükle (oyuncu çıkarma listesi)
+  // Hem tmId hem slug bazlı çift güvenlik filtresi
+  const blockedTmIds = new Set<number>();
+  const blockedSlugs = new Set<string>();
+  if (existsSync(SEED_BLOCKLIST)) {
+    type BlockEntry = { tmId: number; slug: string; name: string; reason: string };
+    const raw = JSON.parse(await readFile(SEED_BLOCKLIST, 'utf8')) as {
+      blocked?: BlockEntry[];
+    };
+    for (const e of raw.blocked ?? []) {
+      blockedTmIds.add(e.tmId);
+      blockedSlugs.add(e.slug);
+    }
+    console.log(`[merge] blocklist: ${blockedTmIds.size} oyuncu (${blockedSlugs.size} slug)`);
   }
 
   // 1. Ülke tablosu — TM countryId → ad
@@ -333,6 +595,36 @@ async function main() {
   console.log('[merge] kulüp detayları çekiliyor…');
   const tmClubs = await fetchClubs([...allTmClubIds]);
   console.log(`[merge]   ${tmClubs.length} kulüp döndü`);
+
+  // clubId → kulüp adı lookup (altyapı filtresi için: "Real Madrid U21" gibi)
+  const clubNameById = new Map<string, string>();
+  for (const tc of tmClubs) {
+    clubNameById.set(tc.id, tc.name || tc.baseDetails.shortName || '');
+  }
+
+  // Doğum şehri geocode lookup (cache/geocode.json varsa)
+  // Key: "{city}|{countryId}" → {lat, lng}
+  const geocodeByKey = new Map<string, { lat: number; lng: number }>();
+  const geocodeFile = join(CACHE_DIR, 'geocode.json');
+  if (existsSync(geocodeFile)) {
+    type GeoCacheEntry = { lat?: number; lng?: number; status: string };
+    const geocodeCache = JSON.parse(await readFile(geocodeFile, 'utf8')) as Record<
+      string,
+      GeoCacheEntry
+    >;
+    for (const [key, entry] of Object.entries(geocodeCache)) {
+      if (
+        entry.status === 'matched' &&
+        typeof entry.lat === 'number' &&
+        typeof entry.lng === 'number'
+      ) {
+        geocodeByKey.set(key, { lat: entry.lat, lng: entry.lng });
+      }
+    }
+    console.log(`[merge] geocode cache: ${geocodeByKey.size} şehir`);
+  } else {
+    console.log('[merge] geocode cache yok — birthLat/birthLng atlanacak');
+  }
 
   // 4. Mevcut clubs.json'a ekle
   // TM kulüpleri her seferinde TAZE yazılır (manuel kulüpler — "galatasaray" gibi
@@ -371,17 +663,53 @@ async function main() {
     }
   }
 
+  // Identity imzası: tmCache'teki her oyuncu için (name+birthDate+nationalityId).
+  // Seed'de aynı imzaya sahip TÜM kayıtları çıkaracağız. Bu sayede:
+  //   - clubs.length === 0 olsa bile eski stale slug'lar (örn. "diego-ribas-1978") temizlenir
+  //   - aynı tmId 2-3 kez kaydedilmiş duplicate'lar tek seferde silinir
+  const tmIdentityKeys = new Set<string>();
+  for (const tm of Object.values(tmCache)) {
+    const nm = (tm.meta.name || tm.meta.shortName || '').toLowerCase().trim();
+    const birth = tm.meta.lifeDates?.dateOfBirth ?? '';
+    const natId = tm.meta.nationalityDetails?.nationalities?.nationalityId ?? 0;
+    if (nm && birth) {
+      tmIdentityKeys.add(`${nm}|${birth}|${natId}`);
+    }
+  }
+  // Seed identity hesaplayıcı (TM kayıtlarının normalize edilmiş halinden)
+  function seedIdentityKey(p: Player): string {
+    const nm = (p.name || p.displayName || '').toLowerCase().trim();
+    const birth = p.birthDate ?? '';
+    // nationalityCode → countryId reverse lookup (countryNameById üzerinden)
+    let natId = 0;
+    for (const [id, name] of countryNameById) {
+      if (isoFromCountryName(name) === p.nationalityCode) {
+        natId = id;
+        break;
+      }
+    }
+    return `${nm}|${birth}|${natId}`;
+  }
+
   const droppedTmCount = seedPlayers.filter((p) =>
     p.clubs.some((s) => s.clubId.startsWith('tm_')),
   ).length;
   const droppedManualCount = seedPlayers.filter(
     (p) => !p.clubs.some((s) => s.clubId.startsWith('tm_')) && replacedSlugs.has(p.slug),
   ).length;
+  let droppedIdentityCount = 0;
 
   const preservedPlayers = seedPlayers.filter((p) => {
     const isTmSourced = p.clubs.some((s) => s.clubId.startsWith('tm_'));
     if (isTmSourced) return false; // TM kayıtları her zaman taze üretilir
     if (replacedSlugs.has(p.slug)) return false; // bu turda manuel kayıt TM'den yenileniyor
+    if (blockedSlugs.has(p.slug)) return false; // blocklist'teki manuel kayıtlar da çıkar
+    // YENİ: tmCache'te aynı identity (name+birth+nat) varsa bu seed kaydı da çıkar
+    // → "clubs.length === 0" olan stale duplicate'lar temizlenir
+    if (tmIdentityKeys.has(seedIdentityKey(p))) {
+      droppedIdentityCount++;
+      return false;
+    }
     return true;
   });
 
@@ -391,6 +719,9 @@ async function main() {
   }
   if (droppedManualCount > 0) {
     console.log(`[merge]   ↳ --replace-manual: ${droppedManualCount} manuel kayıt TM'den yenileniyor`);
+  }
+  if (droppedIdentityCount > 0) {
+    console.log(`[merge]   ↳ ${droppedIdentityCount} stale duplicate (aynı identity) çıkarıldı`);
   }
   console.log(`[merge]   ↳ ${preservedPlayers.length} kayıt korunuyor`);
   console.log(`[merge] TM cache: ${Object.keys(tmCache).length} oyuncu`);
@@ -412,16 +743,57 @@ async function main() {
   let added = 0;
   let skippedExisting = 0;
   let skippedInvalid = 0;
+  let collisionResolved = 0;
 
+  // Slug çakışmalarını çözme stratejisi:
+  //   - Manuel kayıt slug'ları (örn. "lionel-messi") VAR sayılır, hep kazanır.
+  //   - TM kayıtları arasında aynı slug'lı 2 oyuncu varsa,
+  //     ikincisinin slug'ına doğum yılı eklenir: "marquinhos" → "marquinhos-1994".
+  //   - Hâlâ çakışırsa (aynı slug + aynı doğum yılı), tmId eklenir.
+  let skippedBlocked = 0;
   for (const tm of Object.values(tmCache)) {
-    // Manuel kayıttan yenilenen oyuncular için seed'teki orijinal slug'ı koru
+    // Blocklist filtresi — tmId bazında çift güvenlik (slug aşağıda)
+    if (blockedTmIds.has(tm.tmId)) {
+      skippedBlocked++;
+      continue;
+    }
     const slugOverride = tmIdToSeedSlug.get(tm.tmId);
-    const player = tmToPlayer(tm, slugOverride);
+    const player = tmToPlayer(tm, clubNameById, geocodeByKey, slugOverride);
     if (!player) {
       skippedInvalid++;
       continue;
     }
+    // Slug bazında ikinci güvenlik (tmId blocklist'te değil ama slug match'lerse)
+    if (blockedSlugs.has(player.slug)) {
+      skippedBlocked++;
+      continue;
+    }
     if (existingSlugs.has(player.slug)) {
+      // Doğum yılı ile yeni slug dene
+      const birthYear = player.birthDate?.slice(0, 4);
+      if (birthYear) {
+        const altSlug = `${player.slug}-${birthYear}`;
+        if (!existingSlugs.has(altSlug)) {
+          player.slug = altSlug;
+          player.id = `p_${altSlug}`;
+          final.push(player);
+          existingSlugs.add(altSlug);
+          collisionResolved++;
+          added++;
+          continue;
+        }
+        // Aynı slug + aynı yıl → tmId ile dene (çok nadir)
+        const tmSlug = `${player.slug}-${birthYear}-${tm.tmId}`;
+        if (!existingSlugs.has(tmSlug)) {
+          player.slug = tmSlug;
+          player.id = `p_${tmSlug}`;
+          final.push(player);
+          existingSlugs.add(tmSlug);
+          collisionResolved++;
+          added++;
+          continue;
+        }
+      }
       skippedExisting++;
       continue;
     }
@@ -430,11 +802,45 @@ async function main() {
     added++;
   }
 
-  await writeFile(SEED_PLAYERS, JSON.stringify(final, null, 2) + '\n');
+  // Final dedup — slug prefix bazlı (örn. "fontana", "fontana-1940", "fontana-1940-229674")
+  // ve strict identity bazlı duplicate'leri seed'de tek bırak.
+  function slugCanonicalPrefix(slug: string): string {
+    const parts = slug.split('-');
+    const last = parts[parts.length - 1];
+    const beforeLast = parts[parts.length - 2];
+    if (last && /^\d+$/.test(last) && beforeLast && /^\d{4}$/.test(beforeLast)) {
+      return parts.slice(0, -2).join('-');
+    }
+    if (last && /^\d{4}$/.test(last)) {
+      return parts.slice(0, -1).join('-');
+    }
+    return slug;
+  }
+  const beforeDedup = final.length;
+  // Slug prefix bazlı dedup: aynı (canonicalPrefix, birthDate, nationalityCode) tek kalır
+  const byPrefix = new Map<string, Player[]>();
+  for (const p of final) {
+    const key = `${slugCanonicalPrefix(p.slug)}|${p.birthDate}|${p.nationalityCode}`;
+    (byPrefix.get(key) ?? byPrefix.set(key, []).get(key)!).push(p);
+  }
+  const dedupedFinal: Player[] = [];
+  for (const [, list] of byPrefix) {
+    // En kısa slug = canonical (en uygun aday)
+    list.sort((a, b) => a.slug.length - b.slug.length);
+    dedupedFinal.push(list[0]!);
+  }
+  const removedDupes = beforeDedup - dedupedFinal.length;
+
+  await writeFile(SEED_PLAYERS, JSON.stringify(dedupedFinal, null, 2) + '\n');
 
   console.log(`\n[merge] result:`);
-  console.log(`  total players: ${final.length}`);
+  console.log(`  total players: ${dedupedFinal.length}`);
   console.log(`  added from TM: ${added}`);
+  console.log(`  ↳ slug collisions resolved: ${collisionResolved}`);
+  if (removedDupes > 0) {
+    console.log(`  ↳ duplicate cleanup: ${removedDupes} kayıt birleştirildi`);
+  }
+  console.log(`  skipped (blocklist): ${skippedBlocked}`);
   console.log(`  skipped (slug already in seed): ${skippedExisting}`);
   console.log(`  skipped (missing required fields): ${skippedInvalid}`);
   console.log(`\nNow run: pnpm --filter @futbol-kart/data-pipeline build`);

@@ -90,6 +90,96 @@ function main(): BuildResult {
     fail(`${errors.length} validation error(s)`);
   }
 
+  // Duplicate kontrolü + otomatik dedup.
+  //
+  // Aynı (birthDate, nationalityCode) ve birbirine prefix olan slug'lar duplicate
+  // sayılır. Örnek: "fontana", "fontana-1940", "fontana-1940-229674" → ilki tutulur.
+  //
+  // Strict (name+birth+nat) duplicate'lar da temizlenir.
+  console.log('[pipeline] checking duplicates...');
+
+  function strictKey(p: { name: string; birthDate: string; nationalityCode: string }): string {
+    return `${p.name.toLowerCase().trim()}|${p.birthDate}|${p.nationalityCode}`;
+  }
+
+  // Pass 1: Strict (name+birth+nat) duplicate temizleme — slug en kısa olan kalır
+  const byStrict = new Map<string, PlayerInput[]>();
+  for (const p of players) {
+    const key = strictKey(p);
+    (byStrict.get(key) ?? byStrict.set(key, []).get(key)!).push(p);
+  }
+  let dedupedStrict = 0;
+  for (const [, list] of byStrict) {
+    if (list.length < 2) continue;
+    // En kısa slug = canonical, diğerleri silinecek
+    list.sort((a, b) => a.slug.length - b.slug.length);
+    const winner = list[0]!;
+    for (let i = 1; i < list.length; i++) {
+      const idx = players.indexOf(list[i]!);
+      if (idx >= 0) players.splice(idx, 1);
+      dedupedStrict++;
+    }
+    void winner;
+  }
+  if (dedupedStrict > 0) {
+    console.log(`  ↳ ${dedupedStrict} strict duplicate kayıt otomatik temizlendi`);
+  }
+
+  // Pass 2: Slug prefix duplicate (örn. fontana / fontana-1940 / fontana-1940-229674)
+  // Aynı birthDate + aynı nationalityCode + slug prefix eşleşmesi olanları temizle
+  function slugCanonicalPrefix(slug: string): string {
+    // "fontana-1940-229674" → "fontana"
+    // "marquinhos-1981" → "marquinhos" (ama bu meşru bir farklı oyuncu — birth+nat farklı olur)
+    const parts = slug.split('-');
+    // Sondan yıl + tmId çıkar; yıl 4 basamak, tmId değişken basamak
+    const last = parts[parts.length - 1];
+    const beforeLast = parts[parts.length - 2];
+    if (last && /^\d+$/.test(last) && beforeLast && /^\d{4}$/.test(beforeLast)) {
+      return parts.slice(0, -2).join('-');
+    }
+    if (last && /^\d{4}$/.test(last)) {
+      return parts.slice(0, -1).join('-');
+    }
+    return slug;
+  }
+
+  const byPrefix = new Map<string, PlayerInput[]>();
+  for (const p of players) {
+    const key = `${slugCanonicalPrefix(p.slug)}|${p.birthDate}|${p.nationalityCode}`;
+    (byPrefix.get(key) ?? byPrefix.set(key, []).get(key)!).push(p);
+  }
+  let dedupedPrefix = 0;
+  for (const [, list] of byPrefix) {
+    if (list.length < 2) continue;
+    // En kısa slug = canonical
+    list.sort((a, b) => a.slug.length - b.slug.length);
+    for (let i = 1; i < list.length; i++) {
+      const idx = players.indexOf(list[i]!);
+      if (idx >= 0) players.splice(idx, 1);
+      dedupedPrefix++;
+    }
+  }
+  if (dedupedPrefix > 0) {
+    console.log(`  ↳ ${dedupedPrefix} slug-prefix duplicate kayıt otomatik temizlendi`);
+  }
+
+  // Pass 3: Final kontrol — hâlâ duplicate varsa hata ver
+  const finalByStrict = new Map<string, string[]>();
+  for (const p of players) {
+    const key = strictKey(p);
+    (finalByStrict.get(key) ?? finalByStrict.set(key, []).get(key)!).push(p.slug);
+  }
+  const remaining: Array<{ key: string; slugs: string[] }> = [];
+  for (const [key, slugs] of finalByStrict) {
+    if (slugs.length > 1) remaining.push({ key, slugs });
+  }
+  if (remaining.length > 0) {
+    for (const d of remaining.slice(0, 20)) {
+      console.error(`  ! duplicate: "${d.key}" → ${d.slugs.join(', ')}`);
+    }
+    fail(`${remaining.length} duplicate group(s) hâlâ var — manuel müdahale gerek`);
+  }
+
   console.log('[pipeline] writing outputs...');
   mkdirSync(OUT_DIR, { recursive: true });
   writeFileSync(PLAYERS_OUT, JSON.stringify(players, null, 2) + '\n');

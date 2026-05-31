@@ -1,29 +1,42 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useTranslations } from 'next-intl';
-import { AnimatePresence, motion } from 'framer-motion';
+import { motion } from 'framer-motion';
 import type { Player, PlayerSide } from '@futbol-kart/shared-types';
 import { SelectablePlayerCard } from '@/components/SelectablePlayerCard';
-import { PlayIcon } from '@/components/icons';
+import { PlayerSearchBar } from '@/components/PlayerSearchBar';
+import { PlayerFilterChips } from '@/components/PlayerFilterChips';
+import { SelectedCardsRail } from '@/components/SelectedCardsRail';
 import { cn } from '@/lib/cn';
 import { HAND_SIZE as DEFAULT_HAND_SIZE } from '@/lib/gameConstants';
+import { fetchGameData } from '@/lib/playersClient';
+import {
+  EMPTY_CRITERIA,
+  applyFilters,
+  curateDefaultPool,
+  uniqueCountries,
+  type ClubLookup,
+  type FilterCriteria,
+} from '@/lib/playerFilters';
 
 interface CardPickSceneProps {
   side: PlayerSide;
-  players: Player[];
+  /** İsteğe bağlı: server-side önceden yüklenmiş players (eski API uyumluluğu). Verilmezse client fetch. */
+  players?: Player[];
   excludedCards?: string[];
   onSubmit: (cards: string[]) => void;
   ctaLabel: string;
-  /** Varsayılan: gameConstants.handSize. Uzatma turlarında farklı. */
   handSize?: number;
-  /** Sahnenin başlığında geçecek oyuncu adı. Boşsa fallback metin. */
   playerName?: string;
 }
 
+const INITIAL_VISIBLE = 32;
+const PAGE_SIZE = 32;
+
 export function CardPickScene({
   side,
-  players,
+  players: playersProp,
   excludedCards = [],
   onSubmit,
   ctaLabel,
@@ -31,85 +44,193 @@ export function CardPickScene({
   playerName,
 }: CardPickSceneProps) {
   const t = useTranslations('pick');
-  const [picked, setPicked] = useState<string[]>([]);
 
-  const available = useMemo(
-    () => players.filter((p) => !excludedCards.includes(p.id)),
-    [players, excludedCards],
-  );
+  // Veri yükleme: prop varsa onu kullan (eski API), yoksa client fetch
+  const [players, setPlayers] = useState<Player[] | null>(playersProp ?? null);
+  const [clubsById, setClubsById] = useState<Map<string, ClubLookup> | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
 
-  const toggle = (id: string) => {
-    if (picked.includes(id)) {
-      setPicked(picked.filter((c) => c !== id));
+  useEffect(() => {
+    if (playersProp && playersProp.length > 0) {
+      // Prop verildi — yine de clubs lookup için fetch lazım
+      fetchGameData()
+        .then((data) => setClubsById(data.clubsById))
+        .catch((e) => setLoadError(e instanceof Error ? e.message : String(e)));
       return;
     }
-    if (picked.length >= handSize) return;
-    setPicked([...picked, id]);
-  };
+    fetchGameData()
+      .then((data) => {
+        setPlayers(data.players);
+        setClubsById(data.clubsById);
+      })
+      .catch((e) => setLoadError(e instanceof Error ? e.message : String(e)));
+  }, [playersProp]);
 
-  const randomFill = () => {
-    const pool = available.filter((p) => !picked.includes(p.id));
-    const remaining = handSize - picked.length;
-    const shuffled = [...pool].sort(() => Math.random() - 0.5);
-    setPicked([...picked, ...shuffled.slice(0, remaining).map((p) => p.id)]);
-  };
+  const [picked, setPicked] = useState<string[]>([]);
+  const [criteria, setCriteria] = useState<FilterCriteria>(EMPTY_CRITERIA);
+  const [visibleCount, setVisibleCount] = useState(INITIAL_VISIBLE);
 
-  const clear = () => setPicked([]);
+  // Excluded cards uygulanmış havuz
+  const available = useMemo(() => {
+    if (!players) return [];
+    return players.filter((p) => !excludedCards.includes(p.id));
+  }, [players, excludedCards]);
+
+  // Aktif filtre/arama var mı?
+  const hasActiveFilter = useMemo(() => {
+    return (
+      criteria.search.trim().length > 0 ||
+      criteria.position !== null ||
+      criteria.countryCode !== null ||
+      criteria.era !== null ||
+      criteria.activeOnly !== null
+    );
+  }, [criteria]);
+
+  // Filtre yapılmadığında: kürasyon (16 efsane + 16 güncel)
+  // Filtre yapıldığında: tüm havuzda filtre uygula
+  const filteredPool = useMemo(() => {
+    if (!players || !clubsById) return [];
+    if (!hasActiveFilter) {
+      return curateDefaultPool(available, Math.max(INITIAL_VISIBLE * 4, 128));
+    }
+    return applyFilters(available, clubsById, criteria);
+  }, [players, clubsById, available, criteria, hasActiveFilter]);
+
+  // Görünür slice
+  const visible = useMemo(
+    () => filteredPool.slice(0, visibleCount),
+    [filteredPool, visibleCount],
+  );
+
+  // Filtre/arama değişince visibleCount'u sıfırla
+  useEffect(() => {
+    setVisibleCount(INITIAL_VISIBLE);
+  }, [criteria]);
+
+  // IntersectionObserver: sentinel görünürse +PAGE_SIZE yükle
+  const sentinelRef = useRef<HTMLDivElement | null>(null);
+  useEffect(() => {
+    const el = sentinelRef.current;
+    if (!el) return;
+    if (visibleCount >= filteredPool.length) return;
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (entry.isIntersecting) {
+            setVisibleCount((c) => Math.min(c + PAGE_SIZE, filteredPool.length));
+          }
+        }
+      },
+      { rootMargin: '600px 0px 600px 0px' },
+    );
+    io.observe(el);
+    return () => io.disconnect();
+  }, [filteredPool.length, visibleCount]);
+
+  // Ülke listesi (filtre dropdown için) — sadece available pool'dan
+  const countries = useMemo(() => uniqueCountries(available), [available]);
+
+  // Seçili oyuncuların gerçek nesneleri
+  const pickedPlayers = useMemo(() => {
+    if (!players) return [];
+    const byId = new Map(players.map((p) => [p.id, p]));
+    return picked.map((id) => byId.get(id)!).filter(Boolean);
+  }, [picked, players]);
+
+  const toggle = useCallback(
+    (id: string) => {
+      setPicked((prev) => {
+        if (prev.includes(id)) return prev.filter((x) => x !== id);
+        if (prev.length >= handSize) return prev;
+        return [...prev, id];
+      });
+    },
+    [handSize],
+  );
+
+  const remove = useCallback((id: string) => {
+    setPicked((prev) => prev.filter((x) => x !== id));
+  }, []);
+
+  const clear = useCallback(() => setPicked([]), []);
+  const submit = useCallback(() => onSubmit(picked), [onSubmit, picked]);
+
   const canConfirm = picked.length === handSize;
   const fallbackHeading = side === 'P1' ? t('p1Heading') : t('p2Heading');
-  const heading = playerName
-    ? `${playerName} — elini hazırla`
-    : fallbackHeading;
+  const heading = playerName ? `${playerName} — elini hazırla` : fallbackHeading;
+
+  // Yükleme durumları
+  if (loadError) {
+    return (
+      <section className="flex min-h-[40vh] flex-col items-center justify-center gap-2 text-center">
+        <p className="text-sm text-red-300">Oyuncu verisi yüklenemedi.</p>
+        <p className="text-xs text-white/55">{loadError}</p>
+      </section>
+    );
+  }
+  if (!players || !clubsById) {
+    return (
+      <section className="flex min-h-[40vh] flex-col items-center justify-center gap-3">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-white/15 border-t-accent-gold" />
+        <p className="text-sm text-white/55">Oyuncu verisi yükleniyor…</p>
+      </section>
+    );
+  }
 
   return (
-    <section className="flex flex-col gap-6">
-      <div className="flex flex-wrap items-end justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-black tracking-tight sm:text-3xl">
-            {heading}
-          </h1>
-          <p className="mt-1 text-sm text-white/65">
-            {t('subtitle', { count: handSize })}
-          </p>
-        </div>
-        <span
-          className={cn(
-            'rounded-full px-3 py-1 text-sm font-bold',
-            canConfirm
-              ? 'bg-accent-gold/20 text-accent-goldHi ring-1 ring-accent-gold/40'
-              : 'bg-white/5 text-white/70',
-          )}
-        >
-          {t('selectedOf', { n: picked.length, total: handSize })}
-        </span>
-      </div>
+    <section className="flex flex-col gap-4">
+      {/* Üst panel — sticky, seçilenler + CTA */}
+      <SelectedCardsRail
+        selected={pickedPlayers}
+        total={handSize}
+        onRemove={remove}
+        onClear={clear}
+        ctaLabel={ctaLabel}
+        onConfirm={submit}
+        heading={heading}
+        subtitle={t('subtitle', { count: handSize })}
+      />
 
-      <div className="flex flex-wrap gap-2">
-        <button
-          type="button"
-          onClick={randomFill}
-          disabled={canConfirm}
-          className="btn-ghost disabled:opacity-40"
-        >
-          {t('randomFill')}
-        </button>
-        <button
-          type="button"
-          onClick={clear}
-          disabled={picked.length === 0}
-          className="btn-ghost disabled:opacity-40"
-        >
-          {t('clear')}
-        </button>
-        <button
-          type="button"
-          onClick={() => onSubmit(picked)}
-          disabled={!canConfirm}
-          className="btn-primary disabled:opacity-40 disabled:hover:translate-y-0 disabled:hover:shadow-glow-gold"
-        >
-          <PlayIcon size={14} />
-          {ctaLabel}
-        </button>
+      {/* Arama */}
+      <PlayerSearchBar
+        value={criteria.search}
+        onChange={(search) => setCriteria((c) => ({ ...c, search }))}
+        resultCount={filteredPool.length}
+        totalCount={available.length}
+      />
+
+      {/* Filtreler */}
+      <PlayerFilterChips
+        position={criteria.position}
+        onPositionChange={(position) => setCriteria((c) => ({ ...c, position }))}
+        countryCode={criteria.countryCode}
+        onCountryChange={(code) => setCriteria((c) => ({ ...c, countryCode: code }))}
+        countries={countries}
+        era={criteria.era}
+        onEraChange={(era) => setCriteria((c) => ({ ...c, era }))}
+      />
+
+      {/* Bilgi satırı */}
+      <div className="flex items-center justify-between text-xs text-white/55">
+        <span>
+          {hasActiveFilter ? (
+            <>
+              <span className="font-semibold text-white/85">{filteredPool.length}</span> sonuç
+              {' • '}
+              <span>{visible.length} gösteriliyor</span>
+            </>
+          ) : (
+            <>
+              <span className="font-semibold text-white/85">Öne çıkanlar</span>
+              {' — '}
+              {available.length.toLocaleString('tr-TR')} oyuncu arasından seç, arama veya filtre kullan
+            </>
+          )}
+        </span>
+        {canConfirm && (
+          <span className="font-semibold text-accent-goldHi">Hazırsın → "OYNA"</span>
+        )}
       </div>
 
       {/* Kart havuzu — saha çerçeveli bölge */}
@@ -121,46 +242,49 @@ export function CardPickScene({
           'before:bg-[repeating-linear-gradient(180deg,transparent_0_60px,rgba(255,255,255,0.025)_60px_61px)]',
         )}
       >
-        <div className="relative grid grid-cols-3 gap-3 sm:grid-cols-5 sm:gap-4 lg:grid-cols-7">
-          {available.map((p) => (
-            <SelectablePlayerCard
-              key={p.id}
-              player={p}
-              selected={picked.includes(p.id)}
-              disabled={!picked.includes(p.id) && picked.length >= handSize}
-              onToggle={() => toggle(p.id)}
-            />
-          ))}
-        </div>
-      </div>
-
-      {/* Floating "Maçı başlat" — seçim tamamlandığında sağ-altta sabit, dikkat çeker */}
-      <AnimatePresence>
-        {canConfirm && (
-          <motion.button
-            type="button"
-            onClick={() => onSubmit(picked)}
-            initial={{ opacity: 0, y: 24, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 18, scale: 0.95 }}
-            transition={{ type: 'spring', stiffness: 280, damping: 22 }}
+        {visible.length === 0 ? (
+          <div className="flex min-h-[30vh] flex-col items-center justify-center gap-2 text-center">
+            <p className="text-sm font-semibold text-white/65">Sonuç bulunamadı</p>
+            <p className="text-xs text-white/40">Filtreyi ya da aramayı değiştirmeyi dene.</p>
+          </div>
+        ) : (
+          <div
             className={cn(
-              'fixed z-40',
-              'bottom-5 left-1/2 -translate-x-1/2 sm:bottom-8 sm:left-auto sm:right-8 sm:translate-x-0',
-              'inline-flex items-center gap-2 rounded-full',
-              'bg-gradient-to-b from-accent-goldHi to-accent-gold',
-              'px-7 py-3 text-sm font-bold uppercase tracking-wider text-zinc-900',
-              'shadow-[0_10px_30px_-8px_rgba(0,0,0,0.6),0_0_28px_rgba(240,193,75,0.55)]',
-              'transition hover:-translate-y-0.5 hover:shadow-[0_14px_38px_-10px_rgba(0,0,0,0.7),0_0_42px_rgba(255,215,107,0.75)]',
-              'sm:translate-x-0 sm:hover:-translate-y-0.5',
+              'relative grid justify-items-center',
+              'grid-cols-2 gap-3',
+              'sm:grid-cols-3 sm:gap-4',
+              'md:grid-cols-4',
+              'lg:grid-cols-5',
+              'xl:grid-cols-6',
             )}
-            aria-label={ctaLabel}
           >
-            <PlayIcon size={16} />
-            {ctaLabel}
-          </motion.button>
+            {visible.map((p) => (
+              <SelectablePlayerCard
+                key={p.id}
+                player={p}
+                selected={picked.includes(p.id)}
+                disabled={!picked.includes(p.id) && picked.length >= handSize}
+                onToggle={() => toggle(p.id)}
+              />
+            ))}
+          </div>
         )}
-      </AnimatePresence>
+
+        {/* Sentinel — IntersectionObserver bunu görünce +32 yükler */}
+        {visibleCount < filteredPool.length && (
+          <div
+            ref={sentinelRef}
+            className="flex items-center justify-center py-6 text-xs text-white/35"
+          >
+            <motion.span
+              animate={{ opacity: [0.3, 1, 0.3] }}
+              transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
+            >
+              Daha fazla yükleniyor… ({filteredPool.length - visibleCount} kaldı)
+            </motion.span>
+          </div>
+        )}
+      </div>
     </section>
   );
 }

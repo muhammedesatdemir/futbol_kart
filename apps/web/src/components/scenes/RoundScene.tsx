@@ -359,9 +359,14 @@ function RevealValue({
   if (value === null || typeof value === 'boolean') {
     return <>{formatValue(templateId, value)}</>;
   }
-  // Birkaç şablon string-tipi gibi davranır (ay adı, yıl)
+  // Birkaç şablon string-tipi gibi davranır (ay adı, yıl) — sayı animasyonu yapma
   const skipCountUp =
-    templateId === 'q30_later_birth_month' || templateId === 'q18_earlier_debut';
+    templateId === 't04_birth_month_late' ||
+    templateId === 't06_earlier_debut' ||
+    templateId === 'n10_pro_debut_year' ||
+    templateId === 't03_birth_year' ||
+    templateId === 'c03_first_club_year_early' ||
+    templateId === 'c04_last_club_year_late';
   if (skipCountUp) {
     return <>{formatValue(templateId, value)}</>;
   }

@@ -1,0 +1,54 @@
+{
+  "_comment": "Oyun veri setinden tamamen çıkarılan oyuncular. merge.ts hem tmId hem slug bazlı filtreler. seed/players.json'da da olmaz, apps/web/public/data/players.json'da da olmaz.",
+  "_format": "Her giriş: { tmId, slug, name, reason } — reason açıklayıcı not.",
+  "blocked": [
+    {
+      "tmId": 3363,
+      "slug": "hakan-sukur",
+      "name": "Hakan Şükür",
+      "reason": "FETÖ/PDY soruşturması — silahlı terör örgütüne üye olma; yakalama kararı (2016)"
+    },
+    {
+      "tmId": 3377,
+      "slug": "arif-erdem",
+      "name": "Arif Erdem",
+      "reason": "FETÖ futbol yapılanması soruşturması — firari sanık (2016)"
+    },
+    {
+      "tmId": 115886,
+      "slug": "i-demiriz",
+      "name": "İsmail Demiriz",
+      "reason": "FETÖ futbol yapılanması — silahlı terör örgütü üyeliğinden 6 yıl 3 ay hapis (2019)"
+    },
+    {
+      "tmId": 91668,
+      "slug": "u-tutuneker",
+      "name": "Uğur Tütüneker",
+      "reason": "FETÖ futbol yapılanması davası — 2019'da beraat. Beraat etse de hukuki süreç yaşadığı için listeden çıkarıldı."
+    },
+    {
+      "tmId": 7401,
+      "slug": "b-irtegun",
+      "name": "Bekir İrtegün",
+      "reason": "FETÖ futbol yapılanması — etkin pişmanlık, 1 yıl 6 ay 22 gün hapis + HAGB (2023)"
+    },
+    {
+      "tmId": 7346,
+      "slug": "ugur-boral",
+      "name": "Uğur Boral",
+      "reason": "FETÖ futbol yapılanması — etkin pişmanlık, 1 yıl 6 ay 22 gün hapis + HAGB (2023)"
+    },
+    {
+      "tmId": 7249,
+      "slug": "omer-catkic",
+      "name": "Ömer Çatkıç",
+      "reason": "FETÖ futbol yapılanması — etkin pişmanlık, 1 yıl 6 ay 22 gün hapis + HAGB (2023)"
+    },
+    {
+      "tmId": 7388,
+      "slug": "z-biryol",
+      "name": "Zafer Biryol",
+      "reason": "FETÖ futbol yapılanması — silahlı terör örgütü üyeliğinden 6 yıl 3 ay hapis (Yargıtay onandı, 2022)"
+    }
+  ]
+}

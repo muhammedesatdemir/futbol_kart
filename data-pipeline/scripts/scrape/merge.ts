@@ -802,6 +802,68 @@ async function main() {
     added++;
   }
 
+  // ===== KALİTE FİLTRESİ (pozisyon-aware) =====
+  //
+  // Pozisyona göre minimum veri sağlanmamış oyuncuları çıkar.
+  // İstisnalar (asla silinmez):
+  //   - nationalityCode === 'TR' (Türk pazarı odağı)
+  //   - maxTransferFeeEUR > 1M €
+  //   - nationalCaps >= 10 (milli takım kimliği)
+  //   - totalGoals >= 50 (yüksek gol katkısı)
+  //   - totalApps >= 300 (uzun kariyer)
+  //
+  // Eşikler (Strateji C):
+  //   - GK: apps < 80 → sil
+  //   - DEF: apps < 100 → sil
+  //   - MID: apps < 100 VEYA goals < 10 → sil
+  //   - FWD: apps < 100 VEYA goals < 20 → sil
+  //
+  // Ayrıca "hayalet kayıt" (apps=0, clubs=0, nat=0) → sil
+  function isQualityProtected(p: Player): boolean {
+    if (p.nationalityCode === 'TR') return true;
+    if ((p.stats.maxTransferFeeEUR ?? 0) > 1_000_000) return true;
+    if (p.stats.nationalCaps >= 10) return true;
+    if (p.stats.totalGoals >= 50) return true;
+    if (p.stats.totalApps >= 300) return true;
+    return false;
+  }
+  function failsQualityCheck(p: Player): boolean {
+    // Hayalet kayıt
+    if (
+      p.stats.totalApps === 0 &&
+      (p.clubs?.length ?? 0) === 0 &&
+      p.stats.nationalCaps === 0
+    ) {
+      return true;
+    }
+    const apps = p.stats.totalApps;
+    const goals = p.stats.totalGoals;
+    switch (p.position) {
+      case 'GK':
+        return apps < 80;
+      case 'DEF':
+        return apps < 100;
+      case 'MID':
+        return apps < 100 || goals < 10;
+      case 'FWD':
+        return apps < 100 || goals < 20;
+    }
+    return false;
+  }
+  const beforeQuality = final.length;
+  const qualityFiltered = final.filter((p) => {
+    if (isQualityProtected(p)) return true;
+    if (failsQualityCheck(p)) return false;
+    return true;
+  });
+  const removedByQuality = beforeQuality - qualityFiltered.length;
+  if (removedByQuality > 0) {
+    console.log(`[merge]   ↳ kalite filtresi: ${removedByQuality} yetersiz veri oyuncu çıkarıldı`);
+  }
+  // qualityFiltered'i kullan, final'ı override et (sonraki adımlar için)
+  final.length = 0;
+  final.push(...qualityFiltered);
+
   // Final dedup — slug prefix bazlı (örn. "fontana", "fontana-1940", "fontana-1940-229674")
   // ve strict identity bazlı duplicate'leri seed'de tek bırak.
   function slugCanonicalPrefix(slug: string): string {

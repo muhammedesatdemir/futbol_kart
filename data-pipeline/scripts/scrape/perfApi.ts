@@ -165,13 +165,20 @@ function modeJersey(numbers: Array<number | null | undefined>): number | undefin
 
 /**
  * Maç-maç performance dizisini şablonlar için kullanılabilir agregat'a indir.
+ *
+ * NOT: TM, A milli + altyapı milli takım (U23, U21, U20, U19, U17) maçlarını
+ * birlikte verir. Bu agregat ÖNCE tüm milli takım stint'lerini gruplayıp,
+ * EN ÇOK MAÇI olan stint'i "A milli" kabul eder. nationalCaps/nationalGoals
+ * yalnızca A milli stint'inden hesaplanır — diğer milli takım maçları toplam
+ * sayılır ama nationalCaps'e dahil değildir.
+ *
+ * Bu sayede Wikipedia ile uyumlu A milli rakamları üretilir
+ * (örn. Pirlo nat caps 116, eskiden 166 idi — U23 dahildi).
  */
 export function aggregate(performance: PerfGame[]): AggregatedStats {
   let totalGoals = 0;
   let totalAssists = 0;
   let totalApps = 0;
-  let nationalCaps = 0;
-  let nationalGoals = 0;
 
   // Kulüp stint'leri için group key: clubId
   const byClub = new Map<string, {
@@ -195,7 +202,9 @@ export function aggregate(performance: PerfGame[]): AggregatedStats {
   let minPlayedSeason: number | undefined;
   let maxPlayedSeason: number | undefined;
 
-  const nationalTeamClubIds = new Set<string>();
+  // Milli takım stint'lerinin ham sayım — clubId → {apps, goals}
+  // İkinci geçişte en çok apps'liyi "A milli" kabul ederiz
+  const nationalStintRaw = new Map<string, { apps: number; goals: number }>();
 
   for (const g of performance) {
     const gen = g.statistics?.generalStatistics;
@@ -213,9 +222,11 @@ export function aggregate(performance: PerfGame[]): AggregatedStats {
       totalGoals += goals;
       totalAssists += assists;
       if (isNat) {
-        nationalCaps++;
-        nationalGoals += goals;
-        nationalTeamClubIds.add(clubId);
+        // Şimdilik sadece raw biriktirme; A milli ayrımı aşağıda yapılır
+        const existing = nationalStintRaw.get(clubId) ?? { apps: 0, goals: 0 };
+        existing.apps++;
+        existing.goals += goals;
+        nationalStintRaw.set(clubId, existing);
       } else {
         clubGoalsBySeason.set(season, (clubGoalsBySeason.get(season) ?? 0) + goals);
         if (isMainLeague(g)) {
@@ -248,6 +259,25 @@ export function aggregate(performance: PerfGame[]): AggregatedStats {
       bucket.jerseys.push(gen?.shirtNumber);
     }
   }
+
+  // İkinci geçiş: A milli takımı belirle — en çok played apps'li milli stint
+  // Beraberlik durumunda en çok gol'lüyü tercih et
+  let aMilliClubId: string | undefined;
+  let aMilliApps = 0;
+  let aMilliGoals = 0;
+  for (const [clubId, stat] of nationalStintRaw) {
+    const better =
+      stat.apps > aMilliApps ||
+      (stat.apps === aMilliApps && stat.goals > aMilliGoals);
+    if (better) {
+      aMilliClubId = clubId;
+      aMilliApps = stat.apps;
+      aMilliGoals = stat.goals;
+    }
+  }
+  const nationalCaps = aMilliApps;
+  const nationalGoals = aMilliGoals;
+  const nationalTeamClubIds = new Set<string>(aMilliClubId ? [aMilliClubId] : []);
 
   const maxSeasonGoals = clubGoalsBySeason.size
     ? Math.max(...clubGoalsBySeason.values())

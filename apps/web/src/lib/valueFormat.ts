@@ -82,7 +82,6 @@ const UNIT_BY_TEMPLATE: Record<string, string> = {
   k03_name_word_count: 'kelime',
   k04_name_vowels: 'sesli',
   k05_name_consonants: 'sessiz',
-  k06_name_syllables: 'hece',
   k12_name_letter_count_target: 'kez',
   // forma birimleri
   n12_jersey_sum: '',
@@ -114,18 +113,12 @@ export function formatValue(
       return `%${numTR(value * 100)}`;
 
     case 'n10_pro_debut_year':
-    case 't03_birth_year':
-    case 'c03_first_club_year_early':
-    case 'c04_last_club_year_late':
       return `${numTR(value)}`; // yıl olarak gösterilir (örn. "2003")
 
     case 't01_younger':
     case 't02_older':
       // value = birthDate ms
       return `${ageFromBirthMs(value)} yaş`;
-
-    case 't10_age_today_older':
-      return `${numTR(value)} yaş`;
 
     case 't07_debut_age_young':
       return `${numTR(value)} yaş`;
@@ -202,13 +195,11 @@ export function comparisonHint(
     case 't01_younger':
       return 'Daha genç olan kazandı';
     case 't02_older':
-    case 't10_age_today_older':
       return 'Daha yaşlı olan kazandı';
     case 'g01_equator_dist':
     case 'g02_istanbul_dist':
       return 'Daha yakın olan kazandı';
     case 't06_earlier_debut':
-    case 'c03_first_club_year_early':
     case 'n10_pro_debut_year':
       return 'Daha erken başlayan kazandı';
     case 'g04_south_latitude':

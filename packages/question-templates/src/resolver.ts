@@ -1,7 +1,7 @@
 import type { Player } from '@futbol-kart/shared-types';
 // (ClubStint tipini doğrudan kullanmıyoruz; Player.clubs üzerinden erişiyoruz.)
 import type { ParamSpec, Template, TemplateParams } from './schema';
-import { haversineKm, ISTANBUL, isCapital } from './geo';
+import { haversineKm, ISTANBUL } from './geo';
 import {
   countVowels,
   countConsonants,
@@ -13,7 +13,6 @@ import {
   wordCount,
   lastWord,
   firstWord,
-  syllableCount,
   birthYear,
   birthMonth,
   birthDay,
@@ -220,11 +219,9 @@ function computeCustom(
       return player.birthDate ? new Date(player.birthDate).getTime() : null;
     case 't02_older':
       return player.birthDate ? -new Date(player.birthDate).getTime() : null;
-    case 't03_birth_year': return birthYear(player.birthDate);
     case 't06_earlier_debut': return player.stats.proDebutYear ?? null;
     case 't07_debut_age_young': return computeDebutAge(player);
     case 't08_decade_spread': return decadeSpread(player);
-    case 't09_still_active': return player.isActive;
     case 't12_active_years_now':
       if (!player.isActive || !player.stats.proDebutYear) return null;
       return REFERENCE_YEAR - player.stats.proDebutYear;
@@ -243,27 +240,19 @@ function computeCustom(
       return typeof player.birthLng === 'number' ? player.birthLng : null;
     case 'g06_west_longitude':
       return typeof player.birthLng === 'number' ? -player.birthLng : null;
-    case 'g07_north_hemisphere':
-      return typeof player.birthLat === 'number' ? player.birthLat > 0 : null;
-    case 'g08_east_hemisphere':
-      return typeof player.birthLng === 'number' ? player.birthLng > 0 : null;
-    case 'g09_capital_birth': return isCapital(player.birthCity);
     case 'g10_distinct_club_countries': return distinctClubCountries(player, ctx);
     case 'g11_distinct_club_continents': return distinctContinents(player, ctx);
-    case 'g12_two_continents': return distinctContinents(player, ctx) >= 2;
-    case 'g13_three_continents': return distinctContinents(player, ctx) >= 3;
     case 'g14_first_last_club_dist': return firstLastClubDistance(player, ctx);
     case 'g15_birth_to_first_club_dist': return birthToFirstClubDistance(player, ctx);
     case 'g16_played_in_turkey': return playedInCountry(player, ctx, 'TR');
-    case 'g17_played_in_top5_leagues':
-      return playedInAnyCountry(player, ctx, ['ES', 'GB', 'IT', 'DE', 'FR']);
-    case 'g18_played_abroad': return playedAbroad(player, ctx);
     case 'g19_born_in_europe':
       return birthInContinent(player, ctx, 'Europe');
     case 'g20_born_in_south_america':
       return birthInContinent(player, ctx, 'South America');
     case 'g21_born_in_africa':
       return birthInContinent(player, ctx, 'Africa');
+    case 'g23_born_in_asia':
+      return birthInContinent(player, ctx, 'Asia');
     case 'g22_lat_proximity_target':
       if (typeof player.birthLat !== 'number') return null;
       return absDiff(player.birthLat, Number(ctx.params?.['targetLat'] ?? 41));
@@ -271,38 +260,16 @@ function computeCustom(
     // ---------- KULÜP KARİYERİ ----------
     case 'c01_club_count': return player.clubs.length || null;
     case 'c02_longest_stint_years': return longestStintYears(player);
-    case 'c03_first_club_year_early':
-      if (player.clubs.length === 0) return null;
-      return Math.min(...player.clubs.map((s) => s.fromYear));
-    case 'c04_last_club_year_late':
-      if (player.clubs.length === 0) return null;
-      return Math.max(...player.clubs.map((s) => s.toYear ?? REFERENCE_YEAR));
     case 'c05_max_club_apps':
       if (player.clubs.length === 0) return null;
       return Math.max(...player.clubs.map((s) => s.apps));
     case 'c06_max_club_goals':
       if (player.clubs.length === 0) return null;
       return Math.max(...player.clubs.map((s) => s.goals));
-    case 'c07_one_club_man':
-      return player.clubs.length === 1;
-    case 'c08_loyal_player': // tek bir kulüpte 10+ yıl
-      return player.clubs.some((s) => {
-        const end = s.toYear ?? REFERENCE_YEAR;
-        return end - s.fromYear >= 10;
-      });
-    case 'c09_played_for_club_id': {
-      const target = String(ctx.params?.['clubId'] ?? '');
-      return target ? player.clubs.some((s) => s.clubId === target) : null;
-    }
 
     // ---------- POZİSYON / AYAK ----------
-    case 'p01_is_forward': return player.position === 'FWD';
-    case 'p02_is_midfielder': return player.position === 'MID';
-    case 'p03_is_defender': return player.position === 'DEF';
     case 'p04_is_goalkeeper': return player.position === 'GK';
-    case 'p05_right_footed': return player.preferredFoot === 'R';
     case 'p06_left_footed': return player.preferredFoot === 'L';
-    case 'p07_two_footed': return player.preferredFoot === 'B';
 
     // ---------- İSİM / KART ----------
     case 'k01_name_letter_count': return nameLetterCount(player.name);
@@ -310,7 +277,6 @@ function computeCustom(
     case 'k03_name_word_count': return wordCount(player.name);
     case 'k04_name_vowels': return countVowels(player.name);
     case 'k05_name_consonants': return countConsonants(player.name);
-    case 'k06_name_syllables': return syllableCount(player.name);
     case 'k07_name_has_turkish_char': return hasTurkishChar(player.name);
     case 'k09_lastname_length': return nameLetterCount(lastWord(player.name));
     case 'k10_firstname_length': return nameLetterCount(firstWord(player.name));
@@ -320,44 +286,12 @@ function computeCustom(
       const letter = String(ctx.params?.['letter'] ?? 'a');
       return countLetter(player.name, letter);
     }
-    case 'k13_name_starts_vowel': {
-      const ch = firstWord(player.name).charAt(0).toLowerCase();
-      return /[aeiouıöü]/.test(ch);
-    }
-    case 'k14_name_ends_vowel': {
-      const lw = lastWord(player.name);
-      const ch = lw.charAt(lw.length - 1).toLowerCase();
-      return /[aeiouıöü]/.test(ch);
-    }
     case 'k15_alliteration': // ad ve soyad aynı harfle başlıyor mu
       return firstWord(player.name).charAt(0).toLowerCase() ===
              lastWord(player.name).charAt(0).toLowerCase();
 
     // ---------- EĞLENCE / SAYISAL EĞLENCE ----------
     case 'f01_jersey_has_prime': return player.jerseyNumbers.some(isPrime);
-    case 'f02_jersey_has_target': {
-      const target = Number(ctx.params?.['number'] ?? 10);
-      return player.jerseyNumbers.includes(target);
-    }
-    case 'f03_jersey_all_even':
-      return player.jerseyNumbers.length > 0 && player.jerseyNumbers.every((n) => n % 2 === 0);
-    case 'f04_jersey_all_odd':
-      return player.jerseyNumbers.length > 0 && player.jerseyNumbers.every((n) => n % 2 === 1);
-    case 'f05_birth_day_even': {
-      const d = birthDay(player.birthDate);
-      return d === null ? null : d % 2 === 0;
-    }
-    case 'f06_birth_year_even': {
-      const y = birthYear(player.birthDate);
-      return y === null ? null : y % 2 === 0;
-    }
-    case 'f09_jersey_palindrome': // forma no palindrom mu (11, 22, 33...)
-      return player.jerseyNumbers.some((n) => {
-        const s = String(n);
-        return s.length > 1 && s === s.split('').reverse().join('');
-      });
-    case 'f10_height_ends_zero': // boyu 0'la bitiyor (170, 180, 190)
-      return typeof player.heightCm === 'number' && player.heightCm % 10 === 0;
     case 'f11_birth_in_winter': {
       const s = birthSeason(player.birthDate);
       const want = String(ctx.params?.['season'] ?? 'winter');
@@ -417,12 +351,6 @@ function computeCustom(
     }
 
     // ---------- EXTREME / NICHE ----------
-    case 'e05_20_plus_career':
-      return (player.stats.careerYears ?? 0) >= 20;
-    case 'e07_3_plus_continents':
-      return distinctContinents(player, ctx) >= 3;
-    case 'e08_5_plus_countries':
-      return distinctClubCountries(player, ctx) >= 5;
     case 'e09_national_dominant':
       // Milli takım gol oranı (milli gol / toplam gol). Yüksek olan kazanır.
       if (player.stats.totalGoals === 0) return null;
@@ -431,11 +359,6 @@ function computeCustom(
       // Yalnızca aktif oyuncular; en yüksek piyasa değeri karşılaştırılır.
       if (!player.isActive) return null;
       return player.stats.maxTransferFeeEUR ?? null;
-
-    // ---------- BOOLEAN (sınırlı: bireysel) ----------
-    case 'b01_active_player': return player.isActive;
-    case 'b02_played_in_capital': return isCapital(player.birthCity);
-    case 'b03_has_jersey_10': return player.jerseyNumbers.includes(10);
 
     default:
       return undefined; // generic compute akışına bırak
@@ -638,28 +561,6 @@ function playedInCountry(player: Player, ctx: ResolverContext, countryCode: stri
   for (const stint of player.clubs) {
     const club = ctx.clubsById.get(stint.clubId);
     if (club && club.countryCode === countryCode) return true;
-  }
-  return false;
-}
-
-function playedInAnyCountry(
-  player: Player,
-  ctx: ResolverContext,
-  codes: string[],
-): boolean {
-  const set = new Set(codes);
-  for (const stint of player.clubs) {
-    const club = ctx.clubsById.get(stint.clubId);
-    if (club && set.has(club.countryCode)) return true;
-  }
-  return false;
-}
-
-function playedAbroad(player: Player, ctx: ResolverContext): boolean {
-  const nat = player.nationalityCode;
-  for (const stint of player.clubs) {
-    const club = ctx.clubsById.get(stint.clubId);
-    if (club && club.countryCode !== nat) return true;
   }
   return false;
 }

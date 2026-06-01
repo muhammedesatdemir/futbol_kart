@@ -347,18 +347,6 @@
     "tags": ["age"]
   },
   {
-    "id": "t03_birth_year",
-    "category": "time",
-    "title": { "tr": "Doğum yılı sayısal olarak daha büyük olan oyuncu kazanır." },
-    "formula": { "tr": "Doğum yılı (YYYY) karşılaştırılır; büyük olan kazanır." },
-    "field": "birthDate",
-    "compute": "birthYear",
-    "compareOp": "max",
-    "tiebreakers": [],
-    "requiresFields": ["birthDate"],
-    "tags": ["age", "fun"]
-  },
-  {
     "id": "t04_birth_month_late",
     "category": "time",
     "title": { "tr": "Yıl içinde daha geç bir ayda doğmuş olan oyuncu kazanır." },
@@ -417,30 +405,6 @@
     "tiebreakers": ["stats.careerYears:max"],
     "requiresFields": ["clubs"],
     "tags": ["longevity"]
-  },
-  {
-    "id": "t09_still_active",
-    "category": "boolean",
-    "title": { "tr": "Hâlâ aktif olarak forma giyen oyuncu kazanır." },
-    "formula": { "tr": "Aktif kayıtlı oyuncu kazanır; her ikisi aktifse ya da değilse beraberlik bozucuya gidilir." },
-    "field": "isActive",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["stats.totalApps:max"],
-    "requiresFields": ["isActive"],
-    "tags": ["status"]
-  },
-  {
-    "id": "t10_age_today_older",
-    "category": "time",
-    "title": { "tr": "Bugün itibarıyla daha büyük yaşta olan oyuncu kazanır." },
-    "formula": { "tr": "2025 yılı eksi doğum yılı (yaş) karşılaştırılır; büyük olan kazanır." },
-    "field": "birthDate",
-    "compute": "ageYears",
-    "compareOp": "max",
-    "tiebreakers": [],
-    "requiresFields": ["birthDate"],
-    "tags": ["age"]
   },
   {
     "id": "t12_active_years_now",
@@ -534,44 +498,6 @@
     "tags": ["geo"]
   },
   {
-    "id": "g07_north_hemisphere",
-    "category": "boolean",
-    "title": { "tr": "Kuzey yarımkürede doğmuş olan oyuncu kazanır." },
-    "formula": { "tr": "Doğum enlemi 0'dan büyükse oyuncu kuzey yarımkürede doğmuştur." },
-    "field": "birthLat",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["birthLat:max"],
-    "requiresFields": ["birthLat"],
-    "minPoolCoverage": 0.7,
-    "tags": ["geo", "boolean"]
-  },
-  {
-    "id": "g08_east_hemisphere",
-    "category": "boolean",
-    "title": { "tr": "Doğu yarımkürede (Greenwich'in doğusunda) doğmuş olan oyuncu kazanır." },
-    "formula": { "tr": "Doğum boylamı 0'dan büyükse oyuncu doğu yarımkürede doğmuştur." },
-    "field": "birthLng",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["birthLng:max"],
-    "requiresFields": ["birthLng"],
-    "minPoolCoverage": 0.7,
-    "tags": ["geo", "boolean"]
-  },
-  {
-    "id": "g09_capital_birth",
-    "category": "boolean",
-    "title": { "tr": "Bir ülke başkentinde doğmuş olan oyuncu kazanır." },
-    "formula": { "tr": "Doğum şehri tanınan dünya başkentleri listesinde geçen oyuncu kazanır." },
-    "field": "birthCity",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["stats.totalApps:max"],
-    "requiresFields": ["birthCity"],
-    "tags": ["geo", "boolean"]
-  },
-  {
     "id": "g10_distinct_club_countries",
     "category": "geo",
     "title": { "tr": "Profesyonel kariyerinde daha fazla farklı ülkenin kulübünde forma giymiş olan oyuncu kazanır." },
@@ -594,31 +520,6 @@
     "tiebreakers": ["clubs:max"],
     "requiresFields": ["clubs"],
     "tags": ["geo", "club"]
-  },
-  {
-    "id": "g12_two_continents",
-    "category": "boolean",
-    "title": { "tr": "Kariyerinde en az iki farklı kıtada profesyonel forma giymiş olan oyuncu kazanır." },
-    "formula": { "tr": "Forma giydiği farklı kıta sayısı 2 veya daha fazla olan kazanır." },
-    "field": "clubs",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["clubs:max"],
-    "requiresFields": ["clubs"],
-    "tags": ["geo", "boolean"]
-  },
-  {
-    "id": "g13_three_continents",
-    "category": "boolean",
-    "title": { "tr": "Kariyerinde en az üç farklı kıtada profesyonel forma giymiş olan oyuncu kazanır." },
-    "formula": { "tr": "Forma giydiği farklı kıta sayısı 3 veya daha fazla olan kazanır." },
-    "field": "clubs",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["clubs:max"],
-    "requiresFields": ["clubs"],
-    "minPoolCoverage": 0.05,
-    "tags": ["geo", "boolean", "extreme"]
   },
   {
     "id": "g14_first_last_club_dist",
@@ -658,30 +559,6 @@
     "tags": ["geo", "boolean", "turkey"]
   },
   {
-    "id": "g17_played_in_top5_leagues",
-    "category": "boolean",
-    "title": { "tr": "Profesyonel kariyerinde Avrupa'nın 5 büyük liginden (İspanya, İngiltere, İtalya, Almanya, Fransa) en az birinde forma giymiş oyuncu kazanır." },
-    "formula": { "tr": "ES, GB, IT, DE veya FR ülke kodlu en az bir kulüpte forma giymiş olan kazanır." },
-    "field": "clubs",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["clubs:max"],
-    "requiresFields": ["clubs"],
-    "tags": ["geo", "boolean"]
-  },
-  {
-    "id": "g18_played_abroad",
-    "category": "boolean",
-    "title": { "tr": "Vatandaşı olduğu ülke dışında en az bir profesyonel kulüpte forma giymiş olan oyuncu kazanır." },
-    "formula": { "tr": "Forma giydiği kulüplerden en az biri, oyuncunun milliyet ülke kodundan farklı bir ülkedeyse kazanır." },
-    "field": "clubs",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["clubs:max"],
-    "requiresFields": ["clubs", "nationalityCode"],
-    "tags": ["geo", "boolean"]
-  },
-  {
     "id": "g19_born_in_europe",
     "category": "boolean",
     "title": { "tr": "Avrupa kıtasında doğmuş olan oyuncu kazanır." },
@@ -704,7 +581,7 @@
     "compareOp": "bool",
     "tiebreakers": [],
     "requiresFields": ["birthCountryCode"],
-    "minPoolCoverage": 0.1,
+    "minPoolCoverage": 0.7,
     "tags": ["geo", "boolean"]
   },
   {
@@ -717,7 +594,20 @@
     "compareOp": "bool",
     "tiebreakers": [],
     "requiresFields": ["birthCountryCode"],
-    "minPoolCoverage": 0.05,
+    "minPoolCoverage": 0.7,
+    "tags": ["geo", "boolean"]
+  },
+  {
+    "id": "g23_born_in_asia",
+    "category": "boolean",
+    "title": { "tr": "Asya kıtasında doğmuş olan oyuncu kazanır." },
+    "formula": { "tr": "Doğum ülkesi Asya kıtasında bulunan oyuncu kazanır." },
+    "field": "birthCountryCode",
+    "compute": "custom",
+    "compareOp": "bool",
+    "tiebreakers": [],
+    "requiresFields": ["birthCountryCode"],
+    "minPoolCoverage": 0.7,
     "tags": ["geo", "boolean"]
   },
   {
@@ -745,30 +635,6 @@
     "tags": ["club", "loyalty"]
   },
   {
-    "id": "c03_first_club_year_early",
-    "category": "time",
-    "title": { "tr": "İlk profesyonel kulüp yılı sayısal olarak daha küçük olan oyuncu kazanır." },
-    "formula": { "tr": "İlk kulüp döneminin başlangıç yılı karşılaştırılır; küçük olan kazanır." },
-    "field": "clubs",
-    "compute": "custom",
-    "compareOp": "min",
-    "tiebreakers": [],
-    "requiresFields": ["clubs"],
-    "tags": ["debut"]
-  },
-  {
-    "id": "c04_last_club_year_late",
-    "category": "time",
-    "title": { "tr": "Son aktif kulüp yılı sayısal olarak daha büyük olan oyuncu kazanır." },
-    "formula": { "tr": "Son kulüp döneminin bitiş yılı karşılaştırılır; büyük olan kazanır." },
-    "field": "clubs",
-    "compute": "custom",
-    "compareOp": "max",
-    "tiebreakers": [],
-    "requiresFields": ["clubs"],
-    "tags": ["recent"]
-  },
-  {
     "id": "c05_max_club_apps",
     "category": "club",
     "title": { "tr": "Tek bir kulüpte çıktığı maç sayısının kariyer maksimumu daha yüksek olan oyuncu kazanır." },
@@ -793,68 +659,6 @@
     "tags": ["club", "peak"]
   },
   {
-    "id": "c07_one_club_man",
-    "category": "boolean",
-    "title": { "tr": "Profesyonel kariyerinin tamamını tek bir kulüpte geçirmiş olan oyuncu kazanır." },
-    "formula": { "tr": "Profesyonel kulüp sayısı tam olarak 1 olan kazanır." },
-    "field": "clubs",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["stats.totalApps:max"],
-    "requiresFields": ["clubs"],
-    "minPoolCoverage": 0.02,
-    "tags": ["club", "boolean", "loyalty"]
-  },
-  {
-    "id": "c08_loyal_player",
-    "category": "boolean",
-    "title": { "tr": "Tek bir kulüpte en az 10 yıl kesintisiz forma giymiş olan oyuncu kazanır." },
-    "formula": { "tr": "En uzun kulüp dönemi 10 yıl ya da daha fazla olan kazanır." },
-    "field": "clubs",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["stats.totalApps:max"],
-    "requiresFields": ["clubs"],
-    "minPoolCoverage": 0.1,
-    "tags": ["club", "boolean", "loyalty"]
-  },
-  {
-    "id": "p01_is_forward",
-    "category": "position",
-    "title": { "tr": "Resmî pozisyonu forvet (santrafor veya kanat) olan oyuncu kazanır." },
-    "formula": { "tr": "Pozisyon FWD (forvet) ise kazanır." },
-    "field": "position",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["stats.totalGoals:max"],
-    "requiresFields": ["position"],
-    "tags": ["position", "boolean"]
-  },
-  {
-    "id": "p02_is_midfielder",
-    "category": "position",
-    "title": { "tr": "Resmî pozisyonu orta saha olan oyuncu kazanır." },
-    "formula": { "tr": "Pozisyon MID (orta saha) ise kazanır." },
-    "field": "position",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["stats.totalAssists:max"],
-    "requiresFields": ["position"],
-    "tags": ["position", "boolean"]
-  },
-  {
-    "id": "p03_is_defender",
-    "category": "position",
-    "title": { "tr": "Resmî pozisyonu defans olan oyuncu kazanır." },
-    "formula": { "tr": "Pozisyon DEF (defans) ise kazanır." },
-    "field": "position",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["stats.totalApps:max"],
-    "requiresFields": ["position"],
-    "tags": ["position", "boolean"]
-  },
-  {
     "id": "p04_is_goalkeeper",
     "category": "position",
     "title": { "tr": "Resmî pozisyonu kaleci olan oyuncu kazanır." },
@@ -868,19 +672,6 @@
     "tags": ["position", "boolean"]
   },
   {
-    "id": "p05_right_footed",
-    "category": "position",
-    "title": { "tr": "Tercih ettiği ayağı sağ olan oyuncu kazanır." },
-    "formula": { "tr": "Ayak tercihi R (sağ) ise kazanır." },
-    "field": "preferredFoot",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["preferredFoot"],
-    "minPoolCoverage": 0.7,
-    "tags": ["position", "boolean"]
-  },
-  {
     "id": "p06_left_footed",
     "category": "position",
     "title": { "tr": "Tercih ettiği ayağı sol olan oyuncu kazanır." },
@@ -891,19 +682,6 @@
     "tiebreakers": [],
     "requiresFields": ["preferredFoot"],
     "minPoolCoverage": 0.1,
-    "tags": ["position", "boolean"]
-  },
-  {
-    "id": "p07_two_footed",
-    "category": "position",
-    "title": { "tr": "İki ayağını da eşit derecede iyi kullanan oyuncu kazanır." },
-    "formula": { "tr": "Ayak tercihi B (her iki ayak) ise kazanır." },
-    "field": "preferredFoot",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["preferredFoot"],
-    "minPoolCoverage": 0.05,
     "tags": ["position", "boolean"]
   },
   {
@@ -967,31 +745,6 @@
     "tags": ["name", "fun"]
   },
   {
-    "id": "k06_name_syllables",
-    "category": "name",
-    "title": { "tr": "Resmî tam adının hece sayısı daha fazla olan oyuncu kazanır." },
-    "formula": { "tr": "Tam ad içindeki sesli harf sayısı kaba hece tahmini olarak kullanılır." },
-    "field": "name",
-    "compute": "custom",
-    "compareOp": "max",
-    "tiebreakers": [],
-    "requiresFields": ["name"],
-    "tags": ["name", "fun"]
-  },
-  {
-    "id": "k07_name_has_turkish_char",
-    "category": "boolean",
-    "title": { "tr": "Adında Türkçe karakter (ı, ğ, ş, ö, ü, ç) bulunan oyuncu kazanır." },
-    "formula": { "tr": "Tam ad veya kısa adda en az bir Türkçe karakter geçen oyuncu kazanır." },
-    "field": "name",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["name"],
-    "minPoolCoverage": 0.05,
-    "tags": ["name", "boolean", "turkey"]
-  },
-  {
     "id": "k09_lastname_length",
     "category": "name",
     "title": { "tr": "Soyadındaki harf sayısı daha fazla olan oyuncu kazanır." },
@@ -1018,8 +771,8 @@
   {
     "id": "k11_uses_stage_name",
     "category": "boolean",
-    "title": { "tr": "Profesyonel kariyerinde sahne adı kullanan oyuncu kazanır." },
-    "formula": { "tr": "Resmî tam adı ile kart üstündeki kısa adı farklı olan oyuncu sahne adı kullanıyor sayılır." },
+    "title": { "tr": "Sahası dışında bir takma/sahne adıyla tanınan oyuncu kazanır (ör. \"Pelé\", \"Ronaldinho\", \"Hulk\" — resmî adı çok daha uzundur)." },
+    "formula": { "tr": "Kart üstündeki bilinen adı, resmî tam adından farklıysa oyuncu takma adla tanınıyor demektir. Örn. Pelé = Edson Arantes do Nascimento, Hulk = Givanildo Vieira de Souza." },
     "field": "displayName",
     "compute": "custom",
     "compareOp": "bool",
@@ -1027,30 +780,6 @@
     "requiresFields": ["name", "displayName"],
     "minPoolCoverage": 0.05,
     "tags": ["name", "boolean", "fun"]
-  },
-  {
-    "id": "k13_name_starts_vowel",
-    "category": "boolean",
-    "title": { "tr": "Adı sesli harf ile başlayan oyuncu kazanır." },
-    "formula": { "tr": "Tam adın ilk harfi sesli (a, e, i, o, u, ı, ö, ü) ise kazanır." },
-    "field": "name",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["name"],
-    "tags": ["name", "boolean"]
-  },
-  {
-    "id": "k14_name_ends_vowel",
-    "category": "boolean",
-    "title": { "tr": "Soyadı sesli harf ile biten oyuncu kazanır." },
-    "formula": { "tr": "Soyadın son harfi sesli (a, e, i, o, u, ı, ö, ü) ise kazanır." },
-    "field": "name",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["name"],
-    "tags": ["name", "boolean"]
   },
   {
     "id": "k15_alliteration",
@@ -1076,82 +805,6 @@
     "tiebreakers": ["jerseyNumbers:max"],
     "requiresFields": ["jerseyNumbers"],
     "tags": ["fun", "jersey"]
-  },
-  {
-    "id": "f03_jersey_all_even",
-    "category": "boolean",
-    "title": { "tr": "Kariyer boyunca giydiği tüm forma numaraları çift sayı olan oyuncu kazanır." },
-    "formula": { "tr": "Tüm forma numaraları 2'ye tam bölünüyorsa kazanır." },
-    "field": "jerseyNumbers",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["jerseyNumbers"],
-    "minPoolCoverage": 0.05,
-    "tags": ["fun", "jersey", "boolean"]
-  },
-  {
-    "id": "f04_jersey_all_odd",
-    "category": "boolean",
-    "title": { "tr": "Kariyer boyunca giydiği tüm forma numaraları tek sayı olan oyuncu kazanır." },
-    "formula": { "tr": "Tüm forma numaraları 2'ye tam bölünmüyorsa kazanır." },
-    "field": "jerseyNumbers",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["jerseyNumbers"],
-    "minPoolCoverage": 0.05,
-    "tags": ["fun", "jersey", "boolean"]
-  },
-  {
-    "id": "f05_birth_day_even",
-    "category": "boolean",
-    "title": { "tr": "Doğduğu ayın günü çift sayı olan oyuncu kazanır." },
-    "formula": { "tr": "Doğum tarihinin gün kısmı (DD) çift sayı ise kazanır." },
-    "field": "birthDate",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["birthDate"],
-    "tags": ["fun", "boolean"]
-  },
-  {
-    "id": "f06_birth_year_even",
-    "category": "boolean",
-    "title": { "tr": "Doğum yılı çift sayı olan oyuncu kazanır." },
-    "formula": { "tr": "Doğum yılı 2'ye tam bölünüyorsa kazanır." },
-    "field": "birthDate",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["birthDate"],
-    "tags": ["fun", "boolean"]
-  },
-  {
-    "id": "f09_jersey_palindrome",
-    "category": "boolean",
-    "title": { "tr": "Kariyer boyunca giydiği forma numaralarından en az biri palindrom olan oyuncu kazanır." },
-    "formula": { "tr": "11, 22, 33 gibi tersten de aynı okunan en az bir forma numarası varsa kazanır." },
-    "field": "jerseyNumbers",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["jerseyNumbers"],
-    "minPoolCoverage": 0.05,
-    "tags": ["fun", "jersey", "boolean"]
-  },
-  {
-    "id": "f10_height_ends_zero",
-    "category": "boolean",
-    "title": { "tr": "Boyu tam onluk (170, 180, 190 gibi) olan oyuncu kazanır." },
-    "formula": { "tr": "Boy santimetre değeri 10'a tam bölünüyorsa kazanır." },
-    "field": "heightCm",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["heightCm"],
-    "minPoolCoverage": 0.1,
-    "tags": ["fun", "boolean"]
   },
   {
     "id": "f11_birth_in_winter",
@@ -1322,45 +975,6 @@
     "tags": ["proximity", "national"]
   },
   {
-    "id": "e05_20_plus_career",
-    "category": "extreme",
-    "title": { "tr": "Profesyonel kariyer süresi 20 yıl veya daha uzun olan oyuncu kazanır." },
-    "formula": { "tr": "Kariyer yıl sayısı 20 veya daha fazla ise kazanır." },
-    "field": "stats.careerYears",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["stats.careerYears:max"],
-    "requiresFields": ["stats.careerYears"],
-    "minPoolCoverage": 0.05,
-    "tags": ["extreme", "boolean", "longevity"]
-  },
-  {
-    "id": "e07_3_plus_continents",
-    "category": "extreme",
-    "title": { "tr": "Profesyonel kariyerinde en az 3 farklı kıtada forma giymiş olan oyuncu kazanır." },
-    "formula": { "tr": "Forma giydiği farklı kıta sayısı 3 veya daha fazla ise kazanır." },
-    "field": "clubs",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["clubs:max"],
-    "requiresFields": ["clubs"],
-    "minPoolCoverage": 0.05,
-    "tags": ["extreme", "boolean", "geo"]
-  },
-  {
-    "id": "e08_5_plus_countries",
-    "category": "extreme",
-    "title": { "tr": "Profesyonel kariyerinde en az 5 farklı ülkede forma giymiş olan oyuncu kazanır." },
-    "formula": { "tr": "Forma giydiği farklı ülke sayısı 5 veya daha fazla ise kazanır." },
-    "field": "clubs",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": ["clubs:max"],
-    "requiresFields": ["clubs"],
-    "minPoolCoverage": 0.05,
-    "tags": ["extreme", "boolean", "geo"]
-  },
-  {
     "id": "e09_national_dominant",
     "category": "extreme",
     "title": { "tr": "Toplam gollerinin daha büyük oranını A milli takımda atmış olan oyuncu kazanır." },
@@ -1385,22 +999,6 @@
     "requiresFields": ["stats.maxTransferFeeEUR", "isActive"],
     "minPoolCoverage": 0.4,
     "tags": ["extreme", "value"]
-  },
-  {
-    "id": "f02_jersey_has_target",
-    "category": "fun",
-    "title": { "tr": "Kariyer boyunca #{number} numaralı formayı en az bir sezon giymiş olan oyuncu kazanır." },
-    "formula": { "tr": "Forma numarası listesinde hedef numara bulunuyorsa kazanır." },
-    "field": "jerseyNumbers",
-    "compute": "custom",
-    "compareOp": "bool",
-    "tiebreakers": [],
-    "requiresFields": ["jerseyNumbers"],
-    "params": [
-      { "name": "number", "type": "int", "from": 1, "to": 11, "step": 1 }
-    ],
-    "minPoolCoverage": 0.05,
-    "tags": ["fun", "jersey", "boolean"]
   },
   {
     "id": "k12_name_letter_count_target",

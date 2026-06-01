@@ -18,8 +18,8 @@ import {
 } from './test-fixtures';
 
 describe('templates load', () => {
-  it('loads at least 100 templates from JSON', () => {
-    expect(TEMPLATES.length).toBeGreaterThanOrEqual(100);
+  it('loads at least 80 templates from JSON', () => {
+    expect(TEMPLATES.length).toBeGreaterThanOrEqual(80);
   });
 
   it('every template has Turkish title + formula', () => {
@@ -124,15 +124,15 @@ describe('computeValue — sayısal', () => {
 });
 
 describe('computeValue — boolean', () => {
-  it('t09_still_active', () => {
-    const t = templateById('t09_still_active')!;
-    expect(computeValue(t, fixtureMessi, fixtureContext)).toBe(true);
-    expect(computeValue(t, fixtureRonaldinho, fixtureContext)).toBe(false);
+  it('g20/g19 doğum kıtası — Ronaldinho (BR): G.Amerika true, Avrupa false', () => {
+    // Fixture'da BR ülke kodlu kulüp (gremio, South America) var → eşleşir
+    expect(computeValue(templateById('g20_born_in_south_america')!, fixtureRonaldinho, fixtureContext)).toBe(true);
+    expect(computeValue(templateById('g19_born_in_europe')!, fixtureRonaldinho, fixtureContext)).toBe(false);
   });
 
-  it('p01_is_forward', () => {
-    const t = templateById('p01_is_forward')!;
-    expect(computeValue(t, fixtureMessi, fixtureContext)).toBe(true);
+  it('p04_is_goalkeeper — Messi kaleci değil', () => {
+    const t = templateById('p04_is_goalkeeper')!;
+    expect(computeValue(t, fixtureMessi, fixtureContext)).toBe(false);
   });
 
   it('f01_jersey_has_prime — Messi (10, 30) yok; CR7 (7) var', () => {
@@ -141,11 +141,11 @@ describe('computeValue — boolean', () => {
     expect(computeValue(t, fixtureCR7, fixtureContext)).toBe(true);
   });
 
-  it('g12_two_continents — Ronaldinho 2 kıta (Avrupa+G.Amerika) → true', () => {
-    const t = templateById('g12_two_continents')!;
-    expect(computeValue(t, fixtureRonaldinho, fixtureContext)).toBe(true);
-    expect(computeValue(t, fixtureCR7, fixtureContext)).toBe(true); // Europe + Asia
-    expect(computeValue(t, fixtureMessi, fixtureContext)).toBe(false); // sadece Europe
+  it('g11_distinct_club_continents — Ronaldinho 2 kıta (Avrupa+G.Amerika)', () => {
+    const t = templateById('g11_distinct_club_continents')!;
+    expect(computeValue(t, fixtureRonaldinho, fixtureContext)).toBe(2);
+    expect(computeValue(t, fixtureCR7, fixtureContext)).toBe(2); // Europe + Asia
+    expect(computeValue(t, fixtureMessi, fixtureContext)).toBe(1); // sadece Europe
   });
 
   it('g16_played_in_turkey — fixture\'larımızda kimse Türkiye\'de oynamamış', () => {
@@ -153,9 +153,9 @@ describe('computeValue — boolean', () => {
     expect(computeValue(t, fixtureMessi, fixtureContext)).toBe(false);
   });
 
-  it('g18_played_abroad — Messi (AR) Barcelona+PSG → true', () => {
-    const t = templateById('g18_played_abroad')!;
-    expect(computeValue(t, fixtureMessi, fixtureContext)).toBe(true);
+  it('g10_distinct_club_countries — Messi (ES+FR) → 2', () => {
+    const t = templateById('g10_distinct_club_countries')!;
+    expect(computeValue(t, fixtureMessi, fixtureContext)).toBe(2);
   });
 });
 
@@ -205,11 +205,11 @@ describe('resolveRound', () => {
     expect(r.winner).toBe('P1');
   });
 
-  it('p01_is_forward: ikisi de forvet → gerçek beraberlik, kazanan yok', () => {
-    const t = templateById('p01_is_forward')!;
+  it('p04_is_goalkeeper: ikisi de kaleci değil → gerçek beraberlik, kazanan yok', () => {
+    const t = templateById('p04_is_goalkeeper')!;
     const r = resolveRound(t, fixtureMessi, fixtureCR7, fixtureContext);
-    // İkisi de forvet (Evet-Evet) → beraberlik. Tiebreaker ile rastgele/keyfi
-    // kazanan ASLA belirlenmez; eşitlik uzatma/penaltı fazlarıyla kırılır.
+    // İkisi de kaleci değil (Hayır-Hayır) → beraberlik. Tiebreaker ile
+    // rastgele/keyfi kazanan ASLA belirlenmez; eşitlik uzatma/penaltı fazlarıyla kırılır.
     expect(r.winner).toBe('tie');
     expect(r.tiebreakerUsed).toBeUndefined();
   });
@@ -280,7 +280,7 @@ describe('regression — şablon/resolver senkronizasyonu', () => {
       expect(t.tiebreakers, t.id).not.toContain('random');
     }
     // Eşit değerlerde her zaman tie döner (tiebreaker uygulanmaz)
-    const t = templateById('p01_is_forward')!;
+    const t = templateById('p04_is_goalkeeper')!;
     const r = resolveRound(t, fixtureMessi, fixtureCR7, fixtureContext);
     expect(r.winner).toBe('tie');
     expect(r.tiebreakerUsed).toBeUndefined();
@@ -310,8 +310,40 @@ describe('regression — şablon/resolver senkronizasyonu', () => {
       'e04_500_plus_goals',
       'e06_50_plus_season',
       't11_career_decades_count',
+      // Boolean azaltma turunda silinenler
+      'g07_north_hemisphere',
+      'g09_capital_birth',
+      'g12_two_continents',
+      'g18_played_abroad',
+      'c07_one_club_man',
+      'p01_is_forward',
+      'p05_right_footed',
+      'k13_name_starts_vowel',
+      'f03_jersey_all_even',
+      'f09_jersey_palindrome',
+      'e05_20_plus_career',
+      'e08_5_plus_countries',
+      // Duplike/işe yaramaz temizliği (t03≈t01, t10=t02, k06=k04, c03≈t06, t09 %91 berabere)
+      't03_birth_year',
+      't10_age_today_older',
+      'k06_name_syllables',
+      'c03_first_club_year_early',
+      't09_still_active',
+      'c04_last_club_year_late',
     ]) {
       expect(templateById(id), `${id} silinmeli`).toBeUndefined();
     }
+  });
+
+  it('yeni doğum-kıtası soruları mevcut', () => {
+    for (const id of ['g20_born_in_south_america', 'g21_born_in_africa', 'g23_born_in_asia']) {
+      expect(templateById(id), `${id} eklenmeli`).toBeDefined();
+    }
+  });
+
+  it('boolean şablon oranı azınlıkta (< %15)', () => {
+    const bool = TEMPLATES.filter((t) => t.compareOp === 'bool');
+    const ratio = bool.length / TEMPLATES.length;
+    expect(ratio, `bool oranı %${(ratio * 100).toFixed(1)} — çok yüksek`).toBeLessThan(0.15);
   });
 });

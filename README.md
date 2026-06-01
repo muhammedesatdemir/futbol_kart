@@ -2,7 +2,7 @@
 
 > Sürpriz sorularla futbolcu kartlarını karşılaştıran, hot-seat ve bota karşı oynanan bir dijital kart düellosu.
 
-İki oyuncu kör seçimle **8'er kart** seçer, moderatör **112 farklı şablondan** rastgele bir soru sorar (forma numarası toplamı, doğum yeri ekvatora yakınlığı, kariyer toplam golü, "yaşı 30'a daha yakın" gibi parametrik sorular vb.), oyuncular ellerinden birer kart sürer, istatistik karşılaştırılır, kazanan o turu alır. **7 tur**, eşitlikte uzatma (4 kart × 3 tur), eşitlik sürerse penaltı atışı (1 kart × 1 soru). Bir turda değerler eşitse (Evet-Evet, Hayır-Hayır, 25-25) tur **berabere** biter — hiçbir tarafa keyfî/rastgele puan verilmez; eşitlik yalnızca uzatma ve penaltı fazlarıyla kırılır.
+İki oyuncu kör seçimle **8'er kart** seçer, moderatör **80 farklı şablondan** rastgele bir soru sorar (forma numarası toplamı, doğum yeri ekvatora yakınlığı, kariyer toplam golü, "yaşı 30'a daha yakın" gibi parametrik sorular vb.), oyuncular ellerinden birer kart sürer, istatistik karşılaştırılır, kazanan o turu alır. **7 tur**, eşitlikte uzatma (4 kart × 3 tur), eşitlik sürerse penaltı atışı (1 kart × 1 soru). Bir turda değerler eşitse (Evet-Evet, Hayır-Hayır, 25-25) tur **berabere** biter — hiçbir tarafa keyfî/rastgele puan verilmez; eşitlik yalnızca uzatma ve penaltı fazlarıyla kırılır.
 
 ---
 
@@ -12,9 +12,10 @@
 |---|---|
 | **Oyuncu** | 8,912 (Pelé'den Lamine Yamal'a, 107 yıllık tarih) |
 | **Kulüp** | 6,240 (47 manuel + 6,193 TM) |
-| **Soru şablonu** | 112 baz şablon (14 parametrik → ~750 benzersiz soru varyasyonu) |
+| **Soru şablonu** | 80 baz şablon (14 parametrik → ~700 benzersiz soru varyasyonu) |
 | **Türk oyuncu** | 727 (Süper Lig kulüpleri + Anadolu kulüpleri + manuel efsaneler) |
-| **Şablon sağlığı** | 112/112 şablon gerçek veri üzerinde denetlendi — 0 kırık ✅ |
+| **Şablon sağlığı** | 80/80 şablon gerçek veri üzerinde denetlendi — 0 kırık ✅ |
+| **Kapışmalı oran** | Şablonların ~%86'sı karşılaştırmalı (max/min); Evet-Hayır soruları ~%14 azınlıkta |
 | **Doğruluk** | 10/10 ünlü oyuncu Wikipedia ile %100 uyumlu (milli takım istatistikleri) |
 | **Duplicate** | 0 (otomatik dedup + build-time validation) |
 
@@ -30,9 +31,10 @@ Detaylı veri raporu: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT
 
 #### Oyun motoru & UI
 - ✅ **Oyun motoru** — Saf TypeScript, event-sourced reducer, seedable PRNG. Hot-seat + vs-bot.
-- ✅ **112 soru şablonu** — 11 kategori (numeric, time, geo, club, position, name, fun, proximity, boolean, extreme, composite), 14'ü parametrik, Wikipedia ile doğrulu, tamamı gerçek veri üzerinde denetlendi.
-- ✅ **Soru çözücü** — Şablon başına resolver + parametrik şablonlarda runtime değer üretimi + başlık interpolasyonu (`{targetApps}` → 500) + 37/37 Vitest testleri yeşil.
+- ✅ **80 soru şablonu** — 11 kategori (numeric, time, geo, club, position, name, fun, proximity, boolean, extreme, composite), 14'ü parametrik, Wikipedia ile doğrulu, tamamı gerçek veri üzerinde denetlendi. Şablonların ~%86'sı karşılaştırmalı (kapışmalı) — Evet/Hayır soruları bilinçli olarak azınlıkta tutuldu.
+- ✅ **Soru çözücü** — Şablon başına resolver + parametrik şablonlarda runtime değer üretimi + başlık interpolasyonu (`{targetApps}` → 500) + 39/39 Vitest testleri yeşil.
 - ✅ **Adil beraberlik mantığı** — Değerler eşitse tur her zaman berabere; rastgele/keyfî kazanan asla belirlenmez. Eşitlik yalnızca uzatma → penaltı fazlarıyla kırılır.
+- ✅ **Çeşitlilik garantisi** — Soru seçici üst üste aynı kategoriden soru sormaz (havuz daralmadıkça); 7 turlu simülasyonda ardışık tekrar oranı %0.
 - ✅ **Uzatma + sudden death** — Eşitlikte otomatik faz geçişi.
 - ✅ **Frontend** — Next.js 14 App Router, sahne shell (mode → pick → handoff → round → final), Framer Motion animasyonlar, Zustand + sessionStorage persist, next-intl (TR).
 - ✅ **Kart seçme ekranı v2** — Sticky üst panel + seçim chip'leri, ⌘K ile odaklı çoklu-alan arama (ad/ülke/lig/takım/forma), pozisyon + ülke + çağ filtreleri, kürasyonlu varsayılan havuz (16 efsane + 16 güncel), IntersectionObserver ile paged yükleme (ilk 32, sonra +32).
@@ -50,7 +52,7 @@ Detaylı veri raporu: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT
 - ✅ **Kalite filtreleri** — Pozisyon-aware (GK<80 maç, FWD<100 maç veya <20 gol vb.) + 5 istisna kuralı (TR vatandaşı, 50+ gol, 300+ maç, 10+ milli cap, 1M+ değer). 102 yetersiz veri kayıt çıkarıldı.
 - ✅ **Duplicate koruması** — Identity-bazlı + slug prefix dedup; build-time validation; merge'de built-in.
 - ✅ **Blocklist** — `seed/blocklist.json` ile 8 oyuncu (hukuki süreç) sistemden çıkarıldı.
-- ✅ **Şablon sağlık denetimi** — `audit:templates` scripti her şablonu gerçek veri üzerinde simüle eder; karşılaştırılamayan/imkansız/duplike şablonları yakalar (kırık şablon bulursa exit-code 1). Bu denetimle 9 sorunlu şablon (imkansız palindrom, duplike maç/on-yıl eşikleri vb.) temizlendi ve 2 nadir bool soru karşılaştırmalıya çevrildi.
+- ✅ **Şablon sağlık denetimi** — `audit:templates` scripti her şablonu gerçek veri üzerinde simüle eder; karşılaştırılamayan/imkansız/duplike şablonları yakalar (kırık şablon bulursa exit-code 1). Bu denetimle imkansız/duplike şablonlar temizlendi, nadir bool sorular karşılaştırmalıya çevrildi ve birbirinin neredeyse aynısı olan şablonlar (ör. "doğum yılı büyük" ≈ "daha genç", "hece sayısı" = "sesli harf sayısı") elendi. Sonuç: **121 → 80 şablon**, bool oranı %34'ten ~%14'e indi.
 
 ### Tamamlanmamış
 
@@ -110,13 +112,13 @@ futbol-kart/
 │   ├── shared-types/                     Player, Club, GameState tipleri
 │   ├── game-engine/                      Saf TS reducer + PRNG + bot
 │   ├── question-templates/
-│   │   ├── templates.json                112 şablon
+│   │   ├── templates.json                80 şablon
 │   │   ├── src/
 │   │   │   ├── schema.ts                 Zod template + paramSpec
 │   │   │   ├── resolver.ts               Custom compute case + param üretimi + başlık interpolasyonu
 │   │   │   ├── util.ts                   Türkçe karakter, hece, palindrom, ...
 │   │   │   ├── geo.ts                    Haversine, kapital şehirler
-│   │   │   └── resolver.test.ts          37/37 Vitest (regression dahil)
+│   │   │   └── resolver.test.ts          39/39 Vitest (regression dahil)
 │   │   └── package.json
 │   └── db/                               Drizzle schema + Neon client
 ├── data-pipeline/
@@ -261,7 +263,7 @@ pnpm --filter @futbol-kart/web start                 # Production preview
 
 # Kalite
 pnpm -r typecheck                                    # Tüm paketlerde tsc --noEmit
-pnpm --filter @futbol-kart/question-templates test   # 37/37 Vitest
+pnpm --filter @futbol-kart/question-templates test   # 39/39 Vitest
 
 # DB
 pnpm --filter @futbol-kart/db generate               # Drizzle migration SQL
@@ -284,30 +286,33 @@ node scripts/optimize-hero-images.mjs                # public/hero/*.png → *.w
 
 ## Soru Şablon Sistemi
 
-112 baz şablon, 11 kategoride:
+80 baz şablon, 11 kategoride:
 
 | Kategori | Şablon | Örnek |
 |---|---|---|
-| **boolean** | 26 | "Kuzey yarımkürede doğmuş olan kazanır." |
 | **numeric** | 16 | "Toplam gol sayısı daha fazla olan kazanır." |
-| **time** | 13 | "Daha küçük yaşta debüt yapmış olan kazanır." |
 | **proximity** | 11 | "Yaşı 30'a daha yakın olan kazanır." (parametrik 22-40) |
 | **geo** | 10 | "Doğum yeri İstanbul'a daha yakın olan kazanır." |
-| **name** | 9 | "Tam adında daha fazla sesli harf bulunan kazanır." |
+| **time** | 9 | "Daha küçük yaşta debüt yapmış olan kazanır." |
 | **composite** | 8 | "Maç başına gol ortalaması daha yüksek olan kazanır." |
-| **position** | 7 | "Resmî pozisyonu kaleci olan kazanır." |
-| **club** | 5 | "Tek bir kulüpte en az 10 yıl forma giymiş olan kazanır." |
-| **extreme** | 5 | "Aktif oyuncular arasında piyasa değeri daha yüksek olan kazanır." |
-| **fun** | 2 | "#10 numaralı formayı giymiş olan kazanır." (1-11) |
+| **boolean** | 8 | "Avrupa / G.Amerika / Afrika / Asya'da doğmuş olan kazanır." |
+| **name** | 8 | "Tam adında daha fazla sesli harf bulunan kazanır." |
+| **club** | 5 | "Tek bir kulüpte en yüksek maç sayısına ulaşan kazanır." |
+| **position** | 2 | "Resmî pozisyonu kaleci olan kazanır." |
+| **extreme** | 2 | "Aktif oyuncular arasında piyasa değeri daha yüksek olan kazanır." |
+| **fun** | 1 | "Forma numaralarından en az biri asal sayı olan kazanır." |
 
-**Parametrik şablonlar** (14 adet): Runtime'de değer değişir. Örn. `x01_age_proximity` her oyunda 22–40 arası rastgele bir hedef yaş seçer; soru başlığındaki `{targetAge}` gibi placeholder'lar seçilen değerle doldurulur. Toplam **~750 benzersiz soru varyasyonu** üretilir.
+**Kapışmalı tasarım:** Şablonların **~%86'sı karşılaştırmalı** (max/min — "hangisi daha çok/az/yakın"). Evet/Hayır (bool) şablonları toplamın yalnızca **~%14'ü** (11 şablon, bunların 4'ü doğum kıtası); iki tarafın da aynı cevabı verip turu sürekli berabere bırakmasını önlemek için bilinçli olarak azınlıkta tutuldu.
+
+**Parametrik şablonlar** (14 adet): Runtime'de değer değişir. Örn. `x01_age_proximity` her oyunda 22–40 arası rastgele bir hedef yaş seçer; soru başlığındaki `{targetAge}` gibi placeholder'lar seçilen değerle doldurulur. Toplam **~700 benzersiz soru varyasyonu** üretilir.
 
 **Şablon kalitesi:**
 - Her şablonun `title.tr` (soru cümlesi) ve `formula.tr` (hesaplama açıklaması) ayrı yazılı — profesyonel Türkçe, sıfır kafa karışıklığı
 - Her şablon `requiresFields` ile gereken veriyi bildirir → eksik veriyle soru üretilmez
 - `minPoolCoverage` ile havuz alt sınırı esnek
 - Parametrik şablonlarda hedef değer seed'e bağlı deterministik üretilir ve hem hesaplamada hem soru başlığında kullanılır
-- Tüm şablonlar `audit:templates` ile gerçek veri üzerinde denetlendi — karşılaştırılamayan/imkansız/duplike şablonlar temizlendi → 112/112 sağlıklı ✅
+- Soru seçici üst üste aynı kategoriden soru sormaz (havuz daralmadıkça) — kategori çeşitliliği garanti
+- Tüm şablonlar `audit:templates` ile gerçek veri üzerinde denetlendi — karşılaştırılamayan/imkansız/duplike şablonlar temizlendi → 80/80 sağlıklı ✅
 
 ---
 
@@ -373,7 +378,7 @@ node scripts/optimize-hero-images.mjs                # public/hero/*.png → *.w
    - 8 kart seç → "Maçı Başlat"
 5. **7 tur oyna**:
    - Round intro stinger (~750ms)
-   - Soru reveal — 112 şablondan rastgele, parametrik ise runtime değer atanıp başlığa işlenir
+   - Soru reveal — 80 şablondan rastgele (ardışık aynı kategori gelmez), parametrik ise runtime değer atanıp başlığa işlenir
    - P1 kart oyna → (vs-bot: bot ~600ms düşünür) → P2 kart oyna
    - 3D flip + count-up + winner badge (~1450ms)
 6. **Eşitlikte uzatma** (4 kart × 3 tur), eşitlik sürerse **penaltı** (1 kart × 1 soru)

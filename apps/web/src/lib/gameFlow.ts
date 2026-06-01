@@ -19,6 +19,8 @@ export interface FlowContext {
   usedQuestionIds: Set<string>;
   /** Parametrik şablonlar için tur seçildiğinde üretilen somut değerler. */
   paramsByQuestion: Map<string, TemplateParams>;
+  /** Son seçilen sorunun kategorisi — ardışık aynı kategoriyi engellemek için. */
+  lastCategory?: string;
 }
 
 export function createFlowContext(
@@ -56,8 +58,18 @@ export function pickQuestion(
   });
 
   if (candidates.length === 0) return null;
-  const choice = candidates[Math.floor(ctx.prng.next() * candidates.length)]!;
+
+  // Ardışık aynı kategoriyi engelle: son turla aynı kategoride OLMAYAN adaylar
+  // varsa onlardan seç. Başka kategori yoksa (havuz dar) zorunlu olarak aynı
+  // kategoriye düşeriz.
+  const fresh = ctx.lastCategory
+    ? candidates.filter((t) => t.category !== ctx.lastCategory)
+    : candidates;
+  const pool = fresh.length > 0 ? fresh : candidates;
+
+  const choice = pool[Math.floor(ctx.prng.next() * pool.length)]!;
   ctx.usedQuestionIds.add(choice.id);
+  ctx.lastCategory = choice.category;
   // Parametrik şablon ise somut değerleri şimdi üret ve sakla (deterministik).
   if (choice.params?.length && !ctx.paramsByQuestion.has(choice.id)) {
     ctx.paramsByQuestion.set(choice.id, pickParams(choice, () => ctx.prng.next()));

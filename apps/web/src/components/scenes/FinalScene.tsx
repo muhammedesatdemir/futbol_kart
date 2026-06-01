@@ -491,9 +491,16 @@ function nameOf(players: Player[], id: string): string {
 
 const CATEGORY_LABELS_TR: Record<string, string> = {
   numeric: 'İstatistik',
+  time: 'Zaman & Yaş',
   geo: 'Coğrafya',
-  time: 'Zaman',
-  creative: 'Yaratıcı',
+  club: 'Kulüp Kariyeri',
+  position: 'Mevki & Ayak',
+  name: 'İsim & Kart',
+  fun: 'Eğlence',
+  proximity: 'Hedefe Yakınlık',
+  boolean: 'Evet / Hayır',
+  extreme: 'Rekorlar',
+  composite: 'Bileşik İstatistik',
 };
 
 function computeStats(history: RoundLog[], _winnerSide: PlayerSide | 'tie') {

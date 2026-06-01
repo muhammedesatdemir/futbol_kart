@@ -1,13 +1,53 @@
-# Futbol-Kart FİNAL Raporu (v5 — Veri Kalite Patch)
+# Futbol-Kart FİNAL Raporu (v6 — Şablon Kalitesi & Oyun Dengesi)
 
 **Tarih:** 2026-06-01
-**Toplam oyuncu:** **9,011** (43 duplicate temizlendi)
+**Toplam oyuncu:** **8,912** (kalite filtresi sonrası)
 **Toplam kulüp:** **6,240**
-**Şablon sayısı:** **121** (14 parametrik → ~750 benzersiz soru)
-**Coverage:** **121/121 şablon kendi eşiğini geçti** ✅
+**Şablon sayısı:** **80** (14 parametrik → ~700 benzersiz soru)
+**Coverage:** **80/80 şablon gerçek veri üzerinde denetlendi — 0 kırık** ✅
+**Kapışmalı oran:** **~%86 karşılaştırmalı** (max/min); Evet-Hayır soruları ~%14 azınlıkta
 
 > v1 (5,670) → v2 (9,035) → v3 (9,049 + 3 fix) → v4 (9,054 + blocklist + 121 şablon)
-> → **v5 (9,011 + duplicate temizlik + milli takım fix + geocode 2.tur)**
+> → v5 (9,011 + duplicate temizlik + milli takım fix + geocode 2.tur)
+> → **v6 (8,912 + şablon sağlık denetimi + duplike eleme: 121 → 80 şablon, bool %34 → %14)**
+
+---
+
+## 🛠 v6 Patch Detayı (Şablon Kalitesi & Oyun Dengesi)
+
+Veri katmanı sabit kaldı; bu tur tamamen **soru şablonu kalitesi ve oyun dengesi** üzerine.
+
+### Patch 1: Adil beraberlik mantığı
+Değerler eşit olduğunda (Evet-Evet, Hayır-Hayır, 25-25) tur artık **her zaman berabere** biter. Önceki tiebreaker zinciri kaldırıldı — hiçbir tarafa rastgele/keyfî puan verilmez. Eşitlik yalnızca uzatma → penaltı (sudden death) fazlarıyla kırılır.
+
+### Patch 2: Şablon/resolver ID senkronizasyonu (kritik bug)
+6 şablon `templates.json`'da yeniden adlandırılmış ama `resolver.ts` eski ID'leri kullanıyordu → bu sorular ekranda değer göstermeden hep berabere/null bitiyordu. Tümü eşleştirildi.
+
+### Patch 3: Parametre üretimi + başlık interpolasyonu
+Parametrik şablonlarda hedef değer (örn. `{targetApps}`) hiç üretilmiyordu; başlık ekrana ham `{targetApps}` olarak yansıyordu. `pickParams` + `interpolateTitle` eklendi — değer seed'e bağlı deterministik üretilir ve hem hesaplamada hem başlıkta kullanılır.
+
+### Patch 4: Şablon sağlık denetimi → 121 → 83 şablon
+Yeni `audit:templates` scripti her şablonu 8.912 oyuncu üzerinde simüle eder. İki aşamada temizlik yapıldı:
+- **1. tur (121 → 112):** 9 sorunlu şablon kaldırıldı (imkansız "tam ad palindrom" — 0 eşleşme; duplike maç/on-yıl eşikleri vb.), 2 nadir bool soru karşılaştırmalıya çevrildi.
+- **2. tur (112 → 83):** Evet-Hayır soruları çok fazlaydı (38 bool, %34) ve iki taraf aynı cevabı verince tur sürekli berabere bitiyordu. 29 fazla/duplike bool kaldırıldı; bool oranı **%34 → %11**'e indi. Oyun büyük oranda **kapışmalı** (karşılaştırmalı) hale geldi.
+
+### Patch 5: Çeşitlilik + UI cilası
+- Soru seçici üst üste **aynı kategoriden** soru sormaz (7 turlu simülasyonda ardışık tekrar %0).
+- Sonuç ekranında kategori adları profesyonel Türkçe'ye çevrildi (`boolean` → "Evet / Hayır" vb.).
+
+### Patch 6: Duplike eleme + doğum kıtası genişletme (83 → 80)
+Veri-doğrulamalı denetimle birbirinin neredeyse aynısı olan şablonlar elendi:
+- **`t03_birth_year` ≈ `t01_younger`** (20.000 ikilide %97,7 aynı kazanan) → t03 silindi.
+- **`t10_age_today_older` = `t02_older`** (birebir aynı sıralama) → t10 silindi.
+- **`k06_name_syllables` = `k04_name_vowels`** (`syllableCount` fonksiyonu birebir `countVowels`) → k06 silindi.
+- **`c03_first_club_year_early`** debüt sorusuyla örtüşüyordu → silindi.
+- **`t09_still_active`** (oyuncuların %95'i aktif → %91 berabere) → silindi.
+- **`c04_last_club_year_late`** aktiflerin son yılı 2025'e sabit → %90 berabere; emeklilere kısıtlama da işe yaramadı (havuz %4,8) → silindi.
+- **Yeni:** `g19_born_in_europe` yanına `g20` (G.Amerika), `g21` (Afrika), `g23` (Asya) doğum kıtası soruları eklendi (Kuzey Amerika/Okyanusya çok az → hariç).
+
+Not: `t06_earlier_debut` (takvim erken) ve `t07_debut_age_young` (genç yaşta debüt) **farklı** çıktı (%31,9 aynı) → ikisi de korundu.
+
+**Sonuç:** **80 şablon, 0 kırık**, ~%86 kapışmalı, bool %14 azınlıkta; 39/39 Vitest (regression dahil) yeşil.
 
 ---
 
@@ -115,22 +155,24 @@
 
 ---
 
-## 🎯 Şablon Kapsama (121/121 ✅)
+## 🎯 Şablon Kapsama (80/80 ✅, v6 sonrası)
 
-| Kategori | Şablon | Hepsi eşik üstü? |
-|---|---|---|
-| numeric | 16 | ✓ |
-| boolean | 29 | ✓ |
-| time | 14 | ✓ |
-| proximity | 11 | ✓ |
-| geo | 10 | ✓ (v5: 87% → **97%**) |
-| extreme | 10 | ✓ |
-| name | 9 | ✓ |
-| composite | 8 | ✓ |
-| position | 7 | ✓ |
-| club | 5 | ✓ |
-| fun | 2 | ✓ |
-| **TOPLAM** | **121** | **121/121** |
+| Kategori | Şablon | Tür | Denetim |
+|---|---|---|---|
+| numeric | 16 | karşılaştırmalı | ✓ |
+| proximity | 11 | parametrik karşılaştırmalı | ✓ |
+| geo | 10 | karşılaştırmalı | ✓ |
+| time | 9 | karşılaştırmalı | ✓ |
+| composite | 8 | karşılaştırmalı | ✓ |
+| boolean | 8 | Evet/Hayır (4'ü doğum kıtası) | ✓ |
+| name | 8 | karşılaştırmalı | ✓ |
+| club | 5 | karşılaştırmalı | ✓ |
+| position | 2 | Evet/Hayır | ✓ |
+| extreme | 2 | karşılaştırmalı | ✓ |
+| fun | 1 | Evet/Hayır | ✓ |
+| **TOPLAM** | **80** | **~%86 kapışmalı** | **0 kırık** |
+
+> v5'te 121 şablon vardı; v6 şablon sağlık denetimi + duplike elemeyle imkansız/duplike/fazla Evet-Hayır şablonları temizlenerek 80'e indi. Evet-Hayır oranı %34 → ~%14.
 
 ---
 
@@ -153,42 +195,46 @@
 
 ---
 
-## 📂 Çıktı Dosyaları (v5)
+## 📂 Çıktı Dosyaları
 
 ### Veri katmanı
 ```
 apps/web/public/data/
-├── players.json   (9,011 oyuncu, ~16 MB ham, ~3.5 MB gzipli)
+├── players.json   (8,912 oyuncu, ~16 MB ham, ~3.5 MB gzipli)
 ├── clubs.json     (6,240 kulüp, ~1.5 MB ham, ~250 KB gzipli)
 └── meta.json
 ```
 
-### Yeni v5 scriptleri
+### Şablon sistemi
 ```
-data-pipeline/scripts/scrape/
-├── duplicateReport.ts    (kapsamlı duplicate tarayıcı)
-├── reprocessAggregate.ts (mevcut cache ile yeniden aggregate, TM yok)
-└── geocodeRetry.ts       (2. tur Nominatim, tarihsel ülke normalize)
+packages/question-templates/
+├── templates.json         (80 şablon — tek doğruluk kaynağı)
+├── src/resolver.ts        (custom compute + param üretimi + başlık interpolasyonu)
+└── src/resolver.test.ts   (39/39 Vitest, regression dahil)
+
+data-pipeline/scripts/
+└── auditTemplates.ts      (pnpm audit:templates — şablon sağlık denetimi)
 ```
 
-### v5 fix dosyaları
+### v5 fix dosyaları (veri katmanı)
 - `merge.ts`: identity-bazlı dedup + slug prefix dedup
 - `build.ts`: otomatik dedup + duplicate validation
 - `perfApi.ts`: A milli vs altyapı milli ayrımı
 
 ---
 
-## ✅ Sonuç: v5 Production READY
+## ✅ Sonuç: Production READY
 
-**9,011 oyuncu × 121 şablon × doğrulanmış veri** = Türk pazarı odaklı dünya kapsamlı futbol bilgi oyununun tam veri katmanı.
+**8,912 oyuncu × 80 şablon (~%86 kapışmalı) × doğrulanmış veri** = Türk pazarı odaklı dünya kapsamlı futbol bilgi oyununun tam veri katmanı.
 
-### v5 öne çıkanlar
+### Öne çıkanlar
 - ✅ **Sıfır duplicate** (22 → 0 strict dup grup)
 - ✅ **Wikipedia uyumlu milli takım istatistikleri** (10/10 doğrulandı)
-- ✅ **%97 doğum koordinat kapsama** (+10% artış)
-- ✅ **121/121 şablon eşik üstü**
+- ✅ **%97 doğum koordinat kapsama**
+- ✅ **80/80 şablon denetlendi — 0 kırık**, ~%86 kapışmalı, Evet-Hayır ~%14 azınlıkta
+- ✅ **Adil beraberlik** — eşitlikte rastgele kazanan yok; uzatma/penaltı ile çözülür
+- ✅ **Kategori çeşitliliği** — ardışık aynı kategori sorusu gelmez
 - ✅ Doğum tarihi, boy, ayak tercihi: %100 doğru (örneklemde)
-- ✅ Sistematik şişme yok (60k fazla maç temizlendi)
 
 ### Aşama 3 atlandı (gerekçe)
 Wikipedia eski oyuncu data (boy, ayak için) atlandı çünkü:
@@ -198,7 +244,7 @@ Wikipedia eski oyuncu data (boy, ayak için) atlandı çünkü:
 - Gerekirse `corrections.csv` ile elden 20-30 ünlü efsane eklenebilir (pragmatik)
 
 ### Sonraki adımlar
-1. **Frontend canlı test** — 9,011 oyuncu + 121 şablonla oyun akışı
-2. **Şablon ağırlıkları** — bir maçta kategori dengesi
-3. **Soru tekrar önleme** — bir maçta aynı kategori 2x'ten fazla çıkmasın
+1. **Frontend canlı test** — 8,912 oyuncu + 80 şablonla oyun akışı (✅ ekran görüntüleriyle doğrulandı)
+2. ~~Soru tekrar önleme~~ ✅ ardışık aynı kategori engeli eklendi
+3. **Vercel deploy** — env'leri bağla, domain ekle
 4. Gerekirse: corrections.csv ile en ünlü 20-30 efsane için eksik boy/ayak doldur

@@ -29,6 +29,18 @@ const clubStintSchema = z.object({
   jerseyNo: z.number().int().positive().optional(),
 });
 
+const competitionStatsSchema = z.object({
+  uclApps: z.number().int().nonnegative(),
+  uclGoals: z.number().int().nonnegative(),
+  uelApps: z.number().int().nonnegative(),
+  uelGoals: z.number().int().nonnegative(),
+  worldCupApps: z.number().int().nonnegative(),
+  worldCupGoals: z.number().int().nonnegative(),
+  leagueApps: z.number().int().nonnegative(),
+  leagueGoals: z.number().int().nonnegative(),
+  domesticCupApps: z.number().int().nonnegative(),
+});
+
 const statsSchema = z.object({
   totalGoals: z.number().int().nonnegative(),
   totalAssists: z.number().int().nonnegative(),
@@ -40,6 +52,29 @@ const statsSchema = z.object({
   maxTransferFeeEUR: z.number().int().nonnegative().optional(),
   proDebutYear: z.number().int().optional(),
   careerYears: z.number().int().nonnegative().optional(),
+  competitions: competitionStatsSchema.optional(),
+});
+
+const individualAwardsSchema = z.object({
+  ballonDor: z.number().int().nonnegative(),
+  fifaBest: z.number().int().nonnegative(),
+  goldenBoot: z.number().int().nonnegative(),
+  topScorerAwards: z.number().int().nonnegative(),
+  playerOfTheYear: z.number().int().nonnegative(),
+  otherIndividual: z.number().int().nonnegative(),
+  totalIndividual: z.number().int().nonnegative(),
+});
+
+const trophyCountsSchema = z.object({
+  uclTitles: z.number().int().nonnegative(),
+  uelTitles: z.number().int().nonnegative(),
+  otherEuropeanTitles: z.number().int().nonnegative(),
+  domesticLeagueTitles: z.number().int().nonnegative(),
+  domesticCupTitles: z.number().int().nonnegative(),
+  worldCupTitles: z.number().int().nonnegative(),
+  continentalNationalTitles: z.number().int().nonnegative(),
+  totalTitles: z.number().int().nonnegative(),
+  individual: individualAwardsSchema.optional(),
 });
 
 const achievementsSchema = z.object({
@@ -47,6 +82,7 @@ const achievementsSchema = z.object({
   hasWorldCup: z.boolean(),
   hasUCLTitle: z.boolean().optional(),
   hasBallonDor: z.boolean().optional(),
+  trophies: trophyCountsSchema.optional(),
 });
 
 export const playerSchema = z.object({

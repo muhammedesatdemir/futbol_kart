@@ -7,6 +7,7 @@ import type { Template } from '@futbol-kart/question-templates';
 import { PlayerCard } from '@/components/PlayerCard';
 import { CardRow } from '@/components/CardRow';
 import { CountUp } from '@/components/CountUp';
+import { WinFx } from '@/components/WinFx';
 import { PlayIcon, QuestionIcon } from '@/components/icons';
 import type { RoundLog, Scene } from '@/lib/sessionMachine';
 import { cn } from '@/lib/cn';
@@ -152,6 +153,16 @@ export function RoundScene({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Tur kazanma efekti — sinyal seviyesi (kıvılcım + halo). Beraberlikte yok. */}
+      {scene === 'ROUND_RESULT' &&
+        lastLog &&
+        (lastLog.winner === 'P1' || lastLog.winner === 'P2') && (
+          <WinFx
+            side={lastLog.winner}
+            fireKey={`${lastLog.questionId}-${lastLog.winner}`}
+          />
+        )}
 
       {showHand && (
         <HandDisplay
@@ -305,15 +316,32 @@ function RevealSide({
         {label}
       </div>
 
-      {/* Kart 3D flip animasyonu */}
+      {/* Kart 3D flip + kazanansa flip sonrası punch-scale (sinyal vurgusu) */}
       <motion.div
         initial={{ rotateY: 180, opacity: 0 }}
-        animate={{ rotateY: 0, opacity: 1 }}
-        transition={{
-          duration: 0.55,
-          ease: [0.22, 1, 0.36, 1],
-          delay: side === 'P1' ? 0 : 0.15,
-        }}
+        animate={
+          isWinner
+            ? { rotateY: 0, opacity: 1, scale: [1, 1.06, 1] }
+            : { rotateY: 0, opacity: 1 }
+        }
+        transition={
+          isWinner
+            ? {
+                rotateY: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+                opacity: { duration: 0.55, ease: [0.22, 1, 0.36, 1] },
+                scale: {
+                  duration: 0.42,
+                  ease: [0.22, 1, 0.36, 1],
+                  delay: 0.55,
+                  times: [0, 0.5, 1],
+                },
+              }
+            : {
+                duration: 0.55,
+                ease: [0.22, 1, 0.36, 1],
+                delay: side === 'P1' ? 0 : 0.15,
+              }
+        }
         style={{ transformStyle: 'preserve-3d', perspective: 800 }}
       >
         <PlayerCard player={player} selected={isWinner} />

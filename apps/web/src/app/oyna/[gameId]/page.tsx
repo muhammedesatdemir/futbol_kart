@@ -18,6 +18,8 @@ import { NameModal } from '@/components/NameModal';
 import { RoundStinger } from '@/components/RoundStinger';
 import { SceneBackground } from '@/components/SceneBackground';
 import { UserMenu } from '@/components/UserMenu';
+import { SoundToggle } from '@/components/SoundToggle';
+import { useSfx } from '@/lib/useSfx';
 import { useProfileStore } from '@/lib/profileStore';
 import { useGameSession } from '@/lib/GameSessionProvider';
 import { useSessionStore } from '@/lib/sessionStore';
@@ -61,12 +63,38 @@ export default function GameSessionPage() {
   );
 
   const botTimerRef = useRef<NodeJS.Timeout | null>(null);
+  const playSfx = useSfx();
 
   useEffect(() => {
     return () => {
       if (botTimerRef.current) clearTimeout(botTimerRef.current);
     };
   }, []);
+
+  // Kart flip sesi — ikinci kart oynandığı anda (ROUND_PLAY içinde),
+  // REVEAL'e geçmeden ~0.5sn önce. Böylece flip ile win sesi arasındaki
+  // boşluk yarım saniye daha açılır (win sabit kalır).
+  useEffect(() => {
+    if (state.scene !== 'ROUND_PLAY') return;
+    if (!state.currentP1Card || !state.currentP2Card) return;
+    playSfx('flip');
+    // İki kart da oynandığı tek ana bağlı — sahne içinde bir kez tetiklenir.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.scene, state.currentP1Card, state.currentP2Card]);
+
+  // Kazanma / beraberlik / final sesleri — sahne geçişine bağlı.
+  //   ROUND_RESULT → kazanma (ding+cheer) / beraberlik (nötr tick)
+  //   FINAL        → fanfar
+  useEffect(() => {
+    if (state.scene === 'ROUND_RESULT') {
+      const last = state.history[state.history.length - 1];
+      if (last && last.winner !== 'tie') playSfx('win');
+      else playSfx('tie');
+    } else if (state.scene === 'FINAL') {
+      playSfx('final');
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.scene]);
 
   const onModeChosen = useCallback(
     (mode: GameMode) => dispatch({ type: 'MODE_CHOSEN', mode }),
@@ -272,6 +300,27 @@ export default function GameSessionPage() {
   const p1Display = state.p1Name || 'Oyuncu 1';
   const p2Display = botMode ? 'Bot' : state.p2Name || 'Oyuncu 2';
 
+  // Momentum: önde olan taraf + güncel galibiyet serisi (üst üste kaç tur).
+  // history'den türetilir — yeni state gerekmez. Skor eşitse lider yok.
+  const leadingSide: 'P1' | 'P2' | null =
+    state.p1Score > state.p2Score
+      ? 'P1'
+      : state.p2Score > state.p1Score
+        ? 'P2'
+        : null;
+  const streak = (() => {
+    let n = 0;
+    let who: 'P1' | 'P2' | null = null;
+    for (let i = state.history.length - 1; i >= 0; i--) {
+      const w = state.history[i].winner;
+      if (w === 'tie') break;
+      if (who === null) who = w;
+      if (w === who) n++;
+      else break;
+    }
+    return { side: who, count: n };
+  })();
+
   return (
     <>
       {/* Sahneye göre fixed arka plan + overlay (PitchBackground'ın üstüne biner) */}
@@ -302,6 +351,7 @@ export default function GameSessionPage() {
               {botMode ? 'Bota karşı' : 'Arkadaşına karşı'}
             </span>
           )}
+          <SoundToggle />
           <UserMenu />
         </div>
       </header>
@@ -314,6 +364,9 @@ export default function GameSessionPage() {
           p2Score={state.p2Score}
           round={Math.min(state.roundIndex + 1, state.totalRounds)}
           totalRounds={state.totalRounds}
+          leadingSide={leadingSide}
+          streakSide={streak.side}
+          streakCount={streak.count}
         />
       )}
 

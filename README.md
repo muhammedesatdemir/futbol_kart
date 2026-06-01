@@ -168,6 +168,11 @@ qualityFilterAggressive.ts Strateji A/B/C/D karşılaştırma
 duplicateReport.ts        Strict + slug + identity dedup tarama
 reprocessAggregate.ts     Cache'den yeniden aggregate (TM'ye istek YOK)
 merge.ts                  TmPlayer → Player + dedup + kalite filtresi
+
+# Gelecek modları için (yazıldı, henüz çalıştırılmadı — bkz. Yol Haritası)
+honours.ts                Kupa + bireysel ödül sayıları (TM Erfolge → achievements.trophies)
+competitionStats.ts       Turnuva maç/gol (cache'ten reprocess, scrape YOK)
+rankedLists.ts            Sıralı listeler (ewige* → lists.json, Mod 3)
 ```
 
 ---
@@ -277,6 +282,11 @@ pnpm --filter @futbol-kart/data-pipeline audit:templates # Şablon sağlık dene
 pnpm --filter @futbol-kart/data-pipeline scrape:list    # TM liste sayfası tara
 pnpm --filter @futbol-kart/data-pipeline scrape:players # Her oyuncu için 3 endpoint
 pnpm --filter @futbol-kart/data-pipeline scrape:merge   # Seed üret
+
+# Veri — gelecek modları (henüz çalıştırılmadı; bkz. Yol Haritası)
+pnpm --filter @futbol-kart/data-pipeline scrape:honours          # Kupa sayıları (TM Erfolge) — önce --limit=5 ile dene
+pnpm --filter @futbol-kart/data-pipeline reprocess:competitions  # Turnuva maç/gol (cache'ten, scrape YOK)
+pnpm --filter @futbol-kart/data-pipeline scrape:lists            # Sıralı listeler (Mod 3)
 
 # Görsel optimizasyonu
 node scripts/optimize-hero-images.mjs                # public/hero/*.png → *.webp
@@ -407,6 +417,102 @@ node scripts/optimize-hero-images.mjs                # public/hero/*.png → *.w
 **Wikipedia doğrulaması:** 10 ünlü oyuncu (Messi, CR7, Pelé, Maradona, Zidane, Pirlo, Buffon, Ronaldinho, Çalhanoğlu, Tugay) için **doğum tarihi, boy, ayak, milli takım istatistikleri %100 uyumlu**.
 
 Detaylı analiz: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT.md)
+
+---
+
+## 🗺️ Gelecek Planları (Yol Haritası)
+
+Mevcut **VS Karşılaştırma** modu (oyuncu kartlarının istatistik düellosu) projenin ana iskeleti.
+Aynı veri katmanı + kart sistemi üzerine oturan **ek oyun modları** planlanıyor. Her biri
+bağımsız bir mod; ileride bir "karma" mod altında birleştirilebilir.
+
+### ⭐ Öncelik #1 — "3 Zorunlu Kategori" bonus mekaniği (kart VS)
+
+VS modunu hareketlendiren taktik katman. **Kart seçiminden sonra, VS'e geçmeden önce**
+3 kategori-koşulu açıklanır; oyuncu 8 kartlık elinden **3'ünü** bu koşullara birebir atar.
+Bu kartlar turunu kazanırsa **+2 puan** (normal turlar +1). Rekabeti ve "doğru kartı doğru
+koşula sakla" stratejisini artırır.
+
+**Mimari (predicate sistemi):** Her koşul bir `CategoryCondition` = `{ id, başlık, predicate(player), çatışmaGrubu }`.
+Predicate'ler mevcut iki altyapının birleşimi: `playerFilters.applyFilters` (pozisyon/ülke/lig/kulüp/aktiflik)
++ bool şablon mantığı (`resolver.ts`). Yani **yeni bir motor değil, var olanın yeniden kullanımı.**
+
+**Koşul kapsamı (A + B):**
+- 🟢 **A — şimdi yapılabilir:** milliyet+pozisyon ("Fransız defans"), belirli ligde oynadı
+  ("Süper Lig'de oynamış"), belirli kulüpte oynadı ("Göztepe'de"), aktif/emekli/çağ, istatistik
+  eşiği ("100+ gol"), doğum kıtası. *(Veri doğrulandı: 219 TR defans, 112 FR defans, Göztepe mevcut.)*
+- 🟡 **B — honours verisi gelince:** "2+ ŞL kazanmış" (`trophies.uclTitles>=2`), "Dünya Kupası
+  kazanmış", "yerel kupa kazanmış". **Bireysel ödüller** de çekiliyor (`trophies.individual`:
+  Ballon d'Or, FIFA Best, Altın Ayakkabı, gol krallığı, yılın oyuncusu) — takım kupa toplamına
+  dahil değil ama ayrı sorular için ("daha çok Ballon d'Or kazanan", "gol kralı olmuş mu").
+- 🔴 **C — kapsam dışı (granüler):** "ŞL finalinde kaybetmiş" (honours sadece kazanılanı tutar),
+  lig-spesifik şampiyonluk ("Serie A kazanmış"), "milli takımda 10 numara giymiş", "stoper" (yalnızca
+  4-grup pozisyon var: GK/DEF/MID/FWD — bek/stoper ayrımı yok).
+
+**İki kritik mühendislik kuralı:**
+1. **Tekrar yok + her zaman çözülebilir:** Seçilen 3 koşul farklı "çatışma grubu"ndan olur (iki milliyet
+   koşulu yan yana gelmez). Seçimden sonra **bipartite eşleştirme** ile 3 koşulun oyuncunun havuzunda
+   3 *farklı* kartla aynı anda karşılanabildiği doğrulanır; karşılanamıyorsa koşul seti yeniden çekilir.
+2. **Koşul tamamlanmadan VS yok:** Akışa yeni sahne — `CARD_PICK → [BONUS_ASSIGN] → HANDOFF → ROUND`.
+   3 slot da geçerli kartla dolmadan "Devam" kilitli; doğrulama hem UI'da (buton disabled) hem
+   reducer'da (state guard — kart predicate'i gerçekten sağlıyor mu) yapılır. Bot için otomatik eşleştirme.
+
+**Diğer modlara uyarlama (aynı omurga, öncelik sonrası):** Kadro Kur'da her oyunda rastgele bir
+"bonus mevki" (o mevkide kazanan +2); Liste Doldur'da rastgele bir "bonus sıra" (örn. 5.–7., doğru
+bilen +2).
+
+### Yeni oyun modları
+
+#### 🟢 Mod 1 — Kadro Kur (ilk hedef, ek veri gerektirmez)
+> "En X kadroyu kur": en uzun / en yaşlı / en genç / en golcü / en değerli / en kupalı kadro.
+- Oyuncular bir formasyon (KL-DEF-ORT-FOR) için **pozisyon bazlı** kart seçer; sistem seçilen
+  istatistiği toplar, iki taraf karşılaştırılır.
+- **Challenge varyantı:** her tur bir kısıt — "sadece Süper Lig", "sadece Brezilyalı",
+  "sadece bir kulüpten" — daha rekabetçi bir his verir.
+- **Veri:** ✅ Tamamı mevcut (`heightCm`, `birthDate`, `totalGoals`, `maxTransferFeeEUR`,
+  `position`, `clubs[]`, `nationalityCode`). Kupa kriteri için honours verisi gerekir (aşağıda).
+- **Durum:** Mevcut `playerFilters.ts` (pozisyon/ülke/lig filtreleri) bu modun temelini zaten içeriyor.
+
+#### 🟡 Mod 2 — Hedefe Yaklaş
+> "5 futbolcuyla toplamı hedefe en çok yaklaştır": 70 Dünya Kupası maçı, 750 Süper Lig maçı,
+> 500 Şampiyonlar Ligi maçı, 150 milli maç vb.
+- **Veri:** Genel metrikler (toplam maç/gol/asist, milli maç) ✅ bugün mevcut. Turnuva-bazlı
+  metrikler (ŞL maçı, Dünya Kupası maçı, lig maçı) **cache'lenmiş maç-maç verisinden türetilir** —
+  yeni scrape gerekmez (bkz. `reprocess:competitions`). Messi'de doğrulandı: UCL 163 maç/129 gol,
+  Dünya Kupası 26 maç/13 gol — Wikipedia ile birebir.
+
+#### 🟡 Mod 3 — Liste Doldur
+> Sıralı bir listeyi 1→10 tahmin et; üst sıralar (10. sıra = 10 puan) daha değerli.
+> "Süper Lig'de en çok maça çıkan kaleciler", "Premier Lig'de en çok asist", "Dünya Kupası gol kralları",
+> "2017 Ballon d'Or sıralaması".
+- **Veri:** Lig/turnuva all-time listeleri TM'nin hazır `ewige*` sayfalarından çekilebilir
+  (`scrape:lists`) — `leagueScorers.ts` ile aynı kalıp. **Ballon d'Or / yıl bazlı ödül arşivleri**
+  farklı sayfa yapısında; ayrı bir parser veya manuel JSON gerektirir (TODO).
+
+### Veri stratejisi (modları besleyen kaynaklar)
+
+| Veri | Kaynak | Yöntem | Script | Durum |
+|---|---|---|---|---|
+| **Kupa + bireysel ödül sayıları** (UCL/UEL/lig/kupa/Dünya Kupası + Ballon d'Or/gol krallığı/yılın oyuncusu) | TM "Erfolge" (başarılar) sayfası | yeni scrape (~5 saat, rate-limit'li) | `scrape:honours` | 🔄 çalışıyor (parser Messi/CR7'de doğrulandı) |
+| **Turnuva maç/gol** (UCL/UEL/Dünya Kupası/lig/kupa maç+gol) | cache'lenmiş `performance-game` | **reprocess (scrape YOK)** | `reprocess:competitions` | ✍️ yazıldı, Messi'de doğrulandı |
+| **Sıralı listeler** (lig/turnuva all-time + ödül arşivi) | TM `ewige*` + ödül sayfaları | yeni scrape | `scrape:lists` | ✍️ yazıldı (ödül arşivi sonraki tur) |
+
+> **Tetikleme sırası (veri toplama günü):** `scrape:honours` → `reprocess:competitions` →
+> `scrape:lists` → ardından `merge.ts` bu verileri `players.json` / `lists.json`'a katar →
+> `build` → `audit:templates`. Honours scrape'i `--limit=5` ile önce küçük örnekte doğrulanmalı
+> (parser TM HTML şablonuna hassas).
+
+### ⛔ Şu an kapsam dışı (granüler / üçüncü-taraf veri gerektirir)
+
+Aşağıdaki örnek sorular **oyuncu-bazlı TM verisinde yok**; ayrı ve maliyetli kaynaklar
+(tarihsel lig tabloları, maç logları, takım-sezon istatistikleri) gerektirir. MVP sonrası değerlendirilecek:
+
+- "Son takımın 24/25 sezonunda **yediği** gol" → takım-sezon defansif istatistik
+- "En farklı **mağlubiyette** atılan gol" → maç sonuç logu
+- "Doğduğu yıl ligin **7.'sinin puanı**" → tarihsel lig tablosu
+- "En çok rakip olduğu oyuncuyla **son maçta** attığı gol" → maç-bazlı H2H
+- "Son takımın **güncel yaş ortalaması**" → takım kadrosu yaşları
+- "Son ligde **kiralık** forma giyen oyuncu sayısı" → transfer/kadro durumu
 
 ---
 

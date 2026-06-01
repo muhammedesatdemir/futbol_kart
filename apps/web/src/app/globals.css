@@ -39,6 +39,22 @@ body {
   }
 }
 
+/* ŞAMPİYON başlığı — altın gradient üzerinden soldan sağa parlama geçişi. */
+.champion-shimmer {
+  background-size: 220% 100%;
+  background-position: -40% 0;
+  animation: champion-shimmer 2.6s ease-in-out 0.6s infinite;
+}
+@keyframes champion-shimmer {
+  0% {
+    background-position: -40% 0;
+  }
+  55%,
+  100% {
+    background-position: 140% 0;
+  }
+}
+
 @keyframes hero-particle {
   0% {
     transform: translateY(0) translateX(0);

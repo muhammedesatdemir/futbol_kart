@@ -427,10 +427,28 @@ function seasonToYear(seasonId: number): number {
   return seasonId;
 }
 
+interface TrophyCountsRaw {
+  uclTitles: number; uelTitles: number; otherEuropeanTitles: number;
+  domesticLeagueTitles: number; domesticCupTitles: number;
+  worldCupTitles: number; continentalNationalTitles: number; totalTitles: number;
+  individual?: {
+    ballonDor: number; fifaBest: number; goldenBoot: number;
+    topScorerAwards: number; playerOfTheYear: number;
+    otherIndividual: number; totalIndividual: number;
+  };
+}
+interface CompetitionStatsRaw {
+  uclApps: number; uclGoals: number; uelApps: number; uelGoals: number;
+  worldCupApps: number; worldCupGoals: number; leagueApps: number;
+  leagueGoals: number; domesticCupApps: number;
+}
+
 function tmToPlayer(
   tm: TmPlayer,
   clubNameById: Map<string, string>,
   geocodeByKey: Map<string, { lat: number; lng: number }>,
+  honoursByTmId: Map<number, TrophyCountsRaw>,
+  competitionByTmId: Map<number, CompetitionStatsRaw>,
   slugOverride?: string,
 ): Player | null {
   const m = tm.meta;
@@ -539,11 +557,19 @@ function tmToPlayer(
       maxTransferFeeEUR: m.marketValueDetails?.highest?.value,
       proDebutYear: tm.stats.proDebutYear,
       careerYears: tm.stats.careerYears,
+      // Turnuva bazlı agregalar (cache'lenmiş maç verisinden) — varsa ekle
+      ...(competitionByTmId.has(tm.tmId)
+        ? { competitions: competitionByTmId.get(tm.tmId) }
+        : {}),
     },
     achievements: {
-      // TM API'sinde direkt yok — corrections.csv ile manuel
+      // hasUCLFinal/hasWorldCup: eski boolean placeholder'lar (kullanılmıyor)
       hasUCLFinal: false,
-      hasWorldCup: false,
+      hasWorldCup: (honoursByTmId.get(tm.tmId)?.worldCupTitles ?? 0) > 0,
+      // Kupa adetleri (honours scrape) — varsa ekle
+      ...(honoursByTmId.has(tm.tmId)
+        ? { trophies: honoursByTmId.get(tm.tmId) }
+        : {}),
     },
     // Boş string TM'den gelebilir; URL validator boş string'i reddediyor
     imageUrl: m.portraitUrl && m.portraitUrl.trim().length > 0 ? m.portraitUrl : undefined,
@@ -624,6 +650,28 @@ async function main() {
     console.log(`[merge] geocode cache: ${geocodeByKey.size} şehir`);
   } else {
     console.log('[merge] geocode cache yok — birthLat/birthLng atlanacak');
+  }
+
+  // Honours (kupa adetleri) + competition-stats (turnuva maç/gol) lookup — varsa.
+  // Bunlar opsiyonel: dosya yoksa player'lar bu alanlar olmadan üretilir.
+  const honoursByTmId = new Map<number, TrophyCountsRaw>();
+  const honoursFile = join(CACHE_DIR, 'honours.json');
+  if (existsSync(honoursFile)) {
+    const h = JSON.parse(await readFile(honoursFile, 'utf8')) as Record<string, TrophyCountsRaw>;
+    for (const [id, c] of Object.entries(h)) honoursByTmId.set(Number(id), c);
+    console.log(`[merge] honours cache: ${honoursByTmId.size} oyuncu`);
+  } else {
+    console.log('[merge] honours cache yok — trophies atlanacak');
+  }
+
+  const competitionByTmId = new Map<number, CompetitionStatsRaw>();
+  const compFile = join(CACHE_DIR, 'competition-stats.json');
+  if (existsSync(compFile)) {
+    const c = JSON.parse(await readFile(compFile, 'utf8')) as Record<string, CompetitionStatsRaw>;
+    for (const [id, s] of Object.entries(c)) competitionByTmId.set(Number(id), s);
+    console.log(`[merge] competition-stats cache: ${competitionByTmId.size} oyuncu`);
+  } else {
+    console.log('[merge] competition-stats cache yok — competitions atlanacak');
   }
 
   // 4. Mevcut clubs.json'a ekle
@@ -758,7 +806,7 @@ async function main() {
       continue;
     }
     const slugOverride = tmIdToSeedSlug.get(tm.tmId);
-    const player = tmToPlayer(tm, clubNameById, geocodeByKey, slugOverride);
+    const player = tmToPlayer(tm, clubNameById, geocodeByKey, honoursByTmId, competitionByTmId, slugOverride);
     if (!player) {
       skippedInvalid++;
       continue;

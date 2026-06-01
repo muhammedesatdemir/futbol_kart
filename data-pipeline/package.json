@@ -10,6 +10,10 @@
     "scrape:list": "tsx scripts/scrape/list.ts",
     "scrape:players": "tsx scripts/scrape/players.ts",
     "scrape:merge": "tsx scripts/scrape/merge.ts",
+    "scrape:honours": "tsx scripts/scrape/honours.ts",
+    "scrape:lists": "tsx scripts/scrape/rankedLists.ts",
+    "reprocess:competitions": "tsx scripts/scrape/competitionStats.ts",
+    "enrich:seed": "tsx scripts/scrape/enrichSeed.ts",
     "scrape:all": "pnpm scrape:list && pnpm scrape:players && pnpm scrape:merge",
     "typecheck": "tsc --noEmit"
   },

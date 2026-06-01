@@ -8,6 +8,7 @@ import type { GameMode, Player, PlayerSide } from '@futbol-kart/shared-types';
 import { HomeIcon, PlayIcon, TrophyIcon } from '@/components/icons';
 import { ShareMatchButton } from '@/components/ShareMatchButton';
 import { CountUp } from '@/components/CountUp';
+import { Confetti } from '@/components/Confetti';
 import type { RoundLog, SessionState } from '@/lib/sessionMachine';
 import { templateById } from '@futbol-kart/question-templates';
 import { cn } from '@/lib/cn';
@@ -70,6 +71,9 @@ export function FinalScene({
 
   return (
     <section className="flex flex-col items-center gap-6">
+      {/* Maç sonu konfeti — kazanan tarafın renginde. Beraberlikte patlamaz. */}
+      <Confetti side={winnerSide} fireKey={`${winnerSide}-${winnerScore}-${loserScore}`} />
+
       {/* === Kupa + ŞAMPİYON başlığı === */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
@@ -77,24 +81,41 @@ export function FinalScene({
         transition={{ duration: 0.5 }}
         className="flex flex-col items-center text-center"
       >
-        <motion.div
-          initial={{ scale: 0.55, opacity: 0, rotate: -8 }}
-          animate={{ scale: 1, opacity: 1, rotate: 0 }}
-          transition={{
-            delay: 0.15,
-            type: 'spring',
-            stiffness: 200,
-            damping: 14,
-          }}
-          className={cn(
-            'mb-3 flex h-20 w-20 items-center justify-center rounded-2xl sm:h-24 sm:w-24',
-            winnerSide === 'tie'
-              ? 'bg-white/10 text-white/70 ring-1 ring-white/20'
-              : 'bg-gradient-to-b from-accent-goldHi/40 to-accent-gold/15 text-accent-goldHi ring-1 ring-accent-gold/50 shadow-glow-gold',
-          )}
-        >
-          <TrophyIcon size={44} />
-        </motion.div>
+        {winnerSide === 'tie' ? (
+          <motion.div
+            initial={{ scale: 0.55, opacity: 0, rotate: -8 }}
+            animate={{ scale: 1, opacity: 1, rotate: 0 }}
+            transition={{ delay: 0.15, type: 'spring', stiffness: 200, damping: 14 }}
+            className="mb-3 flex h-20 w-20 items-center justify-center rounded-2xl bg-white/10 text-white/70 ring-1 ring-white/20 sm:h-24 sm:w-24"
+          >
+            <TrophyIcon size={44} />
+          </motion.div>
+        ) : (
+          // Kupa kaldırma: alttan yükselir, sonra havada hafifçe sallanır (sway).
+          <motion.div
+            initial={{ y: 48, scale: 0.7, opacity: 0 }}
+            animate={{
+              y: [48, 0, 0],
+              scale: [0.7, 1, 1],
+              opacity: [0, 1, 1],
+              rotate: [0, -2.5, 2.5, -2.5, 2.5, 0],
+            }}
+            transition={{
+              y: { duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] },
+              scale: { duration: 0.7, delay: 0.15, ease: [0.22, 1, 0.36, 1] },
+              opacity: { duration: 0.7, delay: 0.15 },
+              rotate: {
+                duration: 4,
+                delay: 0.85,
+                ease: 'easeInOut',
+                repeat: Infinity,
+              },
+            }}
+            className="mb-3 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-b from-accent-goldHi/40 to-accent-gold/15 text-accent-goldHi ring-1 ring-accent-gold/50 shadow-glow-gold sm:h-24 sm:w-24"
+          >
+            <TrophyIcon size={44} />
+          </motion.div>
+        )}
 
         <div className="text-[11px] font-semibold uppercase tracking-[0.32em] text-accent-goldHi/90">
           {winnerSide === 'tie' ? 'BERABERE' : 'ŞAMPİYON'}
@@ -106,7 +127,7 @@ export function FinalScene({
             winnerSide === 'tie'
               ? 'text-white'
               : [
-                  'bg-clip-text text-transparent',
+                  'champion-shimmer bg-clip-text text-transparent motion-reduce:animate-none',
                   // Çift drop-shadow: altın halo + alt siyah okunaklık gölgesi
                   'drop-shadow-[0_0_40px_rgba(255,213,74,0.55)]',
                   '[filter:drop-shadow(0_0_40px_rgba(255,213,74,0.55))_drop-shadow(0_0_20px_rgba(255,213,74,0.35))_drop-shadow(0_4px_18px_rgba(0,0,0,0.55))]',
@@ -116,8 +137,9 @@ export function FinalScene({
             winnerSide === 'tie'
               ? undefined
               : {
+                  // Yatay gradient + parlak şerit — shimmer'ın geçeceği bant.
                   backgroundImage:
-                    'linear-gradient(180deg, #ffffff 0%, #ffe8a8 55%, #f0c14b 100%)',
+                    'linear-gradient(100deg, #f0c14b 0%, #ffe8a8 35%, #ffffff 50%, #ffe8a8 65%, #f0c14b 100%)',
                 }
           }
         >

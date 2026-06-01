@@ -43,6 +43,21 @@ export interface PlayerStats {
   maxTransferFeeEUR?: number;
   proDebutYear?: number;
   careerYears?: number;
+  /** Turnuva bazlı maç/gol agregaları — cache'lenmiş maç verisinden türetildi. */
+  competitions?: CompetitionStats;
+}
+
+/** Turnuva bazlı maç/gol (UCL/UEL/Dünya Kupası/lig/kupa). "Hedefe Yaklaş" modu için. */
+export interface CompetitionStats {
+  uclApps: number;
+  uclGoals: number;
+  uelApps: number;
+  uelGoals: number;
+  worldCupApps: number;
+  worldCupGoals: number;
+  leagueApps: number;
+  leagueGoals: number;
+  domesticCupApps: number;
 }
 
 export interface PlayerAchievements {
@@ -50,4 +65,32 @@ export interface PlayerAchievements {
   hasWorldCup: boolean;
   hasUCLTitle?: boolean;
   hasBallonDor?: boolean;
+  /** Kazanılan kupa adetleri (TM Erfolge). Kupa soruları + "en kupalı kadro" için. */
+  trophies?: TrophyCounts;
+}
+
+/** Kazanılan kupa adetleri (kategorize). honours scrape'inden gelir. */
+export interface TrophyCounts {
+  uclTitles: number;
+  uelTitles: number;
+  otherEuropeanTitles: number;
+  domesticLeagueTitles: number;
+  domesticCupTitles: number;
+  worldCupTitles: number;
+  continentalNationalTitles: number;
+  /** TAKIM kupalarının toplamı (bireysel ödüller HARİÇ). */
+  totalTitles: number;
+  /** Bireysel ödüller — takım kupası değil, ayrı sorular için. */
+  individual?: IndividualAwards;
+}
+
+/** Bireysel ödül adetleri (Ballon d'Or, gol krallığı vb.). Takım toplamına dahil DEĞİL. */
+export interface IndividualAwards {
+  ballonDor: number;
+  fifaBest: number;
+  goldenBoot: number;
+  topScorerAwards: number;
+  playerOfTheYear: number;
+  otherIndividual: number;
+  totalIndividual: number;
 }

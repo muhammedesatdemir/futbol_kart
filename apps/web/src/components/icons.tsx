@@ -94,3 +94,23 @@ export function HomeIcon(props: IconProps) {
     </Icon>
   );
 }
+
+export function SoundOnIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 9v6h4l5 4V5L8 9H4z" />
+      <path d="M16 9a3 3 0 0 1 0 6" />
+      <path d="M18.5 7a6 6 0 0 1 0 10" />
+    </Icon>
+  );
+}
+
+export function SoundOffIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M4 9v6h4l5 4V5L8 9H4z" />
+      <path d="M22 9l-5 6" />
+      <path d="M17 9l5 6" />
+    </Icon>
+  );
+}

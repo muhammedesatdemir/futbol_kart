@@ -20,6 +20,12 @@ interface PlayerCardProps {
   side?: 'red' | 'blue';
   selected?: boolean;
   className?: string;
+  /**
+   * Boyut. 'default' responsive büyür (w-36→w-44). 'sm'/'md' TÜM breakpoint'lerde
+   * sabit kalır (bonus slotları, dar alanlar — taşma olmaz). md ≈ sm'nin 1.4 katı.
+   * 'reveal' default'tan az daha küçük (VS ekranı dikey alana sığsın).
+   */
+  size?: 'default' | 'sm' | 'md' | 'reveal';
 }
 
 export const cardEnter: Variants = {
@@ -315,6 +321,7 @@ export function PlayerCard({
   side = 'red',
   selected,
   className,
+  size = 'default',
 }: PlayerCardProps) {
   const showFront = !faceDown && player;
   const { ref, tilt, onMove, onLeave } = useTilt(!!showFront);
@@ -329,7 +336,15 @@ export function PlayerCard({
       transition={{ type: 'spring', stiffness: 300, damping: 20 }}
       className={cn(
         // Daha büyük kart — %30 boy artışı; foto agresif crop ile yüzler daha okunaklı
-        'group relative aspect-[2/3] w-36 cursor-pointer select-none sm:w-40 md:w-44',
+        'group relative aspect-[2/3] cursor-pointer select-none',
+        // sabit boyutlar tüm breakpoint'lerde aynı (taşma yok); default responsive büyür.
+        size === 'sm'
+          ? 'w-20'
+          : size === 'md'
+            ? 'w-28'
+            : size === 'reveal'
+              ? 'w-32 sm:w-36' // default'tan az daha küçük (VS ekranı sığsın)
+              : 'w-36 sm:w-40 md:w-44',
         className,
       )}
       style={{

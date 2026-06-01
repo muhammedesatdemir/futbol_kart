@@ -89,6 +89,32 @@ const UNIT_BY_TEMPLATE: Record<string, string> = {
   n14_jersey_max: '#',
   n15_jersey_min: '#',
   n16_jersey_distinct: 'numara',
+  // turnuva birimleri (w*)
+  w01_ucl_apps: 'maç',
+  w02_ucl_goals: 'gol',
+  w03_uel_apps: 'maç',
+  w04_league_apps: 'maç',
+  w05_league_goals: 'gol',
+  w06_domestic_cup_apps: 'maç',
+  w07_world_cup_apps: 'maç',
+  // kupa birimleri (w*)
+  w08_total_titles: 'kupa',
+  w09_league_titles: 'şampiyonluk',
+  w10_domestic_cup_titles: 'kupa',
+  w11_ucl_titles: 'kupa',
+  // asist/gol birimleri (w*)
+  w12_ucl_assists: 'asist',
+  w13_uel_goals: 'gol',
+  w14_uel_assists: 'asist',
+  w15_league_assists: 'asist',
+  w16_domestic_cup_goals: 'gol',
+  w17_world_cup_goals: 'gol',
+  w18_world_cup_assists: 'asist',
+  w19_world_cup_goals_conceded: 'gol',
+  // bireysel ödül birimleri (w*)
+  w20_ballon_dor: 'Ballon d\'Or',
+  w21_top_scorer_awards: 'gol krallığı',
+  w22_total_individual: 'ödül',
 };
 
 export function formatValue(
@@ -156,6 +182,10 @@ export function formatValue(
     case 'x08_club_count_proximity':
     case 'x09_assists_proximity':
     case 'x10_national_caps_proximity':
+    case 'x11_ucl_apps_proximity':
+    case 'x12_league_goals_proximity':
+    case 'x13_total_titles_proximity':
+    case 'x14_ballon_dor_proximity':
       // Proximity değerleri negatif (mutlak fark). Mutlak değeri göster.
       return `Fark: ${numTR(Math.abs(value), 1)}`;
 

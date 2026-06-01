@@ -156,6 +156,12 @@ export function CardPickScene({
   const clear = useCallback(() => setPicked([]), []);
   const submit = useCallback(() => onSubmit(picked), [onSubmit, picked]);
 
+  // Rastgele: mevcut havuzdan (excluded hariç) rastgele handSize oyuncu seç.
+  const randomPick = useCallback(() => {
+    const shuffled = [...available].sort(() => Math.random() - 0.5);
+    setPicked(shuffled.slice(0, handSize).map((p) => p.id));
+  }, [available, handSize]);
+
   const canConfirm = picked.length === handSize;
   const fallbackHeading = side === 'P1' ? t('p1Heading') : t('p2Heading');
   const heading = playerName ? `${playerName} — elini hazırla` : fallbackHeading;
@@ -186,6 +192,7 @@ export function CardPickScene({
         total={handSize}
         onRemove={remove}
         onClear={clear}
+        onRandom={randomPick}
         ctaLabel={ctaLabel}
         onConfirm={submit}
         heading={heading}

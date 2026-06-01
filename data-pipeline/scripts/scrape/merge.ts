@@ -438,9 +438,11 @@ interface TrophyCountsRaw {
   };
 }
 interface CompetitionStatsRaw {
-  uclApps: number; uclGoals: number; uelApps: number; uelGoals: number;
-  worldCupApps: number; worldCupGoals: number; leagueApps: number;
-  leagueGoals: number; domesticCupApps: number;
+  uclApps: number; uclGoals: number; uclAssists: number;
+  uelApps: number; uelGoals: number; uelAssists: number;
+  worldCupApps: number; worldCupGoals: number; worldCupAssists: number; worldCupGoalsConceded: number;
+  leagueApps: number; leagueGoals: number; leagueAssists: number;
+  domesticCupApps: number; domesticCupGoals: number;
 }
 
 function tmToPlayer(

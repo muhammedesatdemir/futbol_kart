@@ -29,7 +29,11 @@ import {
   pickQuestion,
   resolveCards,
   resolvedTitle,
+  pickBonus,
+  autoAssignBonus,
+  bonusConditionContext,
 } from '@/lib/gameFlow';
+import { BonusAssignScene } from '@/components/scenes/BonusAssignScene';
 import { templateById } from '@futbol-kart/question-templates';
 
 export default function GameSessionPage() {
@@ -82,15 +86,21 @@ export default function GameSessionPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.scene, state.currentP1Card, state.currentP2Card]);
 
-  // Kazanma / beraberlik / final sesleri — sahne geçişine bağlı.
-  //   ROUND_RESULT → kazanma (ding+cheer) / beraberlik (nötr tick)
-  //   FINAL        → fanfar
+  // Kazanma / beraberlik / final sesleri — sahne GEÇİŞİNE bağlı.
+  // prevScene ile, mount/remount sırasında (rematch sonrası yeni sayfa hâlâ
+  // 'FINAL' state'iyle açılırken) sesin tekrar çalmasını engelle: ses yalnızca
+  // önceki sahne farklıyken, gerçek bir geçişte çalar.
+  const prevSceneRef = useRef<typeof state.scene | null>(null);
   useEffect(() => {
+    const prev = prevSceneRef.current;
+    prevSceneRef.current = state.scene;
+    if (prev === state.scene) return; // değişim yok
     if (state.scene === 'ROUND_RESULT') {
       const last = state.history[state.history.length - 1];
       if (last && last.winner !== 'tie') playSfx('win');
       else playSfx('tie');
-    } else if (state.scene === 'FINAL') {
+    } else if (state.scene === 'FINAL' && prev !== null) {
+      // prev === null → ilk mount (muhtemelen rematch sonrası eski state); çalma.
       playSfx('final');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -120,6 +130,17 @@ export default function GameSessionPage() {
 
   const onPhaseTransitionAck = useCallback(
     () => dispatch({ type: 'PHASE_TRANSITION_ACK' }),
+    [dispatch],
+  );
+
+  const onBonusAssign = useCallback(
+    (side: 'P1' | 'P2', slot: number, cardId: string | null) =>
+      dispatch({ type: 'BONUS_CARD_ASSIGNED', side, slot, cardId }),
+    [dispatch],
+  );
+
+  const onBonusConfirm = useCallback(
+    (side: 'P1' | 'P2') => dispatch({ type: 'BONUS_CONFIRMED', side }),
     [dispatch],
   );
 
@@ -166,10 +187,39 @@ export default function GameSessionPage() {
     dispatch,
   ]);
 
+  // Bonus tur: ana maç ilk turundan ÖNCE 3 kategori koşulu belirle.
+  // Eller hazır + henüz karar verilmemişse hesapla ve dispatch et
+  // (BONUS_CONDITIONS_SET → fizibilse BONUS_ASSIGN, değilse ROUND_INTRO'da kalır).
+  useEffect(() => {
+    if (state.scene !== 'ROUND_INTRO') return;
+    if (state.phase !== 'main' || state.roundIndex !== 0) return;
+    if (state.bonusResolved) return;
+    if (state.p1Hand.length === 0 || state.p2Hand.length === 0) return;
+    const conditions = pickBonus(flow, state.p1Hand, state.p2Hand);
+    // Vs-bot: P2 (bot) atamasını önceden hesapla.
+    const p2Cards =
+      conditions.length === 3 && state.mode === 'vs-bot'
+        ? autoAssignBonus(flow, conditions.map((c) => c.id), state.p2Hand)
+        : undefined;
+    dispatch({ type: 'BONUS_CONDITIONS_SET', conditions, p2Cards });
+  }, [
+    state.scene,
+    state.phase,
+    state.roundIndex,
+    state.bonusResolved,
+    state.p1Hand,
+    state.p2Hand,
+    state.mode,
+    flow,
+    dispatch,
+  ]);
+
   // ROUND_INTRO -> soru sec -> ROUND_STARTED (stinger animasyonu için ~750ms bekle)
   useEffect(() => {
     if (state.scene !== 'ROUND_INTRO') return;
     if (state.p1Hand.length === 0 || state.p2Hand.length === 0) return;
+    // Bonus kararı verilmeden soru seçme (ana maç ilk turunda BONUS_ASSIGN'a gidilecek).
+    if (state.phase === 'main' && state.roundIndex === 0 && !state.bonusResolved) return;
     const q = pickQuestion(flow, state.p1Hand, state.p2Hand);
     if (!q) return;
     const t = setTimeout(
@@ -177,7 +227,7 @@ export default function GameSessionPage() {
       750,
     );
     return () => clearTimeout(t);
-  }, [state.scene, state.p1Hand, state.p2Hand, flow, dispatch]);
+  }, [state.scene, state.p1Hand, state.p2Hand, state.phase, state.roundIndex, state.bonusResolved, flow, dispatch]);
 
   // ROUND_PLAY: vs-bot ve P1 oynadi -> bot oynar
   useEffect(() => {
@@ -269,6 +319,7 @@ export default function GameSessionPage() {
     state.scene !== 'CARD_PICK_P1' &&
     state.scene !== 'HANDOFF' &&
     state.scene !== 'CARD_PICK_P2' &&
+    state.scene !== 'BONUS_ASSIGN' &&
     state.scene !== 'PHASE_TRANSITION' &&
     state.scene !== 'FINAL';
 
@@ -299,6 +350,15 @@ export default function GameSessionPage() {
 
   const p1Display = state.p1Name || 'Oyuncu 1';
   const p2Display = botMode ? 'Bot' : state.p2Name || 'Oyuncu 2';
+
+  // BONUS_ASSIGN sahnesi için: aktif taraf + eli + atamaları.
+  const bonusSide = state.bonusAssignSide;
+  const bonusHandIds = bonusSide === 'P1' ? state.p1Hand : state.p2Hand;
+  const bonusAssigned = bonusSide === 'P1' ? state.p1BonusCards : state.p2BonusCards;
+  const bonusHandPlayers = bonusHandIds
+    .map((id) => session.players.find((p) => p.id === id))
+    .filter(Boolean) as typeof session.players;
+  const bonusCtxValue = bonusConditionContext(flow);
 
   // Momentum: önde olan taraf + güncel galibiyet serisi (üst üste kaç tur).
   // history'den türetilir — yeni state gerekmez. Skor eşitse lider yok.
@@ -429,6 +489,20 @@ export default function GameSessionPage() {
           </SceneShell>
         )}
 
+        {state.scene === 'BONUS_ASSIGN' && state.bonusConditions.length === 3 && (
+          <SceneShell sceneKey={`bonus-${bonusSide}`} key={`bonus-${bonusSide}`}>
+            <BonusAssignScene
+              sideName={bonusSide === 'P1' ? p1Display : p2Display}
+              conditions={state.bonusConditions}
+              hand={bonusHandPlayers}
+              assigned={bonusAssigned}
+              ctx={bonusCtxValue}
+              onAssign={(slot, cardId) => onBonusAssign(bonusSide, slot, cardId)}
+              onConfirm={() => onBonusConfirm(bonusSide)}
+            />
+          </SceneShell>
+        )}
+
         {state.scene === 'PHASE_TRANSITION' && (
           <SceneShell sceneKey={`transition-${state.phase}`} key={`transition-${state.phase}`}>
             <PhaseTransitionScene
@@ -459,6 +533,8 @@ export default function GameSessionPage() {
               currentP2Card={state.currentP2Card}
               lastLog={state.history[state.history.length - 1]}
               isLastRound={state.roundIndex + 1 >= state.totalRounds}
+              p1BonusCards={state.p1BonusCards}
+              p2BonusCards={state.p2BonusCards}
               onCardPlay={onCardPlay}
               onAck={onAck}
             />

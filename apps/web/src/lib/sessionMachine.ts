@@ -20,12 +20,19 @@ export type Scene =
   | 'CARD_PICK_P1'
   | 'HANDOFF'
   | 'CARD_PICK_P2'
+  | 'BONUS_ASSIGN'
   | 'ROUND_INTRO'
   | 'ROUND_PLAY'
   | 'ROUND_REVEAL'
   | 'ROUND_RESULT'
   | 'PHASE_TRANSITION'
   | 'FINAL';
+
+/** "3 Zorunlu Kategori" bonus koşulu — UI/state için hafif gösterim. */
+export interface BonusConditionLite {
+  id: string;
+  label: string;
+}
 
 export interface RoundLog {
   /** Hangi fazda oynandı */
@@ -38,6 +45,11 @@ export interface RoundLog {
   p2Value: number | boolean | null;
   winner: PlayerSide | 'tie';
   tiebreakerUsed?: string;
+  /** Bu turda oynanan kart bonus kartıysa, ilgili tarafın bonusu (kazanınca +2). */
+  p1Bonus?: boolean;
+  p2Bonus?: boolean;
+  /** Bonus kazanıldı mı (kazanan tarafın kartı bonus kartıydı). */
+  bonusAwarded?: boolean;
 }
 
 export interface SessionState {
@@ -68,6 +80,19 @@ export interface SessionState {
   history: RoundLog[];
   /** Hangi oyuncular daha önce ele alındı (uzatmada havuzdan çıkarılır) */
   usedCardIds: string[];
+
+  /**
+   * "3 Zorunlu Kategori" bonus mekaniği (yalnızca ana maç).
+   * Boş dizi = bonus aktif değil (uzatma/sudden veya fizibil set bulunamadı).
+   */
+  bonusConditions: BonusConditionLite[];
+  /** P1/P2 için condIndex → cardId ataması (3 slot). null = boş. */
+  p1BonusCards: Array<string | null>;
+  p2BonusCards: Array<string | null>;
+  /** BONUS_ASSIGN sahnesinde atama yapan aktif taraf. */
+  bonusAssignSide: PlayerSide;
+  /** Bu fazın bonus kararı verildi mi (tek-sefer tetikleme guard'ı). */
+  bonusResolved: boolean;
 }
 
 export type SessionEvent =
@@ -87,6 +112,25 @@ export type SessionEvent =
     }
   | { type: 'ROUND_ACK' }
   | { type: 'PHASE_TRANSITION_ACK' }
+  | {
+      /** Maç başında 3 bonus koşulu belirlendi → BONUS_ASSIGN sahnesine geç. */
+      type: 'BONUS_CONDITIONS_SET';
+      conditions: BonusConditionLite[];
+      /** Bot için P2 ataması önceden hesaplanmış olabilir. */
+      p2Cards?: Array<string | null>;
+    }
+  | {
+      /** Aktif taraf bir kartı bir bonus slotuna atadı (veya temizledi: cardId=null). */
+      type: 'BONUS_CARD_ASSIGNED';
+      side: PlayerSide;
+      slot: number;
+      cardId: string | null;
+    }
+  | {
+      /** Aktif taraf 3 slotu doldurup onayladı. */
+      type: 'BONUS_CONFIRMED';
+      side: PlayerSide;
+    }
   | { type: 'GAME_RESET' };
 
 export function initialSession(gameId: string, seed: string): SessionState {
@@ -112,6 +156,11 @@ export function initialSession(gameId: string, seed: string): SessionState {
     currentP2Card: null,
     history: [],
     usedCardIds: [],
+    bonusConditions: [],
+    p1BonusCards: [null, null, null],
+    p2BonusCards: [null, null, null],
+    bonusAssignSide: 'P1',
+    bonusResolved: false,
   };
 }
 
@@ -176,6 +225,13 @@ export function reduceSession(
 
     case 'ROUND_RESOLVED': {
       const winnerSide = event.winner;
+      // Oynanan kart, ilgili tarafın bonus kartlarından biri mi?
+      const p1Bonus = state.currentP1Card !== null && state.p1BonusCards.includes(state.currentP1Card);
+      const p2Bonus = state.currentP2Card !== null && state.p2BonusCards.includes(state.currentP2Card);
+      // Kazanan tarafın kartı bonus kartıysa puan 2, değilse 1.
+      const winnerBonus =
+        (winnerSide === 'P1' && p1Bonus) || (winnerSide === 'P2' && p2Bonus);
+      const points = winnerBonus ? 2 : 1;
       const log: RoundLog = {
         phase: state.phase,
         questionId: state.currentQuestionId!,
@@ -186,13 +242,16 @@ export function reduceSession(
         p2Value: event.p2Value,
         winner: winnerSide,
         tiebreakerUsed: event.tiebreakerUsed,
+        p1Bonus,
+        p2Bonus,
+        bonusAwarded: winnerBonus,
       };
       return {
         ...state,
         p1Hand: state.p1Hand.filter((c) => c !== state.currentP1Card),
         p2Hand: state.p2Hand.filter((c) => c !== state.currentP2Card),
-        p1Score: state.p1Score + (winnerSide === 'P1' ? 1 : 0),
-        p2Score: state.p2Score + (winnerSide === 'P2' ? 1 : 0),
+        p1Score: state.p1Score + (winnerSide === 'P1' ? points : 0),
+        p2Score: state.p2Score + (winnerSide === 'P2' ? points : 0),
         history: [...state.history, log],
         scene: 'ROUND_REVEAL',
       };
@@ -241,6 +300,11 @@ export function reduceSession(
           currentP1Card: null,
           currentP2Card: null,
           usedCardIds,
+          // Bonus yalnızca ana maçta; uzatma/sudden'da sıfırla + tekrar tetikleme.
+          bonusConditions: [],
+          p1BonusCards: [null, null, null],
+          p2BonusCards: [null, null, null],
+          bonusResolved: true,
         };
       }
 
@@ -256,6 +320,44 @@ export function reduceSession(
 
     case 'PHASE_TRANSITION_ACK':
       return { ...state, scene: 'CARD_PICK_P1' };
+
+    case 'BONUS_CONDITIONS_SET': {
+      // Fizibil 3 koşul yoksa bonus atlanır → doğrudan tur akışına gir.
+      if (event.conditions.length < 3) {
+        return { ...state, bonusConditions: [], bonusResolved: true, scene: 'ROUND_INTRO' };
+      }
+      return {
+        ...state,
+        bonusConditions: event.conditions,
+        p1BonusCards: [null, null, null],
+        p2BonusCards: event.p2Cards ?? [null, null, null],
+        bonusAssignSide: 'P1',
+        bonusResolved: true,
+        scene: 'BONUS_ASSIGN',
+      };
+    }
+
+    case 'BONUS_CARD_ASSIGNED': {
+      const key = event.side === 'P1' ? 'p1BonusCards' : 'p2BonusCards';
+      const next = [...state[key]];
+      // Aynı kart başka slota atanmışsa oradan kaldır (tek kart tek slot).
+      if (event.cardId !== null) {
+        for (let i = 0; i < next.length; i++) {
+          if (next[i] === event.cardId) next[i] = null;
+        }
+      }
+      next[event.slot] = event.cardId;
+      return { ...state, [key]: next };
+    }
+
+    case 'BONUS_CONFIRMED': {
+      // Hotseat: P1 onaylayınca P2'ye geç; P2 onaylayınca tura başla.
+      // Vs-bot: P1 onaylayınca (P2 zaten otomatik atanmış) tura başla.
+      if (event.side === 'P1' && state.mode === 'hotseat') {
+        return { ...state, bonusAssignSide: 'P2' };
+      }
+      return { ...state, scene: 'ROUND_INTRO' };
+    }
 
     case 'GAME_RESET':
       return initialSession(state.gameId, state.seed);

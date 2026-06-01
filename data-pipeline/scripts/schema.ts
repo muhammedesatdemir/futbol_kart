@@ -32,13 +32,19 @@ const clubStintSchema = z.object({
 const competitionStatsSchema = z.object({
   uclApps: z.number().int().nonnegative(),
   uclGoals: z.number().int().nonnegative(),
+  uclAssists: z.number().int().nonnegative(),
   uelApps: z.number().int().nonnegative(),
   uelGoals: z.number().int().nonnegative(),
+  uelAssists: z.number().int().nonnegative(),
   worldCupApps: z.number().int().nonnegative(),
   worldCupGoals: z.number().int().nonnegative(),
+  worldCupAssists: z.number().int().nonnegative(),
+  worldCupGoalsConceded: z.number().int().nonnegative(),
   leagueApps: z.number().int().nonnegative(),
   leagueGoals: z.number().int().nonnegative(),
+  leagueAssists: z.number().int().nonnegative(),
   domesticCupApps: z.number().int().nonnegative(),
+  domesticCupGoals: z.number().int().nonnegative(),
 });
 
 const statsSchema = z.object({

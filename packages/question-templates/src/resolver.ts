@@ -214,6 +214,56 @@ function computeCustom(
     case 'n25_club_count':
       return player.clubs.length || null;
 
+    // ---------- KUPA / TURNUVA (w*) — yeni veri katmanı ----------
+    // Turnuva maç/gol agregaları (stats.competitions). Veri yoksa null → havuz dışı.
+    case 'w01_ucl_apps': return player.stats.competitions?.uclApps ?? null;
+    case 'w02_ucl_goals': return player.stats.competitions?.uclGoals ?? null;
+    case 'w03_uel_apps': return player.stats.competitions?.uelApps ?? null;
+    case 'w04_league_apps': return player.stats.competitions?.leagueApps ?? null;
+    case 'w05_league_goals': return player.stats.competitions?.leagueGoals ?? null;
+    case 'w06_domestic_cup_apps': return player.stats.competitions?.domesticCupApps ?? null;
+    case 'w07_world_cup_apps': return player.stats.competitions?.worldCupApps ?? null;
+    // Kazanılan kupa adetleri (achievements.trophies).
+    case 'w08_total_titles': return player.achievements.trophies?.totalTitles ?? null;
+    case 'w09_league_titles': return player.achievements.trophies?.domesticLeagueTitles ?? null;
+    case 'w10_domestic_cup_titles': return player.achievements.trophies?.domesticCupTitles ?? null;
+    case 'w11_ucl_titles': return player.achievements.trophies?.uclTitles ?? null;
+    // Turnuva asist/gol (yeni) — competitions.
+    case 'w12_ucl_assists': return player.stats.competitions?.uclAssists ?? null;
+    case 'w13_uel_goals': return player.stats.competitions?.uelGoals ?? null;
+    case 'w14_uel_assists': return player.stats.competitions?.uelAssists ?? null;
+    case 'w15_league_assists': return player.stats.competitions?.leagueAssists ?? null;
+    case 'w16_domestic_cup_goals': return player.stats.competitions?.domesticCupGoals ?? null;
+    case 'w17_world_cup_goals': return player.stats.competitions?.worldCupGoals ?? null;
+    case 'w18_world_cup_assists': return player.stats.competitions?.worldCupAssists ?? null;
+    // Kalecinin Dünya Kupası'nda yediği gol — AZ olan kazanır (compareOp:min).
+    case 'w19_world_cup_goals_conceded': return player.stats.competitions?.worldCupGoalsConceded ?? null;
+    // Bireysel ödüller (honours.individual).
+    case 'w20_ballon_dor': return player.achievements.trophies?.individual?.ballonDor ?? null;
+    case 'w21_top_scorer_awards': return player.achievements.trophies?.individual?.topScorerAwards ?? null;
+    case 'w22_total_individual': return player.achievements.trophies?.individual?.totalIndividual ?? null;
+    case 'x14_ballon_dor_proximity': {
+      const v = player.achievements.trophies?.individual?.ballonDor;
+      if (typeof v !== 'number') return null;
+      return -absDiff(v, Number(ctx.params?.['targetBallonDor'] ?? 3));
+    }
+    // Proximity varyantları (hedef değere yakınlık; -|fark|, max kazanır = en yakın).
+    case 'x11_ucl_apps_proximity': {
+      const v = player.stats.competitions?.uclApps;
+      if (typeof v !== 'number') return null;
+      return -absDiff(v, Number(ctx.params?.['targetUclApps'] ?? 50));
+    }
+    case 'x12_league_goals_proximity': {
+      const v = player.stats.competitions?.leagueGoals;
+      if (typeof v !== 'number') return null;
+      return -absDiff(v, Number(ctx.params?.['targetLeagueGoals'] ?? 100));
+    }
+    case 'x13_total_titles_proximity': {
+      const v = player.achievements.trophies?.totalTitles;
+      if (typeof v !== 'number') return null;
+      return -absDiff(v, Number(ctx.params?.['targetTitles'] ?? 10));
+    }
+
     // ---------- ZAMAN / YAŞ ----------
     case 't01_younger':
       return player.birthDate ? new Date(player.birthDate).getTime() : null;
@@ -630,7 +680,12 @@ export function templateApplicable(
   template: Template,
   player: Player,
 ): boolean {
-  for (const field of template.requiresFields) {
+  for (const rawField of template.requiresFields) {
+    // "alan+" soneki: değer DOLU OLMALI ve > 0 olmalı (örn. "kazanmamış/oynamamış"
+    // oyuncuları havuz dışı bırakır — turnuva/kupa şablonları hep berabere olmasın).
+    const requirePositive = rawField.endsWith('+');
+    const field = requirePositive ? rawField.slice(0, -1) : rawField;
+
     // Virtual alanlar — getByPath bunları çözemez
     if (field === 'birthYear' || field === 'birthMonth' || field === 'birthDay') {
       if (!player.birthDate) return false;
@@ -638,6 +693,7 @@ export function templateApplicable(
     }
     const v = getByPath(player, field);
     if (!isKnown(v)) return false;
+    if (requirePositive && !(typeof v === 'number' && v > 0)) return false;
   }
   return true;
 }

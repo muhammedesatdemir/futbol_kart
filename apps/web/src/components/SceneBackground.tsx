@@ -30,6 +30,7 @@ const SCENE_TO_BG: Record<Scene, BgKey> = {
   CARD_PICK_P1: 'pick',
   CARD_PICK_P2: 'pick',
   HANDOFF: 'handoff',
+  BONUS_ASSIGN: 'handoff',
   ROUND_INTRO: 'round',
   ROUND_PLAY: 'round',
   ROUND_REVEAL: 'round',

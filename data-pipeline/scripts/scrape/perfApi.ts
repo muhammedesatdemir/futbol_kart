@@ -80,6 +80,8 @@ export interface PerfGame {
       assists: number | null;
       assistsOfficial: number | null;
       ownGoalsScored: number | null;
+      /** Oyuncu sahadayken rakibin attığı gol (kaleci "yediği gol" için). */
+      opponentGoalsOnThePitch?: number | null;
     };
   };
 }

@@ -123,6 +123,55 @@ describe('computeValue — sayısal', () => {
   });
 });
 
+describe('computeValue — turnuva + kupa (yeni veri katmanı)', () => {
+  it('w01_ucl_apps — CR7 verisi var (183), Messi verisi yok (null)', () => {
+    const t = templateById('w01_ucl_apps')!;
+    expect(computeValue(t, fixtureCR7, fixtureContext)).toBe(183);
+    expect(computeValue(t, fixtureMessi, fixtureContext)).toBeNull(); // fixture'da competitions yok
+  });
+
+  it('w08_total_titles — CR7 toplam kupa 34', () => {
+    const t = templateById('w08_total_titles')!;
+    expect(computeValue(t, fixtureCR7, fixtureContext)).toBe(34);
+  });
+
+  it('w05_league_goals — CR7 lig golü 600', () => {
+    expect(computeValue(templateById('w05_league_goals')!, fixtureCR7, fixtureContext)).toBe(600);
+  });
+
+  it('x13_total_titles_proximity — hedef 30, CR7 34 → -4', () => {
+    const t = templateById('x13_total_titles_proximity')!;
+    const ctx = { ...fixtureContext, params: { targetTitles: 30 } };
+    expect(computeValue(t, fixtureCR7, ctx)).toBe(-4);
+  });
+
+  it('templateApplicable "+" soneki: veri yoksa/0 ise havuz dışı', () => {
+    const t = templateById('w01_ucl_apps')!;
+    expect(templateApplicable(t, fixtureCR7)).toBe(true); // 183 > 0
+    expect(templateApplicable(t, fixtureMessi)).toBe(false); // competitions yok
+  });
+
+  it('w12_ucl_assists — CR7 UCL asisti 42', () => {
+    expect(computeValue(templateById('w12_ucl_assists')!, fixtureCR7, fixtureContext)).toBe(42);
+  });
+
+  it('w15_league_assists — CR7 lig asisti 180', () => {
+    expect(computeValue(templateById('w15_league_assists')!, fixtureCR7, fixtureContext)).toBe(180);
+  });
+
+  it('w11_ucl_titles — CR7 5 UCL kupası', () => {
+    expect(computeValue(templateById('w11_ucl_titles')!, fixtureCR7, fixtureContext)).toBe(5);
+  });
+
+  it('w20_ballon_dor — CR7 5 Ballon dOr', () => {
+    expect(computeValue(templateById('w20_ballon_dor')!, fixtureCR7, fixtureContext)).toBe(5);
+  });
+
+  it('w19_world_cup_goals_conceded compareOp min (az yiyen kaleci kazanır)', () => {
+    expect(templateById('w19_world_cup_goals_conceded')!.compareOp).toBe('min');
+  });
+});
+
 describe('computeValue — boolean', () => {
   it('g20/g19 doğum kıtası — Ronaldinho (BR): G.Amerika true, Avrupa false', () => {
     // Fixture'da BR ülke kodlu kulüp (gremio, South America) var → eşleşir

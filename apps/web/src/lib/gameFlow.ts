@@ -101,6 +101,67 @@ export function resolveCards(
   return resolveRound(template, p1, p2, ctx.resolver);
 }
 
+// ===========================
+// "3 Zorunlu Kategori" bonus mekaniği
+// ===========================
+
+import {
+  buildConditionLibrary,
+  type ConditionContext,
+} from './bonusConditions';
+import { pickBonusConditions, autoAssign } from './bonusSelection';
+
+const BONUS_LIBRARY = buildConditionLibrary();
+
+/** Flow'un kulüp lookup'ından koşul bağlamı üretir. */
+function bonusCtx(ctx: FlowContext): ConditionContext {
+  return { clubsById: ctx.resolver.clubsById };
+}
+
+/** Bir el (cardId[]) → Player[]. */
+function handPlayers(ctx: FlowContext, ids: string[]): Player[] {
+  return ids.map((id) => ctx.playersById.get(id)).filter(Boolean) as Player[];
+}
+
+/**
+ * Maç başı 3 bonus koşulu seç (deterministik, seed'e bağlı). Fizibil değilse boş.
+ * Dönüş: { id, label } listesi (state için hafif).
+ */
+export function pickBonus(
+  ctx: FlowContext,
+  p1CardIds: string[],
+  p2CardIds: string[],
+): Array<{ id: string; label: string }> {
+  const res = pickBonusConditions(
+    BONUS_LIBRARY,
+    handPlayers(ctx, p1CardIds),
+    handPlayers(ctx, p2CardIds),
+    bonusCtx(ctx),
+    () => ctx.prng.next(),
+  );
+  return res.conditions.map((c) => ({ id: c.id, label: c.label }));
+}
+
+/**
+ * Bir el için verilen koşullara otomatik kart ataması (bot). condIndex → cardId.
+ */
+export function autoAssignBonus(
+  ctx: FlowContext,
+  conditionIds: string[],
+  handCardIds: string[],
+): Array<string | null> {
+  const conds = conditionIds
+    .map((id) => BONUS_LIBRARY.find((c) => c.id === id))
+    .filter(Boolean) as ReturnType<typeof buildConditionLibrary>;
+  const result = autoAssign(conds, handPlayers(ctx, handCardIds), bonusCtx(ctx));
+  return result ?? [null, null, null];
+}
+
+/** Bonus koşul bağlamı — UI sahnesinin predicate testleri için. */
+export function bonusConditionContext(ctx: FlowContext): ConditionContext {
+  return bonusCtx(ctx);
+}
+
 export function botPickCard(ctx: FlowContext, hand: string[]): string {
   if (hand.length === 0) throw new Error('botPickCard: empty hand');
   return hand[Math.floor(ctx.prng.next() * hand.length)]!;

@@ -47,17 +47,24 @@ export interface PlayerStats {
   competitions?: CompetitionStats;
 }
 
-/** Turnuva bazlı maç/gol (UCL/UEL/Dünya Kupası/lig/kupa). "Hedefe Yaklaş" modu için. */
+/** Turnuva bazlı maç/gol/asist (UCL/UEL/Dünya Kupası/lig/kupa). "Hedefe Yaklaş" modu için. */
 export interface CompetitionStats {
   uclApps: number;
   uclGoals: number;
+  uclAssists: number;
   uelApps: number;
   uelGoals: number;
+  uelAssists: number;
   worldCupApps: number;
   worldCupGoals: number;
+  worldCupAssists: number;
+  /** Kalecinin Dünya Kupası'nda sahadayken yediği gol. */
+  worldCupGoalsConceded: number;
   leagueApps: number;
   leagueGoals: number;
+  leagueAssists: number;
   domesticCupApps: number;
+  domesticCupGoals: number;
 }
 
 export interface PlayerAchievements {

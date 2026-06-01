@@ -33,21 +33,30 @@ const OUT_FILE = join(CACHE_DIR, 'competition-stats.json');
 const PERF_BASE = 'https://www.transfermarkt.com/ceapi/performance-game';
 const PLAYED = 'played';
 
-/** Oyuncunun turnuva bazlı maç/gol agregaları (tümü "played" maçlardan). */
+/** Oyuncunun turnuva bazlı maç/gol/asist agregaları (tümü "played" maçlardan). */
 export interface CompetitionStats {
   uclApps: number;
   uclGoals: number;
+  uclAssists: number;
   uelApps: number;
   uelGoals: number;
+  uelAssists: number;
   /** FIFA Dünya Kupası FİNAL turnuvası (eleme hariç) */
   worldCupApps: number;
   worldCupGoals: number;
+  worldCupAssists: number;
+  /** Dünya Kupası'nda kalecinin sahada yediği gol (clean-sheet/az-yiyen soruları için) */
+  worldCupGoalsConceded: number;
   /** Ulusal birinci lig (type 1) */
   leagueApps: number;
   leagueGoals: number;
+  leagueAssists: number;
   /** Ulusal kupa (type 8) — FA Cup, Copa del Rey, ZTK, lig kupası vb. */
   domesticCupApps: number;
+  domesticCupGoals: number;
 }
+
+type Bucket = 'ucl' | 'uel' | 'worldCup' | 'league' | 'domesticCup' | null;
 
 function cacheKey(url: string): string {
   return createHash('sha1').update(url).digest('hex').slice(0, 16);
@@ -59,41 +68,42 @@ function cacheKey(url: string): string {
  *   FIWC = FIFA World Cup (final), WMQ* = World Cup qualifiers (eleme — sayılmaz)
  * competitionTypeId fallback: 1=lig, 8=ulusal kupa.
  */
-function classify(g: PerfGame): keyof CompetitionStats | 'goalsField' | null {
+function classify(g: PerfGame): Bucket {
   const comp = (g.gameInformation.competitionId || '').toUpperCase();
   const type = g.gameInformation.competitionTypeId;
-
-  // UEFA Şampiyonlar Ligi (ana turnuva + eleme CLQ dahil sayılabilir; sadece ana CL)
-  if (comp === 'CL') return 'uclApps';
-  // UEFA Avrupa Ligi / UEFA Kupası (EL = Europa League, UEFA eski kod)
-  if (comp === 'EL' || comp === 'UEFA' || comp === 'ELQ') return 'uelApps';
-  // FIFA Dünya Kupası FİNAL turnuvası — eleme (WMQ*) HARİÇ
-  if (comp === 'FIWC' || comp === 'WM') return 'worldCupApps';
-  // Ulusal birinci lig
-  if (type === 1 && !g.gameInformation.isNationalGame) return 'leagueApps';
-  // Ulusal kupa
-  if (type === 8 && !g.gameInformation.isNationalGame) return 'domesticCupApps';
+  if (comp === 'CL') return 'ucl';
+  if (comp === 'EL' || comp === 'UEFA' || comp === 'ELQ') return 'uel';
+  if (comp === 'FIWC' || comp === 'WM') return 'worldCup';
+  if (type === 1 && !g.gameInformation.isNationalGame) return 'league';
+  if (type === 8 && !g.gameInformation.isNationalGame) return 'domesticCup';
   return null;
 }
 
 export function aggregateCompetitions(performance: PerfGame[]): CompetitionStats {
   const s: CompetitionStats = {
-    uclApps: 0, uclGoals: 0,
-    uelApps: 0, uelGoals: 0,
-    worldCupApps: 0, worldCupGoals: 0,
-    leagueApps: 0, leagueGoals: 0,
-    domesticCupApps: 0,
+    uclApps: 0, uclGoals: 0, uclAssists: 0,
+    uelApps: 0, uelGoals: 0, uelAssists: 0,
+    worldCupApps: 0, worldCupGoals: 0, worldCupAssists: 0, worldCupGoalsConceded: 0,
+    leagueApps: 0, leagueGoals: 0, leagueAssists: 0,
+    domesticCupApps: 0, domesticCupGoals: 0,
   };
   for (const g of performance) {
     if (g.statistics?.generalStatistics?.participationState !== PLAYED) continue;
-    const cls = classify(g);
-    if (!cls) continue;
-    const goals = g.statistics?.goalStatistics?.goalsScoredTotal ?? 0;
-    if (cls === 'uclApps') { s.uclApps++; s.uclGoals += goals; }
-    else if (cls === 'uelApps') { s.uelApps++; s.uelGoals += goals; }
-    else if (cls === 'worldCupApps') { s.worldCupApps++; s.worldCupGoals += goals; }
-    else if (cls === 'leagueApps') { s.leagueApps++; s.leagueGoals += goals; }
-    else if (cls === 'domesticCupApps') { s.domesticCupApps++; }
+    const b = classify(g);
+    if (!b) continue;
+    const gs = g.statistics?.goalStatistics;
+    const goals = gs?.goalsScoredTotal ?? 0;
+    const assists = gs?.assists ?? 0;
+    if (b === 'ucl') { s.uclApps++; s.uclGoals += goals; s.uclAssists += assists; }
+    else if (b === 'uel') { s.uelApps++; s.uelGoals += goals; s.uelAssists += assists; }
+    else if (b === 'worldCup') {
+      s.worldCupApps++; s.worldCupGoals += goals; s.worldCupAssists += assists;
+      // Kalecinin sahadayken yediği gol (rakip golü). Forvetlerde de dolar ama
+      // anlamı kaleci soruları için; havuz pozisyonla filtrelenir.
+      s.worldCupGoalsConceded += gs?.opponentGoalsOnThePitch ?? 0;
+    }
+    else if (b === 'league') { s.leagueApps++; s.leagueGoals += goals; s.leagueAssists += assists; }
+    else if (b === 'domesticCup') { s.domesticCupApps++; s.domesticCupGoals += goals; }
   }
   return s;
 }

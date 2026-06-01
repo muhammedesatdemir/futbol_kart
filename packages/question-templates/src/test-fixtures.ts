@@ -64,6 +64,20 @@ export const fixtureCR7: Player = {
     totalGoals: 920, totalAssists: 240, totalApps: 1250,
     nationalCaps: 219, nationalGoals: 138, maxSeasonGoals: 61,
     last5LeagueGoals: 6, maxTransferFeeEUR: 100000000, proDebutYear: 2002, careerYears: 22,
+    competitions: {
+      uclApps: 183, uclGoals: 140, uclAssists: 42,
+      uelApps: 8, uelGoals: 2, uelAssists: 1,
+      worldCupApps: 22, worldCupGoals: 8, worldCupAssists: 2, worldCupGoalsConceded: 0,
+      leagueApps: 758, leagueGoals: 600, leagueAssists: 180,
+      domesticCupApps: 78, domesticCupGoals: 40,
+    },
   },
-  achievements: { hasUCLFinal: true, hasWorldCup: true, hasUCLTitle: true, hasBallonDor: true },
+  achievements: {
+    hasUCLFinal: true, hasWorldCup: true, hasUCLTitle: true, hasBallonDor: true,
+    trophies: {
+      uclTitles: 5, uelTitles: 0, otherEuropeanTitles: 6, domesticLeagueTitles: 8,
+      domesticCupTitles: 12, worldCupTitles: 0, continentalNationalTitles: 3, totalTitles: 34,
+      individual: { ballonDor: 5, fifaBest: 3, goldenBoot: 4, topScorerAwards: 22, playerOfTheYear: 25, otherIndividual: 5, totalIndividual: 64 },
+    },
+  },
 };

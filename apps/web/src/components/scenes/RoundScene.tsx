@@ -28,6 +28,9 @@ interface RoundSceneProps {
   currentP2Card: string | null;
   lastLog: RoundLog | undefined;
   isLastRound: boolean;
+  /** Bonus kart kimlikleri (taraf bazlı) — elde vurgulamak için. */
+  p1BonusCards: Array<string | null>;
+  p2BonusCards: Array<string | null>;
   onCardPlay: (cardId: string) => void;
   onAck: () => void;
 }
@@ -46,6 +49,8 @@ export function RoundScene({
   currentP2Card,
   lastLog,
   isLastRound,
+  p1BonusCards,
+  p2BonusCards,
   onCardPlay,
   onAck,
 }: RoundSceneProps) {
@@ -173,6 +178,8 @@ export function RoundScene({
           hand={hand}
           players={players}
           currentP1Card={currentP1Card}
+          p1BonusCards={p1BonusCards}
+          p2BonusCards={p2BonusCards}
           onCardPlay={onCardPlay}
         />
       )}
@@ -188,6 +195,8 @@ interface HandDisplayProps {
   hand: string[];
   players: Player[];
   currentP1Card: string | null;
+  p1BonusCards: Array<string | null>;
+  p2BonusCards: Array<string | null>;
   onCardPlay: (cardId: string) => void;
 }
 
@@ -206,11 +215,20 @@ function HandDisplay({
   hand,
   players,
   currentP1Card,
+  p1BonusCards,
+  p2BonusCards,
   onCardPlay,
 }: HandDisplayProps) {
   // Vs-bot ve P1 kartını seçmiş — bot sırası
   const botWaitingForP1Reveal =
     botMode && activeSide === 'P2' && currentP1Card !== null;
+
+  // Bot beklerken P1'in eli gösterilir → P1 bonus seti; aksi halde aktif taraf.
+  const shownBonus = new Set(
+    (botWaitingForP1Reveal || activeSide === 'P1' ? p1BonusCards : p2BonusCards).filter(
+      (c): c is string => c !== null,
+    ),
+  );
 
   if (botWaitingForP1Reveal) {
     // P1'in elini göster, seçili kartı vurgula
@@ -219,22 +237,24 @@ function HandDisplay({
         <div className="mb-3 text-[11px] font-semibold uppercase tracking-[0.22em] text-accent-goldHi">
           {p1Name} seçti — bot düşünüyor
         </div>
-        <CardRow>
+        <CardRow className="justify-center !gap-2 sm:!gap-2.5">
           {hand.map((id) => {
             const p = players.find((pp) => pp.id === id);
             if (!p) return null;
             const isPicked = id === currentP1Card;
+            const isBonus = shownBonus.has(id);
             return (
               <div
                 key={id}
                 className={cn(
-                  'transition-all duration-300',
+                  'relative transition-all duration-300',
                   isPicked
                     ? '-translate-y-2 drop-shadow-[0_0_24px_rgba(240,193,75,0.55)]'
                     : 'opacity-30 saturate-50',
                 )}
               >
-                <PlayerCard player={p} selected={isPicked} />
+                {isBonus && <BonusTag />}
+                <PlayerCard player={p} selected={isPicked} size="md" />
               </div>
             );
           })}
@@ -255,36 +275,44 @@ function HandDisplay({
             : `${p2Name} — el`}
       </div>
       {isBotSide ? (
-        <div className="flex flex-wrap gap-3">
+        <div className="flex flex-wrap justify-center gap-2 sm:gap-2.5">
           {hand.map((id, i) => (
-            <PlayerCard
-              key={id}
-              faceDown
-              index={i}
-              side="blue"
-              className="w-24"
-            />
+            <PlayerCard key={id} faceDown index={i} side="blue" size="md" />
           ))}
         </div>
       ) : (
-        <CardRow className="cursor-pointer">
+        <CardRow className="cursor-pointer justify-center !gap-2 sm:!gap-2.5">
           {hand.map((id) => {
             const p = players.find((pp) => pp.id === id);
             if (!p) return null;
+            const isBonus = shownBonus.has(id);
             return (
               <div
                 key={id}
                 role="button"
                 onClick={() => onCardPlay(id)}
-                className="transition hover:-translate-y-1"
+                className={cn(
+                  'relative transition hover:-translate-y-1',
+                  isBonus && 'drop-shadow-[0_0_18px_rgba(240,193,75,0.45)]',
+                )}
               >
-                <PlayerCard player={p} />
+                {isBonus && <BonusTag />}
+                <PlayerCard player={p} selected={isBonus} size="md" />
               </div>
             );
           })}
         </CardRow>
       )}
     </div>
+  );
+}
+
+/** Bonus kartı rozeti — kartın sol üstüne "⭐ +2" altın etiket. */
+function BonusTag() {
+  return (
+    <span className="pointer-events-none absolute -left-1 -top-2 z-20 rounded-full bg-gradient-to-r from-accent-goldHi to-accent-gold px-1.5 py-0.5 text-[10px] font-black uppercase leading-none tracking-wide text-black shadow-glow-gold ring-1 ring-black/20">
+      ⭐ +2
+    </span>
   );
 }
 
@@ -344,7 +372,7 @@ function RevealSide({
         }
         style={{ transformStyle: 'preserve-3d', perspective: 800 }}
       >
-        <PlayerCard player={player} selected={isWinner} />
+        <PlayerCard player={player} selected={isWinner} size="reveal" />
       </motion.div>
 
       <motion.div
@@ -456,6 +484,16 @@ function RoundResultBadge({
       >
         {t('winner')}: {winnerLabel}
       </motion.div>
+      {log.bonusAwarded && (
+        <motion.div
+          initial={{ scale: 0.5, opacity: 0, y: -4 }}
+          animate={{ scale: 1, opacity: 1, y: 0 }}
+          transition={{ delay: 0.3, type: 'spring', stiffness: 320, damping: 14 }}
+          className="rounded-full bg-gradient-to-r from-accent-goldHi to-accent-gold px-3 py-0.5 text-xs font-black uppercase tracking-wider text-black shadow-glow-gold"
+        >
+          ⭐ Bonus Kategori — +2!
+        </motion.div>
+      )}
       {log.tiebreakerUsed && (
         <motion.div
           initial={{ opacity: 0 }}

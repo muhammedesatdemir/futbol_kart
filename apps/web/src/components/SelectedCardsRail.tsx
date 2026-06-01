@@ -10,6 +10,7 @@ interface SelectedCardsRailProps {
   total: number;
   onRemove: (id: string) => void;
   onClear: () => void;
+  onRandom: () => void;
   ctaLabel: string;
   onConfirm: () => void;
   heading: string;
@@ -21,6 +22,7 @@ export function SelectedCardsRail({
   total,
   onRemove,
   onClear,
+  onRandom,
   ctaLabel,
   onConfirm,
   heading,
@@ -59,6 +61,13 @@ export function SelectedCardsRail({
             >
               {selected.length}/{total}
             </span>
+            <button
+              type="button"
+              onClick={onRandom}
+              className="rounded-full px-2.5 py-1 text-xs font-semibold text-white/70 hover:bg-white/10 hover:text-white transition"
+            >
+              🎲 Rastgele
+            </button>
             {selected.length > 0 && (
               <button
                 type="button"

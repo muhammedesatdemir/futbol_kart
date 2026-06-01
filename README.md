@@ -2,7 +2,7 @@
 
 > Sürpriz sorularla futbolcu kartlarını karşılaştıran, hot-seat ve bota karşı oynanan bir dijital kart düellosu.
 
-İki oyuncu kör seçimle **8'er kart** seçer, moderatör **80 farklı şablondan** rastgele bir soru sorar (forma numarası toplamı, doğum yeri ekvatora yakınlığı, kariyer toplam golü, "yaşı 30'a daha yakın" gibi parametrik sorular vb.), oyuncular ellerinden birer kart sürer, istatistik karşılaştırılır, kazanan o turu alır. **7 tur**, eşitlikte uzatma (4 kart × 3 tur), eşitlik sürerse penaltı atışı (1 kart × 1 soru). Bir turda değerler eşitse (Evet-Evet, Hayır-Hayır, 25-25) tur **berabere** biter — hiçbir tarafa keyfî/rastgele puan verilmez; eşitlik yalnızca uzatma ve penaltı fazlarıyla kırılır.
+İki oyuncu kör seçimle **8'er kart** seçer, moderatör **106 farklı şablondan** rastgele bir soru sorar (forma numarası toplamı, doğum yeri ekvatora yakınlığı, kariyer toplam golü, "yaşı 30'a daha yakın" gibi parametrik sorular vb.), oyuncular ellerinden birer kart sürer, istatistik karşılaştırılır, kazanan o turu alır. **7 tur**, eşitlikte uzatma (4 kart × 3 tur), eşitlik sürerse penaltı atışı (1 kart × 1 soru). Bir turda değerler eşitse (Evet-Evet, Hayır-Hayır, 25-25) tur **berabere** biter — hiçbir tarafa keyfî/rastgele puan verilmez; eşitlik yalnızca uzatma ve penaltı fazlarıyla kırılır. Maç başında **3 zorunlu kategori** açılır; bu kategorilere atanan kartlar turunu kazanırsa **+2 puan** getirir (taktik katman).
 
 ---
 
@@ -12,10 +12,10 @@
 |---|---|
 | **Oyuncu** | 8,912 (Pelé'den Lamine Yamal'a, 107 yıllık tarih) |
 | **Kulüp** | 6,240 (47 manuel + 6,193 TM) |
-| **Soru şablonu** | 80 baz şablon (14 parametrik → ~700 benzersiz soru varyasyonu) |
+| **Soru şablonu** | 106 baz şablon (14 parametrik → ~740 benzersiz soru varyasyonu) |
 | **Türk oyuncu** | 727 (Süper Lig kulüpleri + Anadolu kulüpleri + manuel efsaneler) |
-| **Şablon sağlığı** | 80/80 şablon gerçek veri üzerinde denetlendi — 0 kırık ✅ |
-| **Kapışmalı oran** | Şablonların ~%86'sı karşılaştırmalı (max/min); Evet-Hayır soruları ~%14 azınlıkta |
+| **Şablon sağlığı** | 106/106 şablon gerçek veri üzerinde denetlendi — 0 kırık ✅ |
+| **Kapışmalı oran** | Şablonların ~%89'u karşılaştırmalı (max/min); Evet-Hayır soruları ~%10 azınlıkta |
 | **Doğruluk** | 10/10 ünlü oyuncu Wikipedia ile %100 uyumlu (milli takım istatistikleri) |
 | **Duplicate** | 0 (otomatik dedup + build-time validation) |
 
@@ -31,14 +31,16 @@ Detaylı veri raporu: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT
 
 #### Oyun motoru & UI
 - ✅ **Oyun motoru** — Saf TypeScript, event-sourced reducer, seedable PRNG. Hot-seat + vs-bot.
-- ✅ **80 soru şablonu** — 11 kategori (numeric, time, geo, club, position, name, fun, proximity, boolean, extreme, composite), 14'ü parametrik, Wikipedia ile doğrulu, tamamı gerçek veri üzerinde denetlendi. Şablonların ~%86'sı karşılaştırmalı (kapışmalı) — Evet/Hayır soruları bilinçli olarak azınlıkta tutuldu.
-- ✅ **Soru çözücü** — Şablon başına resolver + parametrik şablonlarda runtime değer üretimi + başlık interpolasyonu (`{targetApps}` → 500) + 39/39 Vitest testleri yeşil.
+- ✅ **106 soru şablonu** — 11 kategori (numeric, time, geo, club, position, name, fun, proximity, boolean, extreme, composite), 14'ü parametrik, Wikipedia ile doğrulu, tamamı gerçek veri üzerinde denetlendi. Şablonların ~%89'u karşılaştırmalı (kapışmalı) — Evet/Hayır soruları bilinçli olarak azınlıkta (~%10). **Turnuva/kupa/bireysel ödül verisiyle 26 yeni şablon** (UCL/UEL/lig/Dünya Kupası maç+gol+asist, toplam kupa, lig/yerel kupa/UCL şampiyonluğu, kaleci DK yediği gol, Ballon d'Or, gol krallığı, toplam bireysel ödül) eklendi.
+- ✅ **Soru çözücü** — Şablon başına resolver + parametrik şablonlarda runtime değer üretimi + başlık interpolasyonu (`{targetApps}` → 500) + 50/50 Vitest testleri yeşil.
 - ✅ **Adil beraberlik mantığı** — Değerler eşitse tur her zaman berabere; rastgele/keyfî kazanan asla belirlenmez. Eşitlik yalnızca uzatma → penaltı fazlarıyla kırılır.
 - ✅ **Çeşitlilik garantisi** — Soru seçici üst üste aynı kategoriden soru sormaz (havuz daralmadıkça); 7 turlu simülasyonda ardışık tekrar oranı %0.
+- ✅ **3 Zorunlu Kategori bonus mekaniği** — Ana maç başında (kart seçiminden sonra) 3 kategori-koşulu açılır; oyuncu 8 kartlık elinden 3'ünü bu koşullara atar. Bu kartlar turunu kazanırsa **+2 puan** (normal +1). Koşullar predicate motoruyla seçilir (33 koşul: pozisyon/milliyet/lig/kulüp/kupa/turnuva/istatistik), çatışma grubu farklı + her iki elde de **bipartite eşleştirmeyle fizibilite garantili** (deadlock imkansız). Round ekranında bonus kartlar "⭐ +2" rozeti + altın çerçeyle işaretlenir. Bot otomatik atar.
 - ✅ **Uzatma + sudden death** — Eşitlikte otomatik faz geçişi.
-- ✅ **Frontend** — Next.js 14 App Router, sahne shell (mode → pick → handoff → round → final), Framer Motion animasyonlar, Zustand + sessionStorage persist, next-intl (TR).
-- ✅ **Kart seçme ekranı v2** — Sticky üst panel + seçim chip'leri, ⌘K ile odaklı çoklu-alan arama (ad/ülke/lig/takım/forma), pozisyon + ülke + çağ filtreleri, kürasyonlu varsayılan havuz (16 efsane + 16 güncel), IntersectionObserver ile paged yükleme (ilk 32, sonra +32).
-- ✅ **Kart tasarımı** — FIFA UT tarzı edge-to-edge portre, foto %60 alan, agresif yüz crop (objectPosition + scale override sistemi), pozisyon bazlı renk teması (GK mor / DEF mavi / MID sarı / FWD kırmızı), holo conic gradient + shine band hover, 3D mouse tilt.
+- ✅ **Ses katmanı** — Kart flip, tur kazanma, beraberlik ve final fanfarı (native HTMLAudioElement, `useSfx`). `SoundToggle` ile aç/kapa; kapalıyken hiç indirme yapılmaz. Yeniden-oynamada tekrar-çalma bug'ı (prevScene guard) giderildi.
+- ✅ **Frontend** — Next.js 14 App Router, sahne shell (mode → pick → handoff → **bonus** → round → final), Framer Motion animasyonlar, Zustand + sessionStorage persist, next-intl (TR).
+- ✅ **Kart seçme ekranı v2** — Sticky üst panel + seçim chip'leri, **🎲 Rastgele** butonu (havuzdan rastgele 8 oyuncu), ⌘K ile odaklı çoklu-alan arama (ad/ülke/lig/takım/forma), pozisyon + ülke + çağ filtreleri, kürasyonlu varsayılan havuz (16 efsane + 16 güncel), IntersectionObserver ile paged yükleme (ilk 32, sonra +32).
+- ✅ **Kart tasarımı** — FIFA UT tarzı edge-to-edge portre, foto %60 alan, agresif yüz crop (objectPosition + scale override sistemi), pozisyon bazlı renk teması (GK mor / DEF mavi / MID sarı / FWD kırmızı), holo conic gradient + shine band hover, 3D mouse tilt. Boyut sistemi: `default` (responsive), `sm`/`md` (sabit, taşmasız — bonus/el), `reveal` (VS ekranı).
 - ✅ **Atmosfer cilası** — Saha temalı arka plan (PitchBackground), 6 sahne için AI üretimli WebP arka planlar, hero Ken Burns + altın partiküller, broadcast tarzı skorboard, sahne içi cross-fade.
 - ✅ **Final ekranı** — Gold/slate semantik, data-driven skor barı (kazanan baskın), count-up reveal, ŞAMPİYON başlığı, glass paneller transparan.
 - ✅ **Backend iskeleti** — Drizzle ORM + Neon Postgres + Better-Auth (magic-link) + Resend mail. API routes (`POST /api/games`, `GET /api/games/[shareId]`). Paylaşılabilir maç sayfası (`/mac/[shareId]`).
@@ -52,7 +54,7 @@ Detaylı veri raporu: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT
 - ✅ **Kalite filtreleri** — Pozisyon-aware (GK<80 maç, FWD<100 maç veya <20 gol vb.) + 5 istisna kuralı (TR vatandaşı, 50+ gol, 300+ maç, 10+ milli cap, 1M+ değer). 102 yetersiz veri kayıt çıkarıldı.
 - ✅ **Duplicate koruması** — Identity-bazlı + slug prefix dedup; build-time validation; merge'de built-in.
 - ✅ **Blocklist** — `seed/blocklist.json` ile 8 oyuncu (hukuki süreç) sistemden çıkarıldı.
-- ✅ **Şablon sağlık denetimi** — `audit:templates` scripti her şablonu gerçek veri üzerinde simüle eder; karşılaştırılamayan/imkansız/duplike şablonları yakalar (kırık şablon bulursa exit-code 1). Bu denetimle imkansız/duplike şablonlar temizlendi, nadir bool sorular karşılaştırmalıya çevrildi ve birbirinin neredeyse aynısı olan şablonlar (ör. "doğum yılı büyük" ≈ "daha genç", "hece sayısı" = "sesli harf sayısı") elendi. Sonuç: **121 → 80 şablon**, bool oranı %34'ten ~%14'e indi.
+- ✅ **Şablon sağlık denetimi** — `audit:templates` scripti her şablonu gerçek veri üzerinde simüle eder; karşılaştırılamayan/imkansız/duplike şablonları yakalar (kırık şablon bulursa exit-code 1). Bu denetimle imkansız/duplike şablonlar temizlendi, nadir bool sorular karşılaştırmalıya çevrildi ve birbirinin neredeyse aynısı olan şablonlar (ör. "doğum yılı büyük" ≈ "daha genç", "hece sayısı" = "sesli harf sayısı") elendi. Sonuç: 121 → 80 şablon, bool oranı %34'ten ~%14'e indi. Ardından turnuva/kupa/bireysel ödül verisiyle 26 yeni karşılaştırmalı şablon eklendi → **106 şablon**, bool ~%10.
 
 ### Tamamlanmamış
 
@@ -61,7 +63,6 @@ Detaylı veri raporu: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT
 - ⏳ **Gerçek oyuncu fotoğrafları** — %87 TM portresi mevcut, kalan oyuncularda monogram fallback.
 - ⏳ **Online multiplayer** — yol haritası dışı, hot-seat + bot ile sınırlı.
 - ⏳ **Lisans / KVKK metni** — yayın öncesi.
-- ⏳ **Ses katmanı** — kart flip, kalabalık, score hit (sonraki tur).
 - ⏳ **Eksik veri kapsama iyileştirmesi** — boy %86, ayak %82 (eski oyuncular). Wikipedia infobox veya manuel `corrections.csv` ile genişletilebilir.
 
 ---
@@ -93,16 +94,20 @@ futbol-kart/
 │       ├── src/
 │       │   ├── app/                      App Router (page, layout, api)
 │       │   ├── components/
-│       │   │   ├── PlayerCard.tsx        FIFA UT tarzı kart
+│       │   │   ├── PlayerCard.tsx        FIFA UT tarzı kart (default/sm/md/reveal boyut)
 │       │   │   ├── PlayerSearchBar.tsx   ⌘K odaklı arama
 │       │   │   ├── PlayerFilterChips.tsx Pozisyon/ülke/çağ filtreleri
-│       │   │   ├── SelectedCardsRail.tsx Sticky üst panel
-│       │   │   └── scenes/               6 sahne komponenti
+│       │   │   ├── SelectedCardsRail.tsx Sticky üst panel + 🎲 Rastgele
+│       │   │   ├── SoundToggle.tsx       Ses aç/kapa
+│       │   │   └── scenes/               sahne komponentleri (BonusAssignScene dahil)
 │       │   └── lib/
 │       │       ├── playerFilters.ts      Saf filtre/curate/arama fonksiyonları
 │       │       ├── playersClient.ts      Client-side fetch + cache
 │       │       ├── playerImageOverrides  Manuel crop sistem (scale + objectPosition)
-│       │       ├── sessionMachine.ts     Event-sourced state machine
+│       │       ├── sessionMachine.ts     Event-sourced state machine (BONUS_ASSIGN dahil)
+│       │       ├── bonusConditions.ts    Bonus koşul (predicate) kütüphanesi
+│       │       ├── bonusSelection.ts     3-koşul seçimi + bipartite fizibilite
+│       │       ├── useSfx.ts             SFX çalıcı (flip/win/tie/final)
 │       │       └── valueFormat.ts        Tur sonu Türkçe + birim
 │       ├── messages/tr.json              i18n metinleri
 │       └── public/
@@ -112,13 +117,13 @@ futbol-kart/
 │   ├── shared-types/                     Player, Club, GameState tipleri
 │   ├── game-engine/                      Saf TS reducer + PRNG + bot
 │   ├── question-templates/
-│   │   ├── templates.json                80 şablon
+│   │   ├── templates.json                106 şablon
 │   │   ├── src/
 │   │   │   ├── schema.ts                 Zod template + paramSpec
 │   │   │   ├── resolver.ts               Custom compute case + param üretimi + başlık interpolasyonu
 │   │   │   ├── util.ts                   Türkçe karakter, hece, palindrom, ...
 │   │   │   ├── geo.ts                    Haversine, kapital şehirler
-│   │   │   └── resolver.test.ts          39/39 Vitest (regression dahil)
+│   │   │   └── resolver.test.ts          50/50 Vitest (regression dahil)
 │   │   └── package.json
 │   └── db/                               Drizzle schema + Neon client
 ├── data-pipeline/
@@ -268,7 +273,7 @@ pnpm --filter @futbol-kart/web start                 # Production preview
 
 # Kalite
 pnpm -r typecheck                                    # Tüm paketlerde tsc --noEmit
-pnpm --filter @futbol-kart/question-templates test   # 39/39 Vitest
+pnpm --filter @futbol-kart/question-templates test   # 50/50 Vitest
 
 # DB
 pnpm --filter @futbol-kart/db generate               # Drizzle migration SQL
@@ -296,12 +301,12 @@ node scripts/optimize-hero-images.mjs                # public/hero/*.png → *.w
 
 ## Soru Şablon Sistemi
 
-80 baz şablon, 11 kategoride:
+106 baz şablon, 11 kategoride:
 
 | Kategori | Şablon | Örnek |
 |---|---|---|
-| **numeric** | 16 | "Toplam gol sayısı daha fazla olan kazanır." |
-| **proximity** | 11 | "Yaşı 30'a daha yakın olan kazanır." (parametrik 22-40) |
+| **numeric** | 38 | "Şampiyonlar Ligi'nde daha fazla gol/asist yapan kazanır." / "Daha fazla takım kupası kazanan kazanır." |
+| **proximity** | 15 | "Toplam kupa sayısı hedef değere daha yakın olan kazanır." (parametrik) |
 | **geo** | 10 | "Doğum yeri İstanbul'a daha yakın olan kazanır." |
 | **time** | 9 | "Daha küçük yaşta debüt yapmış olan kazanır." |
 | **composite** | 8 | "Maç başına gol ortalaması daha yüksek olan kazanır." |
@@ -312,7 +317,13 @@ node scripts/optimize-hero-images.mjs                # public/hero/*.png → *.w
 | **extreme** | 2 | "Aktif oyuncular arasında piyasa değeri daha yüksek olan kazanır." |
 | **fun** | 1 | "Forma numaralarından en az biri asal sayı olan kazanır." |
 
-**Kapışmalı tasarım:** Şablonların **~%86'sı karşılaştırmalı** (max/min — "hangisi daha çok/az/yakın"). Evet/Hayır (bool) şablonları toplamın yalnızca **~%14'ü** (11 şablon, bunların 4'ü doğum kıtası); iki tarafın da aynı cevabı verip turu sürekli berabere bırakmasını önlemek için bilinçli olarak azınlıkta tutuldu.
+**Turnuva/kupa/bireysel şablonları (26 yeni, `w*`/`x*`):** UCL/UEL/lig/Dünya Kupası maç + gol + asist,
+toplam kupa, lig/yerel kupa/UCL şampiyonluğu, kalecinin Dünya Kupası'nda yediği gol (az kazanır),
+Ballon d'Or sayısı, gol krallığı sayısı, toplam bireysel ödül — hepsi karşılaştırmalı veya hedef-değer.
+Yalnızca ilgili veriye sahip oyuncular havuza girer (`requiresFields` `+` soneki ile `>0` şartı). Az çeşitli
+prestij şablonları (Ballon d'Or, UCL kupası) bilinçli olarak nadir sorulur (arada çıkar, berabere kalabilir).
+
+**Kapışmalı tasarım:** Şablonların **~%89'u karşılaştırmalı** (max/min — "hangisi daha çok/az/yakın"). Evet/Hayır (bool) şablonları toplamın yalnızca **~%10'u** (11 şablon, bunların 4'ü doğum kıtası); iki tarafın da aynı cevabı verip turu sürekli berabere bırakmasını önlemek için bilinçli olarak azınlıkta tutuldu.
 
 **Parametrik şablonlar** (14 adet): Runtime'de değer değişir. Örn. `x01_age_proximity` her oyunda 22–40 arası rastgele bir hedef yaş seçer; soru başlığındaki `{targetAge}` gibi placeholder'lar seçilen değerle doldurulur. Toplam **~700 benzersiz soru varyasyonu** üretilir.
 
@@ -322,7 +333,7 @@ node scripts/optimize-hero-images.mjs                # public/hero/*.png → *.w
 - `minPoolCoverage` ile havuz alt sınırı esnek
 - Parametrik şablonlarda hedef değer seed'e bağlı deterministik üretilir ve hem hesaplamada hem soru başlığında kullanılır
 - Soru seçici üst üste aynı kategoriden soru sormaz (havuz daralmadıkça) — kategori çeşitliliği garanti
-- Tüm şablonlar `audit:templates` ile gerçek veri üzerinde denetlendi — karşılaştırılamayan/imkansız/duplike şablonlar temizlendi → 80/80 sağlıklı ✅
+- Tüm şablonlar `audit:templates` ile gerçek veri üzerinde denetlendi — karşılaştırılamayan/imkansız/duplike şablonlar temizlendi → 106/106 sağlıklı ✅
 
 ---
 
@@ -385,15 +396,16 @@ node scripts/optimize-hero-images.mjs                # public/hero/*.png → *.w
    - Varsayılan: 16 efsane + 16 güncel kürasyonlu görünüm
    - ⌘K ile arama (ad/ülke/lig/takım/forma)
    - Pozisyon (FW/MID/DEF/GK), ülke, çağ (aktif/modern/efsane) filtreleri
-   - 8 kart seç → "Maçı Başlat"
-5. **7 tur oyna**:
+   - 8 kart seç (veya 🎲 Rastgele) → "Maçı Başlat"
+5. **Bonus tur (ana maç)** → 3 kategori-koşulu açılır; elinden 3 kart ata (her biri turunu kazanırsa +2)
+6. **7 tur oyna**:
    - Round intro stinger (~750ms)
-   - Soru reveal — 80 şablondan rastgele (ardışık aynı kategori gelmez), parametrik ise runtime değer atanıp başlığa işlenir
-   - P1 kart oyna → (vs-bot: bot ~600ms düşünür) → P2 kart oyna
-   - 3D flip + count-up + winner badge (~1450ms)
-6. **Eşitlikte uzatma** (4 kart × 3 tur), eşitlik sürerse **penaltı** (1 kart × 1 soru)
-7. **Final ekranı** — ŞAMPİYON başlığı, gold/slate skor barı, "Tur detaylarını göster" collapsible
-8. **Maçı paylaş** (DB bağlıysa) → `/mac/<shareId>` linkini paylaş
+   - Soru reveal — 106 şablondan rastgele (ardışık aynı kategori gelmez), parametrik ise runtime değer atanıp başlığa işlenir
+   - P1 kart oyna → (vs-bot: bot ~600ms düşünür) → P2 kart oyna; bonus kartlar "⭐ +2" rozetli
+   - 3D flip + count-up + winner badge (~1450ms) + ses (flip/win/tie)
+7. **Eşitlikte uzatma** (4 kart × 3 tur), eşitlik sürerse **penaltı** (1 kart × 1 soru)
+8. **Final ekranı** — ŞAMPİYON başlığı + fanfar, gold/slate skor barı, "Tur detaylarını göster" collapsible
+9. **Maçı paylaş** (DB bağlıysa) → `/mac/<shareId>` linkini paylaş
 
 ---
 
@@ -426,38 +438,14 @@ Mevcut **VS Karşılaştırma** modu (oyuncu kartlarının istatistik düellosu)
 Aynı veri katmanı + kart sistemi üzerine oturan **ek oyun modları** planlanıyor. Her biri
 bağımsız bir mod; ileride bir "karma" mod altında birleştirilebilir.
 
-### ⭐ Öncelik #1 — "3 Zorunlu Kategori" bonus mekaniği (kart VS)
+### ✅ Tamamlandı — "3 Zorunlu Kategori" bonus mekaniği (kart VS)
 
-VS modunu hareketlendiren taktik katman. **Kart seçiminden sonra, VS'e geçmeden önce**
-3 kategori-koşulu açıklanır; oyuncu 8 kartlık elinden **3'ünü** bu koşullara birebir atar.
-Bu kartlar turunu kazanırsa **+2 puan** (normal turlar +1). Rekabeti ve "doğru kartı doğru
-koşula sakla" stratejisini artırır.
+> Bu özellik artık **canlı** (bkz. Tamamlananlar). Ana maç başında 3 kategori-koşulu açılır,
+> oyuncu elinden 3 kart atar, o kartlar turunu kazanırsa +2 puan. Predicate motoru
+> (`bonusConditions.ts`/`bonusSelection.ts`), `BONUS_ASSIGN` sahnesi ve bipartite fizibilite
+> garantisi implement edildi; round ekranında "⭐ +2" rozetiyle işaretlenir.
 
-**Mimari (predicate sistemi):** Her koşul bir `CategoryCondition` = `{ id, başlık, predicate(player), çatışmaGrubu }`.
-Predicate'ler mevcut iki altyapının birleşimi: `playerFilters.applyFilters` (pozisyon/ülke/lig/kulüp/aktiflik)
-+ bool şablon mantığı (`resolver.ts`). Yani **yeni bir motor değil, var olanın yeniden kullanımı.**
-
-**Koşul kapsamı (A + B):**
-- 🟢 **A — şimdi yapılabilir:** milliyet+pozisyon ("Fransız defans"), belirli ligde oynadı
-  ("Süper Lig'de oynamış"), belirli kulüpte oynadı ("Göztepe'de"), aktif/emekli/çağ, istatistik
-  eşiği ("100+ gol"), doğum kıtası. *(Veri doğrulandı: 219 TR defans, 112 FR defans, Göztepe mevcut.)*
-- 🟡 **B — honours verisi gelince:** "2+ ŞL kazanmış" (`trophies.uclTitles>=2`), "Dünya Kupası
-  kazanmış", "yerel kupa kazanmış". **Bireysel ödüller** de çekiliyor (`trophies.individual`:
-  Ballon d'Or, FIFA Best, Altın Ayakkabı, gol krallığı, yılın oyuncusu) — takım kupa toplamına
-  dahil değil ama ayrı sorular için ("daha çok Ballon d'Or kazanan", "gol kralı olmuş mu").
-- 🔴 **C — kapsam dışı (granüler):** "ŞL finalinde kaybetmiş" (honours sadece kazanılanı tutar),
-  lig-spesifik şampiyonluk ("Serie A kazanmış"), "milli takımda 10 numara giymiş", "stoper" (yalnızca
-  4-grup pozisyon var: GK/DEF/MID/FWD — bek/stoper ayrımı yok).
-
-**İki kritik mühendislik kuralı:**
-1. **Tekrar yok + her zaman çözülebilir:** Seçilen 3 koşul farklı "çatışma grubu"ndan olur (iki milliyet
-   koşulu yan yana gelmez). Seçimden sonra **bipartite eşleştirme** ile 3 koşulun oyuncunun havuzunda
-   3 *farklı* kartla aynı anda karşılanabildiği doğrulanır; karşılanamıyorsa koşul seti yeniden çekilir.
-2. **Koşul tamamlanmadan VS yok:** Akışa yeni sahne — `CARD_PICK → [BONUS_ASSIGN] → HANDOFF → ROUND`.
-   3 slot da geçerli kartla dolmadan "Devam" kilitli; doğrulama hem UI'da (buton disabled) hem
-   reducer'da (state guard — kart predicate'i gerçekten sağlıyor mu) yapılır. Bot için otomatik eşleştirme.
-
-**Diğer modlara uyarlama (aynı omurga, öncelik sonrası):** Kadro Kur'da her oyunda rastgele bir
+**Diğer modlara uyarlama (aynı bonus omurgası, gelecek):** Kadro Kur'da her oyunda rastgele bir
 "bonus mevki" (o mevkide kazanan +2); Liste Doldur'da rastgele bir "bonus sıra" (örn. 5.–7., doğru
 bilen +2).
 
@@ -493,9 +481,9 @@ bilen +2).
 
 | Veri | Kaynak | Yöntem | Script | Durum |
 |---|---|---|---|---|
-| **Kupa + bireysel ödül sayıları** (UCL/UEL/lig/kupa/Dünya Kupası + Ballon d'Or/gol krallığı/yılın oyuncusu) | TM "Erfolge" (başarılar) sayfası | yeni scrape (~5 saat, rate-limit'li) | `scrape:honours` | 🔄 çalışıyor (parser Messi/CR7'de doğrulandı) |
-| **Turnuva maç/gol** (UCL/UEL/Dünya Kupası/lig/kupa maç+gol) | cache'lenmiş `performance-game` | **reprocess (scrape YOK)** | `reprocess:competitions` | ✍️ yazıldı, Messi'de doğrulandı |
-| **Sıralı listeler** (lig/turnuva all-time + ödül arşivi) | TM `ewige*` + ödül sayfaları | yeni scrape | `scrape:lists` | ✍️ yazıldı (ödül arşivi sonraki tur) |
+| **Kupa + bireysel ödül sayıları** (UCL/UEL/lig/kupa/Dünya Kupası + Ballon d'Or/gol krallığı/yılın oyuncusu) | TM "Erfolge" (başarılar) sayfası | scrape (~5 saat, rate-limit'li) | `scrape:honours` | ✅ çekildi (9029 oyuncu) → kart VS'e 16 şablon |
+| **Turnuva maç/gol/asist** (UCL/UEL/Dünya Kupası/lig/kupa) | cache'lenmiş `performance-game` | **reprocess (scrape YOK)** | `reprocess:competitions` | ✅ işlendi → kart VS'e 10 şablon |
+| **Sıralı listeler** (lig/turnuva all-time + ödül arşivi) | TM `ewige*` + ödül sayfaları | yeni scrape | `scrape:lists` | ✅ 6 lig gol kralı (ödül arşivi sonraki tur) |
 
 > **Tetikleme sırası (veri toplama günü):** `scrape:honours` → `reprocess:competitions` →
 > `scrape:lists` → ardından `merge.ts` bu verileri `players.json` / `lists.json`'a katar →
@@ -513,6 +501,20 @@ Aşağıdaki örnek sorular **oyuncu-bazlı TM verisinde yok**; ayrı ve maliyet
 - "En çok rakip olduğu oyuncuyla **son maçta** attığı gol" → maç-bazlı H2H
 - "Son takımın **güncel yaş ortalaması**" → takım kadrosu yaşları
 - "Son ligde **kiralık** forma giyen oyuncu sayısı" → transfer/kadro durumu
+
+### 🧩 Kart VS'e uymayan ama diğer modlar için değerli veriler
+
+Aşağıdaki istatistikler **oyuncu-bazlı kart düellosuna uymaz** (aynı kulüp/milliyetten iki oyuncu hep
+aynı değeri alır → kapışma olmaz). Ama "Kadro Kur" / "Liste Doldur" / bonus modları için anlamlı —
+küçük bir **manuel sabit-veri tablosu** ile ileride eklenebilir:
+
+- **Oyuncunun (son) kulübünün toplam kazandığı Ballon d'Or sayısı** — kulüp-bazlı türetme (o kulüpte
+  oynarken ödül alan oyuncu sayısı); oyuncu verisinde yok, çapraz toplama gerekir.
+- **Milliyetin Dünya Kupası şampiyonluğu** (Brezilya 5, İtalya/Almanya 4 …) — ülke sabiti, ~10 ülke manuel.
+- **Milliyetin kıta turnuvası şampiyonluğu** (Arjantin Copa América, Fransa EURO …) — ülke sabiti, ~15 ülke manuel.
+
+> Not: Bireysel ödül verisi (Ballon d'Or, gol krallığı, yılın oyuncusu) zaten çekildi ve **oyuncu-bazlı**
+> olduğu için kart VS'e eklendi (`w20`–`w22`). Yukarıdakiler **kulüp/ülke-bazlı toplama** olduğundan ayrı tutulur.
 
 ---
 

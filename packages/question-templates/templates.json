@@ -341,7 +341,7 @@
     "formula": { "tr": "Doğum tarihi daha eski olan kazanır." },
     "field": "birthDate",
     "compute": "custom",
-    "compareOp": "max",
+    "compareOp": "min",
     "tiebreakers": [],
     "requiresFields": ["birthDate"],
     "tags": ["age"]

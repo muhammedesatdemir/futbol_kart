@@ -205,6 +205,17 @@ describe('resolveRound', () => {
     expect(r.winner).toBe('P1');
   });
 
+  it('t02_older: Ronaldinho (1980) yaşlı → kazanır; değer pozitif epoch ms', () => {
+    const t = templateById('t02_older')!;
+    expect(t.compareOp).toBe('min'); // eski tarih = küçük ms = min kazanır
+    const r = resolveRound(t, fixtureMessi, fixtureRonaldinho, fixtureContext);
+    // Ronaldinho (P2) daha yaşlı → kazanmalı
+    expect(r.winner).toBe('P2');
+    // Değer pozitif olmalı (negatif epoch format'ı bozuyordu)
+    expect(typeof r.p1Value === 'number' && r.p1Value > 0).toBe(true);
+    expect(typeof r.p2Value === 'number' && r.p2Value > 0).toBe(true);
+  });
+
   it('p04_is_goalkeeper: ikisi de kaleci değil → gerçek beraberlik, kazanan yok', () => {
     const t = templateById('p04_is_goalkeeper')!;
     const r = resolveRound(t, fixtureMessi, fixtureCR7, fixtureContext);

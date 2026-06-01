@@ -218,7 +218,10 @@ function computeCustom(
     case 't01_younger':
       return player.birthDate ? new Date(player.birthDate).getTime() : null;
     case 't02_older':
-      return player.birthDate ? -new Date(player.birthDate).getTime() : null;
+      // Pozitif birthDate ms — daha eski (yaşlı) = daha küçük ms = compareOp:min kazanır.
+      // (Negatif ms döndürmek format'ı bozuyordu: ageFromBirthMs negatif epoch'ta
+      //  1970 öncesi tarih üretip saçma yaş gösteriyordu.)
+      return player.birthDate ? new Date(player.birthDate).getTime() : null;
     case 't06_earlier_debut': return player.stats.proDebutYear ?? null;
     case 't07_debut_age_young': return computeDebutAge(player);
     case 't08_decade_spread': return decadeSpread(player);

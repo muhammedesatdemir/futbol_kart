@@ -9,6 +9,7 @@ import { Scoreboard } from '@/components/Scoreboard';
 import { HomeIcon, SwapIcon } from '@/components/icons';
 import { cn } from '@/lib/cn';
 import { SceneShell } from '@/components/scenes/SceneShell';
+import { GameModeSelectScene, type PlayableMode } from '@/components/scenes/GameModeSelectScene';
 import { ModeSelectScene } from '@/components/scenes/ModeSelectScene';
 import { CardPickScene } from '@/components/scenes/CardPickScene';
 import { HandoffScene } from '@/components/scenes/HandoffScene';
@@ -127,6 +128,22 @@ export default function GameSessionPage() {
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.scene]);
+
+  // Oyun-modu kapısı: VS state machine'e dokunmadan, MODE_SELECT sahnesinin
+  // ÜSTÜNDE bir katman. 'vs' seçilene dek state machine ilerlemez; 'squad'
+  // seçilince /kadro'ya yönlenir.
+  const [pickedMode, setPickedMode] = useState<PlayableMode | null>(null);
+
+  const onGameModePick = useCallback(
+    (mode: PlayableMode) => {
+      if (mode === 'squad') {
+        router.push(`/kadro/${params.gameId}`);
+        return;
+      }
+      setPickedMode('vs');
+    },
+    [router, params.gameId],
+  );
 
   const onModeChosen = useCallback(
     (mode: GameMode) => dispatch({ type: 'MODE_CHOSEN', mode }),
@@ -780,7 +797,13 @@ export default function GameSessionPage() {
       </AnimatePresence>
 
       <AnimatePresence mode="wait">
-        {state.scene === 'MODE_SELECT' && (
+        {state.scene === 'MODE_SELECT' && pickedMode === null && (
+          <SceneShell sceneKey="gamemode" key="gamemode">
+            <GameModeSelectScene onPick={onGameModePick} />
+          </SceneShell>
+        )}
+
+        {state.scene === 'MODE_SELECT' && pickedMode === 'vs' && (
           <SceneShell sceneKey="mode" key="mode">
             <ModeSelectScene onPick={onModeChosen} />
           </SceneShell>

@@ -483,27 +483,42 @@ bilen +2).
 > "En X kadroyu kur": en uzun / en yaşlı / en genç / en golcü / en değerli / en kupalı kadro.
 - Oyuncular bir formasyon (KL-DEF-ORT-FOR) için **pozisyon bazlı** kart seçer; sistem seçilen
   istatistiği toplar, iki taraf karşılaştırılır.
-- **Challenge varyantı:** her tur bir kısıt — "sadece Süper Lig", "sadece Brezilyalı",
-  "sadece bir kulüpten" — daha rekabetçi bir his verir.
-- **Veri:** ✅ Tamamı mevcut (`heightCm`, `birthDate`, `totalGoals`, `maxTransferFeeEUR`,
-  `position`, `clubs[]`, `nationalityCode`). Kupa kriteri için honours verisi gerekir (aşağıda).
-- **Durum:** Mevcut `playerFilters.ts` (pozisyon/ülke/lig filtreleri) bu modun temelini zaten içeriyor.
+- **Challenge varyantı:** her tur bir kısıt — "sadece Brezilyalı", "sadece bir kulüpten",
+  "sadece aktif oyuncu" — daha rekabetçi bir his verir.
+- **Veri:** ✅ Tamamı mevcut. Havuz pozisyon başına fazlasıyla yeterli (GK 396 / DEF 1.595 /
+  MID 2.534 / FWD 4.387). Kriter alanları: `heightCm` %86, `birthDate` %100, `stats.totalGoals`
+  %96, `maxTransferFeeEUR` %80, `careerYears`/`totalApps` %100, kupa için `trophies.totalTitles`
+  %81. Milliyet kısıtı için **46 milliyet ≥40 oyuncuya** sahip.
+- **Lig kısıtı uyarısı:** `clubs.json`'da **lig (league) alanı yok** — yalnızca `country`/`city`/
+  `continent` var. "Sadece Süper Lig" gibi lig-spesifik kısıt için club→country eşlemesi pratik
+  karşılığı verir (İngiltere'de oynamış 2.002, Türkiye 1.726, İspanya 1.677 oyuncu); birebir lig
+  ayrımı küçük bir manuel `clubId→league` tablosu ister (TODO).
+- **Durum:** `playerFilters.ts` (pozisyon/ülke/çağ filtreleri) bu modun temelini içeriyor.
 
-#### 🟡 Mod 2 — Hedefe Yaklaş
+#### 🟢 Mod 2 — Hedefe Yaklaş (ek veri gerektirmez)
 > "5 futbolcuyla toplamı hedefe en çok yaklaştır": 70 Dünya Kupası maçı, 750 Süper Lig maçı,
 > 500 Şampiyonlar Ligi maçı, 150 milli maç vb.
-- **Veri:** Genel metrikler (toplam maç/gol/asist, milli maç) ✅ bugün mevcut. Turnuva-bazlı
-  metrikler (ŞL maçı, Dünya Kupası maçı, lig maçı) **cache'lenmiş maç-maç verisinden türetilir** —
-  yeni scrape gerekmez (bkz. `reprocess:competitions`). Messi'de doğrulandı: UCL 163 maç/129 gol,
-  Dünya Kupası 26 maç/13 gol — Wikipedia ile birebir.
+- **Veri:** ✅ Tümü bugün `players.json`'da mevcut — turnuva metrikleri zaten `reprocess:competitions`
+  ile işlendi ve `stats.competitions`'a yazıldı (yeniden scrape/reprocess gerekmez). Doluluk:
+  `leagueApps` %98.7, `domesticCupApps` %98.1, `uelApps` %68, `uclApps` %41, `worldCupApps` %23,
+  `nationalCaps` %84. Messi'de doğrulandı: UCL 163 maç/129 gol, Dünya Kupası 26 maç/13 gol —
+  Wikipedia ile birebir. (Dar havuzlu metrikler — `worldCupGoals` %7.6, `nationalGoals` %57 —
+  yalnızca o veriye sahip oyuncularla oynanır.)
 
 #### 🟡 Mod 3 — Liste Doldur
 > Sıralı bir listeyi 1→10 tahmin et; üst sıralar (10. sıra = 10 puan) daha değerli.
 > "Süper Lig'de en çok maça çıkan kaleciler", "Premier Lig'de en çok asist", "Dünya Kupası gol kralları",
 > "2017 Ballon d'Or sıralaması".
-- **Veri:** Lig/turnuva all-time listeleri TM'nin hazır `ewige*` sayfalarından çekilebilir
-  (`scrape:lists`) — `leagueScorers.ts` ile aynı kalıp. **Ballon d'Or / yıl bazlı ödül arşivleri**
-  farklı sayfa yapısında; ayrı bir parser veya manuel JSON gerektirir (TODO).
+- **Veri (bugün):** `data-pipeline/cache/lists.json`'da **6 hazır all-time gol kralı listesi**
+  var (Süper Lig + 5 büyük lig, 10'ar kişi). Bunlar henüz build ile `public/data`'ya taşınmadı
+  (`merge`/`build` adımı + bir `lists.json` çıktısı gerekir).
+- **Veri (türetilebilir, scrape'siz):** Mevcut `players.json`'dan **herhangi bir sayısal alan +
+  filtre** ile top-10 liste üretilebilir (örn. "kaleciler arasında en çok maç", "Türk oyuncularda
+  en çok milli maç", "Brezilyalılarda en çok gol") — ~14 sıralanabilir metrik × kürasyonlu filtre
+  ile **~80 sağlam liste** çıkar; ek scrape gerekmez.
+- **Veri (ek scrape):** Lig/turnuva all-time listeleri TM'nin hazır `ewige*` sayfalarından
+  genişletilebilir (`scrape:lists`). **Ballon d'Or / yıl bazlı ödül arşivleri** farklı sayfa
+  yapısında; ayrı parser veya manuel JSON gerektirir (TODO).
 
 ### Veri stratejisi (modları besleyen kaynaklar)
 

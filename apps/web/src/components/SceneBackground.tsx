@@ -18,12 +18,17 @@ import type { GamePhase, Scene } from '@/lib/sessionMachine';
  * negatif z-index body'nin arkasına düşüp görünmez kalır.
  */
 
-interface SceneBackgroundProps {
-  scene: Scene;
-  phase: GamePhase;
-}
+export type BgKey = 'mode' | 'pick' | 'handoff' | 'round' | 'final';
 
-type BgKey = 'mode' | 'pick' | 'handoff' | 'round' | 'final';
+interface SceneBackgroundProps {
+  scene?: Scene;
+  phase?: GamePhase;
+  /**
+   * VS sahne enum'u dışında bir mod (örn. Kadro Kur) doğrudan bir arka plan
+   * anahtarı verebilir. Verilirse scene/phase yok sayılır.
+   */
+  bgKey?: BgKey;
+}
 
 const SCENE_TO_BG: Record<Scene, BgKey> = {
   MODE_SELECT: 'mode',
@@ -57,8 +62,8 @@ const BG_POSITION: Record<BgKey, string> = {
   final: 'center',
 };
 
-export function SceneBackground({ scene, phase }: SceneBackgroundProps) {
-  const bgKey = SCENE_TO_BG[scene];
+export function SceneBackground({ scene, phase, bgKey: bgKeyOverride }: SceneBackgroundProps) {
+  const bgKey: BgKey = bgKeyOverride ?? (scene ? SCENE_TO_BG[scene] : 'mode');
   const isFinal = bgKey === 'final';
 
   // Round sahnesinde overlay biraz daha koyu (metin/sayı okunaklığı için).

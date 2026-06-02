@@ -1,12 +1,13 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams } from 'next/navigation';
 import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { HomeIcon } from '@/components/icons';
 import { SceneShell } from '@/components/scenes/SceneShell';
-import { OpponentSelectScene } from '@/components/scenes/OpponentSelectScene';
+import { SceneBackground } from '@/components/SceneBackground';
+import { OpponentSelectScene, type Opponent } from '@/components/scenes/OpponentSelectScene';
 import { SquadCriterionSelectScene } from '@/components/scenes/SquadCriterionSelectScene';
 import { SquadBuildScene } from '@/components/scenes/SquadBuildScene';
 import { SquadResultScene } from '@/components/scenes/SquadResultScene';
@@ -35,7 +36,6 @@ type Phase = 'opponent' | 'select' | 'build' | 'result';
  */
 export default function SquadGamePage() {
   const params = useParams<{ gameId: string }>();
-  const router = useRouter();
   const session = useGameSession();
 
   const formation = FORMATION_6;
@@ -46,7 +46,10 @@ export default function SquadGamePage() {
   }, [session.players]);
 
   const [phase, setPhase] = useState<Phase>('opponent');
+  const [opponent, setOpponent] = useState<Opponent>('vs-bot');
   const [criterion, setCriterion] = useState<SquadCriterion>(CRITERION_TALLEST);
+  // Havuz karıştırma seed'i — her oyun/yeniden-oyna farklı rastgele sıra.
+  const [shuffleSeed, setShuffleSeed] = useState(1);
   const [p1Assignment, setP1Assignment] = useState<SquadAssignment>(() =>
     emptyAssignment(formation),
   );
@@ -54,16 +57,36 @@ export default function SquadGamePage() {
     emptyAssignment(formation),
   );
 
+  // Rakip seçildi. Bota karşı → kriteri OYUNCU seçer (select fazı). Arkadaşa
+  // karşı → kriter GİZLİ/RASTGELE (iki taraf da seçemez, adalet); doğrudan
+  // build'e geçilir (madde 1).
+  const onPickOpponent = useCallback(
+    (opp: Opponent) => {
+      setOpponent(opp);
+      if (opp === 'hotseat') {
+        const prng = createPRNG(`${params.gameId}-crit-${Date.now()}`);
+        setCriterion(SQUAD_CRITERIA[Math.floor(prng.next() * SQUAD_CRITERIA.length)]);
+        setShuffleSeed(Math.floor(prng.next() * 1e9));
+        setPhase('build');
+      } else {
+        setPhase('select');
+      }
+    },
+    [params.gameId],
+  );
+
   const onPickCriterion = useCallback((criterionId: string) => {
     const c = criterionById(criterionId);
     if (c) setCriterion(c);
+    setShuffleSeed(Math.floor(Math.random() * 1e9));
     setPhase('build');
   }, []);
 
   const onRandomCriterion = useCallback(() => {
-    const prng = createPRNG(`${params.gameId}-crit`);
+    const prng = createPRNG(`${params.gameId}-crit-${Date.now()}`);
     const idx = Math.floor(prng.next() * SQUAD_CRITERIA.length);
     setCriterion(SQUAD_CRITERIA[idx]);
+    setShuffleSeed(Math.floor(prng.next() * 1e9));
     setPhase('build');
   }, [params.gameId]);
 
@@ -98,13 +121,21 @@ export default function SquadGamePage() {
     setPhase('result');
   }, [params.gameId, p1Assignment, formation, criterion, session.players]);
 
-  // Yeniden oyna: rakip aynı kalır (tekrar sorulmaz), kriter seçimine dön +
-  // kadroları sıfırla. Aynı sayfada — yeni route gerekmez.
+  // Yeniden oyna: rakip aynı kalır. Bota karşı → kriter seçimine dön; arkadaşa
+  // karşı → yeni rastgele kriterle doğrudan build. Kadrolar + havuz sırası sıfırlanır.
   const onRematch = useCallback(() => {
     setP1Assignment(emptyAssignment(formation));
     setP2Assignment(emptyAssignment(formation));
-    setPhase('select');
-  }, [formation]);
+    if (opponent === 'hotseat') {
+      const prng = createPRNG(`${params.gameId}-crit-${Date.now()}`);
+      setCriterion(SQUAD_CRITERIA[Math.floor(prng.next() * SQUAD_CRITERIA.length)]);
+      setShuffleSeed(Math.floor(prng.next() * 1e9));
+      setPhase('build');
+    } else {
+      setShuffleSeed(Math.floor(Math.random() * 1e9));
+      setPhase('select');
+    }
+  }, [formation, opponent, params.gameId]);
 
   const winner = useMemo(() => {
     if (phase !== 'result') return 'tie' as const;
@@ -121,8 +152,21 @@ export default function SquadGamePage() {
     [p2Assignment],
   );
 
+  // Faza göre kart-kapışma arka planı (madde 8): rakip/kriter = mode/pick havası,
+  // build = pick, result = final (kazanma atmosferi).
+  const bgKey =
+    phase === 'opponent'
+      ? 'mode'
+      : phase === 'select'
+        ? 'handoff'
+        : phase === 'build'
+          ? 'pick'
+          : 'final';
+
   return (
-    <main className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 py-6 sm:px-8 sm:py-10">
+    <>
+      <SceneBackground bgKey={bgKey} />
+      <main className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 py-6 sm:px-8 sm:py-10">
       <header className="flex flex-wrap items-center justify-between gap-3">
         <Link href="/" className="btn-ghost">
           <HomeIcon size={16} />
@@ -130,7 +174,7 @@ export default function SquadGamePage() {
         </Link>
         <div className="flex items-center gap-2">
           <span className="rounded-full border border-accent-gold/40 bg-accent-gold/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent-goldHi">
-            Kadro Kur · Bota karşı
+            Kadro Kur · {opponent === 'hotseat' ? 'Arkadaşa karşı' : 'Bota karşı'}
           </span>
           <SoundToggle />
           <UserMenu />
@@ -143,7 +187,7 @@ export default function SquadGamePage() {
             <OpponentSelectScene
               modeName="Kadro Kur"
               available={{ hotseat: false, vsBot: true }}
-              onPick={() => setPhase('select')}
+              onPick={onPickOpponent}
             />
           </SceneShell>
         )}
@@ -165,6 +209,7 @@ export default function SquadGamePage() {
               pool={session.players}
               assignment={p1Assignment}
               excludeIds={usedByBotOrP1}
+              shuffleSeed={shuffleSeed}
               onAssign={onAssign}
               onSubmit={onSubmit}
             />
@@ -187,6 +232,7 @@ export default function SquadGamePage() {
           </SceneShell>
         )}
       </AnimatePresence>
-    </main>
+      </main>
+    </>
   );
 }

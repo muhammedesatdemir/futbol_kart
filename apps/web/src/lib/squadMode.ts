@@ -60,6 +60,12 @@ export interface SquadCriterion {
   direction: 'max' | 'min';
   /** Oyuncudan değeri çıkar (eksik veri → null → o slot 0 sayılır + uyarı). */
   metric: SquadMetric;
+  /**
+   * Opsiyonel havuz kısıtı — yalnızca bu koşulu sağlayan oyuncular seçilebilir.
+   * Örn. yaş kriterlerinde "aktif futbolcu" (ölmüş/emekli efsaneler havuz dışı).
+   * Tanımsızsa tüm tarihi havuz kullanılır.
+   */
+  poolFilter?: (p: Player) => boolean;
 }
 
 /** heightCm değeri (yoksa null). En uzun/en kısa kadro paylaşır. */
@@ -107,8 +113,9 @@ export const CRITERION_TALLEST: SquadCriterion = {
 export const SQUAD_CRITERIA: SquadCriterion[] = [
   CRITERION_TALLEST,
   { id: 'sq_shortest', title: 'En kısa kadroyu kur', unit: 'cm', direction: 'min', metric: heightMetric },
-  { id: 'sq_oldest', title: 'En yaşlı kadroyu kur', unit: 'yaş', direction: 'max', metric: ageMetric },
-  { id: 'sq_youngest', title: 'En genç kadroyu kur', unit: 'yaş', direction: 'min', metric: ageMetric },
+  // Yaş kriterleri yalnızca AKTİF futbolcularla — ölmüş/emekli efsaneler havuz dışı.
+  { id: 'sq_oldest', title: 'En yaşlı (aktif) kadroyu kur', unit: 'yaş', direction: 'max', metric: ageMetric, poolFilter: (p) => p.isActive },
+  { id: 'sq_youngest', title: 'En genç kadroyu kur', unit: 'yaş', direction: 'min', metric: ageMetric, poolFilter: (p) => p.isActive },
   { id: 'sq_top_scorer', title: 'En golcü kadroyu kur', unit: 'gol', direction: 'max', metric: statMetric((p) => p.stats.totalGoals) },
   { id: 'sq_top_assist', title: 'En çok asist yapan kadroyu kur', unit: 'asist', direction: 'max', metric: statMetric((p) => p.stats.totalAssists) },
   { id: 'sq_most_apps', title: 'En çok maça çıkan kadroyu kur', unit: 'maç', direction: 'max', metric: statMetric((p) => p.stats.totalApps) },
@@ -179,12 +186,13 @@ export function compareSquads(
 }
 
 /**
- * Bot/oto kadro: kriteri optimize edecek şekilde her slot için en iyi uygun
- * oyuncuyu seç (greedy, çakışmasız). Deterministik değil (rastgele tie-break
- * gerekmez — her slot pozisyonu ayrı havuz). `rng` ile çeşitlilik enjekte edilir
- * ki bot her seferinde birebir aynı kadroyu kurmasın.
+ * Bot/oto kadro: her slot için kritere göre İYİ ama mükemmel-değil bir oyuncu
+ * seçer (greedy, çakışmasız). Mükemmel kadro kurmaz — pozisyon başına sıralı
+ * havuzun üst bir "penceresinden" rastgele seçer; pencere mutlak en iyiyi
+ * dışlayacak şekilde kaydırılır (skip), böylece bot çoğu zaman insanın
+ * yenebileceği orta-iyi bir kadro kurar.
  *
- * @param strength 0..1 — 1 = en iyi, 0 = rastgele. Botun zorluk ayarı.
+ * @param strength 0..1 — yüksek = daha iyi (ama asla "en iyiyi garanti" değil).
  */
 export function buildAutoSquad(
   formation: Formation,
@@ -192,15 +200,16 @@ export function buildAutoSquad(
   pool: Player[],
   excludeIds: Set<string>,
   rng: () => number,
-  strength = 0.85,
+  strength = 0.55,
 ): SquadAssignment {
   const assignment = emptyAssignment(formation);
   const used = new Set(excludeIds);
-  // Pozisyon başına, kritere göre sıralı aday havuzu (yalnızca değeri olanlar).
+  // Pozisyon başına, kritere göre sıralı aday havuzu (değeri olan + havuz kısıtı).
   const byPos = new Map<Position, Player[]>();
   for (const p of pool) {
     if (used.has(p.id)) continue;
     if (criterion.metric(p) === null) continue;
+    if (criterion.poolFilter && !criterion.poolFilter(p)) continue;
     const list = byPos.get(p.position) ?? [];
     list.push(p);
     byPos.set(p.position, list);
@@ -214,12 +223,18 @@ export function buildAutoSquad(
   }
   for (const slot of formation.slots) {
     const list = byPos.get(slot.position) ?? [];
-    // İlk uygun (kullanılmamış) adayı bul; strength<1 ise üst-K içinden rastgele.
     const candidates = list.filter((p) => !used.has(p.id));
     if (candidates.length === 0) continue;
-    const topK = Math.max(1, Math.round((1 - strength) * 8) + 1);
-    const idx = Math.floor(rng() * Math.min(topK, candidates.length));
-    const chosen = candidates[idx];
+    // "En iyiyi atla": ilk birkaç (en güçlü) adayı pas geç, sonra bir pencereden
+    // rastgele seç. skip + pencere strength'e bağlı — yüksek strength daha iyi
+    // ama yine de en iyiyi garanti etmez (heyecan + adil kapışma).
+    const n = candidates.length;
+    const skip = Math.min(n - 1, Math.round((1 - strength) * 3) + 1); // 1..4 arası
+    const windowSize = Math.max(3, Math.round((1 - strength) * 12) + 4); // ~5..16
+    const start = Math.min(skip, Math.max(0, n - 1));
+    const end = Math.min(n, start + windowSize);
+    const idx = start + Math.floor(rng() * Math.max(1, end - start));
+    const chosen = candidates[Math.min(idx, n - 1)];
     assignment[slot.id] = chosen.id;
     used.add(chosen.id);
   }

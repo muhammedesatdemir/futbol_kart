@@ -151,3 +151,123 @@ export function cardSatisfies(
 ): boolean {
   return cond.test(player, ctx);
 }
+
+/**
+ * Süre dolunca / otomatik tamamlama: kullanıcının MEVCUT atamasını koruyarak
+ * 3 kategoriyi de fizibil şekilde tamamlar. Her kategori dolar (pickBonusConditions
+ * fizibiliteyi garanti eder).
+ *
+ * Strateji (kullanıcıya en az sürpriz → kademeli):
+ *  1) Kullanıcının GEÇERLİ (koşulu sağlayan) seçimlerini SABİT tut; boş/geçersiz
+ *     slotları kalan kartlardan bipartite eşleştirmeyle doldur. Başarılıysa
+ *     kullanıcının hiçbir geçerli seçimi değişmez.
+ *  2) Olmazsa: kullanıcının seçimlerini TERCİH kabul eden tam eşleştirme yap —
+ *     her koşulun aday listesinde kullanıcının attığı kartı başa alarak (gerekirse
+ *     fizibilite için o kartı doğru kategoriye TAŞIR; senin tek-kart örneği).
+ *  3) Son güvenlik: salt autoAssign (kullanıcı seçimi yok sayılır).
+ *
+ * @param assigned  Kullanıcının mevcut ataması: condIndex → cardId | null.
+ * @returns         condIndex → cardId (tam dolu) veya null (imkansız — olmamalı).
+ */
+export function completeBonusAssignment(
+  conditions: CategoryCondition[],
+  hand: Player[],
+  ctx: ConditionContext,
+  assigned: Array<string | null>,
+): Array<string | null> | null {
+  const handById = new Map(hand.map((p) => [p.id, p]));
+  const sets = conditions.map((c) => satisfyingCards(c, hand, ctx));
+
+  // Kullanıcının yalnızca GEÇERLİ seçimleri (kart elde + koşulu sağlıyor + tek slot).
+  const fixed: Array<string | null> = conditions.map((_, i) => {
+    const cid = assigned[i];
+    if (!cid) return null;
+    const p = handById.get(cid);
+    if (!p || !sets[i]!.has(cid)) return null; // geçersiz → boş say
+    return cid;
+  });
+  // Aynı kart iki slota fixed olduysa ikincisini düş (tek kart tek slot).
+  {
+    const seen = new Set<string>();
+    for (let i = 0; i < fixed.length; i++) {
+      const cid = fixed[i];
+      if (cid === null) continue;
+      if (seen.has(cid)) fixed[i] = null;
+      else seen.add(cid);
+    }
+  }
+
+  // ---- Faz 1: fixed'leri koru, boşları doldur ----
+  {
+    const usedCards = new Set(fixed.filter((c): c is string => c !== null));
+    const result = [...fixed];
+    const assignment = new Map<string, number>(); // cardId -> condIdx (sadece boş slotlar)
+    const tryAssign = (condIdx: number, seen: Set<string>): boolean => {
+      for (const cardId of sets[condIdx]!) {
+        if (usedCards.has(cardId)) continue; // fixed kart kullanılamaz
+        if (seen.has(cardId)) continue;
+        seen.add(cardId);
+        const occ = assignment.get(cardId);
+        if (occ === undefined || tryAssign(occ, seen)) {
+          assignment.set(cardId, condIdx);
+          return true;
+        }
+      }
+      return false;
+    };
+    let ok = true;
+    for (let i = 0; i < conditions.length; i++) {
+      if (result[i] !== null) continue; // fixed slot
+      if (!tryAssign(i, new Set())) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) {
+      for (const [cardId, condIdx] of assignment) result[condIdx] = cardId;
+      // Tüm slotlar dolu mu?
+      if (result.every((c) => c !== null)) return result;
+    }
+  }
+
+  // ---- Faz 2: kullanıcı tercihli tam eşleştirme (gerekirse kartı taşı) ----
+  {
+    // Her koşulun aday listesi: kullanıcının o slota attığı kart varsa BAŞA al.
+    const orderedSets: string[][] = conditions.map((_, i) => {
+      const base = [...sets[i]!];
+      const pref = fixed[i];
+      if (pref && base.includes(pref)) {
+        return [pref, ...base.filter((c) => c !== pref)];
+      }
+      return base;
+    });
+    const assignment = new Map<string, number>();
+    const tryAssign = (condIdx: number, seen: Set<string>): boolean => {
+      for (const cardId of orderedSets[condIdx]!) {
+        if (seen.has(cardId)) continue;
+        seen.add(cardId);
+        const occ = assignment.get(cardId);
+        if (occ === undefined || tryAssign(occ, seen)) {
+          assignment.set(cardId, condIdx);
+          return true;
+        }
+      }
+      return false;
+    };
+    let ok = true;
+    for (let i = 0; i < conditions.length; i++) {
+      if (!tryAssign(i, new Set())) {
+        ok = false;
+        break;
+      }
+    }
+    if (ok) {
+      const result: Array<string | null> = conditions.map(() => null);
+      for (const [cardId, condIdx] of assignment) result[condIdx] = cardId;
+      return result;
+    }
+  }
+
+  // ---- Faz 3: salt autoAssign (güvenlik; normalde buraya düşülmez) ----
+  return autoAssign(conditions, hand, ctx);
+}

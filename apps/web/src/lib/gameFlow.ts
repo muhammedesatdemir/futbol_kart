@@ -168,7 +168,11 @@ import {
   buildConditionLibrary,
   type ConditionContext,
 } from './bonusConditions';
-import { pickBonusConditions, autoAssign } from './bonusSelection';
+import {
+  pickBonusConditions,
+  autoAssign,
+  completeBonusAssignment,
+} from './bonusSelection';
 
 const BONUS_LIBRARY = buildConditionLibrary();
 
@@ -219,6 +223,28 @@ export function autoAssignBonus(
 /** Bonus koşul bağlamı — UI sahnesinin predicate testleri için. */
 export function bonusConditionContext(ctx: FlowContext): ConditionContext {
   return bonusCtx(ctx);
+}
+
+/**
+ * Süre dolunca bonus atamasını fizibil tamamla: kullanıcının mevcut seçimlerini
+ * koruyarak (gerekirse fizibilite için taşıyarak) 3 slotu da doldurur.
+ */
+export function completeBonus(
+  ctx: FlowContext,
+  conditionIds: string[],
+  handCardIds: string[],
+  assigned: Array<string | null>,
+): Array<string | null> {
+  const conds = conditionIds
+    .map((id) => BONUS_LIBRARY.find((c) => c.id === id))
+    .filter(Boolean) as ReturnType<typeof buildConditionLibrary>;
+  const result = completeBonusAssignment(
+    conds,
+    handPlayers(ctx, handCardIds),
+    bonusCtx(ctx),
+    assigned,
+  );
+  return result ?? [...assigned];
 }
 
 export function botPickCard(ctx: FlowContext, hand: string[]): string {

@@ -3,7 +3,9 @@
 import { useMemo, useState } from 'react';
 import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
+import { CountdownRing } from '@/components/CountdownRing';
 import { PlayIcon } from '@/components/icons';
+import { BONUS_ASSIGN_SECONDS } from '@/lib/gameConstants';
 import { cn } from '@/lib/cn';
 import type { BonusConditionLite } from '@/lib/sessionMachine';
 import { buildConditionLibrary } from '@/lib/bonusConditions';
@@ -20,6 +22,8 @@ interface BonusAssignSceneProps {
   ctx: ConditionContext;
   onAssign: (slot: number, cardId: string | null) => void;
   onConfirm: () => void;
+  /** Süre dolunca: kalan slotları fizibil tamamla + onayla (page.tsx hesaplar). */
+  onTimeUp: () => void;
 }
 
 const LIBRARY = buildConditionLibrary();
@@ -33,6 +37,7 @@ export function BonusAssignScene({
   ctx,
   onAssign,
   onConfirm,
+  onTimeUp,
 }: BonusAssignSceneProps) {
   // Aktif slot — kart seçince buraya atanır. Varsayılan: ilk boş slot.
   const firstEmpty = assigned.findIndex((c) => c === null);
@@ -76,6 +81,22 @@ export function BonusAssignScene({
 
   return (
     <section className="flex flex-col gap-3 pb-20">
+      {/* Bonus atama geri sayımı — sağ üstte, altın tema. Süre dolarsa kalan
+          slotlar fizibil tamamlanıp otomatik onaylanır (kullanıcı seçimi korunur). */}
+      <div className="pointer-events-none fixed right-4 top-20 z-40 flex flex-col items-center gap-1 rounded-2xl border border-white/10 bg-black/60 p-2 backdrop-blur">
+        <CountdownRing
+          seconds={BONUS_ASSIGN_SECONDS}
+          onComplete={onTimeUp}
+          color="#f0c14b"
+          urgentColor="#ef4444"
+          size={56}
+          stroke={5}
+        />
+        <span className="text-[9px] font-semibold uppercase tracking-wider text-white/55">
+          Süre
+        </span>
+      </div>
+
       {/* Kompakt başlık — dikey alandan tasarruf */}
       <div className="flex flex-col items-center gap-1 text-center">
         <div className="rounded-full bg-accent-gold/20 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-[0.18em] text-accent-goldHi">

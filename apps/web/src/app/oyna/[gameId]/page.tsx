@@ -32,6 +32,7 @@ import {
   resolvedTitle,
   pickBonus,
   autoAssignBonus,
+  completeBonus,
   bonusConditionContext,
   revealHand,
   botMultiplierDecision,
@@ -829,6 +830,22 @@ export default function GameSessionPage() {
               ctx={bonusCtxValue}
               onAssign={(slot, cardId) => onBonusAssign(bonusSide, slot, cardId)}
               onConfirm={() => onBonusConfirm(bonusSide)}
+              onTimeUp={() => {
+                // Süre doldu: kullanıcı seçimini koruyarak fizibil tamamla,
+                // her slotu dispatch et, sonra onayla.
+                const filled = completeBonus(
+                  flow,
+                  state.bonusConditions.map((c) => c.id),
+                  bonusHandIds,
+                  bonusAssigned,
+                );
+                filled.forEach((cardId, slot) => {
+                  if (cardId !== bonusAssigned[slot]) {
+                    onBonusAssign(bonusSide, slot, cardId);
+                  }
+                });
+                onBonusConfirm(bonusSide);
+              }}
             />
           </SceneShell>
         )}

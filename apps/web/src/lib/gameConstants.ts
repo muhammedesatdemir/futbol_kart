@@ -20,6 +20,9 @@ export const SUDDEN_ROUNDS = 1;
 /** Tur içi kart oynama süresi (sn). Süre dolarsa rastgele kart otomatik oynanır. */
 export const CARD_PLAY_SECONDS = 20;
 
+/** Bonus kategori atama süresi (sn). Süre dolarsa fizibil otomatik tamamlanır. */
+export const BONUS_ASSIGN_SECONDS = 30;
+
 /** Transfer jokeri değiş-tokuş süresi (sn). */
 export const TRANSFER_SECONDS = 15;
 

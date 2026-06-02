@@ -341,6 +341,14 @@ export default function GameSessionPage() {
         give: choice.give,
         take: choice.take,
       });
+      // Rakip olarak P1'e de bot'un transferini göster (tabela). byBot bayrağı
+      // ile: give = bot'un sana verdiği (yeşil), take = bot'un senden aldığı (kırmızı).
+      setTransferResult({
+        give: choice.give,
+        take: choice.take,
+        auto: false,
+        byBot: true,
+      });
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.mode, state.scene, state.phase, state.roundIndex, state.bonusResolved]);
@@ -468,11 +476,15 @@ export default function GameSessionPage() {
   );
 
   // Transfer sonuçlandığında gösterilecek "oyuncu değişikliği tabelası" bilgisi.
-  // give = çıkan (verilen, kırmızı), take = giren (alınan, yeşil). auto = sistem tamamladı mı.
+  // P1 transferi: give = senin verdiğin (kırmızı), take = senin aldığın (yeşil).
+  // Bot transferi (byBot): give = botun sana verdiği (yeşil, senin kazancın),
+  //                        take = botun senden aldığı (kırmızı, senin kaybın).
+  // auto = sistem tamamladı mı (yalnızca P1 transferinde anlamlı).
   const [transferResult, setTransferResult] = useState<{
     give: string;
     take: string;
     auto: boolean;
+    byBot?: boolean;
   } | null>(null);
 
   // Transfer sonuçlandırma: kullanıcı seçimleri (give/take null olabilir) →
@@ -735,9 +747,20 @@ export default function GameSessionPage() {
       <AnimatePresence>
         {transferResult && (
           <SubstitutionBoard
-            outPlayer={session.players.find((p) => p.id === transferResult.give)}
-            inPlayer={session.players.find((p) => p.id === transferResult.take)}
+            // P1 transferi: take=alınan(yeşil), give=verilen(kırmızı).
+            // Bot transferi: give=bot'un sana verdiği(yeşil/kazanç), take=bot'un senden aldığı(kırmızı/kayıp).
+            inPlayer={session.players.find(
+              (p) =>
+                p.id ===
+                (transferResult.byBot ? transferResult.give : transferResult.take),
+            )}
+            outPlayer={session.players.find(
+              (p) =>
+                p.id ===
+                (transferResult.byBot ? transferResult.take : transferResult.give),
+            )}
             auto={transferResult.auto}
+            byBot={transferResult.byBot ?? false}
             onClose={() => setTransferResult(null)}
           />
         )}
@@ -968,11 +991,13 @@ function SubstitutionBoard({
   outPlayer,
   inPlayer,
   auto,
+  byBot,
   onClose,
 }: {
   outPlayer: Player | undefined;
   inPlayer: Player | undefined;
   auto: boolean;
+  byBot: boolean;
   onClose: () => void;
 }) {
   useEffect(() => {
@@ -982,6 +1007,14 @@ function SubstitutionBoard({
 
   const jersey = (p: Player | undefined) =>
     p && p.jerseyNumbers.length > 0 ? p.jerseyNumbers[0] : '—';
+
+  const headerText = byBot
+    ? 'Bot Transfer Yaptı'
+    : auto
+      ? 'Süre doldu — Sistem Tamamladı'
+      : 'Oyuncu Değişikliği';
+  const inLabel = byBot ? 'Sana verilen' : 'Alınan';
+  const outLabel = byBot ? 'Senden alınan' : 'Verilen';
 
   return (
     // Dış sabit konum: sağ-dikey orta (skorla/kutularla çakışmaz). Dikey ortalamayı
@@ -999,7 +1032,7 @@ function SubstitutionBoard({
         <div className="flex items-center justify-center gap-1.5 border-b border-zinc-700 bg-zinc-800/80 px-3 py-1.5">
           <SwapIcon size={14} className="text-amber-400" />
           <span className="text-[11px] font-black uppercase tracking-[0.18em] text-amber-400">
-            {auto ? 'Süre doldu — Sistem Tamamladı' : 'Oyuncu Değişikliği'}
+            {headerText}
           </span>
         </div>
 
@@ -1007,12 +1040,14 @@ function SubstitutionBoard({
         <div className="flex flex-col gap-2 p-3">
           <SubRow
             dir="in"
+            label={inLabel}
             jersey={jersey(inPlayer)}
             name={inPlayer?.displayName ?? '—'}
             position={inPlayer?.position}
           />
           <SubRow
             dir="out"
+            label={outLabel}
             jersey={jersey(outPlayer)}
             name={outPlayer?.displayName ?? '—'}
             position={outPlayer?.position}
@@ -1026,11 +1061,13 @@ function SubstitutionBoard({
 /** Tabela satırı — bir LED forma numarası kutusu + ok + isim. */
 function SubRow({
   dir,
+  label,
   jersey,
   name,
   position,
 }: {
   dir: 'in' | 'out';
+  label: string;
   jersey: number | string;
   name: string;
   position?: string;
@@ -1063,7 +1100,7 @@ function SubRow({
       <div className="min-w-0 flex-1">
         <div className="truncate text-sm font-bold text-white">{name}</div>
         <div className={cn('text-[10px] font-bold uppercase tracking-wider', accent)}>
-          {isIn ? 'Alınan' : 'Verilen'}
+          {label}
           {position ? ` · ${position}` : ''}
         </div>
       </div>

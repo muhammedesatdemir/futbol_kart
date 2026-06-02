@@ -8,8 +8,12 @@ import { SelectablePlayerCard } from '@/components/SelectablePlayerCard';
 import { PlayerSearchBar } from '@/components/PlayerSearchBar';
 import { PlayerFilterChips } from '@/components/PlayerFilterChips';
 import { SelectedCardsRail } from '@/components/SelectedCardsRail';
+import { CountdownRing } from '@/components/CountdownRing';
 import { cn } from '@/lib/cn';
-import { HAND_SIZE as DEFAULT_HAND_SIZE } from '@/lib/gameConstants';
+import {
+  HAND_SIZE as DEFAULT_HAND_SIZE,
+  handPickSeconds,
+} from '@/lib/gameConstants';
 import { fetchGameData } from '@/lib/playersClient';
 import {
   EMPTY_CRITERIA,
@@ -162,6 +166,29 @@ export function CardPickScene({
     setPicked(shuffled.slice(0, handSize).map((p) => p.id));
   }, [available, handSize]);
 
+  // Süre dolunca: mevcut seçime ek olarak eksikleri rastgele tamamla → oto submit.
+  // Tek-sefer guard (süre + olası manuel submit çakışmasın).
+  const autoSubmittedRef = useRef(false);
+  const onTimeUp = useCallback(() => {
+    if (autoSubmittedRef.current) return;
+    autoSubmittedRef.current = true;
+    setPicked((prev) => {
+      if (prev.length >= handSize) {
+        onSubmit(prev.slice(0, handSize));
+        return prev;
+      }
+      const chosen = new Set(prev);
+      const pool = available.filter((p) => !chosen.has(p.id));
+      const shuffled = [...pool].sort(() => Math.random() - 0.5);
+      const filled = [
+        ...prev,
+        ...shuffled.slice(0, handSize - prev.length).map((p) => p.id),
+      ];
+      onSubmit(filled);
+      return filled;
+    });
+  }, [available, handSize, onSubmit]);
+
   const canConfirm = picked.length === handSize;
   const fallbackHeading = side === 'P1' ? t('p1Heading') : t('p2Heading');
   const heading = playerName ? `${playerName} — elini hazırla` : fallbackHeading;
@@ -186,6 +213,22 @@ export function CardPickScene({
 
   return (
     <section className="flex flex-col gap-4">
+      {/* El hazırlama geri sayımı — sağ ALTTA (sticky üst panelin CTA butonlarıyla
+          çakışmasın), altın tema. Süre dolarsa eksik kartlar rastgele tamamlanıp oto onaylanır. */}
+      <div className="pointer-events-none fixed bottom-4 right-4 z-40 flex flex-col items-center gap-1 rounded-2xl border border-white/10 bg-black/60 p-2 backdrop-blur">
+        <CountdownRing
+          seconds={handPickSeconds(handSize)}
+          onComplete={onTimeUp}
+          color="#f0c14b"
+          urgentColor="#ef4444"
+          size={56}
+          stroke={5}
+        />
+        <span className="text-[9px] font-semibold uppercase tracking-wider text-white/55">
+          Süre
+        </span>
+      </div>
+
       {/* Üst panel — sticky, seçilenler + CTA */}
       <SelectedCardsRail
         selected={pickedPlayers}

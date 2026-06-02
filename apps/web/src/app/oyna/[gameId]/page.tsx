@@ -45,6 +45,7 @@ import {
   botTransferChoice,
 } from '@/lib/jokers';
 import { TransferScene } from '@/components/scenes/TransferScene';
+import { CARD_PLAY_SECONDS, TRANSFER_SECONDS } from '@/lib/gameConstants';
 import { BonusAssignScene } from '@/components/scenes/BonusAssignScene';
 import { templateById } from '@futbol-kart/question-templates';
 
@@ -465,6 +466,17 @@ export default function GameSessionPage() {
     [dispatch],
   );
 
+  // Tur içi süre dolunca: aktif insan tarafının elinden rastgele kart otomatik oynanır
+  // (deterministik PRNG, botPickCard ile aynı). Side + hand çağrı anında geçilir.
+  const onCardPlayTimeout = useCallback(
+    (side: 'P1' | 'P2', hand: string[]) => {
+      if (hand.length === 0) return;
+      const cardId = botPickCard(flow, hand);
+      dispatch({ type: 'CARD_PLAYED', side, cardId });
+    },
+    [flow, dispatch],
+  );
+
   const onJokerMultiplier = useCallback(
     (side: 'P1' | 'P2') => dispatch({ type: 'JOKER_MULTIPLIER', side }),
     [dispatch],
@@ -828,7 +840,7 @@ export default function GameSessionPage() {
               oppName={p2Display}
               ownCards={toPlayers(transferOwnPool)}
               oppCards={toPlayers(transferOppPool)}
-              seconds={15}
+              seconds={TRANSFER_SECONDS}
               onResolve={onTransferResolve}
             />
           </SceneShell>
@@ -880,6 +892,9 @@ export default function GameSessionPage() {
               onJokerReveal={() => onJokerReveal(activeSide)}
               lastMultiplier={state.history[state.history.length - 1]?.multiplier}
               transferUsed={activeJokers.transferUsed}
+              cardPlaySeconds={CARD_PLAY_SECONDS}
+              cardTimerKey={`${state.phase}-${state.roundIndex}-${activeSide}`}
+              onCardPlayTimeout={() => onCardPlayTimeout(activeSide, activeHand)}
             />
           </SceneShell>
         )}

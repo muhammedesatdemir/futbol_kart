@@ -8,6 +8,7 @@ import type { Template } from '@futbol-kart/question-templates';
 import { PlayerCard } from '@/components/PlayerCard';
 import { CardRow } from '@/components/CardRow';
 import { CountUp } from '@/components/CountUp';
+import { CountdownRing } from '@/components/CountdownRing';
 import { WinFx } from '@/components/WinFx';
 import {
   PlayIcon,
@@ -65,6 +66,12 @@ interface RoundSceneProps {
   lastMultiplier?: { side: PlayerSide; dir: 'x2' | 'half' };
   /** Transfer jokeri durumu (sadece gösterim — tur başında kullanılır). */
   transferUsed: boolean;
+  /** Tur içi kart oynama süresi (sn). */
+  cardPlaySeconds: number;
+  /** Geri sayım yeniden başlatma anahtarı (faz-tur-taraf). */
+  cardTimerKey: string;
+  /** Süre dolunca: aktif elden rastgele kart otomatik oynanır. */
+  onCardPlayTimeout: () => void;
 }
 
 export function RoundScene({
@@ -97,6 +104,9 @@ export function RoundScene({
   onJokerReveal,
   lastMultiplier,
   transferUsed,
+  cardPlaySeconds,
+  cardTimerKey,
+  onCardPlayTimeout,
 }: RoundSceneProps) {
   const t = useTranslations('round');
 
@@ -110,6 +120,14 @@ export function RoundScene({
       : null;
 
   const showHand = scene === 'ROUND_PLAY';
+  // Tur içi geri sayım yalnızca aktif İNSAN HENÜZ kart seçmemişken çalışır
+  // (bot beklerken veya aktif taraf kartını oynadıysa gösterme).
+  const activeHasPlayed =
+    activeSide === 'P1' ? currentP1Card !== null : currentP2Card !== null;
+  const cardTimerActive =
+    scene === 'ROUND_PLAY' &&
+    !(botMode && activeSide === 'P2') &&
+    !activeHasPlayed;
   const showReveal =
     (scene === 'ROUND_REVEAL' || scene === 'ROUND_RESULT') &&
     currentP1Card &&
@@ -143,6 +161,24 @@ export function RoundScene({
                 </div>
               )}
             </div>
+            {/* Tur içi kart oynama geri sayımı (mavi tema; transfer kırmızıdan ayrışır).
+                Süre dolarsa elden rastgele kart otomatik oynanır. */}
+            {cardTimerActive && (
+              <div className="flex shrink-0 flex-col items-center gap-1">
+                <CountdownRing
+                  seconds={cardPlaySeconds}
+                  runKey={cardTimerKey}
+                  onComplete={onCardPlayTimeout}
+                  color="#38bdf8"
+                  urgentColor="#ef4444"
+                  size={52}
+                  stroke={5}
+                />
+                <span className="text-[9px] font-semibold uppercase tracking-wider text-white/40">
+                  Süre
+                </span>
+              </div>
+            )}
           </motion.div>
         )}
       </AnimatePresence>

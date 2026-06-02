@@ -984,37 +984,42 @@ function SubstitutionBoard({
     p && p.jerseyNumbers.length > 0 ? p.jerseyNumbers[0] : '—';
 
   return (
-    <motion.div
-      initial={{ opacity: 0, x: 40, scale: 0.92 }}
-      animate={{ opacity: 1, x: 0, scale: 1 }}
-      exit={{ opacity: 0, x: 40, scale: 0.92 }}
-      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
-      className="fixed right-4 top-20 z-50 w-[min(92vw,22rem)] overflow-hidden rounded-2xl border-2 border-zinc-700 bg-gradient-to-b from-zinc-900 to-black shadow-2xl"
-    >
-      {/* Tabela üst şerit — 4. hakem başlığı */}
-      <div className="flex items-center justify-center gap-1.5 border-b border-zinc-700 bg-zinc-800/80 px-3 py-1.5">
-        <SwapIcon size={14} className="text-amber-400" />
-        <span className="text-[11px] font-black uppercase tracking-[0.18em] text-amber-400">
-          {auto ? 'Süre doldu — Sistem Tamamladı' : 'Oyuncu Değişikliği'}
-        </span>
-      </div>
+    // Dış sabit konum: sağ-dikey orta (skorla/kutularla çakışmaz). Dikey ortalamayı
+    // Tailwind transform'u yapar; iç motion.div yalnızca kayma/scale anime eder —
+    // böylece framer-motion transform'u dış translate'i ezmez.
+    <div className="pointer-events-none fixed right-4 top-1/2 z-50 -translate-y-1/2">
+      <motion.div
+        initial={{ opacity: 0, x: 40, scale: 0.92 }}
+        animate={{ opacity: 1, x: 0, scale: 1 }}
+        exit={{ opacity: 0, x: 40, scale: 0.92 }}
+        transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+        className="pointer-events-auto w-[min(92vw,22rem)] overflow-hidden rounded-2xl border-2 border-zinc-700 bg-gradient-to-b from-zinc-900 to-black shadow-2xl"
+      >
+        {/* Tabela üst şerit — 4. hakem başlığı */}
+        <div className="flex items-center justify-center gap-1.5 border-b border-zinc-700 bg-zinc-800/80 px-3 py-1.5">
+          <SwapIcon size={14} className="text-amber-400" />
+          <span className="text-[11px] font-black uppercase tracking-[0.18em] text-amber-400">
+            {auto ? 'Süre doldu — Sistem Tamamladı' : 'Oyuncu Değişikliği'}
+          </span>
+        </div>
 
-      {/* LED panel — giren (yeşil) / çıkan (kırmızı) */}
-      <div className="flex flex-col gap-2 p-3">
-        <SubRow
-          dir="in"
-          jersey={jersey(inPlayer)}
-          name={inPlayer?.displayName ?? '—'}
-          position={inPlayer?.position}
-        />
-        <SubRow
-          dir="out"
-          jersey={jersey(outPlayer)}
-          name={outPlayer?.displayName ?? '—'}
-          position={outPlayer?.position}
-        />
-      </div>
-    </motion.div>
+        {/* LED panel — giren (yeşil) / çıkan (kırmızı) */}
+        <div className="flex flex-col gap-2 p-3">
+          <SubRow
+            dir="in"
+            jersey={jersey(inPlayer)}
+            name={inPlayer?.displayName ?? '—'}
+            position={inPlayer?.position}
+          />
+          <SubRow
+            dir="out"
+            jersey={jersey(outPlayer)}
+            name={outPlayer?.displayName ?? '—'}
+            position={outPlayer?.position}
+          />
+        </div>
+      </motion.div>
+    </div>
   );
 }
 

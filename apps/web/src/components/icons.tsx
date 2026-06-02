@@ -114,3 +114,39 @@ export function SoundOffIcon(props: IconProps) {
     </Icon>
   );
 }
+
+/** Çarpan jokeri — kesişen iki ok (büyüt/küçült çarpan sembolü). */
+export function MultiplierIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 7l10 10" />
+      <path d="M17 7L7 17" />
+      <path d="M5 5l1.5 1.5" />
+      <path d="M19 5l-1.5 1.5" />
+      <path d="M5 19l1.5-1.5" />
+      <path d="M19 19l-1.5-1.5" />
+    </Icon>
+  );
+}
+
+/** İstatistiği Gör jokeri — göz ikonu. */
+export function EyeIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7Z" />
+      <circle cx="12" cy="12" r="3" />
+    </Icon>
+  );
+}
+
+/** Joker (genel) — sihirli değnek / yıldız tını; bar başlığı için. */
+export function JokerWandIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M5 19 16 8" />
+      <path d="M14 6l4 4" />
+      <path d="M18 4l.6 1.4L20 6l-1.4.6L18 8l-.6-1.4L16 6l1.4-.6L18 4Z" fill="currentColor" stroke="none" />
+      <path d="M6 11l.5 1.2L7.7 12.7l-1.2.5L6 14.4l-.5-1.2L4.3 12.7l1.2-.5L6 11Z" fill="currentColor" stroke="none" />
+    </Icon>
+  );
+}

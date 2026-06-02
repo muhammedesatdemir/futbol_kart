@@ -36,6 +36,7 @@ Detaylı veri raporu: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT
 - ✅ **Adil beraberlik mantığı** — Değerler eşitse tur her zaman berabere; rastgele/keyfî kazanan asla belirlenmez. Eşitlik yalnızca uzatma → penaltı fazlarıyla kırılır.
 - ✅ **Çeşitlilik garantisi** — Soru seçici üst üste aynı kategoriden soru sormaz (havuz daralmadıkça); 7 turlu simülasyonda ardışık tekrar oranı %0.
 - ✅ **3 Zorunlu Kategori bonus mekaniği** — Ana maç başında (kart seçiminden sonra) 3 kategori-koşulu açılır; oyuncu 8 kartlık elinden 3'ünü bu koşullara atar. Bu kartlar turunu kazanırsa **+2 puan** (normal +1). Koşullar predicate motoruyla seçilir (33 koşul: pozisyon/milliyet/lig/kulüp/kupa/turnuva/istatistik), çatışma grubu farklı + her iki elde de **bipartite eşleştirmeyle fizibilite garantili** (deadlock imkansız). Round ekranında bonus kartlar "⭐ +2" rozeti + altın çerçeyle işaretlenir. Bot otomatik atar.
+- ✅ **2 Joker (özel hamle)** — Maç boyu 1×/taraf, inline (yeni sahne yok), hot-seat + vs-bot (bot dahil). **Çarpan**: soru `max` ise kartının değerini ×2, `min` ise ÷2 yapar (yön soruya göre akıllı; bool/proximity'de uygun değil → buton disabled); ÷2 ham ondalık değerle karşılaştırılır. **İstatistiği Gör**: kart seçmeden kendi elinin o sorudaki değerlerini rozet olarak gösterir (rakibin eli gizli, saf görsel). Joker barı kalan-hak rozeti + "?" açıklama popover'ı ile sunulur. Resolve katmanında uygulanır (`resolveCards(doubleSide)`), resolver saf kalır. (Joker 3 — Transfer Hamlesi — yol haritasında.)
 - ✅ **Uzatma + sudden death** — Eşitlikte otomatik faz geçişi.
 - ✅ **Ses katmanı** — Kart flip, tur kazanma, beraberlik ve final fanfarı (native HTMLAudioElement, `useSfx`). `SoundToggle` ile aç/kapa; kapalıyken hiç indirme yapılmaz. Yeniden-oynamada tekrar-çalma bug'ı (prevScene guard) giderildi.
 - ✅ **Frontend** — Next.js 14 App Router, sahne shell (mode → pick → handoff → **bonus** → round → final), Framer Motion animasyonlar, Zustand + sessionStorage persist, next-intl (TR).
@@ -437,6 +438,25 @@ Detaylı analiz: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT.md)
 Mevcut **VS Karşılaştırma** modu (oyuncu kartlarının istatistik düellosu) projenin ana iskeleti.
 Aynı veri katmanı + kart sistemi üzerine oturan **ek oyun modları** planlanıyor. Her biri
 bağımsız bir mod; ileride bir "karma" mod altında birleştirilebilir.
+
+### ⭐ Öncelik — Joker 3: "Transfer Hamlesi" (kart VS)
+
+İlk iki joker (Çarpı 2, İstatistiği Gör) **canlı**. Üçüncü joker — **Transfer Hamlesi** — denge ve
+bilgi-sızıntısı riskleri nedeniyle ayrı bir tura bırakıldı.
+
+**Mekanik:** Tur başında, **soru açıklanmadan önce** kullanılır. Oyuncu kendi elinden 1 kart verir,
+rakibin elinden 1 kart alır (çalma değil **değiş-tokuş**). Soru sonrası kullanılamaz (rakibin en iyi
+kartını sorulu seçmek aşırı güçlü olurdu). Son turda kullanılamaz; her oyuncu maçta 1×.
+
+**Çözülmesi gereken tasarım soruları (uygulamadan önce):**
+- **Bilgi sızıntısı (hot-seat):** Rakibin eli P1'e gizli. Çözüm: **kör transfer** — rakibin kartları
+  kapalı gösterilir, oyuncu yalnızca pozisyon/ülke ipucuyla kör seçer. Hem hot-seat hem bot'ta çalışır.
+- **Bonus mekaniğiyle etkileşim:** Maç başı atanan bonus kartlardan biri transfer edilirse bonus
+  ataması bozulur → transfer edilen kart bonus slotundan otomatik düşürülmeli (veya bonus kartlar
+  transfere kapalı olmalı). Karar uygulamada netleşecek.
+- **Yeni sahne:** Diğer iki jokerin aksine (inline), transfer kör-seçim akışı tek opsiyonel sahne
+  (`ROUND_TRANSFER`) gerektirir — yalnızca joker kullanılırsa girilir, kullanılmazsa atlanır.
+- **Bot:** İlk transfer sürümünde bot düşük olasılıkla kör değiş-tokuş yapar.
 
 ### ✅ Tamamlandı — "3 Zorunlu Kategori" bonus mekaniği (kart VS)
 

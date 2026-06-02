@@ -23,7 +23,16 @@
     "step4Body": "7 tur sonunda en çok puanı toplayan oyuncu kupayı kaldırır.",
     "playCta": "Hemen oyna",
     "demoCta": "Kart önizleme",
-    "version": "v0.4 · Tek-route deneyim"
+    "version": "v0.4 · Tek-route deneyim",
+    "jokersKicker": "Özel Hamleler",
+    "jokersTitle": "Jokerlerini akıllıca kullan",
+    "jokersSubtitle": "Her joker maç boyunca yalnızca 1 kez kullanılabilir — doğru anı kolla.",
+    "joker1Title": "Çarpan (×2 / ÷2)",
+    "joker1Body": "Soru \"daha çok\" istiyorsa kartının değerini 2 ile çarp, \"daha az\" istiyorsa 2'ye böl. Yön sana göre otomatik ayarlanır. Evet/Hayır ve \"en yakın\" sorularında çalışmaz.",
+    "joker2Title": "İstatistiği Gör",
+    "joker2Body": "Kart seçmeden önce kendi elindeki tüm kartların o sorudaki değerini gör. Rakibin eli gizli kalır — en güçlü kartını rahatça seç.",
+    "joker3Title": "Transfer Hamlesi",
+    "joker3Body": "Soru açıklanmadan önce kendi elinden bir kartı verip rakibin elinden kör bir kart al (değiş-tokuş). Rakibin kartları kapalı; yalnızca pozisyon/ülke ipucuyla seçersin."
   },
   "demo": {
     "kicker": "Kart önizleme",

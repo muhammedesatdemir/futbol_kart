@@ -11,6 +11,12 @@ import {
   type ClubLite,
 } from '@futbol-kart/question-templates';
 import { createPRNG, type PRNG } from '@futbol-kart/game-engine';
+import {
+  applyMultiplier,
+  multiplierDirection,
+  type MultiplierDirection,
+} from './jokers';
+import type { PlayerSide } from '@futbol-kart/shared-types';
 
 export interface FlowContext {
   prng: PRNG;
@@ -85,11 +91,24 @@ export function resolvedTitle(ctx: FlowContext, template: Template): string {
   return interpolateTitle(template.title.tr, ctx.paramsByQuestion.get(template.id));
 }
 
+/**
+ * Tur sonucunu çözer.
+ *
+ * @param doubleSide  Çarpan jokerini kullanan taraf (varsa). O tarafın değeri,
+ *   soru yönüne göre ×2 (max) veya ÷2 (min) edilir ve kazanan YENİDEN hesaplanır.
+ *   Resolver saf kaldığı için çarpanı bu katmanda uygularız: değerleri alır,
+ *   ilgili tarafı çarpar, compareValues mantığını burada tekrarlarız.
+ *
+ * Dönüş, ROUND_RESOLVED için gereken her şeyi içerir; çarpan uygulandığında
+ * `p1Value`/`p2Value` çarpılmış (gösterilecek) değerlerdir ve `multiplier`
+ * hangi tarafa hangi yönde uygulandığını belirtir.
+ */
 export function resolveCards(
   template: Template,
   p1CardId: string,
   p2CardId: string,
   ctx: FlowContext,
+  doubleSide?: PlayerSide | null,
 ) {
   const p1 = ctx.playersById.get(p1CardId);
   const p2 = ctx.playersById.get(p2CardId);
@@ -98,7 +117,47 @@ export function resolveCards(
   }
   // Bu tur için üretilmiş parametreleri resolver'a geçir (proximity hedefi vb.).
   ctx.resolver.params = ctx.paramsByQuestion.get(template.id);
-  return resolveRound(template, p1, p2, ctx.resolver);
+  const base = resolveRound(template, p1, p2, ctx.resolver);
+
+  if (!doubleSide) return base;
+
+  // Çarpan uygula: ilgili tarafın değerini yöne göre değiştir, kazananı yeniden hesapla.
+  const dir: MultiplierDirection = multiplierDirection(template);
+  const p1Value =
+    doubleSide === 'P1' ? applyMultiplier(base.p1Value, dir) : base.p1Value;
+  const p2Value =
+    doubleSide === 'P2' ? applyMultiplier(base.p2Value, dir) : base.p2Value;
+  const winner = compareForWinner(p1Value, p2Value, template.compareOp);
+  return {
+    ...base,
+    p1Value,
+    p2Value,
+    winner,
+    multiplier: { side: doubleSide, dir },
+  };
+}
+
+/**
+ * resolver.ts içindeki compareValues'in aynısı (orada private). Çarpan sonrası
+ * kazananı yeniden belirlemek için gerekli. Saf beraberlik mantığı korunur.
+ */
+function compareForWinner(
+  v1: number | boolean | null,
+  v2: number | boolean | null,
+  op: 'max' | 'min' | 'bool',
+): PlayerSide | 'tie' {
+  if (v1 === null && v2 === null) return 'tie';
+  if (v1 === null) return 'P2';
+  if (v2 === null) return 'P1';
+  if (op === 'bool') {
+    if (v1 === v2) return 'tie';
+    return v1 === true ? 'P1' : 'P2';
+  }
+  const n1 = typeof v1 === 'boolean' ? (v1 ? 1 : 0) : v1;
+  const n2 = typeof v2 === 'boolean' ? (v2 ? 1 : 0) : v2;
+  if (n1 === n2) return 'tie';
+  if (op === 'max') return n1 > n2 ? 'P1' : 'P2';
+  return n1 < n2 ? 'P1' : 'P2';
 }
 
 // ===========================
@@ -165,4 +224,41 @@ export function bonusConditionContext(ctx: FlowContext): ConditionContext {
 export function botPickCard(ctx: FlowContext, hand: string[]): string {
   if (hand.length === 0) throw new Error('botPickCard: empty hand');
   return hand[Math.floor(ctx.prng.next() * hand.length)]!;
+}
+
+// ===========================
+// Joker yardımcıları (flow bağlamını saf joker mantığına bağlar)
+// ===========================
+
+import {
+  revealHandValues,
+  botShouldUseMultiplier,
+  type RevealedHandValue,
+} from './jokers';
+
+/**
+ * "İstatistiği Gör" jokeri için: verilen elin her kartının bu sorudaki değeri.
+ * Flow context'inin resolver + param tablosunu kullanır (proximity hedefi vb.).
+ */
+export function revealHand(
+  ctx: FlowContext,
+  template: Template,
+  handCardIds: string[],
+): RevealedHandValue[] {
+  return revealHandValues(
+    template,
+    handCardIds,
+    ctx.playersById,
+    ctx.resolver,
+    ctx.paramsByQuestion.get(template.id),
+  );
+}
+
+/** Bot çarpan jokerini kullanmalı mı? (PRNG ile deterministik) */
+export function botMultiplierDecision(
+  ctx: FlowContext,
+  template: Template | null,
+  alreadyUsed: boolean,
+): boolean {
+  return botShouldUseMultiplier(template, alreadyUsed, () => ctx.prng.next());
 }

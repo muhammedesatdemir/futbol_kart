@@ -32,7 +32,10 @@ import {
   pickBonus,
   autoAssignBonus,
   bonusConditionContext,
+  revealHand,
+  botMultiplierDecision,
 } from '@/lib/gameFlow';
+import { canUseMultiplier, multiplierDirection } from '@/lib/jokers';
 import { BonusAssignScene } from '@/components/scenes/BonusAssignScene';
 import { templateById } from '@futbol-kart/question-templates';
 
@@ -235,6 +238,13 @@ export default function GameSessionPage() {
     if (state.mode !== 'vs-bot') return;
     if (!state.currentP1Card || state.currentP2Card) return;
     botTimerRef.current = setTimeout(() => {
+      // Bot çarpan jokeri kararı (kart oynamadan ÖNCE — pendingMultiplier resolve'a girsin).
+      const template = state.currentQuestionId
+        ? templateById(state.currentQuestionId) ?? null
+        : null;
+      if (botMultiplierDecision(flow, template, state.p2Jokers.multiplierUsed)) {
+        dispatch({ type: 'JOKER_MULTIPLIER', side: 'P2' });
+      }
       const cardId = botPickCard(flow, state.p2Hand);
       dispatch({ type: 'CARD_PLAYED', side: 'P2', cardId });
     }, 600);
@@ -246,7 +256,9 @@ export default function GameSessionPage() {
     state.mode,
     state.currentP1Card,
     state.currentP2Card,
+    state.currentQuestionId,
     state.p2Hand,
+    state.p2Jokers.multiplierUsed,
     flow,
     dispatch,
   ]);
@@ -264,6 +276,7 @@ export default function GameSessionPage() {
         state.currentP1Card!,
         state.currentP2Card!,
         flow,
+        state.pendingMultiplier,
       );
       dispatch({
         type: 'ROUND_RESOLVED',
@@ -272,6 +285,7 @@ export default function GameSessionPage() {
         p2Value: outcome.p2Value,
         winner: outcome.winner,
         tiebreakerUsed: outcome.tiebreakerUsed,
+        multiplier: 'multiplier' in outcome ? outcome.multiplier : undefined,
       });
     }, 350);
     return () => clearTimeout(t);
@@ -280,6 +294,7 @@ export default function GameSessionPage() {
     state.currentP1Card,
     state.currentP2Card,
     state.currentQuestionId,
+    state.pendingMultiplier,
     flow,
     dispatch,
   ]);
@@ -307,6 +322,16 @@ export default function GameSessionPage() {
 
   const onP2CardPlay = useCallback(
     (cardId: string) => dispatch({ type: 'CARD_PLAYED', side: 'P2', cardId }),
+    [dispatch],
+  );
+
+  const onJokerMultiplier = useCallback(
+    (side: 'P1' | 'P2') => dispatch({ type: 'JOKER_MULTIPLIER', side }),
+    [dispatch],
+  );
+
+  const onJokerReveal = useCallback(
+    (side: 'P1' | 'P2') => dispatch({ type: 'JOKER_REVEAL', side }),
     [dispatch],
   );
 
@@ -350,6 +375,31 @@ export default function GameSessionPage() {
 
   const p1Display = state.p1Name || 'Oyuncu 1';
   const p2Display = botMode ? 'Bot' : state.p2Name || 'Oyuncu 2';
+
+  // -------- Joker durumları (aktif taraf için) --------
+  // Bot tarafı (vs-bot + P2) joker barını GÖRMEZ — kararı otomatik.
+  const jokerInteractive =
+    state.scene === 'ROUND_PLAY' && !(botMode && activeSide === 'P2');
+  const activeJokers = activeSide === 'P1' ? state.p1Jokers : state.p2Jokers;
+  const activeRevealActive =
+    activeSide === 'P1' ? state.p1RevealActive : state.p2RevealActive;
+  const multiplierEligible = canUseMultiplier(currentTemplate);
+  const multiplierDir = currentTemplate
+    ? multiplierDirection(currentTemplate)
+    : 'x2';
+  // Çarpan bu tur zaten aktive edildi mi (aktif tarafça)?
+  const multiplierPendingHere = state.pendingMultiplier === activeSide;
+
+  // "İstatistiği Gör" aktifse: aktif elin her kartı → bu sorudaki değer.
+  const revealValues: Map<string, number | boolean | null> | null =
+    jokerInteractive && activeRevealActive && currentTemplate
+      ? new Map(
+          revealHand(flow, currentTemplate, activeHand).map((r) => [
+            r.cardId,
+            r.value,
+          ]),
+        )
+      : null;
 
   // BONUS_ASSIGN sahnesi için: aktif taraf + eli + atamaları.
   const bonusSide = state.bonusAssignSide;
@@ -537,6 +587,17 @@ export default function GameSessionPage() {
               p2BonusCards={state.p2BonusCards}
               onCardPlay={onCardPlay}
               onAck={onAck}
+              jokerInteractive={jokerInteractive}
+              multiplierEligible={multiplierEligible}
+              multiplierDir={multiplierDir}
+              multiplierUsed={activeJokers.multiplierUsed}
+              multiplierPendingHere={multiplierPendingHere}
+              revealUsed={activeJokers.revealUsed}
+              revealActive={activeRevealActive}
+              revealValues={revealValues}
+              onJokerMultiplier={() => onJokerMultiplier(activeSide)}
+              onJokerReveal={() => onJokerReveal(activeSide)}
+              lastMultiplier={state.history[state.history.length - 1]?.multiplier}
             />
           </SceneShell>
         )}

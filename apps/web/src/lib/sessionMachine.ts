@@ -34,6 +34,21 @@ export interface BonusConditionLite {
   label: string;
 }
 
+/**
+ * Bir tarafın joker kullanım durumu. Her joker maçta 1×/taraf — kullanıldıysa
+ * bayrak true olur ve bir daha kullanılamaz (faz fark etmez, maç boyu kalıcı).
+ */
+export interface JokerState {
+  /** Çarpan jokeri (×2 / ÷2) kullanıldı mı? */
+  multiplierUsed: boolean;
+  /** "İstatistiği Gör" jokeri kullanıldı mı? */
+  revealUsed: boolean;
+}
+
+function freshJokers(): JokerState {
+  return { multiplierUsed: false, revealUsed: false };
+}
+
 export interface RoundLog {
   /** Hangi fazda oynandı */
   phase: GamePhase;
@@ -50,6 +65,10 @@ export interface RoundLog {
   p2Bonus?: boolean;
   /** Bonus kazanıldı mı (kazanan tarafın kartı bonus kartıydı). */
   bonusAwarded?: boolean;
+  /** Bu turda çarpan jokeri kullanıldıysa: hangi taraf + yön. */
+  multiplier?: { side: PlayerSide; dir: 'x2' | 'half' };
+  /** Bu turda "İstatistiği Gör" jokerini kullanan taraf(lar). */
+  revealUsedBy?: PlayerSide[];
 }
 
 export interface SessionState {
@@ -93,6 +112,23 @@ export interface SessionState {
   bonusAssignSide: PlayerSide;
   /** Bu fazın bonus kararı verildi mi (tek-sefer tetikleme guard'ı). */
   bonusResolved: boolean;
+
+  /** Joker kullanım durumu (maç boyu kalıcı, taraf bazlı). */
+  p1Jokers: JokerState;
+  p2Jokers: JokerState;
+  /**
+   * Bu tur için çarpan jokerini AKTİF EDEN taraf (resolve'dan önce). Resolve
+   * sırasında bu tarafın değeri soru yönüne göre çarpılır. Her tur başında
+   * null'a döner.
+   */
+  pendingMultiplier: PlayerSide | null;
+  /**
+   * "İstatistiği Gör" jokerinin bu turda görsel olarak AKTİF olduğu taraf(lar).
+   * Saf UI bayrağı (kartların değer rozetini göster). Her tur başında temizlenir.
+   * Hot-seat'te P1 ve P2 ayrı ayrı kullanabildiği için iki bayrak.
+   */
+  p1RevealActive: boolean;
+  p2RevealActive: boolean;
 }
 
 export type SessionEvent =
@@ -109,6 +145,18 @@ export type SessionEvent =
       p2Value: number | boolean | null;
       winner: PlayerSide | 'tie';
       tiebreakerUsed?: string;
+      /** Çarpan jokeri uygulandıysa hangi taraf + yön (log + reveal için). */
+      multiplier?: { side: PlayerSide; dir: 'x2' | 'half' };
+    }
+  | {
+      /** Çarpan jokerini aktif et (resolve'dan önce). Tek kullanım/taraf. */
+      type: 'JOKER_MULTIPLIER';
+      side: PlayerSide;
+    }
+  | {
+      /** "İstatistiği Gör" jokerini aktif et (kart seçmeden önce, görsel). */
+      type: 'JOKER_REVEAL';
+      side: PlayerSide;
     }
   | { type: 'ROUND_ACK' }
   | { type: 'PHASE_TRANSITION_ACK' }
@@ -161,6 +209,11 @@ export function initialSession(gameId: string, seed: string): SessionState {
     p2BonusCards: [null, null, null],
     bonusAssignSide: 'P1',
     bonusResolved: false,
+    p1Jokers: freshJokers(),
+    p2Jokers: freshJokers(),
+    pendingMultiplier: null,
+    p1RevealActive: false,
+    p2RevealActive: false,
   };
 }
 
@@ -213,6 +266,11 @@ export function reduceSession(
         currentQuestionId: event.questionId,
         currentP1Card: null,
         currentP2Card: null,
+        // Yeni tur: çarpan beklentisi + reveal görseli sıfırlanır
+        // (joker KULLANILDI bayrakları kalıcı — sıfırlanmaz).
+        pendingMultiplier: null,
+        p1RevealActive: false,
+        p2RevealActive: false,
         scene: 'ROUND_PLAY',
       };
 
@@ -245,6 +303,11 @@ export function reduceSession(
         p1Bonus,
         p2Bonus,
         bonusAwarded: winnerBonus,
+        multiplier: event.multiplier,
+        revealUsedBy: [
+          ...(state.p1RevealActive ? (['P1'] as PlayerSide[]) : []),
+          ...(state.p2RevealActive ? (['P2'] as PlayerSide[]) : []),
+        ],
       };
       return {
         ...state,
@@ -253,6 +316,10 @@ export function reduceSession(
         p1Score: state.p1Score + (winnerSide === 'P1' ? points : 0),
         p2Score: state.p2Score + (winnerSide === 'P2' ? points : 0),
         history: [...state.history, log],
+        // Çarpan beklentisi tüketildi; reveal görseli reveal sahnesinde gereksiz.
+        pendingMultiplier: null,
+        p1RevealActive: false,
+        p2RevealActive: false,
         scene: 'ROUND_REVEAL',
       };
     }
@@ -305,6 +372,10 @@ export function reduceSession(
           p1BonusCards: [null, null, null],
           p2BonusCards: [null, null, null],
           bonusResolved: true,
+          // Tur-içi joker görselleri sıfırlanır (KULLANILDI bayrakları kalıcı).
+          pendingMultiplier: null,
+          p1RevealActive: false,
+          p2RevealActive: false,
         };
       }
 
@@ -357,6 +428,37 @@ export function reduceSession(
         return { ...state, bonusAssignSide: 'P2' };
       }
       return { ...state, scene: 'ROUND_INTRO' };
+    }
+
+    case 'JOKER_MULTIPLIER': {
+      // Tek kullanım/taraf + tur başına tek aktivasyon. Guard'lar UI'da da var
+      // ama reducer son sözü söyler (idempotent koruma).
+      const used =
+        event.side === 'P1'
+          ? state.p1Jokers.multiplierUsed
+          : state.p2Jokers.multiplierUsed;
+      if (used || state.pendingMultiplier !== null) return state;
+      const key = event.side === 'P1' ? 'p1Jokers' : 'p2Jokers';
+      return {
+        ...state,
+        [key]: { ...state[key], multiplierUsed: true },
+        pendingMultiplier: event.side,
+      };
+    }
+
+    case 'JOKER_REVEAL': {
+      const used =
+        event.side === 'P1'
+          ? state.p1Jokers.revealUsed
+          : state.p2Jokers.revealUsed;
+      if (used) return state;
+      const jokerKey = event.side === 'P1' ? 'p1Jokers' : 'p2Jokers';
+      const activeKey = event.side === 'P1' ? 'p1RevealActive' : 'p2RevealActive';
+      return {
+        ...state,
+        [jokerKey]: { ...state[jokerKey], revealUsed: true },
+        [activeKey]: true,
+      };
     }
 
     case 'GAME_RESET':

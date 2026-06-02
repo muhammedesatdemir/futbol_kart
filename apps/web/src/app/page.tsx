@@ -1,5 +1,6 @@
 import { getTranslations } from 'next-intl/server';
 import { StepCard } from '@/components/StepCard';
+import { JokerInfoCard } from '@/components/JokerInfoCard';
 import { HomeHero } from '@/components/HomeHero';
 import { UserMenu } from '@/components/UserMenu';
 import { NewGameButton } from '@/components/NewGameButton';
@@ -76,6 +77,40 @@ export default async function HomePage() {
             title={t('step4Title')}
             body={t('step4Body')}
             delay={0.18}
+          />
+        </div>
+
+        {/* === Jokerler === */}
+        <div className="mt-20 mb-8 flex flex-col items-center text-center">
+          <span className="text-[11px] font-semibold uppercase tracking-[0.22em] text-accent-goldHi">
+            {t('jokersKicker')}
+          </span>
+          <h2 className="mt-3 text-balance text-3xl font-black tracking-tight sm:text-4xl">
+            {t('jokersTitle')}
+          </h2>
+          <p className="mt-3 max-w-xl text-sm leading-relaxed text-white/55">
+            {t('jokersSubtitle')}
+          </p>
+        </div>
+
+        <div className="grid gap-3 sm:grid-cols-3">
+          <JokerInfoCard
+            emoji="✖️"
+            title={t('joker1Title')}
+            body={t('joker1Body')}
+            delay={0}
+          />
+          <JokerInfoCard
+            emoji="👁"
+            title={t('joker2Title')}
+            body={t('joker2Body')}
+            delay={0.06}
+          />
+          <JokerInfoCard
+            emoji="🔄"
+            title={t('joker3Title')}
+            body={t('joker3Body')}
+            delay={0.12}
           />
         </div>
 

@@ -17,20 +17,25 @@ export const SUDDEN_ROUNDS = 1;
 // Süre (geri sayım) sabitleri
 // ===========================
 
+/**
+ * Tüm geri sayım süreleri ~1.7× artırıldı (kullanıcı geri bildirimi: süreler
+ * kısaydı, "ne olduğunu anlayamadan bitiyordu"). Bot süre kullanmaz (anlık).
+ */
+
 /** Tur içi kart oynama süresi (sn). Süre dolarsa rastgele kart otomatik oynanır. */
-export const CARD_PLAY_SECONDS = 20;
+export const CARD_PLAY_SECONDS = 34;
 
 /** Bonus kategori atama süresi (sn). Süre dolarsa fizibil otomatik tamamlanır. */
-export const BONUS_ASSIGN_SECONDS = 30;
+export const BONUS_ASSIGN_SECONDS = 50;
 
 /** Transfer jokeri değiş-tokuş süresi (sn). */
-export const TRANSFER_SECONDS = 15;
+export const TRANSFER_SECONDS = 30;
 
 /**
- * El hazırlama süresi (sn) — kart sayısına orantılı: handSize×8, en az 25.
- * 8 kart → 64 (≈60), 4 kart → 32 (≈35'e yuvarlanmaz, 32 kalır), 1 kart → 25 (min).
+ * El hazırlama süresi (sn) — kart sayısına orantılı: handSize×13, en az 40.
+ * 8 kart → 104, 4 kart → 52, 1 kart → 40 (min).
  * Süre dolarsa eksik kartlar rastgele tamamlanıp otomatik onaylanır.
  */
 export function handPickSeconds(handSize: number): number {
-  return Math.max(25, handSize * 8);
+  return Math.max(40, handSize * 13);
 }

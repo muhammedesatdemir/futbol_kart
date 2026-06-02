@@ -35,12 +35,12 @@ Detaylı veri raporu: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT
 - ✅ **Soru çözücü** — Şablon başına resolver + parametrik şablonlarda runtime değer üretimi + başlık interpolasyonu (`{targetApps}` → 500) + 50/50 Vitest testleri yeşil.
 - ✅ **Adil beraberlik mantığı** — Değerler eşitse tur her zaman berabere; rastgele/keyfî kazanan asla belirlenmez. Eşitlik yalnızca uzatma → penaltı fazlarıyla kırılır.
 - ✅ **Çeşitlilik garantisi** — Soru seçici üst üste aynı kategoriden soru sormaz (havuz daralmadıkça); 7 turlu simülasyonda ardışık tekrar oranı %0.
-- ✅ **3 Zorunlu Kategori bonus mekaniği** — Ana maç başında (kart seçiminden sonra) 3 kategori-koşulu açılır; oyuncu 8 kartlık elinden 3'ünü bu koşullara atar. Bu kartlar turunu kazanırsa **+2 puan** (normal +1). Koşullar predicate motoruyla seçilir (33 koşul: pozisyon/milliyet/lig/kulüp/kupa/turnuva/istatistik), çatışma grubu farklı + her iki elde de **bipartite eşleştirmeyle fizibilite garantili** (deadlock imkansız). Round ekranında bonus kartlar "⭐ +2" rozeti + altın çerçeyle işaretlenir. Bot otomatik atar. **Atama süresi 30 sn**; süre dolunca `completeBonusAssignment` ile **fizibil otomatik tamamlama**: önce kullanıcının geçerli seçimleri sabit tutulup boşlar doldurulur, çıkmaz olursa kullanıcı seçimleri "tercih" kabul edilip gerekirse fizibilite için kart doğru kategoriye taşınır (örn. bir kart tek uygun olduğu kategoriye kaydırılır) — 3 kategori de **kesinlikle dolar**.
+- ✅ **3 Zorunlu Kategori bonus mekaniği** — Ana maç başında (kart seçiminden sonra) 3 kategori-koşulu açılır; oyuncu 8 kartlık elinden 3'ünü bu koşullara atar. Bu kartlar turunu kazanırsa **+2 puan** (normal +1). Koşullar predicate motoruyla seçilir (33 koşul: pozisyon/milliyet/lig/kulüp/kupa/turnuva/istatistik), çatışma grubu farklı + her iki elde de **bipartite eşleştirmeyle fizibilite garantili** (deadlock imkansız). Round ekranında bonus kartlar "⭐ +2" rozeti + altın çerçeyle işaretlenir. Bot otomatik atar. **Atama süresi 50 sn**; süre dolunca `completeBonusAssignment` ile **fizibil otomatik tamamlama**: önce kullanıcının geçerli seçimleri sabit tutulup boşlar doldurulur, çıkmaz olursa kullanıcı seçimleri "tercih" kabul edilip gerekirse fizibilite için kart doğru kategoriye taşınır (örn. bir kart tek uygun olduğu kategoriye kaydırılır) — 3 kategori de **kesinlikle dolar**.
 - ✅ **3 Joker (özel hamle)** — Maç boyu **1×/taraf**, hot-seat + vs-bot (bot dahil). İlk ikisi inline (yeni sahne yok); **büyük joker barı** ikon (SVG) + kalan-hak rozeti + durum (HAZIR/AKTİF/KULLANILDI/UYGUN DEĞİL) + "?" açıklama popover'ı ile sunulur. Basınca **pulse + el bölgesine altın aura + aktivasyon ışık dalgası** (oyunvari geri bildirim).
   - **Çarpan (×2 / ÷2):** Soru `max` ise kartının değerini **×2**, `min` ise **÷2** yapar — yön soruya göre **otomatik/akıllı** seçilir; `bool`/proximity/yıl-ay-gün gibi nicelik-olmayan sorularda uygun değil (buton disabled). ÷2 **ham ondalık** değerle karşılaştırılır (yapay eşitlik yok). Resolve katmanında uygulanır (`resolveCards(doubleSide)`) — resolver saf kalır; kazanan çarpan sonrası yeniden hesaplanır.
   - **İstatistiği Gör (👁):** Kart seçmeden kendi elindeki her kartın o sorudaki değerini kart üzerinde rozet olarak gösterir (rakibin eli gizli, saf görsel — state değişmez).
   - **Transfer Hamlesi (🔄):** Tur başında (soru açıklanmadan, **her fazın son turu hariç**) açılan opsiyonel `ROUND_TRANSFER` sahnesi. Rakibin transfer-edilebilir kartlarını **açık** görüp 1 kart ver / 1 kart al (değiş-tokuş) — **açık + yarı-geçici** model (kör değil): bakış bir geri sayımla sınırlı. **3 bonus kart + transfer-kilitli kartlar havuz dışı** (ana maçta 5 kart; uzatma/penaltıda tüm el); alınan kart `transferLockedIds` ile **geri alınamaz**. Joker'e basınca transfer **kesin olur**: süre dolarsa veya seçim eksikse sistem deterministik (PRNG) **otomatik tamamlar** (akıllı buton: Rastgele / Eksiği tamamla / Takas et). Rakibin transfer-edilebilir kartı yoksa teklif gösterilmez, **hak korunur** (açıklama gösterilir). Bot ~%25 olasılıkla değiş-tokuş yapar; bot'un transferi rakibe de **4. hakem oyuncu-değişikliği tabelasıyla** (LED forma no + yeşil giren / kırmızı çıkan) gösterilir. Tur sonu reveal'ında hangi tarafın hangi jokeri kullandığı özetlenir.
-- ✅ **Geri sayım süreleri (CountdownRing)** — Tek **yeniden kullanılabilir** dairesel sayaç (SVG halka, akıcı `requestAnimationFrame` doluş, son %30'da kırmızıya döner + nabız, `prefers-reduced-motion` uyumlu) dört ayrı yerde, farklı renk/süreyle: **el hazırlama** (kart sayısına orantılı — 8→64sn / 4→32sn / 1→25sn, altın), **bonus atama** (30sn, altın), **transfer** (15sn, kırmızı/amber), **tur içi kart oynama** (20sn, mavi). Süre dolunca her biri kendi "akıllı" tamamlamasını yapar — el: eksik kartlar rastgele tamamlanır + oto-onay; tur içi: elden rastgele kart oynanır (deterministik PRNG); bonus/transfer: fizibil otomatik tamamlama. Botta süre yok (zaten anlık karar).
+- ✅ **Geri sayım süreleri (CountdownRing)** — Tek **yeniden kullanılabilir** dairesel sayaç (SVG halka, akıcı `requestAnimationFrame` doluş, son %30'da kırmızıya döner + nabız, `prefers-reduced-motion` uyumlu) dört ayrı yerde, farklı renk/süreyle: **el hazırlama** (kart sayısına orantılı — 8→104sn / 4→52sn / 1→40sn, altın), **bonus atama** (50sn, altın), **transfer** (30sn, kırmızı/amber), **tur içi kart oynama** (34sn, mavi). Süre dolunca her biri kendi "akıllı" tamamlamasını yapar — el: eksik kartlar rastgele tamamlanır + oto-onay; tur içi: elden rastgele kart oynanır (deterministik PRNG); bonus/transfer: fizibil otomatik tamamlama. Botta süre yok (zaten anlık karar).
 - ✅ **Uzatma + sudden death** — Eşitlikte otomatik faz geçişi.
 - ✅ **Ses katmanı** — Kart flip, tur kazanma, beraberlik ve final fanfarı (native HTMLAudioElement, `useSfx`). `SoundToggle` ile aç/kapa; kapalıyken hiç indirme yapılmaz. Yeniden-oynamada tekrar-çalma bug'ı (prevScene guard) giderildi.
 - ✅ **Frontend** — Next.js 14 App Router, sahne shell (mode → pick → handoff → **bonus** → round → final), Framer Motion animasyonlar, Zustand + sessionStorage persist, next-intl (TR).
@@ -406,14 +406,14 @@ prestij şablonları (Ballon d'Or, UCL kupası) bilinçli olarak nadir sorulur (
    - Varsayılan: 16 efsane + 16 güncel kürasyonlu görünüm
    - ⌘K ile arama (ad/ülke/lig/takım/forma)
    - Pozisyon (FW/MID/DEF/GK), ülke, çağ (aktif/modern/efsane) filtreleri
-   - 8 kart seç (veya 🎲 Rastgele) → "Maçı Başlat" — **geri sayım** (8 kart için ~60sn; süre dolarsa eksikler rastgele tamamlanır)
-5. **Bonus tur (ana maç)** → 3 kategori-koşulu açılır; elinden 3 kart ata (her biri turunu kazanırsa +2) — **30sn**; süre dolunca fizibil otomatik tamamlanır
+   - 8 kart seç (veya 🎲 Rastgele) → "Maçı Başlat" — **geri sayım** (8 kart için ~104sn; süre dolarsa eksikler rastgele tamamlanır)
+5. **Bonus tur (ana maç)** → 3 kategori-koşulu açılır; elinden 3 kart ata (her biri turunu kazanırsa +2) — **50sn**; süre dolunca fizibil otomatik tamamlanır
 6. **7 tur oyna**:
    - Round intro stinger (~750ms)
-   - **Transfer Hamlesi teklifi** (tur başı, son tur hariç): kullan → 🔄 değiş-tokuş sahnesi (15sn); geç → devam
+   - **Transfer Hamlesi teklifi** (tur başı, son tur hariç): kullan → 🔄 değiş-tokuş sahnesi (30sn); geç → devam
    - Soru reveal — 106 şablondan rastgele (ardışık aynı kategori gelmez), parametrik ise runtime değer atanıp başlığa işlenir
    - **Joker barı**: ✖️ Çarpan (×2/÷2) · 👁 İstatistiği Gör · 🔄 Transfer (durum) — kalan hak + "?" açıklama
-   - P1 kart oyna (**20sn** geri sayım; süre dolarsa rastgele oynanır) → (vs-bot: bot ~600ms düşünür) → P2 kart oyna; bonus kartlar "⭐ +2" rozetli
+   - P1 kart oyna (**34sn** geri sayım; süre dolarsa rastgele oynanır) → (vs-bot: bot ~600ms düşünür) → P2 kart oyna; bonus kartlar "⭐ +2" rozetli
    - 3D flip + count-up + winner badge (~1450ms) + ses (flip/win/tie); reveal'da kullanılan jokerler + çarpan göstergesi
 7. **Eşitlikte uzatma** (4 kart × 3 tur), eşitlik sürerse **penaltı** (1 kart × 1 soru)
 8. **Final ekranı** — ŞAMPİYON başlığı + fanfar, gold/slate skor barı, "Tur detaylarını göster" collapsible
@@ -444,7 +444,7 @@ Detaylı analiz: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT.md)
 
 ---
 
-## 🗺️ Gelecek Planları (Yol Haritası)
+## 🗺️ Gelecek Planları (Yol Haritası
 
 Mevcut **VS Karşılaştırma** modu (oyuncu kartlarının istatistik düellosu) projenin ana iskeleti.
 Aynı veri katmanı + kart sistemi üzerine oturan **ek oyun modları** planlanıyor. Her biri

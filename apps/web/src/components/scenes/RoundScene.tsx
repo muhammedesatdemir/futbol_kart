@@ -313,6 +313,7 @@ export function RoundScene({
             onCardPlay={onCardPlay}
             revealValues={revealValues}
             revealTemplateId={question?.id ?? ''}
+            revealCompareOp={question?.compareOp ?? 'max'}
           />
         </div>
       )}
@@ -477,6 +478,8 @@ interface HandDisplayProps {
   revealValues: Map<string, number | boolean | null> | null;
   /** Reveal rozeti formatı için soru id'si. */
   revealTemplateId: string;
+  /** Sorunun yönü — "en iyi cevap" vurgusu için (max/min/bool). */
+  revealCompareOp: 'max' | 'min' | 'bool';
 }
 
 /**
@@ -499,10 +502,16 @@ function HandDisplay({
   onCardPlay,
   revealValues,
   revealTemplateId,
+  revealCompareOp,
 }: HandDisplayProps) {
   // Vs-bot ve P1 kartını seçmiş — bot sırası
   const botWaitingForP1Reveal =
     botMode && activeSide === 'P2' && currentP1Card !== null;
+
+  // İstatistik jokeri açıkken "en iyi cevap" kartlarını belirle (madde 3):
+  // compareOp'a göre en iyi değere sahip kart(lar). bool → true olanlar.
+  // Eşitlikte hepsi vurgulanır. revealValues yoksa boş set.
+  const bestCardIds = computeBestRevealCards(revealValues, revealCompareOp);
 
   // Bot beklerken P1'in eli gösterilir → P1 bonus seti; aksi halde aktif taraf.
   const shownBonus = new Set(
@@ -568,6 +577,9 @@ function HandDisplay({
             if (!p) return null;
             const isBonus = shownBonus.has(id);
             const hasReveal = revealValues?.has(id) ?? false;
+            // En iyi cevap (madde 3): istatistik açıkken bu sorunun en iyi
+            // değerli kartı altın çerçeve + glow + "★ EN İYİ" ile işaretlenir.
+            const isBest = hasReveal && bestCardIds.has(id);
             return (
               <div
                 key={id}
@@ -575,7 +587,8 @@ function HandDisplay({
                 onClick={() => onCardPlay(id)}
                 className={cn(
                   'relative transition hover:-translate-y-1',
-                  isBonus && 'drop-shadow-[0_0_18px_rgba(240,193,75,0.45)]',
+                  isBonus && !isBest && 'drop-shadow-[0_0_18px_rgba(240,193,75,0.45)]',
+                  isBest && '-translate-y-1 drop-shadow-[0_0_26px_rgba(255,215,107,0.85)]',
                 )}
               >
                 {isBonus && <BonusTag />}
@@ -583,9 +596,18 @@ function HandDisplay({
                   <StatRevealTag
                     templateId={revealTemplateId}
                     value={revealValues!.get(id) ?? null}
+                    best={isBest}
                   />
                 )}
-                <PlayerCard player={p} selected={isBonus} size="md" />
+                {isBest && <BestAnswerTag />}
+                <div
+                  className={cn(
+                    isBest &&
+                      'rounded-xl ring-[3px] ring-accent-goldHi ring-offset-2 ring-offset-transparent',
+                  )}
+                >
+                  <PlayerCard player={p} selected={isBonus} size="md" />
+                </div>
               </div>
             );
           })}
@@ -605,21 +627,78 @@ function BonusTag() {
 }
 
 /**
- * "İstatistiği Gör" rozeti — kartın sağ üstüne, bu sorudaki değeri gösterir.
- * Cyan/teal renk teması ile bonus (altın) rozetinden ayrışır.
+ * "İstatistiği Gör" rozeti — kartın ALT ortasına oturan belirgin bant
+ * (madde 2: eskiden çok küçüktü). Bu sorudaki değeri büyük + okunaklı gösterir.
+ * En iyi cevapsa altın, değilse cyan tema.
  */
 function StatRevealTag({
   templateId,
   value,
+  best,
 }: {
   templateId: string;
   value: number | boolean | null;
+  best?: boolean;
 }) {
   return (
-    <span className="pointer-events-none absolute -right-1 -top-2 z-20 max-w-[88%] truncate rounded-full bg-gradient-to-r from-cyan-400 to-sky-500 px-1.5 py-0.5 text-[10px] font-black leading-none tracking-wide text-black shadow-[0_0_12px_rgba(56,189,248,0.55)] ring-1 ring-black/20">
+    <span
+      className={cn(
+        'pointer-events-none absolute -bottom-3 left-1/2 z-30 -translate-x-1/2 whitespace-nowrap',
+        'rounded-lg px-2.5 py-1 text-sm font-black leading-none tracking-wide text-black',
+        'ring-2 ring-black/30',
+        best
+          ? 'bg-gradient-to-r from-accent-goldHi to-accent-gold shadow-[0_0_18px_rgba(255,215,107,0.85)]'
+          : 'bg-gradient-to-r from-cyan-300 to-sky-400 shadow-[0_0_16px_rgba(56,189,248,0.7)]',
+      )}
+    >
       👁 {formatValue(templateId, value)}
     </span>
   );
+}
+
+/**
+ * "★ EN İYİ" etiketi — en iyi cevabın SAĞ üstüne (madde 3). Sağ üst tercih
+ * edildi: sol üstte bonus "⭐ +2" etiketi olabilir, çakışmasın.
+ */
+function BestAnswerTag() {
+  return (
+    <span className="pointer-events-none absolute -right-1 -top-2 z-30 rounded-full bg-gradient-to-r from-amber-300 to-accent-goldHi px-2 py-0.5 text-[10px] font-black uppercase leading-none tracking-wide text-black shadow-glow-gold ring-1 ring-black/30">
+      ★ EN İYİ
+    </span>
+  );
+}
+
+/**
+ * İstatistik açıkken bu sorunun "en iyi cevap" kart id'lerini hesaplar.
+ *   - max → en yüksek değer(ler)
+ *   - min → en düşük değer(ler)
+ *   - bool → değeri true olan kart(lar)
+ * Eşitlikte birden fazla kart döner. null/eksik değerli kartlar dışlanır.
+ */
+function computeBestRevealCards(
+  revealValues: Map<string, number | boolean | null> | null,
+  compareOp: 'max' | 'min' | 'bool',
+): Set<string> {
+  const out = new Set<string>();
+  if (!revealValues) return out;
+
+  if (compareOp === 'bool') {
+    for (const [id, v] of revealValues) if (v === true) out.add(id);
+    return out;
+  }
+
+  // Sayısal: en iyi (max/min) değeri bul, ona eşit olan tüm kartları işaretle.
+  let best: number | null = null;
+  for (const [, v] of revealValues) {
+    if (typeof v !== 'number') continue;
+    if (best === null) best = v;
+    else best = compareOp === 'max' ? Math.max(best, v) : Math.min(best, v);
+  }
+  if (best === null) return out;
+  for (const [id, v] of revealValues) {
+    if (typeof v === 'number' && v === best) out.add(id);
+  }
+  return out;
 }
 
 /**

@@ -213,29 +213,30 @@ function SlotGrid({
     .filter((r) => r.length > 0);
 
   return (
-    <div className="flex flex-col gap-4">
+    <div className="flex flex-col gap-3 sm:gap-4">
       {rows.map((row, i) => (
-        <div key={i} className="flex justify-center gap-4 sm:gap-6">
+        <div key={i} className="flex justify-center gap-2 sm:gap-3">
           {row.map((slot) => {
             const pid = assignment[slot.id];
             const player = pid ? playersById.get(pid) : undefined;
             const active = activeSlot === slot.id;
             return (
-              <div key={slot.id} className="flex flex-col items-center gap-1">
+              // Esnek genişlik: 4 DEF yan yana tek sahada sığsın (max ~96px).
+              <div key={slot.id} className="flex min-w-0 flex-1 flex-col items-center gap-1" style={{ maxWidth: 96 }}>
                 <button
                   type="button"
                   onClick={() => onPick(slot.id)}
                   className={cn(
-                    'relative flex h-32 w-24 items-center justify-center rounded-xl border-2 border-dashed transition sm:h-40 sm:w-28',
+                    'relative flex aspect-[3/4] w-full items-center justify-center rounded-xl border-2 border-dashed transition',
                     active
                       ? 'border-accent-goldHi bg-accent-gold/10 shadow-glow-gold'
                       : 'border-white/25 bg-white/5 hover:border-white/40',
                   )}
                 >
                   {player ? (
-                    <PlayerCard player={player} size="md" className="w-full" />
+                    <PlayerCard player={player} size="sm" className="w-full" />
                   ) : (
-                    <span className="text-sm font-bold text-white/55">
+                    <span className="text-xs font-bold text-white/55 sm:text-sm">
                       {slot.label}
                     </span>
                   )}

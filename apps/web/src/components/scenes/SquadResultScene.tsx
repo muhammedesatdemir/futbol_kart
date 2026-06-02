@@ -65,13 +65,14 @@ export function SquadResultScene({
   const [revealed, setRevealed] = useState(0);
   const done = revealed >= orderedSlots.length;
 
-  // Sıralı açılım: ~750ms aralıkla bir slot çifti aç + flip sesi.
+  // Sıralı açılım: bir slot çifti aç + flip sesi. 1.6× yavaşlatıldı
+  // (aralık 850→1350ms) — daha dramatik, 11 oyuncuyla toplam ~15sn.
   useEffect(() => {
     if (done) return;
     const t = setTimeout(() => {
       setRevealed((r) => r + 1);
       playSfx('flip');
-    }, revealed === 0 ? 500 : 850);
+    }, revealed === 0 ? 700 : 1350);
     return () => clearTimeout(t);
   }, [revealed, done, playSfx]);
 
@@ -240,29 +241,30 @@ function SquadField({
           <span className="ml-1 text-xs font-semibold text-white/50">{unit}</span>
         </div>
       </div>
-      <div className="flex flex-col gap-3">
+      <div className="flex flex-col gap-2 sm:gap-2.5">
         {rows.map((row, i) => (
-          <div key={i} className="flex justify-center gap-2 sm:gap-3">
+          <div key={i} className="flex justify-center gap-1.5">
             {row.map((slot) => {
               const pid = assignment[slot.id];
               const player = pid ? playersById.get(pid) : undefined;
               const idx = revealIndex.get(slot.id) ?? 99;
               const isOpen = revealed > idx;
               return (
-                <div key={slot.id} className="flex w-20 flex-col items-center sm:w-24">
+                // Esnek genişlik: 4 DEF yan yana iki sahada sığsın (max ~58px).
+                <div key={slot.id} className="flex min-w-0 flex-1 flex-col items-center" style={{ maxWidth: 58 }}>
                   <AnimatePresence mode="wait">
                     {isOpen && player ? (
                       <motion.div
                         key="open"
                         initial={{ rotateY: 90, opacity: 0 }}
                         animate={{ rotateY: 0, opacity: 1 }}
-                        transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+                        transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                         className="w-full"
                       >
                         <PlayerCard player={player} size="sm" className="w-full" />
                       </motion.div>
                     ) : (
-                      <div className="flex h-24 w-full items-center justify-center rounded-lg border border-white/10 bg-white/5 text-xs text-white/40 sm:h-28">
+                      <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[10px] text-white/40">
                         {slot.label}
                       </div>
                     )}

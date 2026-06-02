@@ -29,8 +29,30 @@ export interface Formation {
 }
 
 /**
- * İnce dilim formasyonu — görseldeki "En kısa kadroyu kur" ile birebir:
- * 1 KL + 2 DEF + 2 ORT + 1 FOR = 6 slot. (Tam 11'lik formasyonlar sonra eklenir.)
+ * 4-3-3 — tam saha (varsayılan): 1 KL + 4 DEF + 3 ORT + 3 FOR = 11 slot.
+ * Veri fazlasıyla yeter (boy: GK 357 / DEF 1446 / MID 2222 / FWD 3686).
+ */
+export const FORMATION_433: Formation = {
+  id: 'f433',
+  name: '4-3-3',
+  slots: [
+    { id: 'gk', position: 'GK', label: 'KL' },
+    { id: 'def1', position: 'DEF', label: 'DEF' },
+    { id: 'def2', position: 'DEF', label: 'DEF' },
+    { id: 'def3', position: 'DEF', label: 'DEF' },
+    { id: 'def4', position: 'DEF', label: 'DEF' },
+    { id: 'mid1', position: 'MID', label: 'ORT' },
+    { id: 'mid2', position: 'MID', label: 'ORT' },
+    { id: 'mid3', position: 'MID', label: 'ORT' },
+    { id: 'fwd1', position: 'FWD', label: 'FOR' },
+    { id: 'fwd2', position: 'FWD', label: 'FOR' },
+    { id: 'fwd3', position: 'FWD', label: 'FOR' },
+  ],
+};
+
+/**
+ * Eski 6 slot'luk formasyon — varsayılan değil, ileride "formasyon seç" için durur.
+ * 1 KL + 2 DEF + 2 ORT + 1 FOR.
  */
 export const FORMATION_6: Formation = {
   id: 'f6_1221',
@@ -45,7 +67,7 @@ export const FORMATION_6: Formation = {
   ],
 };
 
-export const FORMATIONS: Formation[] = [FORMATION_6];
+export const FORMATIONS: Formation[] = [FORMATION_433, FORMATION_6];
 
 /** Bir kriterin değerini bir oyuncudan çıkaran fonksiyon (eksikse null). */
 export type SquadMetric = (p: Player) => number | null;

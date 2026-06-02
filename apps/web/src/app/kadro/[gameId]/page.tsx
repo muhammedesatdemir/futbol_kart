@@ -16,7 +16,7 @@ import { UserMenu } from '@/components/UserMenu';
 import { useGameSession } from '@/lib/GameSessionProvider';
 import { createPRNG } from '@futbol-kart/game-engine';
 import {
-  FORMATION_6,
+  FORMATION_433,
   SQUAD_CRITERIA,
   CRITERION_TALLEST,
   criterionById,
@@ -38,7 +38,7 @@ export default function SquadGamePage() {
   const params = useParams<{ gameId: string }>();
   const session = useGameSession();
 
-  const formation = FORMATION_6;
+  const formation = FORMATION_433;
 
   const playersById = useMemo(() => {
     const m = new Map(session.players.map((p) => [p.id, p]));

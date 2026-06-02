@@ -139,6 +139,18 @@ export function EyeIcon(props: IconProps) {
   );
 }
 
+/** Transfer — iki yönlü değiş-tokuş okları. */
+export function SwapIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M7 4 3 8l4 4" />
+      <path d="M3 8h13" />
+      <path d="M17 20l4-4-4-4" />
+      <path d="M21 16H8" />
+    </Icon>
+  );
+}
+
 /** Joker (genel) — sihirli değnek / yıldız tını; bar başlığı için. */
 export function JokerWandIcon(props: IconProps) {
   return (

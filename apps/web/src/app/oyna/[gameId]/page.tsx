@@ -1,12 +1,13 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useRef } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
-import type { GameMode } from '@futbol-kart/shared-types';
+import type { GameMode, Player } from '@futbol-kart/shared-types';
 import { Scoreboard } from '@/components/Scoreboard';
-import { HomeIcon } from '@/components/icons';
+import { HomeIcon, SwapIcon } from '@/components/icons';
+import { cn } from '@/lib/cn';
 import { SceneShell } from '@/components/scenes/SceneShell';
 import { ModeSelectScene } from '@/components/scenes/ModeSelectScene';
 import { CardPickScene } from '@/components/scenes/CardPickScene';
@@ -34,8 +35,16 @@ import {
   bonusConditionContext,
   revealHand,
   botMultiplierDecision,
+  completeTransfer,
 } from '@/lib/gameFlow';
-import { canUseMultiplier, multiplierDirection } from '@/lib/jokers';
+import {
+  canUseMultiplier,
+  multiplierDirection,
+  transferableCards,
+  canUseTransfer,
+  botTransferChoice,
+} from '@/lib/jokers';
+import { TransferScene } from '@/components/scenes/TransferScene';
 import { BonusAssignScene } from '@/components/scenes/BonusAssignScene';
 import { templateById } from '@futbol-kart/question-templates';
 
@@ -71,6 +80,14 @@ export default function GameSessionPage() {
 
   const botTimerRef = useRef<NodeJS.Timeout | null>(null);
   const playSfx = useSfx();
+
+  // Transfer teklif kapısı: her tur (faz+roundIndex) için en fazla bir kez işlenir.
+  // Değer = işlenen turun anahtarı; question-pick effect'i bu çözülene dek bekler.
+  const transferHandledRef = useRef<string | null>(null);
+  // İnsan oyuncuya transfer teklifi gösterilsin mi (ROUND_INTRO overlay).
+  const [transferOffer, setTransferOffer] = useState(false);
+  // Rakip havuzu boşken: "transfer kullanılamadı, hakkın korunuyor" bilgisi.
+  const [transferBlockedNote, setTransferBlockedNote] = useState(false);
 
   useEffect(() => {
     return () => {
@@ -217,12 +234,127 @@ export default function GameSessionPage() {
     dispatch,
   ]);
 
+  // ROUND_INTRO transfer KAPISI — soru seçilmeden önce transfer teklifi.
+  // Her tur için bir kez: bot otomatik karar verir; insan için overlay açılır.
+  // Çözülünce transferHandledRef o turun anahtarına set edilir.
+  useEffect(() => {
+    if (state.scene !== 'ROUND_INTRO') return;
+    if (state.p1Hand.length === 0 || state.p2Hand.length === 0) return;
+    if (state.phase === 'main' && state.roundIndex === 0 && !state.bonusResolved)
+      return;
+    const roundKey = `${state.phase}-${state.roundIndex}`;
+    // P1 bu turda transfer yaptıysa (ROUND_TRANSFER'den döndük) → çözülmüş say.
+    // (P2/bot transferi P1'in teklifini engellemez.)
+    if (state.transferThisRound === 'P1') {
+      transferHandledRef.current = roundKey;
+      setTransferOffer(false);
+      return;
+    }
+    if (transferHandledRef.current === roundKey) return;
+
+    // Transfer kullanılabilirliği (effect içinde hesapla — render sırasına bağlı değil).
+    const isLast = state.roundIndex + 1 >= state.totalRounds;
+    const ownPool = transferableCards(
+      state.p1Hand,
+      state.p1BonusCards,
+      state.transferLockedIds,
+    );
+    const oppPool = transferableCards(
+      state.p2Hand,
+      state.p2BonusCards,
+      state.transferLockedIds,
+    );
+    const usable = canUseTransfer(
+      state.p1Jokers.transferUsed,
+      isLast,
+      ownPool.length,
+    );
+
+    // Hak yok / son tur / kendi havuzu boş → kapıyı sessizce geç.
+    if (!usable) {
+      transferHandledRef.current = roundKey;
+      return;
+    }
+
+    // Kendi havuzu uygun ama RAKİP havuzu boşsa: teklif gösterme, HAK KORUNUR.
+    // Kullanıcıya bunun neden olduğunu açıkla (bug değil — kalan kartlar bonus/kilitli).
+    if (oppPool.length === 0) {
+      transferHandledRef.current = roundKey;
+      setTransferBlockedNote(true);
+      return;
+    }
+
+    // İnsan (P1) için transfer teklifi overlay'i aç (hem hot-seat hem vs-bot).
+    // transferHandledRef burada SET EDİLMEZ — insan kararı bekleniyor.
+    setTransferOffer(true);
+  }, [
+    state.scene,
+    state.phase,
+    state.roundIndex,
+    state.totalRounds,
+    state.bonusResolved,
+    state.p1Hand,
+    state.p2Hand,
+    state.p1BonusCards,
+    state.p2BonusCards,
+    state.p1Jokers.transferUsed,
+    state.transferLockedIds,
+    state.transferThisRound,
+  ]);
+
+  // ROUND_INTRO bot transfer kararı (vs-bot) — P1 teklifinden bağımsız, tur başı.
+  // ~%25 olasılıkla bot kör değiş-tokuş yapar (kendi havuzundan ver, P1'den al).
+  const botTransferHandledRef = useRef<string | null>(null);
+  useEffect(() => {
+    if (state.mode !== 'vs-bot') return;
+    if (state.scene !== 'ROUND_INTRO') return;
+    if (state.p1Hand.length === 0 || state.p2Hand.length === 0) return;
+    if (state.phase === 'main' && state.roundIndex === 0 && !state.bonusResolved)
+      return;
+    const roundKey = `${state.phase}-${state.roundIndex}`;
+    if (botTransferHandledRef.current === roundKey) return;
+    botTransferHandledRef.current = roundKey;
+
+    const isLast = state.roundIndex + 1 >= state.totalRounds;
+    const botPool = transferableCards(
+      state.p2Hand,
+      state.p2BonusCards,
+      state.transferLockedIds,
+    );
+    const p1Pool = transferableCards(
+      state.p1Hand,
+      state.p1BonusCards,
+      state.transferLockedIds,
+    );
+    const choice = botTransferChoice(
+      state.p2Jokers.transferUsed,
+      isLast,
+      botPool,
+      p1Pool,
+      () => flow.prng.next(),
+    );
+    if (choice) {
+      dispatch({ type: 'JOKER_TRANSFER_OPEN', side: 'P2' });
+      dispatch({
+        type: 'TRANSFER_EXECUTE',
+        side: 'P2',
+        give: choice.give,
+        take: choice.take,
+      });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.mode, state.scene, state.phase, state.roundIndex, state.bonusResolved]);
+
   // ROUND_INTRO -> soru sec -> ROUND_STARTED (stinger animasyonu için ~750ms bekle)
   useEffect(() => {
     if (state.scene !== 'ROUND_INTRO') return;
     if (state.p1Hand.length === 0 || state.p2Hand.length === 0) return;
     // Bonus kararı verilmeden soru seçme (ana maç ilk turunda BONUS_ASSIGN'a gidilecek).
     if (state.phase === 'main' && state.roundIndex === 0 && !state.bonusResolved) return;
+    // Transfer kapısı çözülmeden soru seçme (insan teklifi açıkken bekle).
+    const roundKey = `${state.phase}-${state.roundIndex}`;
+    if (transferHandledRef.current !== roundKey) return;
+    if (transferOffer) return;
     const q = pickQuestion(flow, state.p1Hand, state.p2Hand);
     if (!q) return;
     const t = setTimeout(
@@ -230,7 +362,7 @@ export default function GameSessionPage() {
       750,
     );
     return () => clearTimeout(t);
-  }, [state.scene, state.p1Hand, state.p2Hand, state.phase, state.roundIndex, state.bonusResolved, flow, dispatch]);
+  }, [state.scene, state.p1Hand, state.p2Hand, state.phase, state.roundIndex, state.bonusResolved, transferOffer, flow, dispatch]);
 
   // ROUND_PLAY: vs-bot ve P1 oynadi -> bot oynar
   useEffect(() => {
@@ -335,6 +467,72 @@ export default function GameSessionPage() {
     [dispatch],
   );
 
+  // Transfer sonuçlandığında gösterilecek "oyuncu değişikliği tabelası" bilgisi.
+  // give = çıkan (verilen, kırmızı), take = giren (alınan, yeşil). auto = sistem tamamladı mı.
+  const [transferResult, setTransferResult] = useState<{
+    give: string;
+    take: string;
+    auto: boolean;
+  } | null>(null);
+
+  // Transfer sonuçlandırma: kullanıcı seçimleri (give/take null olabilir) →
+  // sistem deterministik tamamlar → TRANSFER_EXECUTE. Joker basıldıysa transfer
+  // KESİN gerçekleşir.
+  const onTransferResolve = useCallback(
+    (give: string | null, take: string | null) => {
+      const ownPool = transferableCards(
+        state.p1Hand,
+        state.p1BonusCards,
+        state.transferLockedIds,
+      );
+      const oppPool = transferableCards(
+        state.p2Hand,
+        state.p2BonusCards,
+        state.transferLockedIds,
+      );
+      const choice = completeTransfer(flow, ownPool, oppPool, give, take);
+      if (!choice) {
+        // Transfer imkansız (rakip havuzu boş) — hak zaten yandı, atla.
+        dispatch({ type: 'TRANSFER_SKIP', side: 'P1' });
+        return;
+      }
+      // 4 senaryoda da tabela göster. auto = kullanıcı tam seçim yapmadı (sistem tamamladı).
+      setTransferResult({
+        give: choice.give,
+        take: choice.take,
+        auto: give === null || take === null,
+      });
+      dispatch({
+        type: 'TRANSFER_EXECUTE',
+        side: 'P1',
+        give: choice.give,
+        take: choice.take,
+      });
+    },
+    [
+      dispatch,
+      flow,
+      state.p1Hand,
+      state.p2Hand,
+      state.p1BonusCards,
+      state.p2BonusCards,
+      state.transferLockedIds,
+    ],
+  );
+
+  // Transfer teklifi: "Kullan" → ROUND_TRANSFER sahnesine geç (hak yanar).
+  const onTransferOfferUse = useCallback(() => {
+    transferHandledRef.current = `${state.phase}-${state.roundIndex}`;
+    setTransferOffer(false);
+    dispatch({ type: 'JOKER_TRANSFER_OPEN', side: 'P1' });
+  }, [dispatch, state.phase, state.roundIndex]);
+
+  // Transfer teklifi: "Geç" → teklifi kapat, normal tura devam (hak korunur).
+  const onTransferOfferDismiss = useCallback(() => {
+    transferHandledRef.current = `${state.phase}-${state.roundIndex}`;
+    setTransferOffer(false);
+  }, [state.phase, state.roundIndex]);
+
   if (!hydrated || state.gameId !== params.gameId) return null;
 
   const botMode = state.mode === 'vs-bot';
@@ -400,6 +598,24 @@ export default function GameSessionPage() {
           ]),
         )
       : null;
+
+  // -------- Transfer jokeri (ROUND_INTRO/ROUND_TRANSFER) --------
+  // Transfer teklifi her turun başında verilir; "sahibi" insan tarafı P1
+  // (hot-seat'te tur başı aktörü, vs-bot'ta oyuncu — bot ayrı karar verir).
+  const transferOwnPool = transferableCards(
+    state.p1Hand,
+    state.p1BonusCards,
+    state.transferLockedIds,
+  );
+  const transferOppPool = transferableCards(
+    state.p2Hand,
+    state.p2BonusCards,
+    state.transferLockedIds,
+  );
+  const toPlayers = (ids: string[]) =>
+    ids
+      .map((id) => session.players.find((p) => p.id === id))
+      .filter(Boolean) as typeof session.players;
 
   // BONUS_ASSIGN sahnesi için: aktif taraf + eli + atamaları.
   const bonusSide = state.bonusAssignSide;
@@ -482,7 +698,7 @@ export default function GameSessionPage() {
 
       {/* Round intro stinger — sahne shell'i dışında, overlay olarak */}
       <AnimatePresence>
-        {state.scene === 'ROUND_INTRO' && (
+        {state.scene === 'ROUND_INTRO' && !transferOffer && (
           <RoundStinger
             key={`stinger-${state.phase}-${state.roundIndex}`}
             round={state.roundIndex + 1}
@@ -494,6 +710,35 @@ export default function GameSessionPage() {
                   ? 'Penaltı'
                   : undefined
             }
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Transfer teklifi — ROUND_INTRO'da, soru açıklanmadan önce. */}
+      <AnimatePresence>
+        {state.scene === 'ROUND_INTRO' && transferOffer && (
+          <TransferOffer
+            onUse={onTransferOfferUse}
+            onDismiss={onTransferOfferDismiss}
+          />
+        )}
+      </AnimatePresence>
+
+      {/* Rakip havuzu boş: transfer kullanılamadı, hak korunuyor — açıklama. */}
+      <AnimatePresence>
+        {transferBlockedNote && (
+          <TransferBlockedNote onClose={() => setTransferBlockedNote(false)} />
+        )}
+      </AnimatePresence>
+
+      {/* Transfer sonucu — 4. hakem oyuncu değişikliği tabelası (yeşil giren / kırmızı çıkan). */}
+      <AnimatePresence>
+        {transferResult && (
+          <SubstitutionBoard
+            outPlayer={session.players.find((p) => p.id === transferResult.give)}
+            inPlayer={session.players.find((p) => p.id === transferResult.take)}
+            auto={transferResult.auto}
+            onClose={() => setTransferResult(null)}
           />
         )}
       </AnimatePresence>
@@ -553,6 +798,19 @@ export default function GameSessionPage() {
           </SceneShell>
         )}
 
+        {state.scene === 'ROUND_TRANSFER' && (
+          <SceneShell sceneKey="transfer" key="transfer">
+            <TransferScene
+              sideName={p1Display}
+              oppName={p2Display}
+              ownCards={toPlayers(transferOwnPool)}
+              oppCards={toPlayers(transferOppPool)}
+              seconds={15}
+              onResolve={onTransferResolve}
+            />
+          </SceneShell>
+        )}
+
         {state.scene === 'PHASE_TRANSITION' && (
           <SceneShell sceneKey={`transition-${state.phase}`} key={`transition-${state.phase}`}>
             <PhaseTransitionScene
@@ -598,6 +856,7 @@ export default function GameSessionPage() {
               onJokerMultiplier={() => onJokerMultiplier(activeSide)}
               onJokerReveal={() => onJokerReveal(activeSide)}
               lastMultiplier={state.history[state.history.length - 1]?.multiplier}
+              transferUsed={activeJokers.transferUsed}
             />
           </SceneShell>
         )}
@@ -621,5 +880,188 @@ export default function GameSessionPage() {
       </AnimatePresence>
       </main>
     </>
+  );
+}
+
+/**
+ * Transfer teklif overlay'i — ROUND_INTRO'da, soru açıklanmadan önce.
+ * "Transfer kullan?" → ROUND_TRANSFER sahnesi; "Geç" → normal tur.
+ * Kompakt, ekranı kaplamaz; stinger'ın yerine geçer.
+ */
+function TransferOffer({
+  onUse,
+  onDismiss,
+}: {
+  onUse: () => void;
+  onDismiss: () => void;
+}) {
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      transition={{ duration: 0.25, ease: [0.22, 1, 0.36, 1] }}
+      className="glass-panel-strong mx-auto flex max-w-md flex-col items-center gap-3 p-6 text-center"
+    >
+      <div className="inline-flex items-center gap-1.5 rounded-full bg-side-red/25 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-side-red ring-1 ring-side-red/40">
+        🔄 Transfer Hamlesi — Maçta 1 hak
+      </div>
+      <h3 className="text-lg font-black">Bu tur transfer kullanmak ister misin?</h3>
+      <p className="text-xs leading-relaxed text-white/60">
+        Rakibin elinden bir kart al, kendininkinden birini ver. Rakibin kartlarını
+        kısa süre <span className="font-semibold text-white/80">açık</span>{' '}
+        görürsün. Açarsan transfer mutlaka olur (süre dolarsa sistem tamamlar);
+        soru açıklanmadan önce kullanılır.
+      </p>
+      <div className="mt-1 flex items-center gap-3">
+        <button type="button" onClick={onDismiss} className="btn-ghost">
+          Geç
+        </button>
+        <button type="button" onClick={onUse} className="btn-primary">
+          🔄 Transfer kullan
+        </button>
+      </div>
+    </motion.div>
+  );
+}
+
+/**
+ * Rakip havuzu boşken gösterilen açıklama — transfer kullanılamadı ama hak
+ * KORUNUYOR (bug değil). Birkaç saniye sonra otomatik kapanır.
+ */
+function TransferBlockedNote({ onClose }: { onClose: () => void }) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 3200);
+    return () => clearTimeout(t);
+  }, [onClose]);
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 12, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      exit={{ opacity: 0, scale: 0.96 }}
+      transition={{ duration: 0.25 }}
+      className="glass-panel-strong fixed left-1/2 top-24 z-50 flex w-[min(92vw,28rem)] -translate-x-1/2 flex-col items-center gap-2 p-5 text-center"
+    >
+      <div className="text-2xl">🔄</div>
+      <h3 className="text-base font-black">Transfer bu tur kullanılamıyor</h3>
+      <p className="text-xs leading-relaxed text-white/60">
+        Rakibin geriye kalan kartları <span className="font-semibold text-white/80">bonus
+        kategori kartları</span> (veya zaten transfer edilmiş) — bunlar değiş-tokuşa kapalı.
+        Bu yüzden transfer hakkın <span className="font-semibold text-accent-goldHi">yanmadı</span>,
+        korundu. Uzatmaya kalırsa tekrar kullanabilirsin.
+      </p>
+    </motion.div>
+  );
+}
+
+/**
+ * Transfer sonucu — 4. hakem oyuncu değişikliği tabelası (LED stili).
+ *
+ * Gerçek hakem ikame tabelası gibi: üstte forma numarası (LED), yeşil ▲ giren
+ * (alınan), kırmızı ▼ çıkan (verilen) + altında isimler. Sağ üstte belirir,
+ * ~5.2 sn (eski toast'ın 2×) durur, sonra kapanır. Boyut da ~2×.
+ *
+ * 4 senaryoda da gösterilir (kullanıcı seçti / sistem tamamladı fark etmez).
+ * `auto` yalnızca başlık metnini değiştirir.
+ */
+function SubstitutionBoard({
+  outPlayer,
+  inPlayer,
+  auto,
+  onClose,
+}: {
+  outPlayer: Player | undefined;
+  inPlayer: Player | undefined;
+  auto: boolean;
+  onClose: () => void;
+}) {
+  useEffect(() => {
+    const t = setTimeout(onClose, 5200);
+    return () => clearTimeout(t);
+  }, [onClose]);
+
+  const jersey = (p: Player | undefined) =>
+    p && p.jerseyNumbers.length > 0 ? p.jerseyNumbers[0] : '—';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: 40, scale: 0.92 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, x: 40, scale: 0.92 }}
+      transition={{ duration: 0.35, ease: [0.22, 1, 0.36, 1] }}
+      className="fixed right-4 top-20 z-50 w-[min(92vw,22rem)] overflow-hidden rounded-2xl border-2 border-zinc-700 bg-gradient-to-b from-zinc-900 to-black shadow-2xl"
+    >
+      {/* Tabela üst şerit — 4. hakem başlığı */}
+      <div className="flex items-center justify-center gap-1.5 border-b border-zinc-700 bg-zinc-800/80 px-3 py-1.5">
+        <SwapIcon size={14} className="text-amber-400" />
+        <span className="text-[11px] font-black uppercase tracking-[0.18em] text-amber-400">
+          {auto ? 'Süre doldu — Sistem Tamamladı' : 'Oyuncu Değişikliği'}
+        </span>
+      </div>
+
+      {/* LED panel — giren (yeşil) / çıkan (kırmızı) */}
+      <div className="flex flex-col gap-2 p-3">
+        <SubRow
+          dir="in"
+          jersey={jersey(inPlayer)}
+          name={inPlayer?.displayName ?? '—'}
+          position={inPlayer?.position}
+        />
+        <SubRow
+          dir="out"
+          jersey={jersey(outPlayer)}
+          name={outPlayer?.displayName ?? '—'}
+          position={outPlayer?.position}
+        />
+      </div>
+    </motion.div>
+  );
+}
+
+/** Tabela satırı — bir LED forma numarası kutusu + ok + isim. */
+function SubRow({
+  dir,
+  jersey,
+  name,
+  position,
+}: {
+  dir: 'in' | 'out';
+  jersey: number | string;
+  name: string;
+  position?: string;
+}) {
+  const isIn = dir === 'in';
+  const accent = isIn ? 'text-emerald-400' : 'text-red-500';
+  const ring = isIn ? 'border-emerald-500/60' : 'border-red-500/60';
+  const glow = isIn
+    ? 'shadow-[0_0_14px_rgba(16,185,129,0.45)]'
+    : 'shadow-[0_0_14px_rgba(239,68,68,0.45)]';
+  return (
+    <div className="flex items-center gap-3">
+      {/* LED forma numarası kutusu */}
+      <div
+        className={cn(
+          'flex h-12 w-12 shrink-0 items-center justify-center rounded-md border-2 bg-black font-black tabular-nums',
+          ring,
+          glow,
+        )}
+      >
+        <span className={cn('text-xl', accent)} style={{ fontFamily: 'monospace' }}>
+          {jersey}
+        </span>
+      </div>
+      {/* Yön oku (giren ▲ / çıkan ▼) */}
+      <span className={cn('text-2xl font-black leading-none', accent)}>
+        {isIn ? '▲' : '▼'}
+      </span>
+      {/* İsim + giriş/çıkış etiketi */}
+      <div className="min-w-0 flex-1">
+        <div className="truncate text-sm font-bold text-white">{name}</div>
+        <div className={cn('text-[10px] font-bold uppercase tracking-wider', accent)}>
+          {isIn ? 'Alınan' : 'Verilen'}
+          {position ? ` · ${position}` : ''}
+        </div>
+      </div>
+    </div>
   );
 }

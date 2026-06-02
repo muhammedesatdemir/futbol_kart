@@ -125,3 +125,99 @@ export function botShouldUseMultiplier(
   if (!canUseMultiplier(template)) return false;
   return rng() < 0.55;
 }
+
+// ===========================
+// Transfer Hamlesi jokeri
+// ===========================
+
+/**
+ * Bir elin TRANSFER EDİLEBİLİR kartları:
+ *  - Bonus slotuna atanmış kartlar hariç (yalnızca ana maçta bonus var;
+ *    uzatma/penaltıda bonusCards hep null → tüm el).
+ *  - Daha önce transfer edilmiş (kilitli) kartlar hariç — geri alınamaz.
+ *
+ * Hem "verilebilir" (kendi eli) hem "alınabilir" (rakip eli) için aynı kural.
+ */
+export function transferableCards(
+  handCardIds: string[],
+  bonusCards: Array<string | null>,
+  transferLockedIds: string[],
+): string[] {
+  const bonusSet = new Set(bonusCards.filter((c): c is string => c !== null));
+  const lockedSet = new Set(transferLockedIds);
+  return handCardIds.filter((id) => !bonusSet.has(id) && !lockedSet.has(id));
+}
+
+/**
+ * Transfer jokeri bu turda kullanılabilir mi?
+ *  - Daha önce kullanılmadıysa,
+ *  - Bu fazın SON turu DEĞİLse (son turda kapalı),
+ *  - Hem kendi hem rakip tarafında en az 1 transfer-edilebilir kart varsa.
+ *
+ * NOT: Rakip tarafında transfer-edilebilir kart kalmadıysa buton yine gösterilir
+ * ama açınca "değişecek kart yok" durumu oluşur (kaos kuralı) — bunu UI yönetir.
+ * Burada SADECE kullanılabilirlik (buton aktif mi) için kendi tarafına bakarız.
+ */
+export function canUseTransfer(
+  alreadyUsed: boolean,
+  isLastRoundOfPhase: boolean,
+  ownTransferable: number,
+): boolean {
+  if (alreadyUsed) return false;
+  if (isLastRoundOfPhase) return false;
+  return ownTransferable > 0;
+}
+
+export interface BotTransferChoice {
+  give: string;
+  take: string;
+}
+
+/**
+ * Transfer otomatik-tamamlama. Joker'e basıldıysa transfer KESİN gerçekleşir:
+ * kullanıcının (varsa) seçimleri korunur, eksikler deterministik (PRNG) doldurulur.
+ *
+ *  - give yoksa: kendi havuzundan rastgele bir kart.
+ *  - take yoksa: rakip havuzundan rastgele bir kart.
+ *  - ikisi varsa: aynen döner.
+ *
+ * Havuzlardan biri boşsa null döner (transfer imkansız — upstream zaten engeller).
+ */
+export function autoCompleteTransfer(
+  ownPool: string[],
+  oppPool: string[],
+  give: string | null,
+  take: string | null,
+  rng: () => number,
+): BotTransferChoice | null {
+  if (ownPool.length === 0 || oppPool.length === 0) return null;
+  const resolvedGive =
+    give && ownPool.includes(give)
+      ? give
+      : ownPool[Math.floor(rng() * ownPool.length)]!;
+  const resolvedTake =
+    take && oppPool.includes(take)
+      ? take
+      : oppPool[Math.floor(rng() * oppPool.length)]!;
+  return { give: resolvedGive, take: resolvedTake };
+}
+
+/**
+ * Bot transfer kararı — ~%25 olasılıkla kör değiş-tokuş.
+ * Kendi transfer-edilebilir kartlarından rastgele birini verir, rakibin
+ * transfer-edilebilir kartlarından rastgele birini alır. Uygun kart yoksa null.
+ */
+export function botTransferChoice(
+  alreadyUsed: boolean,
+  isLastRoundOfPhase: boolean,
+  ownTransferable: string[],
+  oppTransferable: string[],
+  rng: () => number,
+): BotTransferChoice | null {
+  if (alreadyUsed || isLastRoundOfPhase) return null;
+  if (ownTransferable.length === 0 || oppTransferable.length === 0) return null;
+  if (rng() >= 0.25) return null;
+  const give = ownTransferable[Math.floor(rng() * ownTransferable.length)]!;
+  const take = oppTransferable[Math.floor(rng() * oppTransferable.length)]!;
+  return { give, take };
+}

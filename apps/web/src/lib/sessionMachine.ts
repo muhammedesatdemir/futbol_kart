@@ -22,6 +22,7 @@ export type Scene =
   | 'CARD_PICK_P2'
   | 'BONUS_ASSIGN'
   | 'ROUND_INTRO'
+  | 'ROUND_TRANSFER'
   | 'ROUND_PLAY'
   | 'ROUND_REVEAL'
   | 'ROUND_RESULT'
@@ -43,10 +44,12 @@ export interface JokerState {
   multiplierUsed: boolean;
   /** "İstatistiği Gör" jokeri kullanıldı mı? */
   revealUsed: boolean;
+  /** "Transfer Hamlesi" jokeri kullanıldı mı? */
+  transferUsed: boolean;
 }
 
 function freshJokers(): JokerState {
-  return { multiplierUsed: false, revealUsed: false };
+  return { multiplierUsed: false, revealUsed: false, transferUsed: false };
 }
 
 export interface RoundLog {
@@ -69,6 +72,8 @@ export interface RoundLog {
   multiplier?: { side: PlayerSide; dir: 'x2' | 'half' };
   /** Bu turda "İstatistiği Gör" jokerini kullanan taraf(lar). */
   revealUsedBy?: PlayerSide[];
+  /** Bu turun başında transfer yapan taraf (varsa). */
+  transferBy?: PlayerSide;
 }
 
 export interface SessionState {
@@ -117,6 +122,21 @@ export interface SessionState {
   p1Jokers: JokerState;
   p2Jokers: JokerState;
   /**
+   * Transfer edilmiş kart id'leri — bir daha transfer edilemez (ikisi de geri
+   * alamaz). Maç boyu birikir.
+   */
+  transferLockedIds: string[];
+  /**
+   * Bu turda transfer jokerini açan taraf (ROUND_TRANSFER sahnesinde). null =
+   * transfer akışı aktif değil. TRANSFER_EXECUTE/SKIP sonrası null'a döner.
+   */
+  transferOpenSide: PlayerSide | null;
+  /**
+   * Bu turda fiilen transfer YAPAN taraf (tur sonu özeti için). Yeni tur
+   * başında temizlenir. SKIP'te set edilmez.
+   */
+  transferThisRound: PlayerSide | null;
+  /**
    * Bu tur için çarpan jokerini AKTİF EDEN taraf (resolve'dan önce). Resolve
    * sırasında bu tarafın değeri soru yönüne göre çarpılır. Her tur başında
    * null'a döner.
@@ -156,6 +176,26 @@ export type SessionEvent =
   | {
       /** "İstatistiği Gör" jokerini aktif et (kart seçmeden önce, görsel). */
       type: 'JOKER_REVEAL';
+      side: PlayerSide;
+    }
+  | {
+      /** "Transfer Hamlesi" jokerini aç → ROUND_TRANSFER sahnesine geç. */
+      type: 'JOKER_TRANSFER_OPEN';
+      side: PlayerSide;
+    }
+  | {
+      /**
+       * Transfer'i uygula: aktif taraf `give` kartını verir, rakibin `take`
+       * kartını alır (swap). İki kart da transferLockedIds'e eklenir.
+       */
+      type: 'TRANSFER_EXECUTE';
+      side: PlayerSide;
+      give: string;
+      take: string;
+    }
+  | {
+      /** Transfer'den vazgeç / süre doldu (değişim yapılmadı; hak yine de yandı). */
+      type: 'TRANSFER_SKIP';
       side: PlayerSide;
     }
   | { type: 'ROUND_ACK' }
@@ -211,6 +251,9 @@ export function initialSession(gameId: string, seed: string): SessionState {
     bonusResolved: false,
     p1Jokers: freshJokers(),
     p2Jokers: freshJokers(),
+    transferLockedIds: [],
+    transferOpenSide: null,
+    transferThisRound: null,
     pendingMultiplier: null,
     p1RevealActive: false,
     p2RevealActive: false,
@@ -268,6 +311,8 @@ export function reduceSession(
         currentP2Card: null,
         // Yeni tur: çarpan beklentisi + reveal görseli sıfırlanır
         // (joker KULLANILDI bayrakları kalıcı — sıfırlanmaz).
+        // transferThisRound KORUNUR: transfer ROUND_INTRO'da (bu event'ten önce)
+        // yapılır; log için resolve'a kadar taşınmalı. ROUND_ACK'te temizlenir.
         pendingMultiplier: null,
         p1RevealActive: false,
         p2RevealActive: false,
@@ -308,6 +353,7 @@ export function reduceSession(
           ...(state.p1RevealActive ? (['P1'] as PlayerSide[]) : []),
           ...(state.p2RevealActive ? (['P2'] as PlayerSide[]) : []),
         ],
+        transferBy: state.transferThisRound ?? undefined,
       };
       return {
         ...state,
@@ -376,6 +422,7 @@ export function reduceSession(
           pendingMultiplier: null,
           p1RevealActive: false,
           p2RevealActive: false,
+          transferThisRound: null,
         };
       }
 
@@ -385,6 +432,7 @@ export function reduceSession(
         currentQuestionId: null,
         currentP1Card: null,
         currentP2Card: null,
+        transferThisRound: null,
         scene: 'ROUND_INTRO',
       };
     }
@@ -460,6 +508,51 @@ export function reduceSession(
         [activeKey]: true,
       };
     }
+
+    case 'JOKER_TRANSFER_OPEN': {
+      const used =
+        event.side === 'P1'
+          ? state.p1Jokers.transferUsed
+          : state.p2Jokers.transferUsed;
+      if (used || state.transferOpenSide !== null) return state;
+      // Hak tüketilir (açar açmaz). Değişim yapmasa da yanar (kaos kuralı).
+      const key = event.side === 'P1' ? 'p1Jokers' : 'p2Jokers';
+      return {
+        ...state,
+        [key]: { ...state[key], transferUsed: true },
+        transferOpenSide: event.side,
+        scene: 'ROUND_TRANSFER',
+      };
+    }
+
+    case 'TRANSFER_EXECUTE': {
+      const giverKey = event.side === 'P1' ? 'p1Hand' : 'p2Hand';
+      const takerKey = event.side === 'P1' ? 'p2Hand' : 'p1Hand';
+      // give: aktif tarafın elinden çıkar, rakibe ekle.
+      // take: rakibin elinden çıkar, aktif tarafa ekle.
+      const giverHand = state[giverKey]
+        .filter((c) => c !== event.give)
+        .concat(event.take);
+      const takerHand = state[takerKey]
+        .filter((c) => c !== event.take)
+        .concat(event.give);
+      return {
+        ...state,
+        [giverKey]: giverHand,
+        [takerKey]: takerHand,
+        transferLockedIds: [
+          ...state.transferLockedIds,
+          event.give,
+          event.take,
+        ],
+        transferOpenSide: null,
+        transferThisRound: event.side,
+        scene: 'ROUND_INTRO',
+      };
+    }
+
+    case 'TRANSFER_SKIP':
+      return { ...state, transferOpenSide: null, scene: 'ROUND_INTRO' };
 
     case 'GAME_RESET':
       return initialSession(state.gameId, state.seed);

@@ -15,6 +15,7 @@ import {
   MultiplierIcon,
   EyeIcon,
   JokerWandIcon,
+  SwapIcon,
 } from '@/components/icons';
 import type { RoundLog, Scene } from '@/lib/sessionMachine';
 import { cn } from '@/lib/cn';
@@ -62,6 +63,8 @@ interface RoundSceneProps {
   onJokerReveal: () => void;
   /** Son turda çarpan uygulandıysa (reveal göstergesi için). */
   lastMultiplier?: { side: PlayerSide; dir: 'x2' | 'half' };
+  /** Transfer jokeri durumu (sadece gösterim — tur başında kullanılır). */
+  transferUsed: boolean;
 }
 
 export function RoundScene({
@@ -93,6 +96,7 @@ export function RoundScene({
   onJokerMultiplier,
   onJokerReveal,
   lastMultiplier,
+  transferUsed,
 }: RoundSceneProps) {
   const t = useTranslations('round');
 
@@ -228,6 +232,7 @@ export function RoundScene({
           multiplierPendingHere={multiplierPendingHere}
           revealUsed={revealUsed}
           revealActive={revealActive}
+          transferUsed={transferUsed}
           onMultiplier={onJokerMultiplier}
           onReveal={onJokerReveal}
         />
@@ -350,6 +355,17 @@ function RoundJokerSummary({
         <span className="inline-flex items-center gap-1 rounded-full bg-cyan-400/12 px-2 py-0.5 text-cyan-200 ring-1 ring-cyan-400/30">
           <EyeIcon size={11} />
           {nameOf(s)}
+        </span>
+      ),
+    });
+  }
+  if (log.transferBy) {
+    items.push({
+      key: 'transfer',
+      node: (
+        <span className="inline-flex items-center gap-1 rounded-full bg-side-red/15 px-2 py-0.5 text-side-red ring-1 ring-side-red/30">
+          <SwapIcon size={11} />
+          {nameOf(log.transferBy)} · transfer
         </span>
       ),
     });
@@ -584,6 +600,7 @@ function JokerBar({
   multiplierPendingHere,
   revealUsed,
   revealActive,
+  transferUsed,
   onMultiplier,
   onReveal,
 }: {
@@ -593,6 +610,7 @@ function JokerBar({
   multiplierPendingHere: boolean;
   revealUsed: boolean;
   revealActive: boolean;
+  transferUsed: boolean;
   onMultiplier: () => void;
   onReveal: () => void;
 }) {
@@ -656,6 +674,98 @@ function JokerBar({
         helpText="Kendi elindeki kartların bu sorudaki değerini kart üzerinde gösterir. Rakibin eli gizli kalır. Maçta 1 kez."
         onClick={onReveal}
       />
+
+      {/* Transfer — yalnızca DURUM gösterimi (tur başında, soru açıklanmadan
+          kullanılır; buradan tetiklenmez). */}
+      <TransferStatusChip used={transferUsed} />
+    </div>
+  );
+}
+
+/**
+ * Transfer jokeri durum çipi — bilgilendirme amaçlı (tıklanmaz). Transfer tur
+ * başında, soru açıklanmadan önce kullanılır; burada sadece "kaldı mı" gösterilir.
+ */
+function TransferStatusChip({ used }: { used: boolean }) {
+  const [open, setOpen] = useState(false);
+  return (
+    <div className="relative flex items-stretch">
+      <div
+        className={cn(
+          'flex min-w-[116px] flex-col justify-center gap-1 rounded-l-2xl border px-3.5 py-2.5',
+          used
+            ? 'border-white/8 bg-white/[0.03]'
+            : 'border-side-red/30 bg-side-red/[0.08]',
+        )}
+      >
+        <div className="flex items-center gap-2">
+          <span
+            className={cn(
+              'flex h-8 w-8 shrink-0 items-center justify-center rounded-lg ring-1',
+              used
+                ? 'bg-white/5 text-white/30 ring-white/10'
+                : 'bg-side-red/20 text-side-red ring-side-red/30',
+            )}
+          >
+            <SwapIcon size={18} />
+          </span>
+          <div className="flex flex-col">
+            <span
+              className={cn(
+                'text-[13px] font-bold leading-tight',
+                used ? 'text-white/45' : 'text-white',
+              )}
+            >
+              Transfer
+            </span>
+            <span
+              className={cn(
+                'text-[10px] font-bold uppercase tracking-wide',
+                used ? 'text-white/40' : 'text-side-red/90',
+              )}
+            >
+              {used ? 'KULLANILDI' : 'TUR BAŞINDA'}
+            </span>
+          </div>
+        </div>
+      </div>
+      <span
+        className={cn(
+          'pointer-events-none absolute -left-1.5 -top-1.5 z-10 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-black leading-none ring-2 ring-[#0b1120]',
+          used ? 'bg-white/20 text-white/55' : 'bg-emerald-400 text-black',
+        )}
+      >
+        {used ? 0 : 1}
+      </span>
+      <button
+        type="button"
+        aria-label="Transfer nedir?"
+        onMouseEnter={() => setOpen(true)}
+        onMouseLeave={() => setOpen(false)}
+        onClick={() => setOpen((v) => !v)}
+        className="flex w-7 items-center justify-center rounded-r-2xl border border-l-0 border-white/12 bg-white/5 text-xs font-black text-white/55 transition hover:bg-white/12 hover:text-white"
+      >
+        ?
+      </button>
+      <AnimatePresence>
+        {open && (
+          <motion.div
+            initial={{ opacity: 0, y: 4, scale: 0.96 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 4, scale: 0.96 }}
+            transition={{ duration: 0.16 }}
+            role="tooltip"
+            className="absolute left-0 top-full z-30 mt-2 w-64 rounded-xl border border-white/12 bg-[#0c1322]/95 p-3 text-[11px] leading-relaxed text-white/80 shadow-xl backdrop-blur"
+          >
+            <div className="mb-1 flex items-center gap-1.5 font-bold text-side-red">
+              <SwapIcon size={14} />
+              Transfer Hamlesi
+            </div>
+            Her turun başında (soru açıklanmadan) çıkar: rakibin elinden bir kart al,
+            kendininkinden birini ver. Son turda kullanılamaz. Maçta 1 kez.
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }

@@ -32,6 +32,7 @@ const SCENE_TO_BG: Record<Scene, BgKey> = {
   HANDOFF: 'handoff',
   BONUS_ASSIGN: 'handoff',
   ROUND_INTRO: 'round',
+  ROUND_TRANSFER: 'handoff',
   ROUND_PLAY: 'round',
   ROUND_REVEAL: 'round',
   ROUND_RESULT: 'round',

@@ -233,7 +233,9 @@ export function botPickCard(ctx: FlowContext, hand: string[]): string {
 import {
   revealHandValues,
   botShouldUseMultiplier,
+  autoCompleteTransfer,
   type RevealedHandValue,
+  type BotTransferChoice,
 } from './jokers';
 
 /**
@@ -261,4 +263,18 @@ export function botMultiplierDecision(
   alreadyUsed: boolean,
 ): boolean {
   return botShouldUseMultiplier(template, alreadyUsed, () => ctx.prng.next());
+}
+
+/**
+ * Transfer'i tamamla (deterministik PRNG): kullanıcı seçimleri korunur, eksikler
+ * rastgele doldurulur. Joker'e basıldıysa transfer kesin gerçekleşir.
+ */
+export function completeTransfer(
+  ctx: FlowContext,
+  ownPool: string[],
+  oppPool: string[],
+  give: string | null,
+  take: string | null,
+): BotTransferChoice | null {
+  return autoCompleteTransfer(ownPool, oppPool, give, take, () => ctx.prng.next());
 }

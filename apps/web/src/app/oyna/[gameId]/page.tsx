@@ -84,11 +84,13 @@ export default function GameSessionPage() {
   const botTimerRef = useRef<NodeJS.Timeout | null>(null);
   const playSfx = useSfx();
 
-  // Transfer teklif kapısı: her tur (faz+roundIndex) için en fazla bir kez işlenir.
-  // Değer = işlenen turun anahtarı; question-pick effect'i bu çözülene dek bekler.
-  const transferHandledRef = useRef<string | null>(null);
-  // İnsan oyuncuya transfer teklifi gösterilsin mi (ROUND_INTRO overlay).
-  const [transferOffer, setTransferOffer] = useState(false);
+  // Transfer teklif kapısı. Hot-seat'te her turda İKİ tarafa da sırayla sorulur;
+  // bu yüzden "işlendi" durumu artık taraf-bilinçli: `${roundKey}:${side}`.
+  // Set, hangi (tur, taraf) kombinasyonlarının çözüldüğünü tutar.
+  const transferHandledRef = useRef<Set<string>>(new Set());
+  // Transfer teklifi şu an HANGİ insan tarafına gösteriliyor (null = kapalı).
+  // vs-bot'ta yalnızca 'P1'; hot-seat'te sırayla 'P1' → 'P2'.
+  const [transferOfferSide, setTransferOfferSide] = useState<'P1' | 'P2' | null>(null);
   // Rakip havuzu boşken: "transfer kullanılamadı, hakkın korunuyor" bilgisi.
   const [transferBlockedNote, setTransferBlockedNote] = useState(false);
 
@@ -254,71 +256,75 @@ export default function GameSessionPage() {
   ]);
 
   // ROUND_INTRO transfer KAPISI — soru seçilmeden önce transfer teklifi.
-  // Her tur için bir kez: bot otomatik karar verir; insan için overlay açılır.
-  // Çözülünce transferHandledRef o turun anahtarına set edilir.
+  // İnsan tarafları için: vs-bot'ta yalnızca P1; hot-seat'te SIRAYLA P1 → P2
+  // (her oyuncu kendi hakkını bağımsız kullanır). Her (tur, taraf) bir kez işlenir.
+  // Bot tarafı ayrı effect'te (vs-bot P2). Bir teklif açıksa beklenir.
   useEffect(() => {
     if (state.scene !== 'ROUND_INTRO') return;
     if (state.p1Hand.length === 0 || state.p2Hand.length === 0) return;
     if (state.phase === 'main' && state.roundIndex === 0 && !state.bonusResolved)
       return;
+    // Bir teklif zaten açıksa (insan kararı bekleniyor) yeni teklif açma.
+    if (transferOfferSide !== null) return;
+
     const roundKey = `${state.phase}-${state.roundIndex}`;
-    // P1 bu turda transfer yaptıysa (ROUND_TRANSFER'den döndük) → çözülmüş say.
-    // (P2/bot transferi P1'in teklifini engellemez.)
-    if (state.transferThisRound === 'P1') {
-      transferHandledRef.current = roundKey;
-      setTransferOffer(false);
-      return;
-    }
-    if (transferHandledRef.current === roundKey) return;
-
-    // Transfer kullanılabilirliği (effect içinde hesapla — render sırasına bağlı değil).
     const isLast = state.roundIndex + 1 >= state.totalRounds;
-    const ownPool = transferableCards(
-      state.p1Hand,
-      state.p1BonusCards,
-      state.transferLockedIds,
-    );
-    const oppPool = transferableCards(
-      state.p2Hand,
-      state.p2BonusCards,
-      state.transferLockedIds,
-    );
-    const usable = canUseTransfer(
-      state.p1Jokers.transferUsed,
-      isLast,
-      ownPool.length,
-    );
+    // İnsan tarafları: hot-seat'te ikisi de insan; vs-bot'ta sadece P1.
+    const humanSides: Array<'P1' | 'P2'> =
+      state.mode === 'hotseat' ? ['P1', 'P2'] : ['P1'];
 
-    // Hak yok / son tur / kendi havuzu boş → kapıyı sessizce geç.
-    if (!usable) {
-      transferHandledRef.current = roundKey;
+    for (const side of humanSides) {
+      const handledKey = `${roundKey}:${side}`;
+      if (transferHandledRef.current.has(handledKey)) continue;
+      // Bu taraf bu turda zaten transfer yaptıysa (sahneden döndük) → çözülmüş say.
+      if (state.transferThisRound === side) {
+        transferHandledRef.current.add(handledKey);
+        continue;
+      }
+
+      const ownHand = side === 'P1' ? state.p1Hand : state.p2Hand;
+      const ownBonus = side === 'P1' ? state.p1BonusCards : state.p2BonusCards;
+      const oppHand = side === 'P1' ? state.p2Hand : state.p1Hand;
+      const oppBonus = side === 'P1' ? state.p2BonusCards : state.p1BonusCards;
+      const used =
+        side === 'P1'
+          ? state.p1Jokers.transferUsed
+          : state.p2Jokers.transferUsed;
+
+      const ownPool = transferableCards(ownHand, ownBonus, state.transferLockedIds);
+      const oppPool = transferableCards(oppHand, oppBonus, state.transferLockedIds);
+
+      // Hak yok / son tur / kendi havuzu boş → bu tarafı sessizce geç.
+      if (!canUseTransfer(used, isLast, ownPool.length)) {
+        transferHandledRef.current.add(handledKey);
+        continue;
+      }
+      // Kendi havuzu uygun ama RAKİP havuzu boşsa: teklif gösterme, HAK KORUNUR.
+      if (oppPool.length === 0) {
+        transferHandledRef.current.add(handledKey);
+        setTransferBlockedNote(true);
+        continue;
+      }
+      // Bu insan tarafına teklif aç — karar beklenir (handled burada SET EDİLMEZ).
+      setTransferOfferSide(side);
       return;
     }
-
-    // Kendi havuzu uygun ama RAKİP havuzu boşsa: teklif gösterme, HAK KORUNUR.
-    // Kullanıcıya bunun neden olduğunu açıkla (bug değil — kalan kartlar bonus/kilitli).
-    if (oppPool.length === 0) {
-      transferHandledRef.current = roundKey;
-      setTransferBlockedNote(true);
-      return;
-    }
-
-    // İnsan (P1) için transfer teklifi overlay'i aç (hem hot-seat hem vs-bot).
-    // transferHandledRef burada SET EDİLMEZ — insan kararı bekleniyor.
-    setTransferOffer(true);
   }, [
     state.scene,
     state.phase,
     state.roundIndex,
     state.totalRounds,
+    state.mode,
     state.bonusResolved,
     state.p1Hand,
     state.p2Hand,
     state.p1BonusCards,
     state.p2BonusCards,
     state.p1Jokers.transferUsed,
+    state.p2Jokers.transferUsed,
     state.transferLockedIds,
     state.transferThisRound,
+    transferOfferSide,
   ]);
 
   // ROUND_INTRO bot transfer kararı (vs-bot) — P1 teklifinden bağımsız, tur başı.
@@ -378,10 +384,16 @@ export default function GameSessionPage() {
     if (state.p1Hand.length === 0 || state.p2Hand.length === 0) return;
     // Bonus kararı verilmeden soru seçme (ana maç ilk turunda BONUS_ASSIGN'a gidilecek).
     if (state.phase === 'main' && state.roundIndex === 0 && !state.bonusResolved) return;
-    // Transfer kapısı çözülmeden soru seçme (insan teklifi açıkken bekle).
+    // Transfer kapısı çözülmeden soru seçme: bir teklif açıkken bekle + TÜM
+    // insan taraflarının teklifi bu turda işlenmiş olmalı (hot-seat'te P1+P2).
+    if (transferOfferSide !== null) return;
     const roundKey = `${state.phase}-${state.roundIndex}`;
-    if (transferHandledRef.current !== roundKey) return;
-    if (transferOffer) return;
+    const humanSides: Array<'P1' | 'P2'> =
+      state.mode === 'hotseat' ? ['P1', 'P2'] : ['P1'];
+    const allHandled = humanSides.every((s) =>
+      transferHandledRef.current.has(`${roundKey}:${s}`),
+    );
+    if (!allHandled) return;
     const q = pickQuestion(flow, state.p1Hand, state.p2Hand);
     if (!q) return;
     const t = setTimeout(
@@ -389,7 +401,7 @@ export default function GameSessionPage() {
       750,
     );
     return () => clearTimeout(t);
-  }, [state.scene, state.p1Hand, state.p2Hand, state.phase, state.roundIndex, state.bonusResolved, transferOffer, flow, dispatch]);
+  }, [state.scene, state.p1Hand, state.p2Hand, state.phase, state.roundIndex, state.mode, state.bonusResolved, transferOfferSide, flow, dispatch]);
 
   // ROUND_PLAY: vs-bot ve P1 oynadi -> bot oynar
   useEffect(() => {
@@ -522,20 +534,18 @@ export default function GameSessionPage() {
   // KESİN gerçekleşir.
   const onTransferResolve = useCallback(
     (give: string | null, take: string | null) => {
-      const ownPool = transferableCards(
-        state.p1Hand,
-        state.p1BonusCards,
-        state.transferLockedIds,
-      );
-      const oppPool = transferableCards(
-        state.p2Hand,
-        state.p2BonusCards,
-        state.transferLockedIds,
-      );
+      // Transferi AÇAN taraf (reducer set etti). Hot-seat'te P1 veya P2 olabilir.
+      const side: 'P1' | 'P2' = state.transferOpenSide ?? 'P1';
+      const ownHand = side === 'P1' ? state.p1Hand : state.p2Hand;
+      const ownBonus = side === 'P1' ? state.p1BonusCards : state.p2BonusCards;
+      const oppHand = side === 'P1' ? state.p2Hand : state.p1Hand;
+      const oppBonus = side === 'P1' ? state.p2BonusCards : state.p1BonusCards;
+      const ownPool = transferableCards(ownHand, ownBonus, state.transferLockedIds);
+      const oppPool = transferableCards(oppHand, oppBonus, state.transferLockedIds);
       const choice = completeTransfer(flow, ownPool, oppPool, give, take);
       if (!choice) {
         // Transfer imkansız (rakip havuzu boş) — hak zaten yandı, atla.
-        dispatch({ type: 'TRANSFER_SKIP', side: 'P1' });
+        dispatch({ type: 'TRANSFER_SKIP', side });
         return;
       }
       // 4 senaryoda da tabela göster. auto = kullanıcı tam seçim yapmadı (sistem tamamladı).
@@ -546,7 +556,7 @@ export default function GameSessionPage() {
       });
       dispatch({
         type: 'TRANSFER_EXECUTE',
-        side: 'P1',
+        side,
         give: choice.give,
         take: choice.take,
       });
@@ -554,6 +564,7 @@ export default function GameSessionPage() {
     [
       dispatch,
       flow,
+      state.transferOpenSide,
       state.p1Hand,
       state.p2Hand,
       state.p1BonusCards,
@@ -563,17 +574,22 @@ export default function GameSessionPage() {
   );
 
   // Transfer teklifi: "Kullan" → ROUND_TRANSFER sahnesine geç (hak yanar).
+  // Teklif gösterilen tarafı (transferOfferSide) işle; kapat → kapı effect'i
+  // sıradaki insan tarafına (hot-seat'te P2) bakar.
   const onTransferOfferUse = useCallback(() => {
-    transferHandledRef.current = `${state.phase}-${state.roundIndex}`;
-    setTransferOffer(false);
-    dispatch({ type: 'JOKER_TRANSFER_OPEN', side: 'P1' });
-  }, [dispatch, state.phase, state.roundIndex]);
+    const side = transferOfferSide ?? 'P1';
+    transferHandledRef.current.add(`${state.phase}-${state.roundIndex}:${side}`);
+    setTransferOfferSide(null);
+    dispatch({ type: 'JOKER_TRANSFER_OPEN', side });
+  }, [dispatch, transferOfferSide, state.phase, state.roundIndex]);
 
-  // Transfer teklifi: "Geç" → teklifi kapat, normal tura devam (hak korunur).
+  // Transfer teklifi: "Geç" → bu tarafın teklifini kapat, hak korunur. Kapı
+  // effect'i sıradaki insan tarafına geçer (hot-seat'te P1 geçince P2'ye sorar).
   const onTransferOfferDismiss = useCallback(() => {
-    transferHandledRef.current = `${state.phase}-${state.roundIndex}`;
-    setTransferOffer(false);
-  }, [state.phase, state.roundIndex]);
+    const side = transferOfferSide ?? 'P1';
+    transferHandledRef.current.add(`${state.phase}-${state.roundIndex}:${side}`);
+    setTransferOfferSide(null);
+  }, [transferOfferSide, state.phase, state.roundIndex]);
 
   if (!hydrated || state.gameId !== params.gameId) return null;
 
@@ -641,17 +657,22 @@ export default function GameSessionPage() {
         )
       : null;
 
-  // -------- Transfer jokeri (ROUND_INTRO/ROUND_TRANSFER) --------
-  // Transfer teklifi her turun başında verilir; "sahibi" insan tarafı P1
-  // (hot-seat'te tur başı aktörü, vs-bot'ta oyuncu — bot ayrı karar verir).
+  // -------- Transfer jokeri (ROUND_TRANSFER sahnesi) --------
+  // Aktif transfer tarafı: reducer JOKER_TRANSFER_OPEN'da set eder
+  // (hot-seat'te P1 veya P2). Pool'lar + isimler ona göre hesaplanır.
+  const transferSide: 'P1' | 'P2' = state.transferOpenSide ?? 'P1';
+  const transferOwnHand = transferSide === 'P1' ? state.p1Hand : state.p2Hand;
+  const transferOwnBonus = transferSide === 'P1' ? state.p1BonusCards : state.p2BonusCards;
+  const transferOppHand = transferSide === 'P1' ? state.p2Hand : state.p1Hand;
+  const transferOppBonus = transferSide === 'P1' ? state.p2BonusCards : state.p1BonusCards;
   const transferOwnPool = transferableCards(
-    state.p1Hand,
-    state.p1BonusCards,
+    transferOwnHand,
+    transferOwnBonus,
     state.transferLockedIds,
   );
   const transferOppPool = transferableCards(
-    state.p2Hand,
-    state.p2BonusCards,
+    transferOppHand,
+    transferOppBonus,
     state.transferLockedIds,
   );
   const toPlayers = (ids: string[]) =>
@@ -740,7 +761,7 @@ export default function GameSessionPage() {
 
       {/* Round intro stinger — sahne shell'i dışında, overlay olarak */}
       <AnimatePresence>
-        {state.scene === 'ROUND_INTRO' && !transferOffer && (
+        {state.scene === 'ROUND_INTRO' && transferOfferSide === null && (
           <RoundStinger
             key={`stinger-${state.phase}-${state.roundIndex}`}
             round={state.roundIndex + 1}
@@ -756,10 +777,15 @@ export default function GameSessionPage() {
         )}
       </AnimatePresence>
 
-      {/* Transfer teklifi — ROUND_INTRO'da, soru açıklanmadan önce. */}
+      {/* Transfer teklifi — ROUND_INTRO'da, soru açıklanmadan önce. Hot-seat'te
+          hangi oyuncuya sorulduğunu (P1/P2 adı) gösterir. */}
       <AnimatePresence>
-        {state.scene === 'ROUND_INTRO' && transferOffer && (
+        {state.scene === 'ROUND_INTRO' && transferOfferSide !== null && (
           <TransferOffer
+            playerName={
+              transferOfferSide === 'P1' ? p1Display : p2Display
+            }
+            showName={state.mode === 'hotseat'}
             onUse={onTransferOfferUse}
             onDismiss={onTransferOfferDismiss}
           />
@@ -876,8 +902,8 @@ export default function GameSessionPage() {
         {state.scene === 'ROUND_TRANSFER' && (
           <SceneShell sceneKey="transfer" key="transfer">
             <TransferScene
-              sideName={p1Display}
-              oppName={p2Display}
+              sideName={transferSide === 'P1' ? p1Display : p2Display}
+              oppName={transferSide === 'P1' ? p2Display : p1Display}
               ownCards={toPlayers(transferOwnPool)}
               oppCards={toPlayers(transferOppPool)}
               seconds={TRANSFER_SECONDS}
@@ -967,9 +993,15 @@ export default function GameSessionPage() {
  * Kompakt, ekranı kaplamaz; stinger'ın yerine geçer.
  */
 function TransferOffer({
+  playerName,
+  showName,
   onUse,
   onDismiss,
 }: {
+  /** Teklif gösterilen oyuncunun adı (hot-seat netliği için). */
+  playerName: string;
+  /** İsmi başlıkta göster (yalnızca hot-seat — iki insan ayırt edilsin). */
+  showName: boolean;
   onUse: () => void;
   onDismiss: () => void;
 }) {
@@ -984,7 +1016,11 @@ function TransferOffer({
       <div className="inline-flex items-center gap-1.5 rounded-full bg-side-red/25 px-3 py-1 text-[10px] font-bold uppercase tracking-[0.18em] text-side-red ring-1 ring-side-red/40">
         🔄 Transfer Hamlesi — Maçta 1 hak
       </div>
-      <h3 className="text-lg font-black">Bu tur transfer kullanmak ister misin?</h3>
+      <h3 className="text-lg font-black">
+        {showName
+          ? `${playerName}, bu tur transfer kullanmak ister misin?`
+          : 'Bu tur transfer kullanmak ister misin?'}
+      </h3>
       <p className="text-xs leading-relaxed text-white/60">
         Rakibin elinden bir kart al, kendininkinden birini ver. Rakibin kartlarını
         kısa süre <span className="font-semibold text-white/80">açık</span>{' '}

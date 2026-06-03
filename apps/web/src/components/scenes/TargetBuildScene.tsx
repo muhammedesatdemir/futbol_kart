@@ -167,12 +167,12 @@ export function TargetBuildScene({
       </header>
 
       {/* 5 düz slot şeridi */}
-      <div className="mx-auto flex w-full max-w-3xl justify-center gap-2 sm:gap-3">
+      <div className="mx-auto flex w-full max-w-4xl justify-center gap-2 sm:gap-3">
         {picks.map((pid, idx) => {
           const player = pid ? playersById.get(pid) : undefined;
           const active = idx === firstEmpty;
           return (
-            <div key={idx} className="flex min-w-0 flex-1 flex-col items-center gap-1" style={{ maxWidth: 140 }}>
+            <div key={idx} className="flex flex-1 flex-col items-center gap-1" style={{ minWidth: 100, maxWidth: 160 }}>
               <div
                 className={cn(
                   'relative flex aspect-[3/4] w-full items-center justify-center rounded-xl border-2 border-dashed transition',

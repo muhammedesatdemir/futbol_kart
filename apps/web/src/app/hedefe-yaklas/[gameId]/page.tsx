@@ -315,7 +315,7 @@ export default function TargetGamePage() {
   return (
     <>
       <SceneBackground bgKey={bgKey} />
-      <main className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 py-6 sm:px-8 sm:py-10">
+      <main className="relative z-10 mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-6 px-4 py-6 sm:px-8 sm:py-10">
         <header className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
             <button type="button" onClick={onBack} className="btn-ghost">

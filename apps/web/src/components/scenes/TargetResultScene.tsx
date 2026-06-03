@@ -138,7 +138,7 @@ export function TargetResultScene({
       </header>
 
       {/* 3 bölge: sol toplam | ortada hedef | sağ toplam */}
-      <div className="grid w-full max-w-4xl grid-cols-[1fr_auto_1fr] items-start gap-3 sm:gap-5">
+      <div className="grid w-full max-w-6xl grid-cols-[1fr_auto_1fr] items-start gap-3 sm:gap-6">
         <TargetSide
           name={p1Name}
           total={done ? p1Score.total : p1Partial}
@@ -155,14 +155,14 @@ export function TargetResultScene({
         />
 
         {/* Ortadaki hedef sütunu */}
-        <div className="flex flex-col items-center gap-1 self-center px-1">
-          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/50">
+        <div className="flex flex-col items-center gap-1.5 self-center px-1">
+          <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/50">
             Hedef
           </span>
-          <div className="flex h-16 w-16 items-center justify-center rounded-2xl border-2 border-accent-gold/50 bg-gradient-to-b from-zinc-900 to-black text-3xl font-black tabular-nums text-accent-goldHi shadow-[0_0_25px_rgba(255,213,74,0.35)] sm:h-20 sm:w-20 sm:text-4xl">
+          <div className="flex h-20 w-20 items-center justify-center rounded-2xl border-2 border-accent-gold/50 bg-gradient-to-b from-zinc-900 to-black text-4xl font-black tabular-nums text-accent-goldHi shadow-[0_0_25px_rgba(255,213,74,0.35)] sm:h-24 sm:w-24 sm:text-5xl">
             {target}
           </div>
-          <span className="mt-0.5 text-[10px] font-semibold text-white/40">
+          <span className="mt-0.5 text-[11px] font-semibold text-white/40">
             {criterion.unit}
           </span>
         </div>
@@ -238,10 +238,10 @@ function TargetSide({
       transition={{ duration: 0.5 }}
     >
       <div className={cn('flex items-baseline justify-between gap-2', align === 'right' && 'flex-row-reverse')}>
-        <h3 className="truncate text-sm font-bold sm:text-base">{name}</h3>
-        <div className="text-2xl font-black tabular-nums text-accent-goldHi">
+        <h3 className="truncate text-base font-bold sm:text-lg">{name}</h3>
+        <div className="text-3xl font-black tabular-nums text-accent-goldHi sm:text-4xl">
           {done ? <CountUp target={finalTotal} durationMs={600} /> : total}
-          <span className="ml-1 text-xs font-semibold text-white/50">{unit}</span>
+          <span className="ml-1 text-sm font-semibold text-white/50">{unit}</span>
         </div>
       </div>
 
@@ -264,43 +264,75 @@ function TargetSide({
         )}
       </AnimatePresence>
 
-      {/* 5 kart tek satır — kart başına metrik değeri altta. */}
-      <div className="flex justify-center gap-1.5 sm:gap-2">
-        {picks.map((pid, idx) => {
-          const player = pid ? playersById.get(pid) : undefined;
-          const cell = perPick[idx];
-          const isOpen = revealed > idx;
-          return (
-            <div
-              key={idx}
-              className="flex min-w-0 flex-1 flex-col items-center gap-1"
-              style={{ maxWidth: 104 }}
-            >
-              <AnimatePresence mode="wait">
-                {isOpen && player ? (
-                  <motion.div
-                    key="open"
-                    initial={{ rotateY: 90, opacity: 0 }}
-                    animate={{ rotateY: 0, opacity: 1 }}
-                    transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                    className="flex w-full flex-col items-center gap-1"
-                  >
-                    <PlayerCard player={player} size="squad" hideBadges className="w-full" />
-                    {/* İstatistik rozeti — "Messi · 26" gibi. */}
-                    <span className="rounded-full bg-accent-gold/20 px-2 py-0.5 text-[11px] font-black tabular-nums text-accent-goldHi ring-1 ring-accent-goldHi/40">
-                      {cell?.value ?? 0}
-                    </span>
-                  </motion.div>
-                ) : (
-                  <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg border border-white/10 bg-white/5 text-xs text-white/40">
-                    {idx + 1}
-                  </div>
-                )}
-              </AnimatePresence>
-            </div>
-          );
-        })}
+      {/* 5 kart 3+2 iki satır — her kart panelin ~1/3'ü (yan-yana panellerde
+          mümkün olan en büyük boyut). Son satırdaki 2 kart ortalanır. */}
+      <div className="flex flex-col items-center gap-2.5">
+        <div className="flex w-full justify-center gap-2 sm:gap-2.5">
+          {picks.slice(0, 3).map((pid, i) => (
+            <TargetPickCell
+              key={i}
+              player={pid ? playersById.get(pid) : undefined}
+              value={perPick[i]?.value ?? 0}
+              slotNo={i + 1}
+              open={revealed > i}
+            />
+          ))}
+        </div>
+        <div className="flex w-full justify-center gap-2 sm:gap-2.5">
+          {picks.slice(3, 5).map((pid, j) => {
+            const idx = j + 3;
+            return (
+              <TargetPickCell
+                key={idx}
+                player={pid ? playersById.get(pid) : undefined}
+                value={perPick[idx]?.value ?? 0}
+                slotNo={idx + 1}
+                open={revealed > idx}
+              />
+            );
+          })}
+        </div>
       </div>
     </motion.div>
+  );
+}
+
+/** Tek kart hücresi — panelin ~1/3 genişliği. Açıkken flip + değer rozeti. */
+function TargetPickCell({
+  player,
+  value,
+  slotNo,
+  open,
+}: {
+  player: Player | undefined;
+  value: number;
+  slotNo: number;
+  open: boolean;
+}) {
+  return (
+    // basis-1/3: ilk satır 3 kart tam dolar; ikinci satır 2 kart = 2/3 (ortalı).
+    <div className="flex basis-1/3 flex-col items-center gap-1.5" style={{ maxWidth: 168 }}>
+      <AnimatePresence mode="wait">
+        {open && player ? (
+          <motion.div
+            key="open"
+            initial={{ rotateY: 90, opacity: 0 }}
+            animate={{ rotateY: 0, opacity: 1 }}
+            transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
+            className="flex w-full flex-col items-center gap-1.5"
+          >
+            <PlayerCard player={player} size="squad" hideBadges className="w-full" />
+            {/* İstatistik rozeti — oyuncunun bu metrikteki değeri. */}
+            <span className="rounded-full bg-accent-gold/20 px-2.5 py-0.5 text-sm font-black tabular-nums text-accent-goldHi ring-1 ring-accent-goldHi/40">
+              {value}
+            </span>
+          </motion.div>
+        ) : (
+          <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg border border-white/10 bg-white/5 text-sm text-white/40">
+            {slotNo}
+          </div>
+        )}
+      </AnimatePresence>
+    </div>
   );
 }

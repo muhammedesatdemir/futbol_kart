@@ -5,7 +5,7 @@ import { cn } from '@/lib/cn';
 import { SwordsIcon, CardsIcon, TrophyIcon, QuestionIcon } from '@/components/icons';
 
 /** Oynanabilir oyun modu kimliği (rakip türünden FARKLI — bu oyunun türü). */
-export type PlayableMode = 'vs' | 'squad';
+export type PlayableMode = 'vs' | 'squad' | 'target';
 
 interface GameModeSelectSceneProps {
   onPick: (mode: PlayableMode) => void;
@@ -42,8 +42,8 @@ const MODES: ModeDef[] = [
     emoji: '🎯',
     icon: <QuestionIcon size={26} />,
     title: 'Hedefe Yaklaş',
-    body: '5 oyuncuyla bir hedefe en çok yaklaş: 70 Dünya Kupası maçı, 750 lig maçı…',
-    ready: false,
+    body: '5 oyuncuyla bir hedefe en çok yaklaş: ~70 Dünya Kupası maçı. En yakın kazanır.',
+    ready: true,
   },
   {
     id: 'list',
@@ -77,7 +77,7 @@ export function GameModeSelectScene({ onPick }: GameModeSelectSceneProps) {
             def={m}
             delay={i * 0.06}
             onClick={
-              m.ready && (m.id === 'vs' || m.id === 'squad')
+              m.ready && (m.id === 'vs' || m.id === 'squad' || m.id === 'target')
                 ? () => onPick(m.id as PlayableMode)
                 : undefined
             }

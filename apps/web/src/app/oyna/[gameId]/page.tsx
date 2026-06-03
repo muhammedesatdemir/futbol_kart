@@ -142,6 +142,10 @@ export default function GameSessionPage() {
         router.push(`/kadro/${params.gameId}`);
         return;
       }
+      if (mode === 'target') {
+        router.push(`/hedefe-yaklas/${params.gameId}`);
+        return;
+      }
       setPickedMode('vs');
     },
     [router, params.gameId],

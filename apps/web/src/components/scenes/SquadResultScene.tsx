@@ -148,6 +148,7 @@ export function SquadResultScene({
           unit={criterion.unit}
           win={done && winner === 'P1'}
           formation={formation}
+          criterion={criterion}
           orderedSlots={orderedSlots}
           assignment={p1Assignment}
           playersById={playersById}
@@ -162,6 +163,7 @@ export function SquadResultScene({
           unit={criterion.unit}
           win={done && winner === 'P2'}
           formation={formation}
+          criterion={criterion}
           orderedSlots={orderedSlots}
           assignment={p2Assignment}
           playersById={playersById}
@@ -196,6 +198,7 @@ function SquadField({
   unit,
   win,
   formation,
+  criterion,
   orderedSlots,
   assignment,
   playersById,
@@ -209,6 +212,7 @@ function SquadField({
   unit: string;
   win: boolean;
   formation: Formation;
+  criterion: SquadCriterion;
   orderedSlots: Formation['slots'];
   assignment: SquadAssignment;
   playersById: Map<string, Player>;
@@ -249,10 +253,12 @@ function SquadField({
               const player = pid ? playersById.get(pid) : undefined;
               const idx = revealIndex.get(slot.id) ?? 99;
               const isOpen = revealed > idx;
+              // Bu oyuncunun bu kriterdeki katkısı (eksik veri → 0).
+              const value = player ? criterion.metric(player) ?? 0 : 0;
               return (
                 // Esnek genişlik: 4 DEF yan yana iki sahada sığsın. Büyütüldü
                 // (~58→72px) + rozetler gizli (yüz okunsun, ekrana sığsın).
-                <div key={slot.id} className="flex min-w-0 flex-1 flex-col items-center" style={{ maxWidth: 72 }}>
+                <div key={slot.id} className="flex min-w-0 flex-1 flex-col items-center gap-1" style={{ maxWidth: 72 }}>
                   <AnimatePresence mode="wait">
                     {isOpen && player ? (
                       <motion.div
@@ -260,9 +266,13 @@ function SquadField({
                         initial={{ rotateY: 90, opacity: 0 }}
                         animate={{ rotateY: 0, opacity: 1 }}
                         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
-                        className="w-full"
+                        className="flex w-full flex-col items-center gap-1"
                       >
                         <PlayerCard player={player} size="squad" hideBadges className="w-full" />
+                        {/* Oyuncunun bu kriterdeki istatistik katkısı (toplam ayrı, üstte). */}
+                        <span className="rounded-full bg-accent-gold/20 px-1.5 py-0.5 text-[10px] font-black tabular-nums leading-none text-accent-goldHi ring-1 ring-accent-goldHi/40">
+                          {value}
+                        </span>
                       </motion.div>
                     ) : (
                       <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[10px] text-white/40">

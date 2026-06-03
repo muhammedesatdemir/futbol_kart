@@ -234,7 +234,7 @@ function SlotGrid({
                   )}
                 >
                   {player ? (
-                    <PlayerCard player={player} size="sm" className="w-full" />
+                    <PlayerCard player={player} size="sm" hideBadges className="w-full" />
                   ) : (
                     <span className="text-xs font-bold text-white/55 sm:text-sm">
                       {slot.label}

@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
@@ -130,42 +130,48 @@ export function ListPlayScene({
   return (
     <section className="flex flex-col gap-4 pb-10">
       {/* DİNAMİK sıra/süre/can paneli — aktif taraf P1 ise solda, P2 ise sağda;
-          sticky → havuzda aşağı kayınca da görünür. */}
+          sticky → havuzda aşağı kayınca da görünür. Boyut ~2× (madde 1). */}
       <div
         className={cn(
-          'pointer-events-none fixed top-1/3 z-40 flex',
-          activeSide === 'P1' ? 'left-3 sm:left-5' : 'right-3 sm:right-5',
+          'pointer-events-none fixed top-1/4 z-40 flex flex-col items-center gap-3',
+          activeSide === 'P1' ? 'left-4 sm:left-8' : 'right-4 sm:right-8',
         )}
       >
         <motion.div
           key={activeSide}
-          initial={{ opacity: 0, x: activeSide === 'P1' ? -20 : 20, scale: 0.9 }}
+          initial={{ opacity: 0, x: activeSide === 'P1' ? -28 : 28, scale: 0.9 }}
           animate={{ opacity: 1, x: 0, scale: 1 }}
           transition={{ type: 'spring', stiffness: 260, damping: 22 }}
           className={cn(
-            'glass-panel-strong pointer-events-auto flex flex-col items-center gap-2 rounded-2xl border-2 px-4 py-3',
+            'glass-panel-strong pointer-events-auto flex flex-col items-center gap-3 rounded-3xl border-2 px-7 py-6',
             sideCls.border,
             sideCls.glow,
           )}
         >
-          <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/55">
+          <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/55">
             Sıra
           </span>
-          <span className={cn('text-lg font-black leading-none', sideCls.text)}>
+          <span className={cn('text-3xl font-black leading-none', sideCls.text)}>
             {activeName}
           </span>
           <CountdownRing
             seconds={seconds}
             runKey={timerKey}
             onComplete={onTimeout}
-            size={52}
-            stroke={5}
+            size={96}
+            stroke={8}
             color={activeSide === 'P1' ? '#ef4444' : '#3b82f6'}
             urgentColor="#ef4444"
           />
-          {/* Can — kalpler (dinamik) */}
+          {/* Can — kalpler (dinamik, büyük) */}
           <Hearts side={activeSide} count={activeLives} />
         </motion.div>
+
+        {/* "Bu listede yok! −1 can" — tahmin eden tarafın yanında, panelin altında.
+            missTick artınca belirir, 3.5sn sonra animasyonla kaybolur (madde 2). */}
+        <AnimatePresence>
+          {missTick > 0 && <MissNote key={missTick} side={activeSide} />}
+        </AnimatePresence>
       </div>
 
       {/* Üst başlık + bulundu sayısı */}
@@ -287,19 +293,15 @@ export function ListPlayScene({
         </div>
       </div>
 
-      {/* "Listede yok" geri bildirimi */}
-      <AnimatePresence>
-        {missTick > 0 && <MissToast key={missTick} />}
-      </AnimatePresence>
     </section>
   );
 }
 
-/** Can göstergesi — dolu/boş kalpler. Azalınca son kalp animasyonla söner. */
+/** Can göstergesi — dolu/boş kalpler (büyük). Azalınca son kalp animasyonla söner. */
 function Hearts({ side, count }: { side: ListSide; count: number }) {
   const max = 3;
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center gap-2">
       {Array.from({ length: max }).map((_, i) => {
         const filled = i < count;
         return (
@@ -312,7 +314,7 @@ function Hearts({ side, count }: { side: ListSide; count: number }) {
                 : { scale: [1.3, 0.6], opacity: [1, 0.25] }
             }
             transition={{ duration: 0.4 }}
-            className={cn('text-sm leading-none', filled ? SIDE[side].heart : 'text-white/15')}
+            className={cn('text-2xl leading-none', filled ? SIDE[side].heart : 'text-white/15')}
           >
             {filled ? '❤' : '🤍'}
           </motion.span>
@@ -322,17 +324,31 @@ function Hearts({ side, count }: { side: ListSide; count: number }) {
   );
 }
 
-function MissToast() {
+/**
+ * "Bu listede yok! −1 can" — tahmin eden tarafın panelinin altında belirir,
+ * 3.5 sn sonra animasyonla kaybolur (AnimatePresence exit). Tarafa göre kayar.
+ */
+function MissNote({ side }: { side: ListSide }) {
+  const [show, setShow] = useState(true);
+  // 3.5 sn sonra kaybol (parent AnimatePresence exit animasyonunu oynatır).
+  useEffect(() => {
+    const t = setTimeout(() => setShow(false), 3500);
+    return () => clearTimeout(t);
+  }, []);
+  if (!show) return null;
   return (
     <motion.div
-      initial={{ opacity: 0, y: 12, scale: 0.9 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      transition={{ duration: 0.25 }}
-      className="glass-panel-strong fixed left-1/2 top-24 z-50 flex -translate-x-1/2 items-center gap-2 rounded-xl border border-side-red/40 px-4 py-2.5 text-sm font-bold text-white/85"
+      initial={{ opacity: 0, x: side === 'P1' ? -24 : 24, scale: 0.9 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, x: side === 'P1' ? -24 : 24, scale: 0.9 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+      className="glass-panel-strong flex flex-col items-center gap-0.5 rounded-2xl border-2 border-side-red/50 px-4 py-3 text-center shadow-[0_0_22px_rgba(239,68,68,0.4)]"
     >
-      <span className="text-lg">❌</span> Bu listede yok!{' '}
-      <span className="text-side-red">−1 can</span>
+      <span className="text-2xl">❌</span>
+      <span className="text-xs font-black uppercase tracking-wider text-white/85">
+        Listede yok!
+      </span>
+      <span className="text-sm font-black text-side-red">−1 can</span>
     </motion.div>
   );
 }

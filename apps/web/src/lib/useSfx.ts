@@ -4,13 +4,14 @@ import { useCallback, useEffect, useRef } from 'react';
 import { useSoundStore } from '@/lib/soundStore';
 
 /** Ses olayları → dosya adı (public/sfx/<name>.mp3). */
-export type SfxName = 'flip' | 'win' | 'tie' | 'final';
+export type SfxName = 'flip' | 'win' | 'tie' | 'final' | 'heartbreak';
 
 const SFX_SRC: Record<SfxName, string> = {
   flip: '/sfx/card-flip.mp3',
   win: '/sfx/round-win.mp3',
   tie: '/sfx/round-tie.mp3',
   final: '/sfx/final-fanfare.mp3',
+  heartbreak: '/sfx/heart_break.mp3', // Liste Doldur — can kaybı (cam kırılması)
 };
 
 /** Olay başına ses seviyesi (fanfar diğerlerinden biraz daha yüksek). */
@@ -19,6 +20,7 @@ const SFX_VOLUME: Record<SfxName, number> = {
   win: 0.5,
   tie: 0.3,
   final: 0.6,
+  heartbreak: 0.5,
 };
 
 /**

@@ -16,6 +16,7 @@ import { UserMenu } from '@/components/UserMenu';
 import { NameModal } from '@/components/NameModal';
 import { useGameSession } from '@/lib/GameSessionProvider';
 import { useProfileStore } from '@/lib/profileStore';
+import { useSfx } from '@/lib/useSfx';
 import { createPRNG } from '@futbol-kart/game-engine';
 import { LIST_TURN_SECONDS, LIST_LIVES } from '@/lib/gameConstants';
 import {
@@ -40,6 +41,7 @@ export default function ListGamePage() {
   const params = useParams<{ gameId: string }>();
   const router = useRouter();
   const session = useGameSession();
+  const playSfx = useSfx();
 
   const criterion: ListCriterion = CRITERION_MOST_CAPS;
 
@@ -162,6 +164,14 @@ export default function ListGamePage() {
     [opponent, finishVsBot],
   );
 
+  // Her tahmin/sıra sonrası ekranı yumuşak animasyonla en üste al (madde 3) —
+  // oyuncu listenin tepesini + sıra panelini görsün, havuzun dibinde kalmasın.
+  const scrollTop = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  }, []);
+
   // Tahmin (aktif taraf adına). Doğru → sıraya otur (can gitmez). Yanlış → can -1.
   const onGuess = useCallback(
     (playerId: string) => {
@@ -170,31 +180,36 @@ export default function ListGamePage() {
       const res = evaluateGuess(playerId, list, filledRanks);
       if (res.hit && !res.alreadyFilled) {
         fillRank(res.entry.rank, playerId, side);
+        playSfx('win'); // doğru tahmin geri bildirimi
         // Doğru: can gitmez. Bota karşı P1 devam; hot-seat sıra karşıya geçer.
         passTurnAfter(lives, side);
       } else {
-        // Yanlış / zaten dolu: can -1 + animasyon, sonra sıra geç.
+        // Yanlış / zaten dolu: can -1 + animasyon + cam kırılma sesi, sonra sıra geç.
         setMissTick((t) => t + 1);
+        playSfx('heartbreak');
         setLives((prev) => {
           const next = { ...prev, [side]: Math.max(0, prev[side] - 1) };
           passTurnAfter(next, side);
           return next;
         });
       }
+      scrollTop();
     },
-    [activeSide, filledPlayer, list, fillRank, lives, passTurnAfter],
+    [activeSide, filledPlayer, list, fillRank, lives, passTurnAfter, scrollTop, playSfx],
   );
 
-  // Süre doldu → pas (yanlış gibi: can -1 + sıra geç).
+  // Süre doldu → pas (yanlış gibi: can -1 + cam kırılma + sıra geç).
   const onTimeout = useCallback(() => {
     const side = activeSide;
     setMissTick((t) => t + 1);
+    playSfx('heartbreak');
     setLives((prev) => {
       const next = { ...prev, [side]: Math.max(0, prev[side] - 1) };
       passTurnAfter(next, side);
       return next;
     });
-  }, [activeSide, passTurnAfter]);
+    scrollTop();
+  }, [activeSide, passTurnAfter, scrollTop, playSfx]);
 
   // İsim modalı (hot-seat).
   const onNamesSubmit = useCallback(

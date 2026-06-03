@@ -124,8 +124,14 @@ function CardFront({
         style={{ borderColor: `${theme.hexDark}80` }}
       />
 
-      {/* === MEDIA AREA: oyuncu portresi — kart yüksekliğinin ~%70'i (mobilde %74) === */}
-      <div className="relative z-0 h-[74%] w-full shrink-0 overflow-hidden rounded-t-[inherit] sm:h-[70%]">
+      {/* === MEDIA AREA: oyuncu portresi. hideName iken foto TÜM kartı kaplar
+          (alt isim şeridi yok → sadece fotoğraf). === */}
+      <div
+        className={cn(
+          'relative z-0 w-full shrink-0 overflow-hidden rounded-t-[inherit]',
+          hideName ? 'h-full rounded-b-[inherit]' : 'h-[74%] sm:h-[70%]',
+        )}
+      >
         {player.imageUrl ? (
           <PlayerPhoto
             src={player.imageUrl}
@@ -137,13 +143,15 @@ function CardFront({
           <PlayerMonogram name={player.displayName} theme={theme} />
         )}
 
-        {/* Portrenin altına doğru karartma — alt metin okunabilirliği için */}
-        <div
-          className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3"
-          style={{
-            background: `linear-gradient(to bottom, transparent, ${theme.hexDark}cc)`,
-          }}
-        />
+        {/* Portrenin altına doğru karartma — yalnızca isim varken (okunabilirlik). */}
+        {!hideName && (
+          <div
+            className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3"
+            style={{
+              background: `linear-gradient(to bottom, transparent, ${theme.hexDark}cc)`,
+            }}
+          />
+        )}
       </div>
 
       {/* Numara + bayrak rozetleri — hideBadges ile gizlenebilir (Kadro Kur

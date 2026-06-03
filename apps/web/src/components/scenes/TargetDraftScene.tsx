@@ -5,6 +5,7 @@ import { cn } from '@/lib/cn';
 import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
 import { CountdownRing } from '@/components/CountdownRing';
+import { XrayJokerButton } from '@/components/scenes/TargetXrayOverlay';
 import {
   SLOT_COUNT,
   type TargetCriterion,
@@ -30,6 +31,11 @@ interface TargetDraftSceneProps {
   seconds: number;
   onSelect: (playerId: string) => void;
   onTimeout: () => void;
+  // -------- Röntgen jokeri (aktif tarafın hakkı) --------
+  xrayAvailable: boolean;
+  xrayArmed: boolean;
+  onToggleXray: () => void;
+  onXrayPick: (playerId: string) => void;
 }
 
 /** Deterministik karıştırma (havuzu rastgele sırada göster — değer ipucu verme). */
@@ -67,6 +73,10 @@ export function TargetDraftScene({
   seconds,
   onSelect,
   onTimeout,
+  xrayAvailable,
+  xrayArmed,
+  onToggleXray,
+  onXrayPick,
 }: TargetDraftSceneProps) {
   const playersById = useMemo(() => {
     const m = new Map<string, Player>();
@@ -142,10 +152,21 @@ export function TargetDraftScene({
         />
       </div>
 
+      {/* Joker barı (aktif tarafın röntgen hakkı) */}
+      <div className="flex items-center justify-center">
+        <XrayJokerButton
+          available={xrayAvailable}
+          armed={xrayArmed}
+          onClick={onToggleXray}
+        />
+      </div>
+
       {/* Havuz */}
       <div className="flex flex-col gap-2">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-sm font-bold text-white/80">Oyuncu seç</h2>
+          <h2 className="text-sm font-bold text-white/80">
+            {xrayArmed ? '🔍 Röntgenlemek için bir karta dokun' : 'Oyuncu seç'}
+          </h2>
           <SearchInput value={search} onChange={setSearch} />
         </div>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-2.5">
@@ -153,8 +174,11 @@ export function TargetDraftScene({
             <button
               key={p.id}
               type="button"
-              onClick={() => onSelect(p.id)}
-              className="rounded-lg p-1 transition hover:-translate-y-1"
+              onClick={() => (xrayArmed ? onXrayPick(p.id) : onSelect(p.id))}
+              className={cn(
+                'rounded-lg p-1 transition hover:-translate-y-1',
+                xrayArmed && 'cursor-help hover:bg-side-blue/15 hover:ring-2 hover:ring-side-blue/50',
+              )}
             >
               {/* Değer GİZLİ — kör draft. */}
               <PlayerCard player={p} className="w-full" />

@@ -1,10 +1,11 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
 import { CountdownRing } from '@/components/CountdownRing';
+import { XrayJokerButton } from '@/components/scenes/TargetXrayOverlay';
 import { cn } from '@/lib/cn';
 import { SLOT_COUNT, type TargetCriterion, type TargetPicks } from '@/lib/targetMode';
 
@@ -23,6 +24,15 @@ interface TargetBuildSceneProps {
   onSubmit: () => void;
   /** Süre doldu → boşlar rastgele tamamlanır + otomatik kapıştırılır. */
   onTimeout: () => void;
+  // -------- Röntgen jokeri --------
+  /** Röntgen hakkı kaldı mı? */
+  xrayAvailable: boolean;
+  /** Joker basıldı, kart bekleniyor mu? (armed iken kart tıklaması = röntgen) */
+  xrayArmed: boolean;
+  /** Joker butonu tıklandı (armed'i aç/iptal et). */
+  onToggleXray: () => void;
+  /** Armed iken bir karta tıklandı → röntgen aç (route overlay'i yönetir). */
+  onXrayPick: (playerId: string) => void;
 }
 
 /** Deterministik karıştırma (mulberry32 + Fisher-Yates). SquadBuildScene ile aynı. */
@@ -60,6 +70,10 @@ export function TargetBuildScene({
   onPick,
   onSubmit,
   onTimeout,
+  xrayAvailable,
+  xrayArmed,
+  onToggleXray,
+  onXrayPick,
 }: TargetBuildSceneProps) {
   const [search, setSearch] = useState('');
 
@@ -94,9 +108,14 @@ export function TargetBuildScene({
   // İlk boş slotu hedefler (kart tıklanınca oraya koyar).
   const firstEmpty = picks.findIndex((v) => v === null);
 
-  // Bir kartı seçme/kaldırma: zaten seçiliyse o slottan kaldır; değilse ilk boşa koy.
-  const toggle = (playerId: string) => {
+  // Kart tıklama: armed (röntgen) ise değeri açtır; değilse seç/kaldır.
+  // Seçili kart armed'da röntgenlenmez (zaten kadroda) — normal kaldırma çalışır.
+  const onCardClick = (playerId: string) => {
     const existingSlot = picks.indexOf(playerId);
+    if (xrayArmed && existingSlot < 0) {
+      onXrayPick(playerId);
+      return;
+    }
     if (existingSlot >= 0) {
       onPick(existingSlot, null);
     } else if (firstEmpty >= 0) {
@@ -184,10 +203,21 @@ export function TargetBuildScene({
         })}
       </div>
 
+      {/* Joker barı */}
+      <div className="flex items-center justify-center">
+        <XrayJokerButton
+          available={xrayAvailable}
+          armed={xrayArmed}
+          onClick={onToggleXray}
+        />
+      </div>
+
       {/* Havuz */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
-          <h2 className="text-sm font-bold text-white/80">Oyuncu havuzu</h2>
+          <h2 className="text-sm font-bold text-white/80">
+            {xrayArmed ? '🔍 Röntgenlemek için bir karta dokun' : 'Oyuncu havuzu'}
+          </h2>
           <input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -202,10 +232,12 @@ export function TargetBuildScene({
               <button
                 key={p.id}
                 type="button"
-                onClick={() => toggle(p.id)}
+                onClick={() => onCardClick(p.id)}
                 className={cn(
                   'relative flex flex-col items-center rounded-lg p-1 transition',
                   isSel && 'bg-accent-gold/15 ring-2 ring-accent-goldHi',
+                  // Armed (röntgen) iken seçilmemiş kartlara mavi vurgulu hover ipucu.
+                  xrayArmed && !isSel && 'cursor-help hover:bg-side-blue/15 hover:ring-2 hover:ring-side-blue/50',
                 )}
               >
                 {/* Değer GİZLİ — kör seçim. */}

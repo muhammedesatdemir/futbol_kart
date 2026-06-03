@@ -12,6 +12,7 @@ import { TargetRevealScene } from '@/components/scenes/TargetRevealScene';
 import { TargetBuildScene } from '@/components/scenes/TargetBuildScene';
 import { TargetDraftScene } from '@/components/scenes/TargetDraftScene';
 import { TargetResultScene } from '@/components/scenes/TargetResultScene';
+import { TargetXrayOverlay } from '@/components/scenes/TargetXrayOverlay';
 import { SoundToggle } from '@/components/SoundToggle';
 import { UserMenu } from '@/components/UserMenu';
 import { NameModal } from '@/components/NameModal';
@@ -73,6 +74,24 @@ export default function TargetGamePage() {
   const [draftStep, setDraftStep] = useState(0);
   const draftActiveSide = draftOrder[draftStep] ?? 'P1';
 
+  // -------- Röntgen jokeri state'i --------
+  // Maç başına 1×/taraf. Bota karşı yalnız P1 kullanır.
+  const [xrayUsed, setXrayUsed] = useState<{ P1: boolean; P2: boolean }>({
+    P1: false,
+    P2: false,
+  });
+  const [xrayArmed, setXrayArmed] = useState(false);
+  const [xrayPlayerId, setXrayPlayerId] = useState<string | null>(null);
+  // Röntgenlenen oyuncu hangi tarafça açıldı (hak düşürme + kabulde slot için).
+  const [xraySide, setXraySide] = useState<'P1' | 'P2'>('P1');
+
+  // Joker hakları sıfırla (yeni maç / yeniden oyna / geri).
+  const resetXray = useCallback(() => {
+    setXrayUsed({ P1: false, P2: false });
+    setXrayArmed(false);
+    setXrayPlayerId(null);
+  }, []);
+
   // Yeni hedef + havuz seed üret (yeni maç / yeniden oyna).
   const freshTarget = useCallback(() => {
     const prng = createPRNG(`${params.gameId}-tg-${Date.now()}`);
@@ -81,7 +100,8 @@ export default function TargetGamePage() {
     setP1Picks(emptyPicks());
     setP2Picks(emptyPicks());
     setDraftStep(0);
-  }, [params.gameId, criterion]);
+    resetXray();
+  }, [params.gameId, criterion, resetXray]);
 
   // Rakip seçildi → hedef çarkına geç (opponent state'i sakla).
   const onPickOpponent = useCallback(
@@ -182,6 +202,56 @@ export default function TargetGamePage() {
     if (auto) applyDraftPick(draftActiveSide, auto.playerId);
   }, [params.gameId, draftStep, draftActiveSide, p1Picks, p2Picks, criterion, session.players, applyDraftPick]);
 
+  // ---- Röntgen jokeri ----
+  // Aktif taraf: build'de hep P1; draft'ta sıradaki taraf.
+  const xraySideNow: 'P1' | 'P2' = phase === 'draft' ? draftActiveSide : 'P1';
+  const xrayAvailable = !xrayUsed[xraySideNow];
+
+  // Joker butonu: hakkı varsa armed aç; armed iken iptal.
+  const onToggleXray = useCallback(() => {
+    setXrayArmed((a) => {
+      if (a) return false; // armed → iptal
+      return !xrayUsed[xraySideNow] ? true : false;
+    });
+  }, [xrayUsed, xraySideNow]);
+
+  // Armed iken bir karta dokunuldu → değeri overlay'de aç, hakkı düşür.
+  const onXrayPick = useCallback(
+    (playerId: string) => {
+      setXrayPlayerId(playerId);
+      setXraySide(xraySideNow);
+      setXrayArmed(false);
+      setXrayUsed((u) => ({ ...u, [xraySideNow]: true }));
+    },
+    [xraySideNow],
+  );
+
+  // Overlay "Kadroya kat" → röntgenlenen kartı normal seçim akışına sok.
+  const onXrayAccept = useCallback(() => {
+    if (!xrayPlayerId) return;
+    if (xraySide === 'P1' && phase === 'build') {
+      // Build: P1'in ilk boş slotuna koy (onPick mantığı).
+      setP1Picks((prev) => {
+        const next = [...prev];
+        const slot = firstEmptySlot(next);
+        if (slot >= 0) next[slot] = xrayPlayerId;
+        return next;
+      });
+    } else {
+      // Draft: aktif tarafın seçimi + adım ilerlet.
+      applyDraftPick(xraySide, xrayPlayerId);
+    }
+    setXrayPlayerId(null);
+  }, [xrayPlayerId, xraySide, phase, applyDraftPick]);
+
+  // Overlay "Vazgeç" → katmadan kapat (hak zaten yandı).
+  const onXrayDismiss = useCallback(() => setXrayPlayerId(null), []);
+
+  const xrayPlayer = useMemo(
+    () => (xrayPlayerId ? playersById.get(xrayPlayerId) ?? null : null),
+    [xrayPlayerId, playersById],
+  );
+
   // İsim modalı onayı (hot-seat).
   const onNamesSubmit = useCallback(
     (n1: string, n2: string) => {
@@ -211,10 +281,11 @@ export default function TargetGamePage() {
         setP1Picks(emptyPicks());
         setP2Picks(emptyPicks());
         setDraftStep(0);
+        resetXray();
         setPhase('opponent');
         break;
     }
-  }, [phase, router, params.gameId]);
+  }, [phase, router, params.gameId, resetXray]);
 
   const winner = useMemo(() => {
     if (phase !== 'result') return 'tie' as const;
@@ -298,6 +369,10 @@ export default function TargetGamePage() {
                 onPick={onPick}
                 onSubmit={onSubmit}
                 onTimeout={onBuildTimeout}
+                xrayAvailable={xrayAvailable}
+                xrayArmed={xrayArmed}
+                onToggleXray={onToggleXray}
+                onXrayPick={onXrayPick}
               />
             </SceneShell>
           )}
@@ -317,6 +392,10 @@ export default function TargetGamePage() {
                 seconds={TARGET_DRAFT_SECONDS}
                 onSelect={onDraftSelect}
                 onTimeout={onDraftTimeout}
+                xrayAvailable={xrayAvailable}
+                xrayArmed={xrayArmed}
+                onToggleXray={onToggleXray}
+                onXrayPick={onXrayPick}
               />
             </SceneShell>
           )}
@@ -338,6 +417,19 @@ export default function TargetGamePage() {
           )}
         </AnimatePresence>
       </main>
+
+      {/* Röntgen jokeri overlay'i — bir kartın gizli değerini açar. */}
+      <AnimatePresence>
+        {xrayPlayer && (
+          <TargetXrayOverlay
+            player={xrayPlayer}
+            value={criterion.metric(xrayPlayer) ?? 0}
+            unit={criterion.unit}
+            onAccept={onXrayAccept}
+            onDismiss={onXrayDismiss}
+          />
+        )}
+      </AnimatePresence>
 
       {/* Hot-seat draft isim modalı */}
       <NameModal

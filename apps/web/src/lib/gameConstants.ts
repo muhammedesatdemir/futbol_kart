@@ -31,6 +31,10 @@ export const BONUS_ASSIGN_SECONDS = 50;
 /** Transfer jokeri değiş-tokuş süresi (sn). */
 export const TRANSFER_SECONDS = 30;
 
+/** Kadro Kur — Arkadaşa Karşı snake draft: tek seçim süresi (sn). Dolarsa
+ *  rastgele boş mevkiye rastgele uygun oyuncu atanır. */
+export const SQUAD_DRAFT_SECONDS = 40;
+
 /**
  * El hazırlama süresi (sn) — kart sayısına orantılı: handSize×13, en az 40.
  * 8 kart → 104, 4 kart → 52, 1 kart → 40 (min).

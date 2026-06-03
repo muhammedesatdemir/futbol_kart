@@ -10,11 +10,15 @@ import { SceneBackground } from '@/components/SceneBackground';
 import { OpponentSelectScene, type Opponent } from '@/components/scenes/OpponentSelectScene';
 import { SquadCriterionSelectScene } from '@/components/scenes/SquadCriterionSelectScene';
 import { SquadBuildScene } from '@/components/scenes/SquadBuildScene';
+import { SquadDraftScene } from '@/components/scenes/SquadDraftScene';
 import { SquadResultScene } from '@/components/scenes/SquadResultScene';
 import { SoundToggle } from '@/components/SoundToggle';
 import { UserMenu } from '@/components/UserMenu';
+import { NameModal } from '@/components/NameModal';
 import { useGameSession } from '@/lib/GameSessionProvider';
+import { useProfileStore } from '@/lib/profileStore';
 import { createPRNG } from '@futbol-kart/game-engine';
+import { SQUAD_DRAFT_SECONDS } from '@/lib/gameConstants';
 import {
   FORMATION_433,
   SQUAD_CRITERIA,
@@ -24,11 +28,16 @@ import {
   buildAutoSquad,
   scoreSquad,
   compareSquads,
+  snakeDraftOrder,
+  suggestForDraft,
+  autoPickForDraft,
+  draftedIds,
   type SquadAssignment,
   type SquadCriterion,
+  type Suggestion,
 } from '@/lib/squadMode';
 
-type Phase = 'opponent' | 'select' | 'build' | 'result';
+type Phase = 'opponent' | 'select' | 'build' | 'draft' | 'result';
 
 /**
  * "Kadro Kur" modu — ince dikey dilim (vs-bot, "en uzun kadro").
@@ -57,6 +66,26 @@ export default function SquadGamePage() {
     emptyAssignment(formation),
   );
 
+  // -------- Hot-seat snake draft state'i --------
+  // İsimler (NameModal ile alınır; vs-bot'ta gerekmez).
+  const profileP1 = useProfileStore((s) => s.p1Name);
+  const profileP2 = useProfileStore((s) => s.p2Name);
+  const setProfileNames = useProfileStore((s) => s.setNames);
+  const [p1Name, setP1Name] = useState('');
+  const [p2Name, setP2Name] = useState('');
+  // Snake sırası (22 adım = 11 slot × 2). draftStep = mevcut adım indeksi.
+  const draftOrder = useMemo(
+    () => snakeDraftOrder(formation.slots.length, 'P1'),
+    [formation.slots.length],
+  );
+  const [draftStep, setDraftStep] = useState(0);
+  // Öneri jokeri: her taraf maçta 1×.
+  const [draftJokerUsed, setDraftJokerUsed] = useState<{ P1: boolean; P2: boolean }>({
+    P1: false,
+    P2: false,
+  });
+  const [suggestion, setSuggestion] = useState<Suggestion | null>(null);
+
   // Rakip seçildi. Bota karşı → kriteri OYUNCU seçer (select fazı). Arkadaşa
   // karşı → kriter GİZLİ/RASTGELE (iki taraf da seçemez, adalet); doğrudan
   // build'e geçilir (madde 1).
@@ -64,15 +93,20 @@ export default function SquadGamePage() {
     (opp: Opponent) => {
       setOpponent(opp);
       if (opp === 'hotseat') {
+        // Arkadaşa karşı: kriter gizli/rastgele (iki taraf da seçemez) → snake draft.
         const prng = createPRNG(`${params.gameId}-crit-${Date.now()}`);
         setCriterion(SQUAD_CRITERIA[Math.floor(prng.next() * SQUAD_CRITERIA.length)]);
-        setShuffleSeed(Math.floor(prng.next() * 1e9));
-        setPhase('build');
+        setP1Assignment(emptyAssignment(formation));
+        setP2Assignment(emptyAssignment(formation));
+        setDraftStep(0);
+        setDraftJokerUsed({ P1: false, P2: false });
+        setSuggestion(null);
+        setPhase('draft');
       } else {
         setPhase('select');
       }
     },
-    [params.gameId],
+    [params.gameId, formation],
   );
 
   const onPickCriterion = useCallback((criterionId: string) => {
@@ -104,6 +138,92 @@ export default function SquadGamePage() {
     });
   }, []);
 
+  // ============ Hot-seat snake draft handler'ları ============
+  // Aktif taraf = snake sırasındaki mevcut adım. Süre sayacı için draftStep kullanılır.
+  const draftActiveSide = draftOrder[draftStep] ?? 'P1';
+
+  // Bir seçim uygula (slotId + playerId) → ilgili tarafın kadrosuna koy + adım ilerlet.
+  // Son adımda result'a geç.
+  const applyDraftPick = useCallback(
+    (side: 'P1' | 'P2', slotId: string, playerId: string) => {
+      const setter = side === 'P1' ? setP1Assignment : setP2Assignment;
+      setter((prev) => ({ ...prev, [slotId]: playerId }));
+      setSuggestion(null);
+      setDraftStep((s) => {
+        const next = s + 1;
+        if (next >= draftOrder.length) {
+          // Tüm seçimler bitti → sonuç.
+          setPhase('result');
+        }
+        return next;
+      });
+    },
+    [draftOrder.length],
+  );
+
+  // Kullanıcı seçimi (aktif taraf adına).
+  const onDraftSelect = useCallback(
+    (slotId: string, playerId: string) => {
+      applyDraftPick(draftActiveSide, slotId, playerId);
+    },
+    [applyDraftPick, draftActiveSide],
+  );
+
+  // Süre doldu → rastgele boş mevkiye rastgele uygun oyuncu (aktif taraf).
+  const onDraftTimeout = useCallback(() => {
+    const prng = createPRNG(`${params.gameId}-auto-${draftStep}`);
+    const myAssign = draftActiveSide === 'P1' ? p1Assignment : p2Assignment;
+    const excluded = draftedIds(p1Assignment, p2Assignment);
+    const auto = autoPickForDraft(
+      myAssign,
+      formation,
+      criterion,
+      session.players,
+      excluded,
+      () => prng.next(),
+    );
+    if (auto) applyDraftPick(draftActiveSide, auto.slotId, auto.playerId);
+    else applyDraftPick(draftActiveSide, '', ''); // aday yoksa boş geç (nadir)
+  }, [params.gameId, draftStep, draftActiveSide, p1Assignment, p2Assignment, formation, criterion, session.players, applyDraftPick]);
+
+  // Öneri jokeri: kalan boş mevkiye iyi-mükemmel bir oyuncu öner (aktif taraf).
+  const onDraftJoker = useCallback(() => {
+    if (draftJokerUsed[draftActiveSide]) return;
+    const prng = createPRNG(`${params.gameId}-sug-${draftStep}`);
+    const myAssign = draftActiveSide === 'P1' ? p1Assignment : p2Assignment;
+    const excluded = draftedIds(p1Assignment, p2Assignment);
+    const sug = suggestForDraft(
+      myAssign,
+      formation,
+      criterion,
+      session.players,
+      excluded,
+      () => prng.next(),
+    );
+    if (sug) {
+      setSuggestion(sug);
+      setDraftJokerUsed((u) => ({ ...u, [draftActiveSide]: true }));
+    }
+  }, [draftJokerUsed, draftActiveSide, params.gameId, draftStep, p1Assignment, p2Assignment, formation, criterion, session.players]);
+
+  // Öneriyi kabul et → o slota öneriyi koy + adım ilerlet.
+  const onAcceptSuggestion = useCallback(() => {
+    if (!suggestion) return;
+    applyDraftPick(draftActiveSide, suggestion.slotId, suggestion.playerId);
+  }, [suggestion, draftActiveSide, applyDraftPick]);
+
+  const onDismissSuggestion = useCallback(() => setSuggestion(null), []);
+
+  // İsim modalı onayı (hot-seat).
+  const onNamesSubmit = useCallback(
+    (n1: string, n2: string) => {
+      setP1Name(n1);
+      setP2Name(n2);
+      setProfileNames(n1, n2);
+    },
+    [setProfileNames],
+  );
+
   const onSubmit = useCallback(() => {
     // P1 kilitlendi → bot kadrosunu kur (P1'in seçtiklerini havuzdan çıkar).
     const prng = createPRNG(`${params.gameId}-squad`);
@@ -127,10 +247,13 @@ export default function SquadGamePage() {
     setP1Assignment(emptyAssignment(formation));
     setP2Assignment(emptyAssignment(formation));
     if (opponent === 'hotseat') {
+      // Arkadaşa karşı → yeni rastgele kriterle yeni snake draft.
       const prng = createPRNG(`${params.gameId}-crit-${Date.now()}`);
       setCriterion(SQUAD_CRITERIA[Math.floor(prng.next() * SQUAD_CRITERIA.length)]);
-      setShuffleSeed(Math.floor(prng.next() * 1e9));
-      setPhase('build');
+      setDraftStep(0);
+      setDraftJokerUsed({ P1: false, P2: false });
+      setSuggestion(null);
+      setPhase('draft');
     } else {
       setShuffleSeed(Math.floor(Math.random() * 1e9));
       setPhase('select');
@@ -159,9 +282,12 @@ export default function SquadGamePage() {
       ? 'mode'
       : phase === 'select'
         ? 'handoff'
-        : phase === 'build'
+        : phase === 'build' || phase === 'draft'
           ? 'pick'
           : 'final';
+
+  // Hot-seat draft başında isim modalı (isimler boşken).
+  const draftNameModalOpen = phase === 'draft' && p1Name === '';
 
   return (
     <>
@@ -186,7 +312,7 @@ export default function SquadGamePage() {
           <SceneShell sceneKey="squad-opponent" key="squad-opponent">
             <OpponentSelectScene
               modeName="Kadro Kur"
-              available={{ hotseat: false, vsBot: true }}
+              available={{ hotseat: true, vsBot: true }}
               onPick={onPickOpponent}
             />
           </SceneShell>
@@ -216,6 +342,30 @@ export default function SquadGamePage() {
           </SceneShell>
         )}
 
+        {phase === 'draft' && !draftNameModalOpen && (
+          <SceneShell sceneKey="squad-draft" key="squad-draft">
+            <SquadDraftScene
+              formation={formation}
+              criterion={criterion}
+              pool={session.players}
+              p1Name={p1Name || 'Oyuncu 1'}
+              p2Name={p2Name || 'Oyuncu 2'}
+              p1Assignment={p1Assignment}
+              p2Assignment={p2Assignment}
+              activeSide={draftActiveSide}
+              stepIndex={draftStep}
+              seconds={SQUAD_DRAFT_SECONDS}
+              jokerAvailable={!draftJokerUsed[draftActiveSide]}
+              suggestion={suggestion}
+              onSelect={onDraftSelect}
+              onTimeout={onDraftTimeout}
+              onUseJoker={onDraftJoker}
+              onAcceptSuggestion={onAcceptSuggestion}
+              onDismissSuggestion={onDismissSuggestion}
+            />
+          </SceneShell>
+        )}
+
         {phase === 'result' && (
           <SceneShell sceneKey="squad-result" key="squad-result">
             <SquadResultScene
@@ -223,8 +373,8 @@ export default function SquadGamePage() {
               criterion={criterion}
               p1Assignment={p1Assignment}
               p2Assignment={p2Assignment}
-              p1Name="Sen"
-              p2Name="Bot"
+              p1Name={opponent === 'hotseat' ? p1Name || 'Oyuncu 1' : 'Sen'}
+              p2Name={opponent === 'hotseat' ? p2Name || 'Oyuncu 2' : 'Bot'}
               winner={winner}
               playersById={playersById}
               onRematch={onRematch}
@@ -233,6 +383,15 @@ export default function SquadGamePage() {
         )}
       </AnimatePresence>
       </main>
+
+      {/* Hot-seat draft isim modalı */}
+      <NameModal
+        open={draftNameModalOpen}
+        mode="hotseat"
+        initialP1={profileP1}
+        initialP2={profileP2}
+        onSubmit={onNamesSubmit}
+      />
     </>
   );
 }

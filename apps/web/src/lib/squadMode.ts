@@ -262,3 +262,143 @@ export function buildAutoSquad(
   }
   return assignment;
 }
+
+// ===========================================================================
+// Snake draft (Arkadaşa Karşı / hot-seat) — iki oyuncu sırayla 1'er oyuncu seçer.
+// ===========================================================================
+
+export type DraftSide = 'P1' | 'P2';
+
+/**
+ * Snake draft sırası. Toplam 2×slotSayısı adım. Her "tur"da iki taraf da
+ * bir seçim yapar ama tur içi sıra dönüşümlü:
+ *   Tur 0: A, B    Tur 1: B, A    Tur 2: A, B   ...
+ * Bu, ilk-seçen avantajını dengeler (standart snake draft).
+ *
+ * @returns adım sırası — örn. ['P1','P2','P2','P1','P1','P2', ...]
+ */
+export function snakeDraftOrder(slotCount: number, first: DraftSide = 'P1'): DraftSide[] {
+  const other: DraftSide = first === 'P1' ? 'P2' : 'P1';
+  const order: DraftSide[] = [];
+  for (let round = 0; round < slotCount; round++) {
+    // Çift turda first önce, tek turda other önce (yılan).
+    const [a, b] = round % 2 === 0 ? [first, other] : [other, first];
+    order.push(a, b);
+  }
+  return order;
+}
+
+/** Bir tarafın kadrosunda ilk boş slotları (id) döndürür. */
+export function emptySlots(assignment: SquadAssignment, formation: Formation): FormationSlot[] {
+  return formation.slots.filter((s) => assignment[s.id] === null);
+}
+
+/** İki tarafın tüm atanmış oyuncu id'leri — draft havuzundan çıkarılır. */
+export function draftedIds(p1: SquadAssignment, p2: SquadAssignment): Set<string> {
+  const out = new Set<string>();
+  for (const v of Object.values(p1)) if (v) out.add(v);
+  for (const v of Object.values(p2)) if (v) out.add(v);
+  return out;
+}
+
+/**
+ * Bir slot için kritere göre uygun, kullanılmamış adayları sıralı döndürür.
+ * (En iyi → en kötü, yöne göre.)
+ */
+export function candidatesForSlot(
+  slot: FormationSlot,
+  criterion: SquadCriterion,
+  pool: Player[],
+  excludeIds: Set<string>,
+): Player[] {
+  return pool
+    .filter((p) => p.position === slot.position)
+    .filter((p) => criterion.metric(p) !== null)
+    .filter((p) => !criterion.poolFilter || criterion.poolFilter(p))
+    .filter((p) => !excludeIds.has(p.id))
+    .sort((a, b) => {
+      const va = criterion.metric(a)!;
+      const vb = criterion.metric(b)!;
+      return criterion.direction === 'max' ? vb - va : va - vb;
+    });
+}
+
+export interface Suggestion {
+  slotId: string;
+  playerId: string;
+  /** O kriterdeki ham değer (UI'da "21 yıl" gibi gösterilir). */
+  value: number;
+}
+
+/**
+ * Öneri jokeri — kalan boş mevkilerden birine, kritere göre İYİ-MÜKEMMEL arası
+ * (rastgele değil) bir oyuncu önerir. Mutlak en iyiyi değil, üst dilimden bir
+ * aday seçer (oyuncuya yardım ama oyunu bitirmez). Öneri için istatistik döner.
+ *
+ * Strateji: boş slotlar arasında "en iyi adayı en güçlü olan" slotu seç (en
+ * değerli öneri), o slotun üst ~%15'inden (en az 1, en çok 4 aday) birini al.
+ */
+export function suggestForDraft(
+  assignment: SquadAssignment,
+  formation: Formation,
+  criterion: SquadCriterion,
+  pool: Player[],
+  excludeIds: Set<string>,
+  rng: () => number,
+): Suggestion | null {
+  const slots = emptySlots(assignment, formation);
+  if (slots.length === 0) return null;
+
+  // Her boş slot için aday listesini hazırla, en iyi adayı olan slotu seç.
+  let best: { slot: FormationSlot; cands: Player[] } | null = null;
+  for (const slot of slots) {
+    const cands = candidatesForSlot(slot, criterion, pool, excludeIds);
+    if (cands.length === 0) continue;
+    if (!best || criterion.metric(cands[0])! > criterion.metric(best.cands[0])! === (criterion.direction === 'max')) {
+      // direction'a göre "daha iyi ilk aday" olan slotu tercih et.
+      if (!best) best = { slot, cands };
+      else {
+        const a = criterion.metric(cands[0])!;
+        const b = criterion.metric(best.cands[0])!;
+        const better = criterion.direction === 'max' ? a > b : a < b;
+        if (better) best = { slot, cands };
+      }
+    }
+  }
+  if (!best) return null;
+
+  // İYİ-MÜKEMMEL arası: üst dilimden seç (en iyi 1..4 aday içinden).
+  const topK = Math.min(4, Math.max(1, Math.ceil(best.cands.length * 0.15)));
+  const idx = Math.floor(rng() * topK);
+  const chosen = best.cands[Math.min(idx, best.cands.length - 1)];
+  return {
+    slotId: best.slot.id,
+    playerId: chosen.id,
+    value: criterion.metric(chosen)!,
+  };
+}
+
+/**
+ * Süre dolunca oto-seçim — RASTGELE bir boş mevkiye, o mevkiye uygun RASTGELE
+ * bir oyuncu (kullanıcı talebi: "random mevkiye random oyuncu"). Aday yoksa null.
+ */
+export function autoPickForDraft(
+  assignment: SquadAssignment,
+  formation: Formation,
+  criterion: SquadCriterion,
+  pool: Player[],
+  excludeIds: Set<string>,
+  rng: () => number,
+): { slotId: string; playerId: string } | null {
+  const slots = emptySlots(assignment, formation);
+  if (slots.length === 0) return null;
+  // Rastgele slot sırası dene — adayı olan ilkini al.
+  const shuffledSlots = [...slots].sort(() => rng() - 0.5);
+  for (const slot of shuffledSlots) {
+    const cands = candidatesForSlot(slot, criterion, pool, excludeIds);
+    if (cands.length === 0) continue;
+    const chosen = cands[Math.floor(rng() * cands.length)];
+    return { slotId: slot.id, playerId: chosen.id };
+  }
+  return null;
+}

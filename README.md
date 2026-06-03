@@ -600,6 +600,85 @@ küçük bir **manuel sabit-veri tablosu** ile ileride eklenebilir:
 
 ---
 
+## 🆕 Aday Yeni Modlar (analiz edildi · henüz implement edilmedi)
+
+> Mevcut 4 mod dışında, sosyal medya formatlarından feyz alınan **3 aday mod** mevcut veri seti
+> üzerinde analiz edildi. Aşağısı bu analizin özeti; tam karar günlüğü ve veri ölçümleri
+> [PLAN.md §14](PLAN.md)'te. Hiçbiri henüz kodlanmadı — bu bir yol haritası, durum bildirimi değil.
+
+### 🔑 Ortak temel — "Kalburüstü (marquee)" oyuncu filtresi
+
+Üç modun da kuralı: **bilinmedik oyuncu sorulmaz.** İlk içgüdü "maksimum piyasa değeri ≥ 30–40M"
+idi, ancak veri analizi bunu çürüttü:
+
+- Veride üst-seviye `marketValue` **yok**; en yakın alan `stats.maxTransferFeeEUR` (kariyer zirve
+  transfer ücreti) ve bu **%20 oyuncuda NULL** (TM eski ücretleri tutmuyor).
+- Bu NULL'lar arasında **245 oyuncu 50+ milli maçlı** — Pelé, Maradona, Cruyff, Beckenbauer dahil.
+  Yani **tek market eşiği tam da efsaneleri elerdi** (modların kahramanlarını).
+
+**Karar — bileşik OR skoru** (`isMarquee`, üç modun paylaştığı tek fonksiyon olacak):
+
+```
+isMarquee = imageUrl != null && (
+    maxTransferFeeEUR >= 25M        // modern/aktif yıldızlar
+ || nationalCaps      >= 30        // milli takım omurgası → efsaneleri yakalar
+ || totalTitles       >= 5        // çok kupalı
+ || individual.totalIndividual >= 1  // Ballon d'Or / gol krallığı / yılın oyuncusu
+)
+```
+
+Ölçülen havuz **4.971 oyuncu** (FWD 2.356 · MID 1.449 · DEF 940 · GK 226). Bilinmedikleri eler,
+efsaneleri korur. Eşikler ileride ince ayara açık.
+
+### 🟦 Aday Mod A — Kariyer Yolu ("Bu kariyer yolu kimin?")
+
+Bir oyuncunun kulüp-zaman çizelgesi (FC Basel 2012-14 → Chelsea 14-15 → …) dikey/yatay sıralanır;
+rakip oyuncuyu tahmin eder. Joker: oyuncunun milliyetini (gerekirse baş harfini) açar.
+
+| | Durum |
+|---|---|
+| **Veri** | ✅ `clubs[]` her oyuncuda (`clubId/fromYear/toYear/apps/goals`). %97'sinde ≥2, %82'sinde ≥4 kulüp. `clubId → clubs.json` eşleşmesi **%100**. Kronoloji `fromYear` ile hazır. |
+| **Güç** | **En güçlü aday + online'a en uygun** (statik kariyer dizisi, canlı senkron state yok → async oynanabilir). Mevcut online ayağında çok iş görür. |
+| **Eksik** | ⚠️ **Kulüp logosu yok** (`clubs.json`'da crest alanı yok) — amblemli görünüm için logo scrape *veya* bayrak+isim fallback gerekir. ⚠️ Aynı yıl çoklu/kiralık stint çizgiyi bozar → birleştirme kuralı. ⚠️ Tek-kulüp kariyerler (Totti, Maldini) zayıf ipucu → "≥3 kulüp" alt-filtresi. |
+
+### 🟨 Aday Mod B — Baş/son harf ile başlayan futbolcu
+
+"B ile başlayan / -ez ile biten bir futbolcu söyle" tarzı.
+
+| | Durum |
+|---|---|
+| **Veri** | ✅ Ad %100, Türkçe-duyarlı normalize hazır (`util.ts`). |
+| **Sorun** | ⚠️ **Serbest-metin doğrulama:** havuzda olmayan gerçek oyuncu yazılırsa haksız "yanlış" → isim havuzu genişletme gerekir (kullanıcının sezgisi doğru). ⚠️ Online'da kopya/sözlük suistimaline açık; rekabetçi değeri düşük. |
+| **Karar** | **Bağımsız ana mod yapma.** Ya bir modun **tie-breaker/mini-tur** katmanı, ya da **çoktan seçmeli** varyanta çevir ("şu 4 isimden hangisi B ile başlar") — doğrulama sorununu kökten çözer. |
+
+### 🟩 Aday Mod C — Rastgele 4 futbolcu, "hangisi daha X?"
+
+Ekrana 4 kart gelir, "hangisinin golü/kupası fazla, boyu uzun?" sorulur; iki taraf seçer.
+
+**Adil kıyas algoritması** (kullanıcının asıl sorusu — "kaleci vs forvet golü saçma olmasın"):
+**pozisyon-grupla + percentile (yüzdelik) bantlama.**
+1. Metriği seç. 2. Pozisyona bağlıysa **aynı pozisyon grubundan** seç (GK havuzu dar — not edildi).
+3. Metriğin dağılımında **percentile** hesapla; bir ankraja ±~5 bantta 3 oyuncu seç (raw "en yakın"
+değil — bant içinde *anlamlı* fark). 4. Doğru cevap 2.'den **min %X fazla** olsun → belirsiz soru çıkmaz.
+
+**Puanlama:** İki öneri değerlendirildi. **Karar: Öneri 1 (5 puan) ile başla**, ama beraberliği
+"puan yok" yerine **"ikisi de +1, fark açılmaz"** yap (ölü tur olmaz; VS Düello'nun adil-beraberlik
+felsefesiyle tutarlı). Öneri 2'nin istatistik tie-breaker'ı (yakın değerleri çeldirici şıklara koyma)
+sonradan, yalnız online'a eklenir.
+
+### Öncelik özeti
+
+| Aday | Veri | Ana eksik | Karar |
+|---|---|---|---|
+| **A — Kariyer Yolu** | ✅ %97 / match %100 | Logo yok · kiralık stint · tek-kulüp | **Öncelikli — online'a en uygun** |
+| **B — Baş/son harf** | ⚠️ havuz dar | Doğrulama · suistimal | Bağımsız değil → tie-breaker / çoktan seçmeli |
+| **C — 4'lü Kıyas** | ✅ stats zengin | Adil seçim · GK havuzu | **Yap — percentile + adil beraberlik** |
+
+> **Ek veri (opsiyonel kalite):** Kulüp logoları (Mod A görseli) ve Mod B için isim havuzu
+> genişletme. Geri kalan her şey mevcut seed'den ek scrape'siz türetilebilir.
+
+---
+
 ## Lisans
 
 Henüz lisanslanmadı. MVP / fikir doğrulama aşamasında.

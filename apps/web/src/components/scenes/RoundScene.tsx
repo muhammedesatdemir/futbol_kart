@@ -10,6 +10,7 @@ import { CardRow } from '@/components/CardRow';
 import { CountUp } from '@/components/CountUp';
 import { CountdownRing } from '@/components/CountdownRing';
 import { WinFx } from '@/components/WinFx';
+import { GoalVideoFx } from '@/components/GoalVideoFx';
 import {
   PlayIcon,
   QuestionIcon,
@@ -250,7 +251,17 @@ export function RoundScene({
         )}
       </AnimatePresence>
 
-      {/* Tur kazanma efekti — sinyal seviyesi (kıvılcım + halo). Beraberlikte yok. */}
+      {/* Gol video overlay (z-30, yarı-saydam) — KARTLAR AÇILIRKEN (ROUND_REVEAL)
+          başlar; ~1.43sn'lik video, reveal→result geçişi (1450ms) bitmeden tamamlanır,
+          böylece win sesi (ROUND_RESULT'ta) tam video biterken devreye girer. winner
+          reveal sırasında lastLog'ta zaten hazır. Beraberlikte gösterilmez. */}
+      {showReveal &&
+        lastLog &&
+        (lastLog.winner === 'P1' || lastLog.winner === 'P2') && (
+          <GoalVideoFx fireKey={`${lastLog.questionId}-${lastLog.winner}`} />
+        )}
+
+      {/* Tur kazanma kıvılcım+halo efekti — sonuç anında (win sesiyle birlikte). */}
       {scene === 'ROUND_RESULT' &&
         lastLog &&
         (lastLog.winner === 'P1' || lastLog.winner === 'P2') && (

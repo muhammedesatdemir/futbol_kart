@@ -146,6 +146,10 @@ export default function GameSessionPage() {
         router.push(`/hedefe-yaklas/${params.gameId}`);
         return;
       }
+      if (mode === 'list') {
+        router.push(`/liste-doldur/${params.gameId}`);
+        return;
+      }
       setPickedMode('vs');
     },
     [router, params.gameId],

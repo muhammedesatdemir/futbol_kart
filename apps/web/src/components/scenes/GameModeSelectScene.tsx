@@ -5,7 +5,7 @@ import { cn } from '@/lib/cn';
 import { SwordsIcon, CardsIcon, TrophyIcon, QuestionIcon } from '@/components/icons';
 
 /** Oynanabilir oyun modu kimliği (rakip türünden FARKLI — bu oyunun türü). */
-export type PlayableMode = 'vs' | 'squad' | 'target';
+export type PlayableMode = 'vs' | 'squad' | 'target' | 'list';
 
 interface GameModeSelectSceneProps {
   onPick: (mode: PlayableMode) => void;
@@ -50,8 +50,8 @@ const MODES: ModeDef[] = [
     emoji: '📋',
     icon: <TrophyIcon size={26} />,
     title: 'Liste Doldur',
-    body: 'Sıralı bir listeyi 1→10 tahmin et; üst sıralar daha değerli.',
-    ready: false,
+    body: 'Sıralı bir top-10 listesini tahmin et: "En çok milli maç". Alt sıralar daha değerli.',
+    ready: true,
   },
 ];
 
@@ -77,7 +77,8 @@ export function GameModeSelectScene({ onPick }: GameModeSelectSceneProps) {
             def={m}
             delay={i * 0.06}
             onClick={
-              m.ready && (m.id === 'vs' || m.id === 'squad' || m.id === 'target')
+              m.ready &&
+              (m.id === 'vs' || m.id === 'squad' || m.id === 'target' || m.id === 'list')
                 ? () => onPick(m.id as PlayableMode)
                 : undefined
             }

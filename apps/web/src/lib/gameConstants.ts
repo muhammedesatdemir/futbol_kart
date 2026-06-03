@@ -46,6 +46,15 @@ export const TARGET_PICK_SECONDS = handPickSeconds(TARGET_PICK_COUNT);
  *  rastgele uygun oyuncu atanır. */
 export const TARGET_DRAFT_SECONDS = 40;
 
+/** Liste Doldur — top-10. */
+export const LIST_SIZE = 10;
+
+/** Liste Doldur — Bota karşı: tüm liste için toplam tahmin süresi (sn). */
+export const LIST_PLAY_SECONDS = 90;
+
+/** Liste Doldur — Arkadaşa karşı: tek tahmin (tur) süresi (sn). Dolarsa pas → sıra geçer. */
+export const LIST_TURN_SECONDS = 35;
+
 /**
  * El hazırlama süresi (sn) — kart sayısına orantılı: handSize×13, en az 40.
  * 8 kart → 104, 4 kart → 52, 1 kart → 40 (min).

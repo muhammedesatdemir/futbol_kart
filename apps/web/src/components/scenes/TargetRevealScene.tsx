@@ -69,10 +69,11 @@ export function TargetRevealScene({ target, criterion, onDone }: TargetRevealSce
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [target, criterion, reduced]);
 
-  // Çark durunca ~1.4 sn sonra otomatik devam (oyuncu "Başla"ya da basabilir).
+  // Çark durunca ~5 sn sonra otomatik devam — kullanıcı hedefi idrak etsin
+  // (oyuncu "Başla" butonuyla anında da geçebilir).
   useEffect(() => {
     if (!settled) return;
-    const t = setTimeout(onDone, 1400);
+    const t = setTimeout(onDone, 5000);
     return () => clearTimeout(t);
   }, [settled, onDone]);
 

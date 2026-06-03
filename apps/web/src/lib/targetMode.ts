@@ -147,16 +147,19 @@ function eligiblePool(
   );
 }
 
+/** Bot'un gerçek hedeften ne kadar sapabileceği (±). 60 hedefte 50–70 bandı. */
+export const BOT_TARGET_DRIFT = 10;
+
 /**
- * Bot/oto kadro — HEDEFE yaklaşan ama mükemmel olmayan 5 oyuncu seçer.
+ * Bot/oto kadro — HEDEFE yaklaşan ama KASITLI hata yapan 5 oyuncu seçer.
  *
- * Strateji (Kadro Kur buildAutoSquad'ın hedef-uzaklık uyarlaması): her adımda
- * "kalan hedefe (remaining/kalanSlot) yakın değerli" adayları sıralar ama
- * mutlak en iyiyi değil, üst bir PENCEREDEN rastgele seçer (skip + window,
- * strength'e bağlı). Böylece bot çoğu zaman 5–15 uzaklıkta bitirir — insanın
- * yenebileceği orta-iyi bir kadro. Mükemmel kombinasyon garanti edilmez.
+ * Strateji: bot gerçek hedefi değil, `target ± [0..BOT_TARGET_DRIFT]` arası
+ * rastgele bir "bot hedefi" kovalar. Böylece tam isabet etmez; 60 hedefinde
+ * tipik olarak 50–70 bandında biter (insanın iyi oynayınca yenebileceği bir
+ * rakip). Her adımda bu sapmalı hedefe göre "ideale yakın" adayları bir
+ * pencereden rastgele seçer (Kadro Kur buildAutoSquad deseni).
  *
- * @param strength 0..1 — yüksek = hedefe daha yakın (ama asla garanti değil).
+ * @param strength 0..1 — yüksek = sapmalı hedefe daha yakın (ama isabet garanti değil).
  */
 export function buildAutoTarget(
   criterion: TargetCriterion,
@@ -170,11 +173,15 @@ export function buildAutoTarget(
   const used = new Set(excludeIds);
   const candidates = eligiblePool(criterion, pool, used);
 
+  // Kasıtlı sapma: bot ±BOT_TARGET_DRIFT içinde rastgele bir hedefi kovalar.
+  const drift = Math.round((rng() * 2 - 1) * BOT_TARGET_DRIFT); // -10..+10
+  const botTarget = Math.max(criterion.targetStep, target + drift);
+
   let runningTotal = 0;
   for (let slot = 0; slot < SLOT_COUNT; slot++) {
     const slotsLeft = SLOT_COUNT - slot;
-    // Bu slot için "ideal" katkı: kalan hedefi kalan slotlara böl.
-    const remaining = target - runningTotal;
+    // Bu slot için "ideal" katkı: kalan (sapmalı) hedefi kalan slotlara böl.
+    const remaining = botTarget - runningTotal;
     const idealPerSlot = remaining / slotsLeft;
 
     const avail = candidates.filter((p) => !used.has(p.id));
@@ -230,4 +237,59 @@ export function autoFillTarget(
     out[i] = shuffled[k++].id;
   }
   return out;
+}
+
+// ===========================================================================
+// Snake draft (Arkadaşa Karşı / hot-seat) — iki oyuncu sırayla 1'er kart seçer.
+// Mod 1 ile aynı yapı; ama burada pozisyon yok (5 düz slot). snakeDraftOrder
+// squadMode'dan yeniden kullanılır (slot sayısı = SLOT_COUNT).
+// ===========================================================================
+
+export type DraftSide = 'P1' | 'P2';
+
+/**
+ * Snake draft sırası. Toplam 2×SLOT_COUNT adım. Tur içi sıra dönüşümlü
+ * (A,B / B,A / A,B …) — standart yılan, ilk-seçen avantajını dengeler.
+ * 5 slot → A B B A A B B A A B (10 adım).
+ */
+export function snakeDraftOrder(first: DraftSide = 'P1'): DraftSide[] {
+  const other: DraftSide = first === 'P1' ? 'P2' : 'P1';
+  const order: DraftSide[] = [];
+  for (let round = 0; round < SLOT_COUNT; round++) {
+    const [a, b] = round % 2 === 0 ? [first, other] : [other, first];
+    order.push(a, b);
+  }
+  return order;
+}
+
+/** İki tarafın tüm seçtiği oyuncu id'leri — draft havuzundan çıkarılır. */
+export function draftedTargetIds(p1: TargetPicks, p2: TargetPicks): Set<string> {
+  const out = new Set<string>();
+  for (const v of p1) if (v) out.add(v);
+  for (const v of p2) if (v) out.add(v);
+  return out;
+}
+
+/** Bir tarafın ilk boş slot indeksini döndürür (yoksa -1). */
+export function firstEmptySlot(picks: TargetPicks): number {
+  return picks.findIndex((v) => v === null);
+}
+
+/**
+ * Süre dolunca draft oto-seçim — aktif tarafın ilk boş slotuna RASTGELE uygun
+ * (kullanılmamış) bir oyuncu koyar. Aday yoksa null.
+ */
+export function autoPickForTargetDraft(
+  picks: TargetPicks,
+  criterion: TargetCriterion,
+  pool: Player[],
+  excludeIds: Set<string>,
+  rng: () => number,
+): { slotIdx: number; playerId: string } | null {
+  const slotIdx = firstEmptySlot(picks);
+  if (slotIdx < 0) return null;
+  const avail = eligiblePool(criterion, pool, excludeIds);
+  if (avail.length === 0) return null;
+  const chosen = avail[Math.floor(rng() * avail.length)];
+  return { slotIdx, playerId: chosen.id };
 }

@@ -42,6 +42,10 @@ export const TARGET_PICK_COUNT = 5;
  *  uygun oyuncuyla tamamlanır. handPickSeconds(5) = 65. */
 export const TARGET_PICK_SECONDS = handPickSeconds(TARGET_PICK_COUNT);
 
+/** Hedefe Yaklaş — Arkadaşa Karşı snake draft: tek seçim süresi (sn). Dolarsa
+ *  rastgele uygun oyuncu atanır. */
+export const TARGET_DRAFT_SECONDS = 40;
+
 /**
  * El hazırlama süresi (sn) — kart sayısına orantılı: handSize×13, en az 40.
  * 8 kart → 104, 4 kart → 52, 1 kart → 40 (min).

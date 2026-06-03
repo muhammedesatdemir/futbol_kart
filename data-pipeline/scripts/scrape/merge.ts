@@ -32,6 +32,15 @@ const SEED_CLUBS = join(PIPELINE_ROOT, 'seed', 'clubs.json');
 const SEED_BLOCKLIST = join(PIPELINE_ROOT, 'seed', 'blocklist.json');
 
 /**
+ * "Aktif futbolcu" eşiği — oyuncunun en son kulüp stinti bu yıl veya sonrasında
+ * bitiyorsa hâlâ oynuyor sayılır. Veri 2026 başında çekildi; son sezon ~2025.
+ * Son 2 sezonu kapsar (sakatlık/transfer boşluklarını tolere eder). Bu eşik
+ * `isActive`'i belirler — Kadro Kur "en yaşlı/genç (aktif)" kriterleri + kart
+ * seçim ekranının "aktif" çağ filtresi buna dayanır.
+ */
+const ACTIVE_SINCE_YEAR = 2024;
+
+/**
  * Ülke adı (TM English) → ISO 2 harfli kod.
  * Eksik kalan ülkeler "XX" — corrections.csv ile düzeltilir.
  */
@@ -545,7 +554,13 @@ function tmToPlayer(
     position,
     preferredFoot,
     heightCm,
-    isActive: !m.lifeDates?.dateOfDeath,
+    // isActive: GERÇEKTEN hâlâ oynuyor mu? TM'nin "ölmemiş" bayrağı yetersizdi
+    // (1922 doğumlu emekliler de "aktif" görünüyordu). Doğru ölçüt: en son kulüp
+    // stintinin bitiş yılı son 2 sezon içinde (>= ACTIVE_SINCE_YEAR). Ölmüşse asla.
+    isActive:
+      !m.lifeDates?.dateOfDeath &&
+      clubs.length > 0 &&
+      Math.max(...clubs.map((c) => c.toYear ?? 0)) >= ACTIVE_SINCE_YEAR,
     clubs,
     jerseyNumbers,
     stats: {

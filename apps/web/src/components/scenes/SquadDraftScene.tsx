@@ -185,12 +185,7 @@ export function SquadDraftScene({
           <h2 className="text-sm font-bold text-white/80">
             {activeSlotDef ? `${activeSlotDef.label} için oyuncu seç` : 'Mevki seç'}
           </h2>
-          <input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Ara…"
-            className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm outline-none focus:border-accent-gold/40"
-          />
+          <SearchInput value={search} onChange={setSearch} />
         </div>
         <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-2.5">
           {candidates.map((p) => (
@@ -228,6 +223,37 @@ export function SquadDraftScene({
         )}
       </AnimatePresence>
     </section>
+  );
+}
+
+/**
+ * Göz alıcı arama kutusu — ikon + odaklanınca altın halka + hafif placeholder
+ * nabzı (kullanıcı buraya yazabileceğini fark etsin).
+ */
+function SearchInput({
+  value,
+  onChange,
+}: {
+  value: string;
+  onChange: (v: string) => void;
+}) {
+  return (
+    <div className="relative">
+      <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-white/45">
+        🔍
+      </span>
+      <input
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        placeholder="Oyuncu ara…"
+        className={cn(
+          'w-40 rounded-lg border bg-white/5 py-1.5 pl-8 pr-3 text-sm outline-none transition sm:w-48',
+          'border-accent-gold/30 placeholder:text-white/45',
+          'focus:border-accent-gold/70 focus:bg-white/10 focus:ring-2 focus:ring-accent-gold/30',
+          value ? '' : 'animate-pulse-soft',
+        )}
+      />
+    </div>
   );
 }
 
@@ -303,10 +329,10 @@ function DraftField({
                             ? 'border-dashed border-white/30 hover:border-white/50'
                             : 'border-dashed border-white/10',
                   )}
-                  style={{ maxWidth: 54 }}
+                  style={{ maxWidth: 68 }}
                 >
                   {player ? (
-                    <PlayerCard player={player} size="sm" className="w-full" />
+                    <PlayerCard player={player} size="squad" hideBadges className="w-full" />
                   ) : (
                     <span className="text-[10px] font-bold text-white/45">
                       {slot.label}
@@ -337,17 +363,34 @@ function JokerButton({
       onClick={onClick}
       whileHover={available ? { scale: 1.04 } : undefined}
       whileTap={available ? { scale: 0.97 } : undefined}
-      className={cn(
-        'relative inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold transition',
+      // Hak varken hafif parlama-sönme (dikkat çeksin); reduced-motion'da sabit.
+      animate={
         available
-          ? 'border-accent-gold/50 bg-accent-gold/15 text-accent-goldHi hover:bg-accent-gold/25'
+          ? {
+              boxShadow: [
+                '0 0 0 rgba(255,215,107,0)',
+                '0 0 18px rgba(255,215,107,0.55)',
+                '0 0 0 rgba(255,215,107,0)',
+              ],
+            }
+          : { boxShadow: '0 0 0 rgba(255,215,107,0)' }
+      }
+      transition={{ duration: 1.8, repeat: available ? Infinity : 0, ease: 'easeInOut' }}
+      className={cn(
+        'relative inline-flex items-center gap-2 rounded-xl border px-4 py-2 text-sm font-bold transition motion-reduce:!shadow-none',
+        available
+          ? 'border-accent-gold/60 bg-accent-gold/15 text-accent-goldHi hover:bg-accent-gold/25'
           : 'cursor-not-allowed border-white/10 bg-white/5 text-white/35',
       )}
     >
       {available && (
-        <span className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent-goldHi text-[10px] font-black text-black">
+        <motion.span
+          className="absolute -right-1 -top-1 flex h-5 w-5 items-center justify-center rounded-full bg-accent-goldHi text-[10px] font-black text-black"
+          animate={{ scale: [1, 1.15, 1] }}
+          transition={{ duration: 1.8, repeat: Infinity, ease: 'easeInOut' }}
+        >
           1
-        </span>
+        </motion.span>
       )}
       💡 {available ? 'Öneri Jokeri' : 'Joker kullanıldı'}
     </motion.button>

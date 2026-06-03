@@ -250,8 +250,9 @@ function SquadField({
               const idx = revealIndex.get(slot.id) ?? 99;
               const isOpen = revealed > idx;
               return (
-                // Esnek genişlik: 4 DEF yan yana iki sahada sığsın (max ~58px).
-                <div key={slot.id} className="flex min-w-0 flex-1 flex-col items-center" style={{ maxWidth: 58 }}>
+                // Esnek genişlik: 4 DEF yan yana iki sahada sığsın. Büyütüldü
+                // (~58→72px) + rozetler gizli (yüz okunsun, ekrana sığsın).
+                <div key={slot.id} className="flex min-w-0 flex-1 flex-col items-center" style={{ maxWidth: 72 }}>
                   <AnimatePresence mode="wait">
                     {isOpen && player ? (
                       <motion.div
@@ -261,7 +262,7 @@ function SquadField({
                         transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
                         className="w-full"
                       >
-                        <PlayerCard player={player} size="sm" className="w-full" />
+                        <PlayerCard player={player} size="squad" hideBadges className="w-full" />
                       </motion.div>
                     ) : (
                       <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[10px] text-white/40">

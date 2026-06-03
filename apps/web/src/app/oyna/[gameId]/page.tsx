@@ -6,7 +6,7 @@ import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import type { GameMode, Player } from '@futbol-kart/shared-types';
 import { Scoreboard } from '@/components/Scoreboard';
-import { HomeIcon, SwapIcon } from '@/components/icons';
+import { HomeIcon, SwapIcon, ArrowLeftIcon } from '@/components/icons';
 import { cn } from '@/lib/cn';
 import { SceneShell } from '@/components/scenes/SceneShell';
 import { GameModeSelectScene, type PlayableMode } from '@/components/scenes/GameModeSelectScene';
@@ -151,6 +151,21 @@ export default function GameSessionPage() {
     (mode: GameMode) => dispatch({ type: 'MODE_CHOSEN', mode }),
     [dispatch],
   );
+
+  // Faz-bilinçli "← Geri":
+  //  - Oyun-modu seçimi (pickedMode=null): geri yok (önceki sayfa zaten ana sayfa).
+  //  - Rakip seçimi (MODE_SELECT + pickedMode='vs'): oyun-modu seçimine dön.
+  //  - Oyun başladıktan sonra: rakip seçimine dön (state'i sıfırla, mod kalır).
+  const onBack = useCallback(() => {
+    if (state.scene === 'MODE_SELECT') {
+      // Rakip seçimi → oyun-modu seçimi.
+      setPickedMode(null);
+    } else {
+      // Oyun içi → rakip seçimine dön (state machine sıfırlanır, pickedMode='vs' kalır).
+      dispatch({ type: 'GAME_RESET' });
+      setPickedMode('vs');
+    }
+  }, [state.scene, dispatch]);
 
   const onP1Hand = useCallback(
     (cards: string[]) => dispatch({ type: 'HAND_SUBMITTED', side: 'P1', cards }),
@@ -725,10 +740,20 @@ export default function GameSessionPage() {
         />
 
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <Link href="/" className="btn-ghost">
-          <HomeIcon size={16} />
-          Ana sayfa
-        </Link>
+        <div className="flex items-center gap-2">
+          {/* Geri, oyun-modu seçildikten SONRA görünür (rakip seçimi + oyun içi).
+              Oyun-modu seçim ekranında geri yok — önceki sayfa zaten ana sayfa. */}
+          {pickedMode !== null && (
+            <button type="button" onClick={onBack} className="btn-ghost">
+              <ArrowLeftIcon size={16} />
+              Geri
+            </button>
+          )}
+          <Link href="/" className="btn-ghost" aria-label="Ana sayfa" title="Ana sayfa">
+            <HomeIcon size={16} />
+            {pickedMode === null && 'Ana sayfa'}
+          </Link>
+        </div>
         <div className="flex items-center gap-2">
           {phaseLabel && (
             <span className="rounded-full border border-accent-gold/40 bg-accent-gold/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent-goldHi">

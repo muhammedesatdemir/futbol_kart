@@ -24,8 +24,14 @@ interface PlayerCardProps {
    * Boyut. 'default' responsive büyür (w-36→w-44). 'sm'/'md' TÜM breakpoint'lerde
    * sabit kalır (bonus slotları, dar alanlar — taşma olmaz). md ≈ sm'nin 1.4 katı.
    * 'reveal' default'tan az daha küçük (VS ekranı dikey alana sığsın).
+   * 'squad' Kadro Kur saha kartı — md ile reveal arası, rozetler gizlenir.
    */
-  size?: 'default' | 'sm' | 'md' | 'reveal';
+  size?: 'default' | 'sm' | 'md' | 'reveal' | 'squad';
+  /**
+   * Forma numarası + milliyet bayrağı rozetlerini gizle (yüzü kapamasın).
+   * Kadro Kur saha/sonuç kartlarında küçük boyutta yüz okunsun diye kullanılır.
+   */
+  hideBadges?: boolean;
 }
 
 export const cardEnter: Variants = {
@@ -40,7 +46,15 @@ export const cardEnter: Variants = {
 
 const FALLBACK_NUMBER = '?';
 
-function CardFront({ player, selected }: { player: Player; selected?: boolean }) {
+function CardFront({
+  player,
+  selected,
+  hideBadges,
+}: {
+  player: Player;
+  selected?: boolean;
+  hideBadges?: boolean;
+}) {
   const theme = positionTheme(player.position);
   const flag = countryFlag(player.nationalityCode);
   const number = player.jerseyNumbers[0] ?? FALLBACK_NUMBER;
@@ -128,31 +142,37 @@ function CardFront({ player, selected }: { player: Player; selected?: boolean })
         />
       </div>
 
-      {/* Numara rozeti — kart genelinde z-30, foto + tüm overlay üstünde */}
-      <span
-        className={cn(
-          'absolute left-2 top-2 z-30',
-          'flex h-7 w-7 items-center justify-center rounded-lg text-sm font-black tabular-nums',
-          'shadow-[0_2px_8px_rgba(0,0,0,0.5)]',
-          theme.badge,
-        )}
-      >
-        {number}
-      </span>
+      {/* Numara + bayrak rozetleri — hideBadges ile gizlenebilir (Kadro Kur
+          saha/sonuç kartlarında yüzü kapamasın). */}
+      {!hideBadges && (
+        <>
+          {/* Numara rozeti — kart genelinde z-30, foto + tüm overlay üstünde */}
+          <span
+            className={cn(
+              'absolute left-2 top-2 z-30',
+              'flex h-7 w-7 items-center justify-center rounded-lg text-sm font-black tabular-nums',
+              'shadow-[0_2px_8px_rgba(0,0,0,0.5)]',
+              theme.badge,
+            )}
+          >
+            {number}
+          </span>
 
-      {/* Bayrak rozeti — z-30 */}
-      <span
-        className={cn(
-          'absolute right-2 top-2 z-30',
-          'flex h-7 min-w-[28px] items-center justify-center rounded-lg px-1.5 text-base leading-none',
-          'shadow-[0_2px_8px_rgba(0,0,0,0.5)]',
-          theme.badge,
-        )}
-        aria-label={player.nationality}
-        title={player.nationality}
-      >
-        {flag || player.nationalityCode}
-      </span>
+          {/* Bayrak rozeti — z-30 */}
+          <span
+            className={cn(
+              'absolute right-2 top-2 z-30',
+              'flex h-7 min-w-[28px] items-center justify-center rounded-lg px-1.5 text-base leading-none',
+              'shadow-[0_2px_8px_rgba(0,0,0,0.5)]',
+              theme.badge,
+            )}
+            aria-label={player.nationality}
+            title={player.nationality}
+          >
+            {flag || player.nationalityCode}
+          </span>
+        </>
+      )}
 
       {/* === INFO AREA: ad + pozisyon — sabit alan, media'dan bağımsız === */}
       <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-2 pb-2 pt-1.5">
@@ -322,6 +342,7 @@ export function PlayerCard({
   selected,
   className,
   size = 'default',
+  hideBadges = false,
 }: PlayerCardProps) {
   const showFront = !faceDown && player;
   const { ref, tilt, onMove, onLeave } = useTilt(!!showFront);
@@ -342,9 +363,11 @@ export function PlayerCard({
           ? 'w-20'
           : size === 'md'
             ? 'w-28'
-            : size === 'reveal'
-              ? 'w-32 sm:w-36' // default'tan az daha küçük (VS ekranı sığsın)
-              : 'w-36 sm:w-40 md:w-44',
+            : size === 'squad'
+              ? 'w-full' // Kadro Kur saha kartı — kabın genişliğini doldurur
+              : size === 'reveal'
+                ? 'w-32 sm:w-36' // default'tan az daha küçük (VS ekranı sığsın)
+                : 'w-36 sm:w-40 md:w-44',
         className,
       )}
       style={{
@@ -367,7 +390,7 @@ export function PlayerCard({
       >
         <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
           {player ? (
-            <CardFront player={player} selected={selected} />
+            <CardFront player={player} selected={selected} hideBadges={hideBadges} />
           ) : (
             <CardBack index={index} side={side} />
           )}

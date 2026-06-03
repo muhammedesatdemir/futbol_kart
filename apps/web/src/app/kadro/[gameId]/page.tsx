@@ -1,10 +1,10 @@
 'use client';
 
 import { useCallback, useMemo, useState } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import { HomeIcon } from '@/components/icons';
+import { HomeIcon, ArrowLeftIcon } from '@/components/icons';
 import { SceneShell } from '@/components/scenes/SceneShell';
 import { SceneBackground } from '@/components/SceneBackground';
 import { OpponentSelectScene, type Opponent } from '@/components/scenes/OpponentSelectScene';
@@ -45,6 +45,7 @@ type Phase = 'opponent' | 'select' | 'build' | 'draft' | 'result';
  */
 export default function SquadGamePage() {
   const params = useParams<{ gameId: string }>();
+  const router = useRouter();
   const session = useGameSession();
 
   const formation = FORMATION_433;
@@ -260,6 +261,36 @@ export default function SquadGamePage() {
     }
   }, [formation, opponent, params.gameId]);
 
+  // Faz-bilinçli "← Geri": bir önceki adıma döner. İlk adımdaysa (rakip seçimi)
+  // ana sayfaya çıkar. Draft/result yarıda kesilirse o fazın state'i sıfırlanır.
+  const onBack = useCallback(() => {
+    switch (phase) {
+      case 'opponent':
+        // Kadro Kur'a /oyna'daki oyun-modu seçiminden gelindi → oraya dön.
+        router.push(`/oyna/${params.gameId}`);
+        break;
+      case 'select':
+        setPhase('opponent');
+        break;
+      case 'build':
+        setP1Assignment(emptyAssignment(formation));
+        setPhase(opponent === 'hotseat' ? 'draft' : 'select');
+        break;
+      case 'draft':
+        // Draft yarıda — rakip seçimine dön, draft state sıfırla.
+        setP1Assignment(emptyAssignment(formation));
+        setP2Assignment(emptyAssignment(formation));
+        setDraftStep(0);
+        setSuggestion(null);
+        setPhase('opponent');
+        break;
+      case 'result':
+        // Oyun bitti — yeni maç kur (rakip seçimine dön).
+        setPhase('opponent');
+        break;
+    }
+  }, [phase, opponent, formation, router, params.gameId]);
+
   const winner = useMemo(() => {
     if (phase !== 'result') return 'tie' as const;
     const p1 = scoreSquad(p1Assignment, formation, criterion, playersById);
@@ -294,10 +325,15 @@ export default function SquadGamePage() {
       <SceneBackground bgKey={bgKey} />
       <main className="relative z-10 mx-auto flex min-h-screen max-w-5xl flex-col gap-6 px-4 py-6 sm:px-8 sm:py-10">
       <header className="flex flex-wrap items-center justify-between gap-3">
-        <Link href="/" className="btn-ghost">
-          <HomeIcon size={16} />
-          Ana sayfa
-        </Link>
+        <div className="flex items-center gap-2">
+          <button type="button" onClick={onBack} className="btn-ghost">
+            <ArrowLeftIcon size={16} />
+            Geri
+          </button>
+          <Link href="/" className="btn-ghost" aria-label="Ana sayfa" title="Ana sayfa">
+            <HomeIcon size={16} />
+          </Link>
+        </div>
         <div className="flex items-center gap-2">
           <span className="rounded-full border border-accent-gold/40 bg-accent-gold/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent-goldHi">
             Kadro Kur · {opponent === 'hotseat' ? 'Arkadaşa karşı' : 'Bota karşı'}

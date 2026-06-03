@@ -95,6 +95,15 @@ export function HomeIcon(props: IconProps) {
   );
 }
 
+export function ArrowLeftIcon(props: IconProps) {
+  return (
+    <Icon {...props}>
+      <path d="M15 5l-7 7 7 7" />
+      <path d="M8 12h12" />
+    </Icon>
+  );
+}
+
 export function SoundOnIcon(props: IconProps) {
   return (
     <Icon {...props}>

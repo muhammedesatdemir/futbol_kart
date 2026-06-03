@@ -32,6 +32,8 @@ interface PlayerCardProps {
    * Kadro Kur saha/sonuç kartlarında küçük boyutta yüz okunsun diye kullanılır.
    */
   hideBadges?: boolean;
+  /** Kart altındaki isim + pozisyon etiketini gizle (yalnız foto). */
+  hideName?: boolean;
 }
 
 export const cardEnter: Variants = {
@@ -50,10 +52,12 @@ function CardFront({
   player,
   selected,
   hideBadges,
+  hideName,
 }: {
   player: Player;
   selected?: boolean;
   hideBadges?: boolean;
+  hideName?: boolean;
 }) {
   const theme = positionTheme(player.position);
   const flag = countryFlag(player.nationalityCode);
@@ -175,27 +179,31 @@ function CardFront({
       )}
 
       {/* === INFO AREA: ad + pozisyon — sabit alan, media'dan bağımsız === */}
-      <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-2 pb-2 pt-1.5">
-        {/* Ayırıcı çubuk */}
-        <div
-          className="mb-1 h-px w-[55%]"
-          style={{
-            background: `linear-gradient(to right, transparent, ${theme.hexLight}aa, transparent)`,
-          }}
-        />
-        <div
-          className="line-clamp-1 text-center text-[12px] font-black uppercase leading-tight tracking-wide text-white sm:text-[13px]"
-          title={player.name}
-        >
-          {player.displayName}
+      {/* İsim + pozisyon — hideName ile gizlenebilir (yalnız foto; Liste Doldur
+          gibi ismin başka yerde gösterildiği yerler için). */}
+      {!hideName && (
+        <div className="relative z-10 flex flex-1 flex-col items-center justify-center px-2 pb-2 pt-1.5">
+          {/* Ayırıcı çubuk */}
+          <div
+            className="mb-1 h-px w-[55%]"
+            style={{
+              background: `linear-gradient(to right, transparent, ${theme.hexLight}aa, transparent)`,
+            }}
+          />
+          <div
+            className="line-clamp-1 text-center text-[12px] font-black uppercase leading-tight tracking-wide text-white sm:text-[13px]"
+            title={player.name}
+          >
+            {player.displayName}
+          </div>
+          <div
+            className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.18em]"
+            style={{ color: theme.hexLight }}
+          >
+            {positionShort(player.position)}
+          </div>
         </div>
-        <div
-          className="mt-0.5 text-[10px] font-bold uppercase tracking-[0.18em]"
-          style={{ color: theme.hexLight }}
-        >
-          {positionShort(player.position)}
-        </div>
-      </div>
+      )}
     </div>
   );
 }
@@ -343,6 +351,7 @@ export function PlayerCard({
   className,
   size = 'default',
   hideBadges = false,
+  hideName = false,
 }: PlayerCardProps) {
   const showFront = !faceDown && player;
   const { ref, tilt, onMove, onLeave } = useTilt(!!showFront);
@@ -390,7 +399,7 @@ export function PlayerCard({
       >
         <div className="absolute inset-0" style={{ backfaceVisibility: 'hidden' }}>
           {player ? (
-            <CardFront player={player} selected={selected} hideBadges={hideBadges} />
+            <CardFront player={player} selected={selected} hideBadges={hideBadges} hideName={hideName} />
           ) : (
             <CardBack index={index} side={side} />
           )}

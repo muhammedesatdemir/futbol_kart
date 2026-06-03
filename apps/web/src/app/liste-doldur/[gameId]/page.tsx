@@ -17,14 +17,13 @@ import { NameModal } from '@/components/NameModal';
 import { useGameSession } from '@/lib/GameSessionProvider';
 import { useProfileStore } from '@/lib/profileStore';
 import { createPRNG } from '@futbol-kart/game-engine';
-import { LIST_PLAY_SECONDS, LIST_TURN_SECONDS } from '@/lib/gameConstants';
+import { LIST_TURN_SECONDS, LIST_LIVES } from '@/lib/gameConstants';
 import {
   CRITERION_MOST_CAPS,
   buildList,
   evaluateGuess,
   scoreFilled,
   compareScores,
-  listSnakeOrder,
   botKnownRanks,
   type ListCriterion,
   type ListSide,
@@ -60,7 +59,17 @@ export default function ListGamePage() {
   // Açılan sıralar: rank → taraf, rank → playerId.
   const [filledBy, setFilledBy] = useState<Map<number, ListSide>>(new Map());
   const [filledPlayer, setFilledPlayer] = useState<Map<number, string>>(new Map());
+  // Yanlış tahmin animasyonu tetikleyici (artarsa "listede yok" + can yanıp söner).
   const [missTick, setMissTick] = useState(0);
+
+  // Can: her taraf LIST_LIVES (3). Yanlış/pas can götürür; biten taraf tahmin edemez.
+  // Bota karşı: P1 oynar, P2 (bot) can kullanmaz (P1 bitince bot tamamlar).
+  const [lives, setLives] = useState<{ P1: number; P2: number }>({
+    P1: LIST_LIVES,
+    P2: LIST_LIVES,
+  });
+  // Aktif taraf (hot-seat'te alternasyon; canı biten atlanır). Bota karşı hep P1.
+  const [activeSide, setActiveSide] = useState<ListSide>('P1');
 
   // -------- Hot-seat --------
   const profileP1 = useProfileStore((s) => s.p1Name);
@@ -68,16 +77,16 @@ export default function ListGamePage() {
   const setProfileNames = useProfileStore((s) => s.setNames);
   const [p1Name, setP1Name] = useState('');
   const [p2Name, setP2Name] = useState('');
-  // Snake sırası — liste×2 adım yeter (yanlışlar da sayılır; liste dolunca biter).
-  const snakeOrder = useMemo(() => listSnakeOrder(list.length * 3, 'P1'), [list.length]);
-  const [turnStep, setTurnStep] = useState(0);
-  const activeSide: ListSide = snakeOrder[turnStep] ?? 'P1';
+  // Süre sayacını her sıra/tahminde sıfırlamak için artan anahtar.
+  const [turnKey, setTurnKey] = useState(0);
 
   const resetRound = useCallback(() => {
     setFilledBy(new Map());
     setFilledPlayer(new Map());
     setMissTick(0);
-    setTurnStep(0);
+    setLives({ P1: LIST_LIVES, P2: LIST_LIVES });
+    setActiveSide('P1');
+    setTurnKey(0);
   }, []);
 
   const onPickOpponent = useCallback(
@@ -109,28 +118,13 @@ export default function ListGamePage() {
     [list.length],
   );
 
-  // ---- Bota karşı: oyuncu serbest tahmin (P1) ----
-  const onGuessVsBot = useCallback(
-    (playerId: string) => {
-      const filledRanks = new Set(filledPlayer.keys());
-      const res = evaluateGuess(playerId, list, filledRanks);
-      if (!res.hit || res.alreadyFilled) {
-        setMissTick((t) => t + 1);
-        return;
-      }
-      fillRank(res.entry.rank, playerId, 'P1');
-    },
-    [filledPlayer, list, fillRank],
-  );
-
-  // Bota karşı: süre dolunca bot bildiği sıraları açar → result.
+  // Bota karşı: P1'in canı bitince (veya liste dolunca) bot bildiklerini açar → result.
   const finishVsBot = useCallback(() => {
     const prng = createPRNG(`${params.gameId}-list-bot`);
     const known = botKnownRanks(list, () => prng.next(), 0.6);
     setFilledBy((prev) => {
       const next = new Map(prev);
       for (const e of list) {
-        // P1 zaten açtıysa dokunma; değilse bot bildiklerini açar.
         if (!next.has(e.rank) && known.has(e.rank)) next.set(e.rank, 'P2');
       }
       return next;
@@ -145,42 +139,62 @@ export default function ListGamePage() {
     setPhase('result');
   }, [params.gameId, list]);
 
-  // ---- Arkadaşa karşı: snake, her tur 1 tahmin ----
-  const advanceTurn = useCallback(() => {
-    setTurnStep((s) => {
-      const next = s + 1;
-      if (next >= snakeOrder.length) setPhase('result');
-      return next;
-    });
-  }, [snakeOrder.length]);
+  // Sıra geçişi (hot-seat): canı olan KARŞI tarafa geç. İki tarafın da canı 0 → result.
+  // Bota karşı: P1 devam (canı varsa), bitince finishVsBot.
+  const passTurnAfter = useCallback(
+    (nextLives: { P1: number; P2: number }, justActed: ListSide) => {
+      if (opponent === 'vs-bot') {
+        if (nextLives.P1 <= 0) finishVsBot();
+        else setTurnKey((k) => k + 1); // P1 devam, süre sıfırla
+        return;
+      }
+      // Hot-seat: iki tarafın da canı bittiyse result.
+      if (nextLives.P1 <= 0 && nextLives.P2 <= 0) {
+        setPhase('result');
+        return;
+      }
+      // Karşı tarafa geç; onun canı yoksa aynı tarafta kal.
+      const other: ListSide = justActed === 'P1' ? 'P2' : 'P1';
+      const nextSide = nextLives[other] > 0 ? other : justActed;
+      setActiveSide(nextSide);
+      setTurnKey((k) => k + 1);
+    },
+    [opponent, finishVsBot],
+  );
 
-  const onGuessHotseat = useCallback(
+  // Tahmin (aktif taraf adına). Doğru → sıraya otur (can gitmez). Yanlış → can -1.
+  const onGuess = useCallback(
     (playerId: string) => {
+      const side = activeSide;
       const filledRanks = new Set(filledPlayer.keys());
       const res = evaluateGuess(playerId, list, filledRanks);
       if (res.hit && !res.alreadyFilled) {
-        fillRank(res.entry.rank, playerId, activeSide);
+        fillRank(res.entry.rank, playerId, side);
+        // Doğru: can gitmez. Bota karşı P1 devam; hot-seat sıra karşıya geçer.
+        passTurnAfter(lives, side);
       } else {
+        // Yanlış / zaten dolu: can -1 + animasyon, sonra sıra geç.
         setMissTick((t) => t + 1);
+        setLives((prev) => {
+          const next = { ...prev, [side]: Math.max(0, prev[side] - 1) };
+          passTurnAfter(next, side);
+          return next;
+        });
       }
-      // Doğru ya da yanlış: sıra geçer (saf snake, tur başına 1 tahmin).
-      advanceTurn();
     },
-    [filledPlayer, list, activeSide, fillRank, advanceTurn],
+    [activeSide, filledPlayer, list, fillRank, lives, passTurnAfter],
   );
 
-  // Süre doldu.
+  // Süre doldu → pas (yanlış gibi: can -1 + sıra geç).
   const onTimeout = useCallback(() => {
-    if (opponent === 'hotseat') {
-      // Pas → sıra geçer.
-      setMissTick((t) => t + 1);
-      advanceTurn();
-    } else {
-      finishVsBot();
-    }
-  }, [opponent, advanceTurn, finishVsBot]);
-
-  const onGuess = opponent === 'hotseat' ? onGuessHotseat : onGuessVsBot;
+    const side = activeSide;
+    setMissTick((t) => t + 1);
+    setLives((prev) => {
+      const next = { ...prev, [side]: Math.max(0, prev[side] - 1) };
+      passTurnAfter(next, side);
+      return next;
+    });
+  }, [activeSide, passTurnAfter]);
 
   // İsim modalı (hot-seat).
   const onNamesSubmit = useCallback(
@@ -282,12 +296,13 @@ export default function ListGamePage() {
                 pool={session.players}
                 filledBy={filledBy}
                 filledPlayer={filledPlayer}
-                seconds={opponent === 'hotseat' ? LIST_TURN_SECONDS : LIST_PLAY_SECONDS}
-                timerKey={opponent === 'hotseat' ? `turn-${turnStep}` : 'list-play'}
+                seconds={LIST_TURN_SECONDS}
+                timerKey={`turn-${turnKey}`}
                 onGuess={onGuess}
                 onTimeout={onTimeout}
                 hotseat={opponent === 'hotseat'}
                 activeSide={activeSide}
+                lives={lives}
                 p1Name={opponent === 'hotseat' ? p1Name || 'Oyuncu 1' : 'Sen'}
                 p2Name={opponent === 'hotseat' ? p2Name || 'Oyuncu 2' : 'Bot'}
                 missTick={missTick}

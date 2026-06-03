@@ -151,10 +151,10 @@ export function ListResultScene({
                   !open
                     ? 'border-white/5 bg-white/5 opacity-40'
                     : owner === 'P1'
-                      ? 'border-accent-gold/40 bg-accent-gold/10'
+                      ? 'border-side-red/60 bg-side-red/20'
                       : owner === 'P2'
-                        ? 'border-side-blue/40 bg-side-blue/10'
-                        : 'border-white/10 bg-white/5',
+                        ? 'border-side-blue/60 bg-side-blue/20'
+                        : 'border-amber-500/40 bg-amber-500/10', // kimse bilemedi
                 )}
               >
                 <div className="flex w-10 shrink-0 flex-col items-center">
@@ -176,7 +176,7 @@ export function ListResultScene({
                     >
                       <div className="w-9 shrink-0">
                         {player && (
-                          <PlayerCard player={player} size="squad" hideBadges className="w-full" />
+                          <PlayerCard player={player} size="squad" hideBadges hideName className="w-full" />
                         )}
                       </div>
                       <span className="truncate text-sm font-bold">
@@ -186,14 +186,14 @@ export function ListResultScene({
                       <span
                         className={cn(
                           'ml-auto shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold uppercase tracking-wider',
-                          owner
-                            ? owner === 'P1'
-                              ? 'bg-accent-gold/20 text-accent-goldHi'
-                              : 'bg-side-blue/20 text-side-blue'
-                            : 'bg-white/8 text-white/45',
+                          owner === 'P1'
+                            ? 'bg-side-red/25 text-side-red'
+                            : owner === 'P2'
+                              ? 'bg-side-blue/25 text-side-blue'
+                              : 'bg-amber-500/20 text-amber-400',
                         )}
                       >
-                        {owner ? (owner === 'P1' ? p1Name : p2Name) : 'kaçırıldı'}
+                        {owner ? (owner === 'P1' ? p1Name : p2Name) : 'kimse bilemedi'}
                       </span>
                       <span className="shrink-0 rounded-full bg-white/8 px-2 py-0.5 text-xs font-black tabular-nums text-white/70">
                         {entry.value}

@@ -52,8 +52,11 @@ export const LIST_SIZE = 10;
 /** Liste Doldur — Bota karşı: tüm liste için toplam tahmin süresi (sn). */
 export const LIST_PLAY_SECONDS = 90;
 
-/** Liste Doldur — Arkadaşa karşı: tek tahmin (tur) süresi (sn). Dolarsa pas → sıra geçer. */
+/** Liste Doldur — Arkadaşa karşı: tek tahmin (tur) süresi (sn). Dolarsa pas → can -1, sıra geçer. */
 export const LIST_TURN_SECONDS = 35;
+
+/** Liste Doldur — taraf başına can. Yanlış/pas can götürür; bitince o taraf tahmin edemez. */
+export const LIST_LIVES = 3;
 
 /**
  * El hazırlama süresi (sn) — kart sayısına orantılı: handSize×13, en az 40.

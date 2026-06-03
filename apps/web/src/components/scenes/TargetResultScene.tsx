@@ -148,6 +148,7 @@ export function TargetResultScene({
           unit={criterion.unit}
           win={done && winner === 'P1'}
           picks={p1Picks}
+          perPick={p1Score.perPick}
           playersById={playersById}
           revealed={revealed}
           align="left"
@@ -175,6 +176,7 @@ export function TargetResultScene({
           unit={criterion.unit}
           win={done && winner === 'P2'}
           picks={p2Picks}
+          perPick={p2Score.perPick}
           playersById={playersById}
           revealed={revealed}
           align="right"
@@ -208,6 +210,7 @@ function TargetSide({
   unit,
   win,
   picks,
+  perPick,
   playersById,
   revealed,
   align,
@@ -220,6 +223,7 @@ function TargetSide({
   unit: string;
   win: boolean;
   picks: TargetPicks;
+  perPick: Array<{ playerId: string | null; value: number }>;
   playersById: Map<string, Player>;
   revealed: number;
   align: 'left' | 'right';
@@ -260,16 +264,17 @@ function TargetSide({
         )}
       </AnimatePresence>
 
-      {/* 5 kart tek satır (sığması için min genişlik kıs). */}
-      <div className="flex justify-center gap-1 sm:gap-1.5">
+      {/* 5 kart tek satır — kart başına metrik değeri altta. */}
+      <div className="flex justify-center gap-1.5 sm:gap-2">
         {picks.map((pid, idx) => {
           const player = pid ? playersById.get(pid) : undefined;
+          const cell = perPick[idx];
           const isOpen = revealed > idx;
           return (
             <div
               key={idx}
-              className="flex min-w-0 flex-1 flex-col items-center"
-              style={{ maxWidth: 64 }}
+              className="flex min-w-0 flex-1 flex-col items-center gap-1"
+              style={{ maxWidth: 104 }}
             >
               <AnimatePresence mode="wait">
                 {isOpen && player ? (
@@ -278,12 +283,16 @@ function TargetSide({
                     initial={{ rotateY: 90, opacity: 0 }}
                     animate={{ rotateY: 0, opacity: 1 }}
                     transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-                    className="w-full"
+                    className="flex w-full flex-col items-center gap-1"
                   >
                     <PlayerCard player={player} size="squad" hideBadges className="w-full" />
+                    {/* İstatistik rozeti — "Messi · 26" gibi. */}
+                    <span className="rounded-full bg-accent-gold/20 px-2 py-0.5 text-[11px] font-black tabular-nums text-accent-goldHi ring-1 ring-accent-goldHi/40">
+                      {cell?.value ?? 0}
+                    </span>
                   </motion.div>
                 ) : (
-                  <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg border border-white/10 bg-white/5 text-[10px] text-white/40">
+                  <div className="flex aspect-[3/4] w-full items-center justify-center rounded-lg border border-white/10 bg-white/5 text-xs text-white/40">
                     {idx + 1}
                   </div>
                 )}

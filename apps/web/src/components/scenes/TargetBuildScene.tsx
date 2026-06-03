@@ -148,12 +148,12 @@ export function TargetBuildScene({
       </header>
 
       {/* 5 düz slot şeridi */}
-      <div className="mx-auto flex w-full max-w-2xl justify-center gap-2 sm:gap-3">
+      <div className="mx-auto flex w-full max-w-3xl justify-center gap-2 sm:gap-3">
         {picks.map((pid, idx) => {
           const player = pid ? playersById.get(pid) : undefined;
           const active = idx === firstEmpty;
           return (
-            <div key={idx} className="flex min-w-0 flex-1 flex-col items-center gap-1" style={{ maxWidth: 96 }}>
+            <div key={idx} className="flex min-w-0 flex-1 flex-col items-center gap-1" style={{ maxWidth: 140 }}>
               <div
                 className={cn(
                   'relative flex aspect-[3/4] w-full items-center justify-center rounded-xl border-2 border-dashed transition',
@@ -165,9 +165,9 @@ export function TargetBuildScene({
                 )}
               >
                 {player ? (
-                  <PlayerCard player={player} size="sm" hideBadges className="w-full" />
+                  <PlayerCard player={player} size="squad" hideBadges className="w-full" />
                 ) : (
-                  <span className="text-lg font-black text-white/35">{idx + 1}</span>
+                  <span className="text-2xl font-black text-white/35">{idx + 1}</span>
                 )}
               </div>
               {player && (
@@ -195,7 +195,7 @@ export function TargetBuildScene({
             className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm outline-none focus:border-accent-gold/40"
           />
         </div>
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-5 sm:gap-3">
+        <div className="grid grid-cols-3 gap-2 sm:grid-cols-4 sm:gap-3 lg:grid-cols-5">
           {candidates.map((p) => {
             const isSel = pickedIds.has(p.id);
             return (

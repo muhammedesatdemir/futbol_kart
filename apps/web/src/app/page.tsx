@@ -93,24 +93,71 @@ export default async function HomePage() {
           </p>
         </div>
 
+        {/* VS Düello jokerleri (3 hamle) */}
+        <div className="mb-3 flex items-center gap-2">
+          <span className="text-base">⚔️</span>
+          <span className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">
+            {t('jokerModeVs')}
+          </span>
+          <span className="h-px flex-1 bg-white/10" />
+        </div>
         <div className="grid gap-3 sm:grid-cols-3">
           <JokerInfoCard
             emoji="✖️"
             title={t('joker1Title')}
             body={t('joker1Body')}
+            tooltip={t('joker1Body')}
             delay={0}
           />
           <JokerInfoCard
             emoji="👁"
             title={t('joker2Title')}
             body={t('joker2Body')}
+            tooltip={t('joker2Body')}
             delay={0.06}
           />
           <JokerInfoCard
             emoji="🔄"
             title={t('joker3Title')}
             body={t('joker3Body')}
+            tooltip={t('joker3Body')}
             delay={0.12}
+          />
+        </div>
+
+        {/* Kadro Kur jokeri */}
+        <div className="mb-3 mt-8 flex items-center gap-2">
+          <span className="text-base">⚽</span>
+          <span className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">
+            {t('jokerModeSquad')}
+          </span>
+          <span className="h-px flex-1 bg-white/10" />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <JokerInfoCard
+            emoji="💡"
+            title={t('jokerSuggestTitle')}
+            body={t('jokerSuggestBody')}
+            tooltip={t('jokerSuggestTooltip')}
+            delay={0}
+          />
+        </div>
+
+        {/* Hedefe Yaklaş jokeri */}
+        <div className="mb-3 mt-8 flex items-center gap-2">
+          <span className="text-base">🎯</span>
+          <span className="text-xs font-bold uppercase tracking-[0.18em] text-white/70">
+            {t('jokerModeTarget')}
+          </span>
+          <span className="h-px flex-1 bg-white/10" />
+        </div>
+        <div className="grid gap-3 sm:grid-cols-3">
+          <JokerInfoCard
+            emoji="🔍"
+            title={t('jokerXrayTitle')}
+            body={t('jokerXrayBody')}
+            tooltip={t('jokerXrayTooltip')}
+            delay={0}
           />
         </div>
 

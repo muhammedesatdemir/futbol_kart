@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import Link from 'next/link';
 import { motion, AnimatePresence } from 'framer-motion';
-import { HomeIcon, PlayIcon, SoccerBallIcon } from '@/components/icons';
+import Image from 'next/image';
+import { HomeIcon, PlayIcon } from '@/components/icons';
 import { PitchBackground } from '@/components/PitchBackground';
 import { authClient } from '@/lib/authClient';
 import { cn } from '@/lib/cn';
@@ -47,9 +48,9 @@ export default function LoginPage() {
           Ana sayfa
         </Link>
         <div className="flex items-center gap-2 text-white/70">
-          <SoccerBallIcon size={18} className="text-accent-goldHi" />
+          <Image src="/logo/dglogo-128.png" alt="DerbyGoal" width={24} height={24} className="rounded-md ring-1 ring-white/10" />
           <span className="text-xs font-semibold uppercase tracking-[0.22em]">
-            Futbol Kart
+            DerbyGoal
           </span>
         </div>
       </header>

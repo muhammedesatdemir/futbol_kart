@@ -11,7 +11,7 @@
  *   - BETTER_AUTH_SECRET    32+ karakter rastgele string
  *   - BETTER_AUTH_URL       https://yourdomain.com (prod) veya http://localhost:3000 (dev)
  *   - RESEND_API_KEY        Resend dashboard'dan
- *   - EMAIL_FROM            "Futbol Kart <noreply@yourdomain.com>" (Resend'de doğrulanmış domain)
+ *   - EMAIL_FROM            "DerbyGoal <noreply@derbygoal.com>" (Resend'de doğrulanmış domain)
  */
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
@@ -36,7 +36,7 @@ async function sendMagicLinkEmail(email: string, url: string) {
   await resend.emails.send({
     from: emailFrom,
     to: email,
-    subject: 'Futbol Kart — giriş linkin',
+    subject: 'DerbyGoal — giriş linkin',
     html: magicLinkEmailTemplate(url),
   });
 }
@@ -44,7 +44,7 @@ async function sendMagicLinkEmail(email: string, url: string) {
 function magicLinkEmailTemplate(url: string): string {
   return `
     <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 480px; margin: 40px auto; padding: 24px; background: #0a2614; color: #f7f7f7; border-radius: 16px;">
-      <h1 style="color: #ffd76b; font-size: 22px; margin: 0 0 8px;">Futbol Kart Oyunu</h1>
+      <h1 style="color: #ffd76b; font-size: 22px; margin: 0 0 8px;">DerbyGoal</h1>
       <p style="color: rgba(255,255,255,0.65); margin: 0 0 24px;">
         Aşağıdaki butona tıklayarak giriş yapabilirsin. Link 15 dakika geçerli.
       </p>

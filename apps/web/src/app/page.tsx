@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { getTranslations } from 'next-intl/server';
 import { StepCard } from '@/components/StepCard';
 import { JokerInfoCard } from '@/components/JokerInfoCard';
@@ -8,7 +9,6 @@ import { ScenePreload } from '@/components/ScenePreload';
 import {
   CardsIcon,
   QuestionIcon,
-  SoccerBallIcon,
   SwordsIcon,
   TrophyIcon,
 } from '@/components/icons';
@@ -22,9 +22,16 @@ export default async function HomePage() {
       {/* Hero üzerinde absolute header — şeffaf, ortam atmosferi bozulmadan görünür */}
       <header className="pointer-events-none absolute inset-x-0 top-0 z-20 flex items-center justify-between px-5 py-5 sm:px-8 sm:py-6">
         <div className="pointer-events-auto flex items-center gap-2 text-white/85 drop-shadow">
-          <SoccerBallIcon size={22} className="text-accent-goldHi" />
+          <Image
+            src="/logo/dglogo-128.png"
+            alt="DerbyGoal"
+            width={32}
+            height={32}
+            className="rounded-lg ring-1 ring-white/10"
+            priority
+          />
           <span className="text-sm font-semibold uppercase tracking-[0.22em]">
-            Futbol Kart
+            DerbyGoal
           </span>
         </div>
         <div className="pointer-events-auto flex items-center gap-2">

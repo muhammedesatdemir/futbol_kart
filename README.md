@@ -1,6 +1,17 @@
-# Futbol Kart Oyunu
+# DerbyGoal
 
-> 8.912 futbolculuk veri üzerinde **4 oyun modu** sunan, hot-seat ve bota karşı oynanan bir dijital futbol kart oyunu.
+> **DerbyGoal** — 8.912 futbolculuk veri üzerinde **4 oyun modu** sunan, hot-seat ve bota karşı oynanan dijital futbol kart & tahmin oyunu.
+
+**Marka kimliği:**
+| | Değer |
+|---|---|
+| Marka adı | **DerbyGoal** |
+| Domain | `derbygoal.com` (TR+EN tek domain: `/tr` · `/en`) |
+| Store adı (TR) | **DerbyGoal: Futbol Kart & Tahmin** |
+| Store adı (EN) | **DerbyGoal: Football Cards** |
+| Paket adı (planlı) | `com.derbygoal.app` (web + mobil ortak) |
+
+> Repo dizini/iç paket adları (`@futbol-kart/*`) şimdilik teknik olarak `futbol-kart` kalıyor; marka geçişi kademeli (kullanıcıya görünen isimler önce). Konsept ve kararlar: [PLAN.md §2](PLAN.md).
 
 Oyuncu ana sayfada bir **oyun modu** seçer; her mod aynı oyuncu havuzunu kullanır, kendi sahne akışına sahiptir ve hem **bota karşı** hem **arkadaşa karşı (hot-seat)** oynanır. Dört mod:
 

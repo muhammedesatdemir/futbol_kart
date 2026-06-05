@@ -1,12 +1,12 @@
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { eq } from 'drizzle-orm';
 import { getDb, games as gamesTable } from '@futbol-kart/db';
 import type { Metadata } from 'next';
 import {
   CardsIcon,
   HomeIcon,
-  SoccerBallIcon,
   TrophyIcon,
 } from '@/components/icons';
 import { NewGameButton } from '@/components/NewGameButton';
@@ -60,7 +60,7 @@ export async function generateMetadata({
   const { shareId } = await params;
   const game = await loadGame(shareId);
   if (!game) {
-    return { title: 'Maç bulunamadı · Futbol Kart' };
+    return { title: 'Maç bulunamadı · DerbyGoal' };
   }
   const winner =
     game.winnerSide === 'tie'
@@ -68,7 +68,7 @@ export async function generateMetadata({
       : game.winnerSide === 'P1'
         ? game.p1Name
         : game.p2Name;
-  const title = `${game.p1Name} ${game.p1Score} – ${game.p2Score} ${game.p2Name} · Futbol Kart`;
+  const title = `${game.p1Name} ${game.p1Score} – ${game.p2Score} ${game.p2Name} · DerbyGoal`;
   const description =
     game.winnerSide === 'tie'
       ? `${game.p1Name} ile ${game.p2Name} berabere kaldı.`
@@ -106,9 +106,9 @@ export default async function SharedMatchPage({
           Ana sayfa
         </Link>
         <div className="flex items-center gap-2 text-white/70">
-          <SoccerBallIcon size={18} className="text-accent-goldHi" />
+          <Image src="/logo/dglogo-128.png" alt="DerbyGoal" width={24} height={24} className="rounded-md ring-1 ring-white/10" />
           <span className="text-xs font-semibold uppercase tracking-[0.22em]">
-            Futbol Kart
+            DerbyGoal
           </span>
         </div>
       </header>

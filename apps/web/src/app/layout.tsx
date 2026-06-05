@@ -6,8 +6,8 @@ import { loadGameData } from '@/lib/data';
 import './globals.css';
 
 export const metadata: Metadata = {
-  title: 'Futbol Kart Oyunu',
-  description: 'Sürpriz sorularla kapışan futbolcu kart oyunu',
+  title: 'DerbyGoal: Futbol Kart & Tahmin',
+  description: 'Futbolcu kartlarıyla bilgi düellosu — sürpriz sorular, kör kart seçimi, 4 oyun modu. DerbyGoal.',
 };
 
 export default async function RootLayout({

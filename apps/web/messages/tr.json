@@ -1,6 +1,6 @@
 {
   "common": {
-    "appName": "Futbol Kart Oyunu",
+    "appName": "DerbyGoal",
     "newGame": "Yeni Oyun",
     "continue": "Devam et",
     "back": "Geri",
@@ -10,7 +10,7 @@
   },
   "home": {
     "kicker": "Futbolcu kartlarıyla bilgi düellosu",
-    "title": "Futbol Kart Oyunu",
+    "title": "DerbyGoal",
     "tagline": "Sürpriz sorular, kör kart seçimi, tek tur — tek karar.",
     "howItWorks": "Nasıl oynanır",
     "step1Title": "Kartlarını seç",

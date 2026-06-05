@@ -4,7 +4,8 @@ import { CardRow } from '@/components/CardRow';
 import { PlayerCard } from '@/components/PlayerCard';
 import { PitchBackground } from '@/components/PitchBackground';
 import { Scoreboard } from '@/components/Scoreboard';
-import { HomeIcon, SoccerBallIcon } from '@/components/icons';
+import Image from 'next/image';
+import { HomeIcon } from '@/components/icons';
 import { dummyPlayers } from '@/data/dummyPlayers';
 
 export default async function DemoPage() {
@@ -20,9 +21,9 @@ export default async function DemoPage() {
           Ana sayfa
         </Link>
         <div className="flex items-center gap-2 text-white/70">
-          <SoccerBallIcon size={18} className="text-accent-goldHi" />
+          <Image src="/logo/dglogo-128.png" alt="DerbyGoal" width={26} height={26} className="rounded-md ring-1 ring-white/10" />
           <span className="text-sm font-semibold uppercase tracking-[0.22em]">
-            Futbol Kart
+            DerbyGoal
           </span>
         </div>
       </header>

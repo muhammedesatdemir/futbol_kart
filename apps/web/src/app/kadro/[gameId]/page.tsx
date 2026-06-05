@@ -18,7 +18,7 @@ import { NameModal } from '@/components/NameModal';
 import { useGameSession } from '@/lib/GameSessionProvider';
 import { useProfileStore } from '@/lib/profileStore';
 import { createPRNG } from '@futbol-kart/game-engine';
-import { SQUAD_DRAFT_SECONDS } from '@/lib/gameConstants';
+import { SQUAD_DRAFT_SECONDS } from '@futbol-kart/game-engine';
 import {
   FORMATION_433,
   CRITERION_TALLEST,

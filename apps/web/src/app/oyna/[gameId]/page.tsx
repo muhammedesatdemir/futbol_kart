@@ -38,16 +38,15 @@ import {
   revealHand,
   botMultiplierDecision,
   completeTransfer,
-} from '@/lib/gameFlow';
-import {
   canUseMultiplier,
   multiplierDirection,
   transferableCards,
   canUseTransfer,
   botTransferChoice,
-} from '@/lib/jokers';
+  CARD_PLAY_SECONDS,
+  TRANSFER_SECONDS,
+} from '@futbol-kart/game-engine';
 import { TransferScene } from '@/components/scenes/TransferScene';
-import { CARD_PLAY_SECONDS, TRANSFER_SECONDS } from '@/lib/gameConstants';
 import { BonusAssignScene } from '@/components/scenes/BonusAssignScene';
 import { templateById } from '@futbol-kart/question-templates';
 

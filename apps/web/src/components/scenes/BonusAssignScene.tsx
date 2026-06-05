@@ -5,11 +5,13 @@ import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
 import { CountdownRing } from '@/components/CountdownRing';
 import { PlayIcon } from '@/components/icons';
-import { BONUS_ASSIGN_SECONDS } from '@/lib/gameConstants';
 import { cn } from '@/lib/cn';
-import type { BonusConditionLite } from '@/lib/sessionMachine';
-import { buildConditionLibrary } from '@/lib/bonusConditions';
-import type { ConditionContext } from '@/lib/bonusConditions';
+import {
+  BONUS_ASSIGN_SECONDS,
+  buildConditionLibrary,
+  type BonusConditionLite,
+  type ConditionContext,
+} from '@futbol-kart/game-engine';
 
 interface BonusAssignSceneProps {
   /** Atama yapan tarafın adı (başlık için). */

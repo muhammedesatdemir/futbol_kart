@@ -1,9 +1,31 @@
 # Futbol-Kart — Online Mod Yol Haritası & Mimari Dökümanı
 
-> **Durum:** Planlama / karar fazı tamamlandı.
+> **Durum:** Uygulama başladı — temel altyapı kuruldu (aşağıda "İlerleme" bölümü).
 > **Tarih:** 2026-06-05
 > **Kapsam:** (1) Canlıya alma için ön-koşul olan 25MB veri sorunu, (2) Online karşılıklı eşleşme modu.
 > **Pilot mod:** VS Düello (`/oyna/[gameId]`).
+
+---
+
+## İlerleme (güncel)
+
+✅ **Tamamlanan:**
+- **DB şeması** — `match`, `match_move`, `matchmaking_queue`, `user_rating` tabloları eklendi (`packages/db/src/schema.ts`). Migration üretildi (`packages/db/drizzle/0000_*.sql`) — *henüz canlıya uygulanmadı.*
+- **Google OAuth** — Better-Auth'a Google eklendi (env varsa aktif), login sayfasına "Google ile devam et" butonu (`apps/web/src/lib/auth.ts`, `apps/web/src/app/giris/page.tsx`, `.env.example`).
+- **Oyun motoru ortak pakete taşındı** — Gerçek oyun mantığı (sessionMachine, gameFlow, gameConstants, jokers, bonusConditions, bonusSelection) `apps/web/src/lib/` → `packages/game-engine/` taşındı. Eski ölü taslak (reducer/validate/events/bot) silindi. 16 dosyada import güncellendi. **Tek kural seti** artık web+sunucu+mobil için hazır. Tüm workspace typecheck temiz.
+- **Sunucu-otoriteli motor (kavram ispatı)** — `apps/web/src/lib/server/matchEngine.ts` (game-engine'i sunucuda çalıştırıp hamleyi doğrular/çözer, doğru cevabı sızdırmaz) + `apps/web/src/app/api/match/[matchId]/move/route.ts` (yetki + doğrulama + DB yazımı + güvenli yanıt). Typecheck temiz.
+
+⏳ **Sıradaki:**
+- DB migration'ı Neon'a uygula (mevcut tablolarla çakışma kontrolüyle).
+- Matchmaking kuyruğu + maç oluşturma (Faz 4).
+- Ably realtime kanalı (Faz 3).
+- Online giriş kapısı UI + "Online oyna" kutusu (Faz 1.3).
+- Uçtan uca bir online maç simülasyonu (kavram ispatını gerçek veriyle doğrula).
+
+⚠️ **Bilinen sınırlar / notlar:**
+- Sunucu motoru `loadGameData()` ile 25MB players.json'u `fs`'ten okuyor (cache'li ama ağır) → **Faz 0** ile maç-başına ince veri yüklemeye geçilecek.
+- Kavram-ispatı route'unda realtime yayın (Ably) ve süre/deadline zorlaması YOK — Faz 3/5'te eklenecek.
+- `match_move`'da resolve event'i `side: 'P1'` ile işaretli (gerçekte 'system') — audit detayı, sonra netleştirilebilir.
 
 ---
 

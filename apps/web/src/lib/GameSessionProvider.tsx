@@ -3,7 +3,7 @@
 import { createContext, useContext, useMemo, useRef } from 'react';
 import type { Player } from '@futbol-kart/shared-types';
 import type { ClubLite } from '@futbol-kart/question-templates';
-import { createFlowContext, type FlowContext } from './gameFlow';
+import { createFlowContext, type FlowContext } from '@futbol-kart/game-engine';
 
 interface SessionData {
   players: Player[];

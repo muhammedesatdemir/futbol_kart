@@ -18,7 +18,7 @@ import { useGameSession } from '@/lib/GameSessionProvider';
 import { useProfileStore } from '@/lib/profileStore';
 import { useSfx } from '@/lib/useSfx';
 import { createPRNG } from '@futbol-kart/game-engine';
-import { LIST_TURN_SECONDS, LIST_LIVES } from '@/lib/gameConstants';
+import { LIST_TURN_SECONDS, LIST_LIVES } from '@futbol-kart/game-engine';
 import {
   pruneListCriteria,
   buildList,

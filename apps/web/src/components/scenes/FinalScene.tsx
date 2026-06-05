@@ -9,7 +9,7 @@ import { HomeIcon, PlayIcon, TrophyIcon } from '@/components/icons';
 import { ShareMatchButton } from '@/components/ShareMatchButton';
 import { CountUp } from '@/components/CountUp';
 import { Confetti } from '@/components/Confetti';
-import type { RoundLog, SessionState } from '@/lib/sessionMachine';
+import type { RoundLog, SessionState } from '@futbol-kart/game-engine';
 import { templateById } from '@futbol-kart/question-templates';
 import { cn } from '@/lib/cn';
 

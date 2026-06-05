@@ -10,7 +10,7 @@ import {
   type ResolverContext,
   type ClubLite,
 } from '@futbol-kart/question-templates';
-import { createPRNG, type PRNG } from '@futbol-kart/game-engine';
+import { createPRNG, type PRNG } from './prng';
 import {
   applyMultiplier,
   multiplierDirection,

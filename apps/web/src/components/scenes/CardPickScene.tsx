@@ -13,7 +13,7 @@ import { cn } from '@/lib/cn';
 import {
   HAND_SIZE as DEFAULT_HAND_SIZE,
   handPickSeconds,
-} from '@/lib/gameConstants';
+} from '@futbol-kart/game-engine';
 import { fetchGameData } from '@/lib/playersClient';
 import {
   EMPTY_CRITERIA,

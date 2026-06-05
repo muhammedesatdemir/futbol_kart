@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { PlayIcon } from './icons';
 import { cn } from '@/lib/cn';
 import type { GameMode, PlayerSide } from '@futbol-kart/shared-types';
-import type { SessionState } from '@/lib/sessionMachine';
+import type { SessionState } from '@futbol-kart/game-engine';
 
 interface ShareMatchButtonProps {
   mode: GameMode;

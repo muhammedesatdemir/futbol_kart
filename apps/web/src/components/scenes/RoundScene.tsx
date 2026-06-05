@@ -19,7 +19,7 @@ import {
   JokerWandIcon,
   SwapIcon,
 } from '@/components/icons';
-import type { RoundLog, Scene } from '@/lib/sessionMachine';
+import type { RoundLog, Scene } from '@futbol-kart/game-engine';
 import { cn } from '@/lib/cn';
 import { comparisonHint, formatValue } from '@/lib/valueFormat';
 

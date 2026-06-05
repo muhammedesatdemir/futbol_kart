@@ -1,6 +1,12 @@
-export * from './events';
-export * from './reducer';
-export * from './validate';
+// Deterministik PRNG (seed → aynı rastgele dizi). Online'da iki oyuncu aynı
+// seed'le aynı soru sırasını görür; sunucu hile kontrolü için tekrarlayabilir.
 export * from './prng';
-export * from './bot/RandomBot';
-export * from './bot/BotStrategy';
+
+// Çekirdek oyun mantığı — web, sunucu ve ileride mobil bu TEK kaynaktan okur.
+// Saf TS, React/tarayıcı bağımlılığı yok (sunucuda çalışabilir).
+export * from './sessionMachine'; // SessionState, SessionEvent, reduceSession, initialSession, Scene, GamePhase, RoundLog...
+export * from './gameFlow'; // FlowContext, createFlowContext, pickQuestion, resolveCards, pickBonus, revealHand...
+export * from './gameConstants'; // HAND_SIZE, TOTAL_ROUNDS, CARD_PLAY_SECONDS, handPickSeconds...
+export * from './jokers'; // MultiplierDirection, RevealedHandValue, BotTransferChoice, applyMultiplier...
+export * from './bonusConditions'; // CategoryCondition, ConditionContext, buildConditionLibrary
+export * from './bonusSelection'; // pickBonusConditions, autoAssign, completeBonusAssignment

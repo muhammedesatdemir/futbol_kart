@@ -19,7 +19,7 @@ import { NameModal } from '@/components/NameModal';
 import { useGameSession } from '@/lib/GameSessionProvider';
 import { useProfileStore } from '@/lib/profileStore';
 import { createPRNG } from '@futbol-kart/game-engine';
-import { TARGET_PICK_SECONDS, TARGET_DRAFT_SECONDS } from '@/lib/gameConstants';
+import { TARGET_PICK_SECONDS, TARGET_DRAFT_SECONDS } from '@futbol-kart/game-engine';
 import {
   pruneTargetCriteria,
   pickTarget,

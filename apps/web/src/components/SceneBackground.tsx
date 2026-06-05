@@ -1,7 +1,7 @@
 'use client';
 
 import { AnimatePresence, motion } from 'framer-motion';
-import type { GamePhase, Scene } from '@/lib/sessionMachine';
+import type { GamePhase, Scene } from '@futbol-kart/game-engine';
 
 /**
  * Oyun sahnesine göre fixed full-bleed arka plan.

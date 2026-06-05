@@ -144,7 +144,135 @@ export const games = pgTable(
   }),
 );
 
+/* ============================================================================
+ * Online çok oyunculu tablolar
+ * Bkz: ONLINE-YOL-HARITASI.md (Faz 2-4)
+ * Tasarım: sunucu-otoriteli. `match.state` = kaynak-doğru SessionState (jsonb).
+ * `matchMove` = audit/replay/reconnect için event log.
+ * ========================================================================= */
+
+/**
+ * Bir online maç. İki girişli kullanıcı arasında.
+ * `state` sunucudaki kaynak-doğru SessionState; client'taki durum yalnızca görsel.
+ * `seed` ile iki oyuncu deterministik olarak aynı soru sırasını görür.
+ * Reconnect: client `state`'i HTTP ile çeker, kaldığı yerden devam eder.
+ */
+export const match = pgTable(
+  'match',
+  {
+    id: text('id').primaryKey(),
+    mode: text('mode').notNull(), // 'vs-duello' (pilot) | sonra diğer modlar
+    seed: text('seed').notNull(),
+    // 'matchmaking' | 'active' | 'finished' | 'abandoned'
+    status: text('status').notNull().default('active'),
+    p1UserId: text('p1_user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    p2UserId: text('p2_user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    /** Sunucu-otoriteli mevcut sahne (Scene enum string). */
+    currentScene: text('current_scene'),
+    /** Kaynak-doğru SessionState — her doğrulanmış hamleden sonra güncellenir. */
+    state: jsonb('state').notNull(),
+    /** Aktif turun sunucu-otoriteli bitiş anı (süre dolunca otomatik çözüm). */
+    turnDeadline: timestamp('turn_deadline', { withTimezone: true }),
+    /** 'P1' | 'P2' | 'tie' | null (bitmeden null). */
+    winnerSide: text('winner_side'),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    p1Idx: index('match_p1_idx').on(t.p1UserId),
+    p2Idx: index('match_p2_idx').on(t.p2UserId),
+    statusIdx: index('match_status_idx').on(t.status),
+  }),
+);
+
+/**
+ * Bir maçtaki tek bir event (CARD_PLAYED, ROUND_RESOLVED, vb.).
+ * `seq` maç içinde artan sıra no — idempotent uygulama ve çift gönderim/
+ * yeniden bağlanma güvenliği için. (match_id, seq) benzersiz.
+ */
+export const matchMove = pgTable(
+  'match_move',
+  {
+    id: text('id').primaryKey(),
+    matchId: text('match_id')
+      .notNull()
+      .references(() => match.id, { onDelete: 'cascade' }),
+    seq: integer('seq').notNull(),
+    side: text('side').notNull(), // 'P1' | 'P2'
+    /** SessionEvent (jsonb) — sunucuda doğrulandıktan sonra kaydedilir. */
+    event: jsonb('event').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    matchSeqIdx: uniqueIndex('match_move_match_seq_idx').on(t.matchId, t.seq),
+  }),
+);
+
+/**
+ * Eşleşme bekleyen kullanıcılar. Eşleştirici kuyruktan 2 uygun oyuncu bulup
+ * `match` oluşturur. MVP: ratingsiz FIFO; sonra rating tabanlı.
+ */
+export const matchmakingQueue = pgTable(
+  'matchmaking_queue',
+  {
+    userId: text('user_id')
+      .primaryKey()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    mode: text('mode').notNull(),
+    /** Eşleştirme için (MVP'de user_rating'den okunur veya sabit 1000). */
+    rating: integer('rating').notNull().default(1000),
+    enqueuedAt: timestamp('enqueued_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    modeIdx: index('matchmaking_queue_mode_idx').on(t.mode),
+  }),
+);
+
+/**
+ * Kullanıcı rating'i (mod bazlı). ŞEMA ŞİMDİ açılır; Elo HESABI sonra.
+ * MVP'de herkes 1000'de başlar, maç bitince games/wins güncellenir.
+ * Bkz: ONLINE-YOL-HARITASI.md (rating kararı).
+ */
+export const userRating = pgTable(
+  'user_rating',
+  {
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    mode: text('mode').notNull(),
+    rating: integer('rating').notNull().default(1000),
+    gamesPlayed: integer('games_played').notNull().default(0),
+    wins: integer('wins').notNull().default(0),
+    losses: integer('losses').notNull().default(0),
+    draws: integer('draws').notNull().default(0),
+    updatedAt: timestamp('updated_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: uniqueIndex('user_rating_user_mode_idx').on(t.userId, t.mode),
+  }),
+);
+
 export type DbUser = typeof user.$inferSelect;
 export type DbSession = typeof session.$inferSelect;
 export type DbGame = typeof games.$inferSelect;
 export type DbGameInsert = typeof games.$inferInsert;
+export type DbMatch = typeof match.$inferSelect;
+export type DbMatchInsert = typeof match.$inferInsert;
+export type DbMatchMove = typeof matchMove.$inferSelect;
+export type DbMatchMoveInsert = typeof matchMove.$inferInsert;
+export type DbMatchmakingQueue = typeof matchmakingQueue.$inferSelect;
+export type DbUserRating = typeof userRating.$inferSelect;

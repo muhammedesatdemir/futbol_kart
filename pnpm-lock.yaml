@@ -143,6 +143,9 @@ importers:
 
   packages/game-engine:
     dependencies:
+      '@futbol-kart/question-templates':
+        specifier: workspace:*
+        version: link:../question-templates
       '@futbol-kart/shared-types':
         specifier: workspace:*
         version: link:../shared-types

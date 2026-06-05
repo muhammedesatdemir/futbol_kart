@@ -1,8 +1,10 @@
 /**
  * Better-Auth server config.
  *
- * Magic-link auth: kullanıcı email yazar, link gelir, link'e tıklayınca
- * session açılır. Şifre yok, OAuth yok.
+ * İki giriş yolu:
+ *   1. Google OAuth ("Google ile devam et" — tek tık, ana yol).
+ *   2. E-posta magic-link (yedek — link gelir, tıklayınca session açılır).
+ * Şifre yok.
  *
  * Email gönderici: Resend (free tier 3000/ay).
  *
@@ -10,8 +12,12 @@
  *   - DATABASE_URL          Neon connection string
  *   - BETTER_AUTH_SECRET    32+ karakter rastgele string
  *   - BETTER_AUTH_URL       https://yourdomain.com (prod) veya http://localhost:3000 (dev)
- *   - RESEND_API_KEY        Resend dashboard'dan
+ *   - RESEND_API_KEY        Resend dashboard'dan (magic-link için)
  *   - EMAIL_FROM            "DerbyGoal <noreply@derbygoal.com>" (Resend'de doğrulanmış domain)
+ * Opsiyonel (Google girişi için — yoksa yalnızca magic-link aktif olur):
+ *   - GOOGLE_CLIENT_ID      Google Cloud Console → OAuth 2.0 Client ID
+ *   - GOOGLE_CLIENT_SECRET  aynı yerden
+ *   Yönlendirme URI'si: {BETTER_AUTH_URL}/api/auth/callback/google
  */
 import { betterAuth } from 'better-auth';
 import { drizzleAdapter } from 'better-auth/adapters/drizzle';
@@ -23,6 +29,12 @@ import * as schema from '@futbol-kart/db';
 const resendApiKey = process.env.RESEND_API_KEY;
 const emailFrom = process.env.EMAIL_FROM ?? 'onboarding@resend.dev';
 const resend = resendApiKey ? new Resend(resendApiKey) : null;
+
+// Google OAuth yalnızca her iki env de tanımlıysa aktif olur. Yoksa giriş
+// tamamen magic-link üzerinden çalışır (geliştirmede Google kurmadan ilerlenebilir).
+const googleClientId = process.env.GOOGLE_CLIENT_ID;
+const googleClientSecret = process.env.GOOGLE_CLIENT_SECRET;
+const googleEnabled = Boolean(googleClientId && googleClientSecret);
 
 async function sendMagicLinkEmail(email: string, url: string) {
   // Resend yapılandırılmamışsa konsola yaz — geliştirme modunda link kopyalayıp
@@ -73,6 +85,14 @@ export const auth = betterAuth({
   emailAndPassword: {
     enabled: false,
   },
+  socialProviders: googleEnabled
+    ? {
+        google: {
+          clientId: googleClientId as string,
+          clientSecret: googleClientSecret as string,
+        },
+      }
+    : undefined,
   plugins: [
     magicLink({
       sendMagicLink: async ({ email, url }) => {

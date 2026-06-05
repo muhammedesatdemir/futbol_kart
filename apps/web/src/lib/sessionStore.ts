@@ -7,7 +7,7 @@ import {
   reduceSession,
   type SessionEvent,
   type SessionState,
-} from './sessionMachine';
+} from '@futbol-kart/game-engine';
 
 interface SessionStore {
   state: SessionState;

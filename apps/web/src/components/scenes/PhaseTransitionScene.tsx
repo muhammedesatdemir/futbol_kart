@@ -1,7 +1,7 @@
 'use client';
 
 import { motion } from 'framer-motion';
-import type { GamePhase } from '@/lib/sessionMachine';
+import type { GamePhase } from '@futbol-kart/game-engine';
 import { PlayIcon, TrophyIcon } from '@/components/icons';
 
 interface PhaseTransitionSceneProps {

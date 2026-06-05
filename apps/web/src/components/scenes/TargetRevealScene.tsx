@@ -122,10 +122,20 @@ export function TargetRevealScene({ target, criterion, onDone }: TargetRevealSce
       </motion.div>
 
       <p className="max-w-sm text-center text-sm leading-relaxed text-white/55">
-        <span className="font-semibold text-white/80">5 futbolcu</span> seç; seçtiklerinin{' '}
-        <span className="font-semibold text-accent-goldHi">{criterion.title}</span> toplamı{' '}
-        <span className="font-semibold text-white/80">{target}</span>'e en yakın olan kazanır.
-        Üstüne çıkmak serbest — önemli olan yakınlık.
+        {settled ? (
+          <>
+            <span className="font-semibold text-white/80">5 futbolcu</span> seç; seçtiklerinin{' '}
+            <span className="font-semibold text-accent-goldHi">{criterion.title}</span> toplamı{' '}
+            <span className="font-semibold text-white/80">{target}</span>'e en yakın olan kazanır.
+            Üstüne çıkmak serbest — önemli olan yakınlık.
+          </>
+        ) : (
+          <>
+            <span className="font-semibold text-white/80">5 futbolcu</span> seç; seçtiklerinin{' '}
+            <span className="font-semibold text-accent-goldHi">{criterion.title}</span> toplamı,
+            çıkan hedefe en yakın olan kazanır. Üstüne çıkmak serbest — önemli olan yakınlık.
+          </>
+        )}
       </p>
 
       {settled && (

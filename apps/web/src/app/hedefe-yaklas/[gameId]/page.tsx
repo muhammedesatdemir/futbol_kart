@@ -21,7 +21,7 @@ import { useProfileStore } from '@/lib/profileStore';
 import { createPRNG } from '@futbol-kart/game-engine';
 import { TARGET_PICK_SECONDS, TARGET_DRAFT_SECONDS } from '@/lib/gameConstants';
 import {
-  CRITERION_WORLD_CUP_APPS,
+  pruneTargetCriteria,
   pickTarget,
   emptyPicks,
   buildAutoTarget,
@@ -48,8 +48,13 @@ export default function TargetGamePage() {
   const router = useRouter();
   const session = useGameSession();
 
-  // İlk dilim: tek kriter sabit.
-  const criterion: TargetCriterion = CRITERION_WORLD_CUP_APPS;
+  // Kriter — gameId'den seed'lenen PRNG ile sağlıklı havuzdan rastgele seçilir
+  // (15 hedef kriterinden biri). Deterministik: aynı gameId → aynı kriter.
+  const criterion: TargetCriterion = useMemo(() => {
+    const healthy = pruneTargetCriteria(session.players);
+    const prng = createPRNG(`target:${params.gameId}`);
+    return healthy[Math.floor(prng.next() * healthy.length)] ?? healthy[0]!;
+  }, [session.players, params.gameId]);
 
   const playersById = useMemo(
     () => new Map(session.players.map((p) => [p.id, p])),

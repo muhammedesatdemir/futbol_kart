@@ -11,6 +11,7 @@
  * kuruldu — bu, Mod 1 şablon formatının referansıdır.
  */
 import type { Player, Position } from '@futbol-kart/shared-types';
+import { METRIC_FIELDS, SQUAD_POOL_FILTERS } from './criteriaCatalog';
 
 /** Bir formasyon slotu: hangi pozisyondan kart istenir. */
 export interface FormationSlot {
@@ -132,26 +133,76 @@ export const CRITERION_TALLEST: SquadCriterion = {
   metric: heightMetric,
 };
 
-export const SQUAD_CRITERIA: SquadCriterion[] = [
+/** ELLE yazılmış çekirdek kriterler — özel başlıkları olan, doğrulanmış set. */
+const CORE_CRITERIA: SquadCriterion[] = [
   CRITERION_TALLEST,
   { id: 'sq_shortest', title: 'En kısa kadroyu kur', unit: 'cm', direction: 'min', metric: heightMetric },
   // Yaş kriterleri yalnızca AKTİF futbolcularla — ölmüş/emekli efsaneler havuz dışı.
   { id: 'sq_oldest', title: 'En yaşlı (aktif) kadroyu kur', unit: 'yaş', direction: 'max', metric: ageMetric, poolFilter: (p) => p.isActive },
   { id: 'sq_youngest', title: 'En genç kadroyu kur', unit: 'yaş', direction: 'min', metric: ageMetric, poolFilter: (p) => p.isActive },
-  { id: 'sq_top_scorer', title: 'En golcü kadroyu kur', unit: 'gol', direction: 'max', metric: statMetric((p) => p.stats.totalGoals) },
-  { id: 'sq_top_assist', title: 'En çok asist yapan kadroyu kur', unit: 'asist', direction: 'max', metric: statMetric((p) => p.stats.totalAssists) },
-  { id: 'sq_most_apps', title: 'En çok maça çıkan kadroyu kur', unit: 'maç', direction: 'max', metric: statMetric((p) => p.stats.totalApps) },
-  { id: 'sq_most_caps', title: 'En çok milli maça çıkan kadroyu kur', unit: 'maç', direction: 'max', metric: statMetric((p) => p.stats.nationalCaps) },
-  { id: 'sq_most_valuable', title: 'En değerli kadroyu kur', unit: 'M€', direction: 'max', metric: statMetric((p) => p.stats.maxTransferFeeEUR ? Math.round(p.stats.maxTransferFeeEUR / 1_000_000) : undefined) },
-  { id: 'sq_most_experienced', title: 'En tecrübeli kadroyu kur', unit: 'yıl', direction: 'max', metric: statMetric((p) => p.stats.careerYears) },
-  { id: 'sq_most_trophies', title: 'En kupalı kadroyu kur', unit: 'kupa', direction: 'max', metric: statMetric((p) => p.achievements.trophies?.totalTitles) },
-  { id: 'sq_most_ucl', title: 'En çok Şampiyonlar Ligi maçı oynayan kadroyu kur', unit: 'maç', direction: 'max', metric: statMetric((p) => p.stats.competitions?.uclApps) },
-  { id: 'sq_most_league_goals', title: 'Ligde en çok gol atan kadroyu kur', unit: 'gol', direction: 'max', metric: statMetric((p) => p.stats.competitions?.leagueGoals) },
   { id: 'sq_lowest_jersey', title: 'Forma numaraları toplamı en küçük kadroyu kur', unit: 'no', direction: 'min', metric: jerseyMetric },
 ];
 
+/**
+ * Kriter ÜRETİCİSİ — catalog'daki `squadEligible` alanlardan kadro kriterleri
+ * türetir. Her alan, `squadDirections` (max/min) × (genel + uygun filtreler)
+ * varyantlarıyla çoğaltılır → çeşitlilik çarpanı.
+ */
+function generateSquadCriteria(): SquadCriterion[] {
+  const out: SquadCriterion[] = [];
+  const dirWord = (dir: 'max' | 'min') => (dir === 'max' ? 'En çok' : 'En az');
+  for (const field of METRIC_FIELDS) {
+    if (!field.squadEligible) continue;
+    const directions = field.squadDirections ?? ['max'];
+    for (const dir of directions) {
+      const metric: SquadMetric = (p) => {
+        const v = field.pick(p);
+        return typeof v === 'number' && v > 0 ? v : null;
+      };
+      // Genel
+      out.push({ id: `sq_${field.key}_${dir}`, title: `${dirWord(dir)} ${field.shortLabel.toLowerCase()} kadrosunu kur`, unit: field.unit, direction: dir, metric });
+      // Filtreli varyantlar (yalnız max yön — min+filtre çok niş)
+      if (dir === 'max') {
+        for (const filter of SQUAD_POOL_FILTERS) {
+          out.push({ id: `sq_${field.key}_${dir}_${filter.key}`, title: `${dirWord(dir)} ${field.shortLabel.toLowerCase()} (${filter.label}) kadrosunu kur`, unit: field.unit, direction: dir, metric, poolFilter: filter.test });
+        }
+      }
+    }
+  }
+  return out;
+}
+
+/** Çekirdek + üretilen — ID çakışması olursa çekirdek öncelikli. */
+export const SQUAD_CRITERIA: SquadCriterion[] = (() => {
+  const seen = new Set(CORE_CRITERIA.map((c) => c.id));
+  const generated = generateSquadCriteria().filter((c) => !seen.has(c.id));
+  return [...CORE_CRITERIA, ...generated];
+})();
+
 export function criterionById(id: string): SquadCriterion | undefined {
   return SQUAD_CRITERIA.find((c) => c.id === id);
+}
+
+/**
+ * Kadro kriterlerini gerçek havuza göre ayıkla — her POZİSYON için yeterli aday
+ * olmalı (formasyon 11 slot, pozisyon bazlı). Filtreli kriterlerde (Türk/aktif)
+ * bazı pozisyonlar boş kalabilir → o kriter elenir.
+ */
+export function pruneSquadCriteria(
+  pool: Player[],
+  formation: Formation,
+  criteria: SquadCriterion[] = SQUAD_CRITERIA,
+  minPerPosition = 3,
+): SquadCriterion[] {
+  const neededPositions = new Set(formation.slots.map((s) => s.position));
+  return criteria.filter((c) => {
+    const eligible = pool.filter((p) => c.metric(p) !== null && (!c.poolFilter || c.poolFilter(p)));
+    // Her gereken pozisyonda en az minPerPosition aday var mı?
+    for (const pos of neededPositions) {
+      if (eligible.filter((p) => p.position === pos).length < minPerPosition) return false;
+    }
+    return true;
+  });
 }
 
 /** Bir tarafın doldurduğu kadro: slotId → playerId (null = boş). */

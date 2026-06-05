@@ -2,33 +2,36 @@
 
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/cn';
-import { SQUAD_CRITERIA, type SquadCriterion } from '@/lib/squadMode';
+import { type SquadCriterion } from '@/lib/squadMode';
 
-/** Kriter id → emoji (görsel ipucu). Bilinmeyen id için ⚽ fallback. */
-const EMOJI: Record<string, string> = {
-  sq_tallest: '📏',
-  sq_shortest: '📐',
-  sq_oldest: '🧓',
-  sq_youngest: '👶',
-  sq_top_scorer: '⚽',
-  sq_top_assist: '🅰️',
-  sq_most_apps: '🏟️',
-  sq_most_caps: '🌍',
-  sq_most_valuable: '💰',
-  sq_most_experienced: '⏳',
-  sq_most_trophies: '🏆',
-  sq_most_ucl: '⭐',
-  sq_most_league_goals: '🥅',
-  sq_lowest_jersey: '🔢',
+/**
+ * Kriter id ön-eki → emoji (görsel ipucu). Üretilen kriterler `sq_{alan}_{yön}`
+ * formatında olduğu için alan-anahtarına göre eşleştirilir; bilinmeyen → ⚽.
+ */
+const EMOJI_BY_KEY: Record<string, string> = {
+  tallest: '📏', shortest: '📐', oldest: '🧓', youngest: '👶', lowest: '🔢',
+  goals: '⚽', assists: '🅰️', apps: '🏟️', caps: '🌍', natgoals: '🎯',
+  seasongoals: '🔥', career: '⏳', value: '💰', height: '📏',
+  uclapps: '⭐', uclgoals: '🌟', leaguegoals: '🥅', leagueapps: '📋',
+  wcapps: '🏆', trophies: '🏆', leaguetitles: '🥇', awards: '🏅',
 };
 
+function emojiFor(id: string): string {
+  // id: "sq_<alan>_<yön>[_<filtre>]" veya eski "sq_tallest"
+  const parts = id.replace(/^sq_/, '').split('_');
+  return EMOJI_BY_KEY[parts[0]!] ?? '⚽';
+}
+
 interface SquadCriterionSelectSceneProps {
+  /** Gösterilecek kriterler (page bir alt-küme verir; tümü değil). */
+  criteria: SquadCriterion[];
   onPick: (criterionId: string) => void;
   /** "Rastgele" seçimi: kataloğdan rastgele bir kriter ver. */
   onRandom: () => void;
 }
 
 export function SquadCriterionSelectScene({
+  criteria,
   onPick,
   onRandom,
 }: SquadCriterionSelectSceneProps) {
@@ -47,7 +50,7 @@ export function SquadCriterionSelectScene({
       </header>
 
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-        {SQUAD_CRITERIA.map((c, i) => (
+        {criteria.map((c, i) => (
           <CriterionCard key={c.id} criterion={c} delay={i * 0.025} onClick={() => onPick(c.id)} />
         ))}
       </div>
@@ -83,7 +86,7 @@ function CriterionCard({
       )}
     >
       <span className="text-2xl leading-none" aria-hidden>
-        {EMOJI[criterion.id] ?? '⚽'}
+        {emojiFor(criterion.id)}
       </span>
       <span className="text-sm font-bold leading-snug">{criterion.title}</span>
       <span className="text-[10px] font-semibold uppercase tracking-wider text-white/40">

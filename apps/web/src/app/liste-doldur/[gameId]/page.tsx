@@ -20,7 +20,7 @@ import { useSfx } from '@/lib/useSfx';
 import { createPRNG } from '@futbol-kart/game-engine';
 import { LIST_TURN_SECONDS, LIST_LIVES } from '@/lib/gameConstants';
 import {
-  CRITERION_MOST_CAPS,
+  pruneListCriteria,
   buildList,
   evaluateGuess,
   scoreFilled,
@@ -43,7 +43,14 @@ export default function ListGamePage() {
   const session = useGameSession();
   const playSfx = useSfx();
 
-  const criterion: ListCriterion = CRITERION_MOST_CAPS;
+  // Kriter — gameId'den seed'lenen PRNG ile sağlıklı havuzdan rastgele seçilir.
+  // Böylece her oyun farklı bir liste sorusu (235 kriterden biri) gelir; aynı
+  // gameId aynı kriteri verir (deterministik, yeniden yüklemede tutarlı).
+  const criterion: ListCriterion = useMemo(() => {
+    const healthy = pruneListCriteria(session.players);
+    const prng = createPRNG(`list:${params.gameId}`);
+    return healthy[Math.floor(prng.next() * healthy.length)] ?? healthy[0]!;
+  }, [session.players, params.gameId]);
 
   const playersById = useMemo(
     () => new Map(session.players.map((p) => [p.id, p])),

@@ -11,6 +11,7 @@
  * squadMode.ts'in kardeş şablonu.
  */
 import type { Player } from '@futbol-kart/shared-types';
+import { METRIC_FIELDS, type MetricField } from './criteriaCatalog';
 
 /** Kaç oyuncu seçilir (görsellerdeki "5 futbolcu kullan"). */
 export const SLOT_COUNT = 5;
@@ -46,22 +47,52 @@ const statMetric =
   };
 
 /**
- * İlk dilim kriteri: Dünya Kupası maçı. Dağılım (ölçüldü): max 26, top-5 ort 24,
- * n=2066. 5 oyuncuyla 60–80 hedefi tam oturur (ulaşılabilir ama kolay değil).
+ * Kriter ÜRETİCİSİ — catalog'daki `targetEligible` + `targetBand`'i olan her
+ * alandan bir TargetCriterion türetir. Hedef bandı (`targetRange`/`step`),
+ * 5-oyuncu toplamının gerçek dağılımından hesaplanıp catalog'a yazıldı; çark
+ * o bantta durur (ulaşılabilir ama kolay değil).
  */
-export const CRITERION_WORLD_CUP_APPS: TargetCriterion = {
-  id: 'tg_world_cup_apps',
-  title: 'Dünya Kupası maçı',
-  unit: 'maç',
-  targetRange: [60, 80],
-  targetStep: 5,
-  metric: statMetric((p) => p.stats.competitions?.worldCupApps),
-};
+function buildTargetCriterion(field: MetricField): TargetCriterion {
+  return {
+    id: `tg_${field.key}`,
+    title: field.shortLabel,
+    unit: field.unit,
+    targetRange: field.targetBand!.range,
+    targetStep: field.targetBand!.step,
+    metric: statMetric(field.pick),
+  };
+}
 
-export const TARGET_CRITERIA: TargetCriterion[] = [CRITERION_WORLD_CUP_APPS];
+export const TARGET_CRITERIA: TargetCriterion[] = METRIC_FIELDS
+  .filter((f) => f.targetEligible && f.targetBand)
+  .map(buildTargetCriterion);
+
+/** Geriye dönük uyumluluk: eski tek kriter referansı. */
+export const CRITERION_WORLD_CUP_APPS = TARGET_CRITERIA.find((c) => c.id === 'tg_wcapps')!;
 
 export function criterionById(id: string): TargetCriterion | undefined {
   return TARGET_CRITERIA.find((c) => c.id === id);
+}
+
+/**
+ * Üretilen hedef kriterlerini gerçek havuza göre ayıkla — yalnız hedefe
+ * ULAŞILABİLİR olanlar kalır: en iyi 5 oyuncunun toplamı, hedef üst sınırına
+ * en az erişebilmeli (yoksa kimse hedefi tutturamaz → bozuk tur).
+ */
+export function pruneTargetCriteria(
+  pool: Player[],
+  criteria: TargetCriterion[] = TARGET_CRITERIA,
+): TargetCriterion[] {
+  return criteria.filter((c) => {
+    const top5 = pool
+      .map((p) => c.metric(p))
+      .filter((v): v is number => v !== null)
+      .sort((a, b) => b - a)
+      .slice(0, SLOT_COUNT)
+      .reduce((s, v) => s + v, 0);
+    // En iyi 5'in toplamı, hedef bandının üst sınırını karşılayabilmeli.
+    return top5 >= c.targetRange[1];
+  });
 }
 
 /**

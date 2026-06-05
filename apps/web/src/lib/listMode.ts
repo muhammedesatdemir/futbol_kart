@@ -10,6 +10,12 @@
  * targetMode.ts'in kardeş şablonu.
  */
 import type { Player } from '@futbol-kart/shared-types';
+import {
+  METRIC_FIELDS,
+  LIST_POOL_FILTERS,
+  type MetricField,
+  type PoolFilterDef,
+} from './criteriaCatalog';
 
 /** Liste uzunluğu (top-10). */
 export const LIST_SIZE = 10;
@@ -28,29 +34,76 @@ export interface ListCriterion {
   poolFilter?: (p: Player) => boolean;
 }
 
-/** stats alt alanı pozitifse döndür, değilse null. squadMode/targetMode ile aynı. */
-const statMetric =
-  (pick: (p: Player) => number | undefined): ListMetric =>
-  (p) => {
-    const v = pick(p);
-    return typeof v === 'number' && v > 0 ? v : null;
+/**
+ * Kriter ÜRETİCİSİ — "En çok {alan}" listesini (alan × filtre) kombinasyonundan
+ * türetir. Kart kapışmadaki çoklu-şablon mantığının liste karşılığı. Stabil ID
+ * (`ls_{alan}_{filtre}`) sayesinde oyun state'i kriteri ID ile saklayabilir.
+ *
+ * Yalnızca `listEligible` alanlar (top-10 olarak anlamlı, "yüksek = iyi"). Her
+ * uygun alan, genel + birkaç filtre (pozisyon/aktif/milliyet) varyantıyla çoğaltılır.
+ */
+function buildListCriterion(field: MetricField, filter: PoolFilterDef | null): ListCriterion {
+  const id = filter ? `ls_${field.key}_${filter.key}` : `ls_${field.key}`;
+  const title = filter ? `${field.listLabel} (${filter.label})` : field.listLabel;
+  return {
+    id,
+    title,
+    unit: field.unit,
+    metric: (p) => {
+      const v = field.pick(p);
+      return typeof v === 'number' && v > 0 ? v : null;
+    },
+    ...(filter ? { poolFilter: filter.test } : {}),
   };
+}
 
 /**
- * İlk dilim kriteri: En çok milli maç (all-time). nationalCaps %84 dolu,
- * top-10 doğrulandı (CR7 226 → Celso Borges 164), 10/10 foto dolu.
+ * Tüm liste kriterleri = (listEligible alanlar) × (genel + uygun filtreler).
+ * Filtreler: pozisyon (alan pozisyona uygunsa), aktif/efsane, büyük milliyetler.
  */
-export const CRITERION_MOST_CAPS: ListCriterion = {
-  id: 'ls_most_caps',
-  title: 'En çok milli maç',
-  unit: 'maç',
-  metric: statMetric((p) => p.stats.nationalCaps),
-};
+function generateListCriteria(): ListCriterion[] {
+  const out: ListCriterion[] = [];
+  for (const field of METRIC_FIELDS) {
+    if (!field.listEligible) continue;
+    // Genel (filtresiz)
+    out.push(buildListCriterion(field, null));
+    // Filtreli varyantlar
+    for (const filter of LIST_POOL_FILTERS) {
+      if (filter.appliesTo && !filter.appliesTo(field)) continue;
+      out.push(buildListCriterion(field, filter));
+    }
+  }
+  return out;
+}
 
-export const LIST_CRITERIA: ListCriterion[] = [CRITERION_MOST_CAPS];
+export const LIST_CRITERIA: ListCriterion[] = generateListCriteria();
+
+/** Geriye dönük uyumluluk: eski tek kriter referansı. */
+export const CRITERION_MOST_CAPS = LIST_CRITERIA.find((c) => c.id === 'ls_caps')!;
 
 export function criterionById(id: string): ListCriterion | undefined {
   return LIST_CRITERIA.find((c) => c.id === id);
+}
+
+/**
+ * Üretilen kriterleri GERÇEK havuza göre ayıkla — yalnız sağlıklı listeler kalır:
+ *   - tam dolu top-LIST_SIZE üretebilen (yetersiz oyunculu kombinasyonlar elenir,
+ *     örn. "kaleci golü", veri-dışı milliyet),
+ *   - en az `minPhotos` fotoğraflı (kart görseli garantisi).
+ * Uygulama açılışında bir kez çağrılıp seçim havuzu olarak kullanılır.
+ */
+export function pruneListCriteria(
+  pool: Player[],
+  criteria: ListCriterion[] = LIST_CRITERIA,
+  minPhotos = 8,
+): ListCriterion[] {
+  const byId = new Map(pool.map((p) => [p.id, p]));
+  return criteria.filter((c) => {
+    const list = buildList(c, pool);
+    if (list.length < LIST_SIZE) return false;
+    const photos = list.filter((e) => byId.get(e.playerId)?.imageUrl).length;
+    return photos >= minPhotos;
+  });
 }
 
 /** Listedeki bir sıra. rank 1..LIST_SIZE. */

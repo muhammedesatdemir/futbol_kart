@@ -9,7 +9,7 @@ Oyuncu ana sayfada bir **oyun modu** seçer; her mod aynı oyuncu havuzunu kulla
 - **🎯 Hedefe Yaklaş** — **5 oyuncu** seç; seçilen metriğin (örn. Dünya Kupası maçı) toplamı bir **hedefe (60–80)** en yakın olan kazanır (sadece-uzaklık; üstü serbest). Oyunvari "hedef çarkı" + **Röntgen jokeri** (1×/taraf — havuzdaki bir kartın gizli değerini açar). Bota karşı (±10 sapmalı bot) + arkadaşa karşı snake.
 - **📋 Liste Doldur** — Sıralı bir **top-10 listesini** (örn. "En çok milli maç") havuzdan isim tahmin ederek doldur; doğru tahmin gerçek sırasına oturur + sıra puanı (10. sıra = 10 puan; alt sıralar daha değerli). Her tarafa **3 can** (yanlış/pas can götürür), iki tarafın canı bitince sonuç. Bota karşı + arkadaşa karşı (sırayla).
 
-> **Durum (mod olgunluğu):** VS Düello tam olgun (106 şablon + jokerler + bonuslar). Diğer 3 mod **iskelet olarak çalışır** — uçtan uca akış, bota + arkadaşa karşı, sahneler ve animasyonlar hazır; her biri **tek kriter/liste** ile canlı (Kadro Kur 14 kriter hariç). Soru şablonlarının/kriterlerin çoğaltılması ve gerekirse ek veri çekimi sonraki adımlar (bkz. [Mod içerik yol haritası](#-mod-i̇çerik-yol-haritası)).
+> **Durum (mod olgunluğu):** Dört mod da **içerik olarak canlıya hazır.** VS Düello 106 şablon; **Liste Doldur 235**, **Kadro Kur 62**, **Hedefe Yaklaş 15** kriter (toplam **312** kriter — kriter ÜRETİCİSİ ile alan×filtre kombinasyonundan türetilir, `criteriaCatalog.ts`). Her oyun gameId'den rastgele kriter seçer (deterministik). Geriye kalan: kulüp-bazlı yeni modlar + online (bkz. [VERI.md](VERI.md)).
 
 ---
 
@@ -21,7 +21,7 @@ Oyuncu ana sayfada bir **oyun modu** seçer; her mod aynı oyuncu havuzunu kulla
 | **Oyuncu** | 8,912 (Pelé'den Lamine Yamal'a, 107 yıllık tarih) |
 | **Kulüp** | 6,240 (47 manuel + 6,193 TM) |
 | **VS soru şablonu** | 106 baz şablon (14 parametrik → ~740 benzersiz soru varyasyonu) |
-| **Kadro Kur kriteri** | 14 kriter (boy/yaş/gol/asist/maç/milli/değer/tecrübe/kupa/UCL/lig golü/forma no) |
+| **Mod kriter sayıları** | Liste 235 · Kadro 62 · Hedef 15 (toplam 312, üreticiyle türetilir — `criteriaCatalog.ts`) |
 | **Hedefe Yaklaş kriteri** | 1 canlı (Dünya Kupası maçı) — yapı çoklu metriğe hazır |
 | **Liste Doldur listesi** | 1 canlı (En çok milli maç) — yapı çoklu listeye hazır |
 | **Türk oyuncu** | 727 (Süper Lig kulüpleri + Anadolu kulüpleri + manuel efsaneler) |
@@ -35,7 +35,7 @@ Detaylı veri raporu: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT
 
 ## Durum
 
-**Aktif geliştirme — 4 mod iskeleti çalışır.** **VS Düello** tam olgun (106 şablon + 3 joker + 3 zorunlu kategori bonusu + geri sayım süreleri). **Kadro Kur**, **Hedefe Yaklaş** ve **Liste Doldur** modlarının **iskeleti uçtan uca çalışıyor** (bota + arkadaşa karşı, sahneler, animasyonlar, sonuç ekranları); her biri **tek kriter/liste** ile canlı (Kadro Kur 14 kriterle gelir). Bu modların **içerik genişlemesi** (çoklu kriter/liste/soru şablonu + gerekirse ek veri çekimi) planlı — bkz. [Mod içerik yol haritası](#-mod-i̇çerik-yol-haritası). Veri katmanı doğrulandı, atmosfer cilası tamam, backend altyapısı (auth + DB + maç paylaşma) hazır ama Neon/Resend bağlanmadı. **Kulüp-bazlı gelecek modların (Çinko / Rastgele 7 / İki Takım Eşleşmesi) veri katmanı çekildi** (2026-06-05: kulüp logoları + `clubPool.json` + `clubPairs.json`) — bkz. [VERI.md](VERI.md); kalan iş kod tarafında.
+**Aktif geliştirme — 4 mod içerik olarak canlıya hazır.** **VS Düello** tam olgun (106 şablon + 3 joker + 3 zorunlu kategori bonusu + geri sayım süreleri). **Kadro Kur (62 kriter)**, **Hedefe Yaklaş (15 kriter)** ve **Liste Doldur (235 kriter)** modları artık zengin içerikle canlı — toplam **312 kriter**, kriter ÜRETİCİSİ ([`criteriaCatalog.ts`](apps/web/src/lib/criteriaCatalog.ts)) ile alan×filtre kombinasyonundan türetilir (her oyun gameId'den rastgele, deterministik kriter seçer; sağlıksız kombinasyonlar `prune*` ile elenir). Veri katmanı doğrulandı, atmosfer cilası tamam, backend altyapısı (auth + DB + maç paylaşma) hazır ama Neon/Resend bağlanmadı. **Kulüp-bazlı gelecek modların (Çinko / Rastgele 7 / İki Takım Eşleşmesi) veri katmanı çekildi** (2026-06-05: kulüp logoları + `clubPool.json` + `clubPairs.json`) — bkz. [VERI.md](VERI.md); kalan iş kod tarafında.
 
 ### Tamamlananlar
 
@@ -44,9 +44,9 @@ Detaylı veri raporu: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT
 Her mod ana sayfadaki **oyun-modu seçimiyle** (`GameModeSelectScene`) açılır, kendi route'una sahiptir (`/oyna` · `/kadro` · `/hedefe-yaklas` · `/liste-doldur`), ve **paylaşılan omurgayı** kullanır: rakip seçimi (`OpponentSelectScene` — bota/arkadaşa karşı), faz-bilinçli geri navigasyon, sahne arka planları (`SceneBackground` bgKey override), geri sayım (`CountdownRing`), snake draft mantığı, sıralı reveal + konfeti + ses (`useSfx`/`Confetti`), isim modalı (`NameModal`). Her modun **saf mantık katmanı** ayrıdır (test edilebilir, DOM'suz): `squadMode.ts` / `targetMode.ts` / `listMode.ts`.
 
 - ✅ **VS Düello** — Projenin **olgun ana modu** (aşağıdaki "Oyun motoru & UI" + jokerler + bonuslar). 106 şablon, 7 tur, uzatma/penaltı.
-- ✅ **Kadro Kur** *(iskelet — 14 kriter canlı)* — 4-3-3 formasyonunu pozisyon-bazlı doldur, seçilen kriterin (boy/yaş/gol/asist/maç/milli maç/değer/tecrübe/kupa/UCL/lig golü/forma no — **14 kriter**) toplamını kapıştır. Bota karşı kör seçim (değer gizli, bot zayıflatılmış greedy); arkadaşa karşı **snake draft** (40sn/seçim, çakışma engeli) + **öneri jokeri** (maçta 1×). Build'de seçilen kartların rozeti gizli (yüz net); sonuç ekranında iki saha yan yana sıralı reveal + **her oyuncunun altında kriter katkısı** + toplam count-up.
-- ✅ **Hedefe Yaklaş** *(iskelet — 1 metrik canlı)* — 5 oyuncuyla bir **hedefe (60–80, oyunvari "hedef çarkı")** yaklaş; toplamı hedefe en yakın olan kazanır (**sadece-uzaklık**, üstü serbest). İlk metrik: Dünya Kupası maçı (`worldCupApps`). Bota karşı **±10 sapmalı bot** (kasıtlı hata — yenilebilir); arkadaşa karşı snake draft. **Röntgen jokeri** (1×/taraf, her iki modda): havuzdan bir kartın gizli değerini aç → "Kadroya kat / Vazgeç". Sonuç: 3-bölgeli (sol toplam | hedef | sağ toplam), kart başına istatistik.
-- ✅ **Liste Doldur** *(iskelet — 1 liste canlı)* — Sıralı **top-10 listesini** (ilk liste: En çok milli maç, `players.json`'dan runtime türetilir) havuzdan **isim tahmin ederek** doldur; doğru tahmin gerçek sırasına oturur + **sıra puanı** (10. sıra 10p — alt sıralar daha değerli). Her tarafa **3 can** (yanlış/pas can götürür, kalp animasyonu); iki tarafın canı bitince sonuç. **Dinamik sıra/süre/can paneli** (aktif taraf P1 ise solda kırmızı, P2 ise sağda mavi). Sonuç: tam liste açık, kim açtı renkli, kimsenin bilemediği amber. Bota karşı (P1 3 can, bitince bot tamamlar) + arkadaşa karşı.
+- ✅ **Kadro Kur** *(62 kriter canlı)* — 4-3-3 formasyonunu pozisyon-bazlı doldur, seçilen kriterin (uzun/kısa/yaşlı/genç/golcü/asistçi/değerli/kupalı/UCL/lig golü/ödül… + pozisyon/aktiflik/milliyet filtreleri — **62 sağlıklı kriter**, üreticiyle) toplamını kapıştır. Bota karşı seçim ekranı rastgele 12'lik vitrin gösterir. Bota karşı kör seçim (değer gizli, bot zayıflatılmış greedy); arkadaşa karşı **snake draft** (40sn/seçim, çakışma engeli) + **öneri jokeri** (maçta 1×). Build'de seçilen kartların rozeti gizli (yüz net); sonuç ekranında iki saha yan yana sıralı reveal + **her oyuncunun altında kriter katkısı** + toplam count-up.
+- ✅ **Hedefe Yaklaş** *(15 kriter canlı)* — 5 oyuncuyla bir **hedefe (oyunvari "hedef çarkı")** yaklaş; toplamı hedefe en yakın olan kazanır (**sadece-uzaklık**, üstü serbest). **15 kriter** (gol/asist/milli/UCL/lig golü/boy/kupa…), her birinin hedef bandı gerçek veriyle doğrulanmış. Bota karşı **±10 sapmalı bot** (kasıtlı hata — yenilebilir); arkadaşa karşı snake draft. **Röntgen jokeri** (1×/taraf, her iki modda): havuzdan bir kartın gizli değerini aç → "Kadroya kat / Vazgeç". Sonuç: 3-bölgeli (sol toplam | hedef | sağ toplam), kart başına istatistik.
+- ✅ **Liste Doldur** *(235 kriter canlı)* — Sıralı **top-10 listesini** (235 kriterden biri rastgele: "En çok gol (Brezilyalı)", "En çok ŞL maçı (forvet)"… `players.json`'dan runtime türetilir, foto garantili) havuzdan **isim tahmin ederek** doldur; doğru tahmin gerçek sırasına oturur + **sıra puanı** (10. sıra 10p — alt sıralar daha değerli). Her tarafa **3 can** (yanlış/pas can götürür, kalp animasyonu); iki tarafın canı bitince sonuç. **Dinamik sıra/süre/can paneli** (aktif taraf P1 ise solda kırmızı, P2 ise sağda mavi). Sonuç: tam liste açık, kim açtı renkli, kimsenin bilemediği amber. Bota karşı (P1 3 can, bitince bot tamamlar) + arkadaşa karşı.
 
 #### Oyun motoru & UI (VS Düello)
 - ✅ **Oyun motoru** — Saf TypeScript, event-sourced reducer, seedable PRNG. Hot-seat + vs-bot.
@@ -141,7 +141,8 @@ futbol-kart/
 │       │       ├── playersClient.ts      Client-side fetch + cache
 │       │       ├── playerImageOverrides  Manuel crop sistem (scale + objectPosition)
 │       │       ├── sessionMachine.ts     VS event-sourced state machine (BONUS_ASSIGN + ROUND_TRANSFER + joker state)
-│       │       ├── squadMode.ts          Mod 1 saf mantığı (14 kriter, formasyon, snake draft, öneri/bot)
+│       │       ├── criteriaCatalog.ts    Ortak kriter üreticisi (17 alan × filtre → Liste/Hedef/Kadro)
+│       │       ├── squadMode.ts          Kadro Kur (62 kriter üretici, formasyon, snake draft, öneri/bot)
 │       │       ├── targetMode.ts         Mod 2 saf mantığı (hedef çarkı, sadece-uzaklık, ±10 bot drift, snake)
 │       │       ├── listMode.ts           Mod 3 saf mantığı (top-10 türet, tahmin/puan, can, bot known-ranks)
 │       │       ├── gameConstants.ts      Tüm modların tur/kart/süre/can sabitleri
@@ -522,47 +523,35 @@ bilen +2).
 
 ## 🧩 Mod İçerik Yol Haritası
 
-Dört modun da **iskeleti kuruldu ve çalışıyor** (yukarı bkz. Tamamlananlar). Kalan iş,
-yeni modların **içeriğini çoğaltmak** (çoklu kriter/liste/soru şablonu) ve gerektiğinde
-**ek veri çekmek**. Mimari buna hazır: her modun saf mantık katmanında kriter/liste bir
-diziye yeni eleman eklemekle genişler.
+**✅ Çeşitlilik tamamlandı (2026-06-05).** Üç aktif modun kriterleri, kart kapışmanın 106 şablonu
+gibi **ÜRETİCİ** mantığıyla çoğaltıldı: [`criteriaCatalog.ts`](apps/web/src/lib/criteriaCatalog.ts)'te
+17 sağlam alan (gol/asist/maç/milli/değer/UCL/kupa…) × filtre eksenleri (pozisyon/aktiflik/milliyet),
+her mod kendi kriter listesini üretir. Sağlıksız kombinasyonlar (yetersiz havuz, kaleci-golü, veri-dışı
+milliyet) `prune*Criteria` ile elenir. Her oyun gameId'den **deterministik rastgele** kriter seçer.
+Gerçek veriyle + canlı tarayıcıda doğrulandı (top-10/hedef bandı/foto/havuz). Toplam **312 kriter**.
 
-#### 🟢 Mod 1 — Kadro Kur (kuruldu · 14 kriter canlı)
-> "En X kadroyu kur": en uzun / en yaşlı / en genç / en golcü / en değerli / en kupalı …
-- **Canlı:** 4-3-3, **14 kriter** (`SQUAD_CRITERIA` — boy/yaş/gol/asist/maç/milli/değer/tecrübe/
-  kupa/UCL/lig golü/forma no), bota + arkadaşa karşı (snake draft + öneri jokeri), build'de rozet
-  gizli, sonuçta bireysel istatistik. Veri tamamı mevcut, ek scrape yok.
-- **Doldurulacak / iyileştirilebilir:**
-  - **Challenge/kısıt varyantı:** "sadece Brezilyalı / tek kulüpten / aktif oyuncu" gibi havuz
-    kısıtları (`SquadCriterion.poolFilter` zaten destekliyor — kürasyonlu kısıt seti + UI eklenecek).
-  - **Bonus mevki:** her oyunda rastgele bir "+2 mevki" (aynı bonus omurgası).
-  - **Lig kısıtı uyarısı:** `clubs.json`'da **lig alanı yok** (yalnız `country`/`city`/`continent`).
-    "Sadece Süper Lig" için club→country pratik karşılık verir; birebir lig ayrımı küçük bir manuel
-    `clubId→league` tablosu ister (TODO).
+#### ✅ Mod 1 — Kadro Kur (62 kriter canlı)
+> "En X kadroyu kur": uzun/kısa/yaşlı/genç/golcü/asistçi/değerli/kupalı/UCL/lig golü/ödül… + filtreler.
+- **Canlı:** 4-3-3, **62 sağlıklı kriter** (5 çekirdek + üreticiden: alan × max/min × {genel, aktif,
+  Türk, Brezilyalı}). Bota karşı "kriter seç" ekranı her oyun rastgele **12'lik vitrin** gösterir
+  (62 değil → iyi UX). Snake draft + öneri jokeri, build'de rozet gizli, sonuçta bireysel istatistik.
+- **İleride:** Lig kısıtı (`clubs.json`'da lig alanı yok → `clubId→league` tablosu TODO); bonus mevki.
 
-#### 🟢 Mod 2 — Hedefe Yaklaş (kuruldu · 1 metrik canlı, veri hazır)
-> "5 futbolcuyla toplamı hedefe en çok yaklaştır": 70 Dünya Kupası maçı, 500 UCL maçı, 150 milli maç …
-- **Canlı:** Dünya Kupası maçı (hedef 60–80), sadece-uzaklık skoru, ±10 sapmalı bot, snake, Röntgen jokeri.
-- **Doldurulacak (ek scrape YOK):** Yeni metrikler `TARGET_CRITERIA`'ya eklenir — veri bugün
-  `players.json`'da: `uclApps` %41 (hedef ~500), `nationalCaps` %84 (~150), `leagueApps` %98.7,
-  `uelApps` %68, `domesticCupApps` %98.1. Messi'de doğrulandı (UCL 163/129, DK 26/13 — Wikipedia uyumlu).
-  Her metrik için uygun hedef bandı + havuz dolulukları ayarlanır.
-- **Süper Lig maçı** (görsellerdeki "750 SL maçı") → lig alanı yok (yukarıdaki Mod 1 uyarısı); önce
-  `clubId→league` tablosu gerekir.
+#### ✅ Mod 2 — Hedefe Yaklaş (15 kriter canlı)
+> "5 futbolcuyla toplamı hedefe yaklaştır": gol, asist, milli maç/gol, UCL, lig golü, boy, kupa…
+- **Canlı:** **15 kriter** (`targetEligible` alanlar). Her kriterin hedef bandı, 5-oyuncu toplamı
+  dağılımından hesaplanıp **gerçek veriyle doğrulandı** (hedef ≤ top-5 toplamı = ulaşılabilir,
+  ≥ medyan-5 = kolay değil). `pruneTargetCriteria` ulaşılamaz olanları eler. ±10 sapmalı bot korunur.
+- **İleride:** Süper Lig maçı → lig alanı yok (yukarıdaki TODO).
 
-#### 🟢 Mod 3 — Liste Doldur (kuruldu · 1 liste canlı, türetme hazır)
+#### ✅ Mod 3 — Liste Doldur (235 kriter canlı)
 > Sıralı top-10'u doldur; alt sıralar daha değerli (10. sıra = 10 puan).
-- **Canlı:** "En çok milli maç" (`nationalCaps`), runtime `players.json`'dan türetilir (foto+id garantili),
-  isim-tahmin + 3 can mekaniği, bota + arkadaşa karşı.
-- **Doldurulacak (türetilebilir, scrape'siz):** `LIST_CRITERIA`'ya yeni liste konusu = yeni metrik +
-  opsiyonel `poolFilter`. Mevcut veriden **~80 sağlam liste** çıkar: "kalecilerde en çok maç",
-  "Türklerde en çok milli maç", "Brezilyalılarda en çok gol", "en değerli", "en çok UCL maçı" vb.
-  (~14 sıralanabilir metrik × kürasyonlu filtre).
-- **Doldurulacak (ek veri):** `data-pipeline/cache/lists.json`'da **6 hazır all-time gol kralı listesi**
-  var (Süper Lig + 5 büyük lig). `players.json` **tmId taşımadığı için** bunlar isimle eşleştirilmeli
-  (efsanelerde foto/eşleşme riski) — bir `merge` adımı + `public/data/lists.json` çıktısı gerekir.
-  Lig/turnuva all-time listeleri TM `ewige*`'den genişletilebilir (`scrape:lists`); Ballon d'Or /
-  yıl bazlı ödül arşivleri ayrı parser ister (TODO).
+- **Canlı:** **235 sağlıklı liste** (17 alan × {genel, 4 pozisyon, aktif/emekli, 9 milliyet}). Örn.
+  "En çok gol (Brezilyalı)", "En çok ŞL maçı (forvet)", "En çok bireysel ödül (Türk)". `pruneListCriteria`
+  yalnız **tam dolu (10) + en az 8 fotoğraflı** listeleri tutar (kart görseli garantisi). Canlı tarayıcıda
+  6/6 farklı gameId → 6 farklı kriter + determinizm doğrulandı.
+- **İleride (ek veri):** `cache/lists.json`'daki 6 all-time gol kralı listesi (isimle eşleştirme +
+  `public/data/lists.json` çıktısı); Ballon d'Or yıl-bazlı arşivi ayrı parser (TODO).
 
 #### 🟡 Genel — modları besleyen ortak iyileştirmeler
 - **Soru/kriter sağlık denetimi:** Yeni modlar için VS'teki `audit:templates` benzeri bir

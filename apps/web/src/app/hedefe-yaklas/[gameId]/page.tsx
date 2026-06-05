@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -48,13 +48,17 @@ export default function TargetGamePage() {
   const router = useRouter();
   const session = useGameSession();
 
-  // Kriter — gameId'den seed'lenen PRNG ile sağlıklı havuzdan rastgele seçilir
-  // (15 hedef kriterinden biri). Deterministik: aynı gameId → aynı kriter.
+  // Her oyun OTURUMUNDA değişen tohum — kriter seçimi buna bağlı. gameId mod
+  // menüsünden taşınıp SABİT kaldığı için yalnız gameId'ye bağlamak hep aynı
+  // kriteri verirdi (bug); roundSeed mount'ta rastgele üretilir, "tekrar oyna"da
+  // yenilenir → her oyun farklı bir hedef kriteri gelir.
+  const [roundSeed, setRoundSeed] = useState(() => Math.random().toString(36).slice(2));
+
   const criterion: TargetCriterion = useMemo(() => {
     const healthy = pruneTargetCriteria(session.players);
-    const prng = createPRNG(`target:${params.gameId}`);
+    const prng = createPRNG(`target:${params.gameId}:${roundSeed}`);
     return healthy[Math.floor(prng.next() * healthy.length)] ?? healthy[0]!;
-  }, [session.players, params.gameId]);
+  }, [session.players, params.gameId, roundSeed]);
 
   const playersById = useMemo(
     () => new Map(session.players.map((p) => [p.id, p])),
@@ -97,16 +101,24 @@ export default function TargetGamePage() {
     setXrayPlayerId(null);
   }, []);
 
-  // Yeni hedef + havuz seed üret (yeni maç / yeniden oyna).
+  // Yeni maç / yeniden oyna: yeni kriter (roundSeed) + havuz seed. Hedef değeri
+  // criterion'a bağlı olduğundan aşağıdaki effect'te (criterion değişince)
+  // hesaplanır — böylece gösterilen kriter ile hedef HER ZAMAN tutarlı olur.
   const freshTarget = useCallback(() => {
-    const prng = createPRNG(`${params.gameId}-tg-${Date.now()}`);
-    setTarget(pickTarget(criterion, () => prng.next()));
-    setShuffleSeed(Math.floor(prng.next() * 1e9));
+    setRoundSeed(Math.random().toString(36).slice(2));
+    setShuffleSeed(Math.floor(Math.random() * 1e9));
     setP1Picks(emptyPicks());
     setP2Picks(emptyPicks());
     setDraftStep(0);
     resetXray();
-  }, [params.gameId, criterion, resetXray]);
+  }, [resetXray]);
+
+  // Hedef değeri DAİMA güncel criterion'a göre seçilir (criterion roundSeed ile
+  // değişince yeniden hesaplanır) — kriter ile hedef bandı tutarlı kalır.
+  useEffect(() => {
+    const prng = createPRNG(`${params.gameId}:${roundSeed}:tgt`);
+    setTarget(pickTarget(criterion, () => prng.next()));
+  }, [criterion, params.gameId, roundSeed]);
 
   // Rakip seçildi → hedef çarkına geç (opponent state'i sakla).
   const onPickOpponent = useCallback(

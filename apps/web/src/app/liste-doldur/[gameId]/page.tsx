@@ -43,14 +43,17 @@ export default function ListGamePage() {
   const session = useGameSession();
   const playSfx = useSfx();
 
-  // Kriter — gameId'den seed'lenen PRNG ile sağlıklı havuzdan rastgele seçilir.
-  // Böylece her oyun farklı bir liste sorusu (235 kriterden biri) gelir; aynı
-  // gameId aynı kriteri verir (deterministik, yeniden yüklemede tutarlı).
+  // Her oyun OTURUMUNDA değişen tohum — kriter seçimi buna bağlı. gameId mod
+  // menüsünden taşınıp SABİT kaldığı için yalnız gameId'ye bağlamak hep aynı
+  // kriteri verirdi (bug); roundSeed mount'ta rastgele üretilir, "tekrar oyna"da
+  // yenilenir → her oyun 235 kriterden FARKLI biri gelir.
+  const [roundSeed, setRoundSeed] = useState(() => Math.random().toString(36).slice(2));
+
   const criterion: ListCriterion = useMemo(() => {
     const healthy = pruneListCriteria(session.players);
-    const prng = createPRNG(`list:${params.gameId}`);
+    const prng = createPRNG(`list:${params.gameId}:${roundSeed}`);
     return healthy[Math.floor(prng.next() * healthy.length)] ?? healthy[0]!;
-  }, [session.players, params.gameId]);
+  }, [session.players, params.gameId, roundSeed]);
 
   const playersById = useMemo(
     () => new Map(session.players.map((p) => [p.id, p])),
@@ -96,6 +99,8 @@ export default function ListGamePage() {
     setLives({ P1: LIST_LIVES, P2: LIST_LIVES });
     setActiveSide('P1');
     setTurnKey(0);
+    // Yeni kriter seç (her oyunda farklı liste sorusu).
+    setRoundSeed(Math.random().toString(36).slice(2));
   }, []);
 
   const onPickOpponent = useCallback(

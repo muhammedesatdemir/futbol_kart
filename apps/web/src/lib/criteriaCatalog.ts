@@ -170,9 +170,21 @@ export const LIST_POOL_FILTERS: PoolFilterDef[] = [
   nationalityFilter('NL', 'Hollandalı'),
 ];
 
-/** KADRO modu filtreleri — daha sade (pozisyon zaten formasyonda var). */
+/**
+ * KADRO modu filtreleri — pozisyon yok (formasyonda zaten var), ama aktiflik +
+ * milliyetler kadro çeşitliliğini katlar ("En golcü Türk kadrosu", "En değerli
+ * Brezilyalı kadrosu"…). Yetersiz pozisyonlu kombinasyonlar pruneSquadCriteria
+ * tarafından elenir (örn. küçük milliyetlerde kaleci/defans bulunamayabilir).
+ */
 export const SQUAD_POOL_FILTERS: PoolFilterDef[] = [
   { key: 'active', label: 'aktif', test: (p) => p.isActive },
+  { key: 'legend', label: 'emekli', test: (p) => !p.isActive },
   nationalityFilter('TR', 'Türk'),
   nationalityFilter('BR', 'Brezilyalı'),
+  nationalityFilter('AR', 'Arjantinli'),
+  nationalityFilter('ES', 'İspanyol'),
+  nationalityFilter('FR', 'Fransız'),
+  nationalityFilter('DE', 'Alman'),
+  nationalityFilter('IT', 'İtalyan'),
+  nationalityFilter('EN', 'İngiliz'),
 ];

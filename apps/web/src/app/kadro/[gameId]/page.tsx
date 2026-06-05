@@ -62,13 +62,18 @@ export default function SquadGamePage() {
     [session.players, formation],
   );
 
+  // Her oyun OTURUMUNDA değişen tohum — kriter vitrini + rastgele seçim buna
+  // bağlı. gameId mod menüsünden taşınıp SABİT kaldığı için yalnız gameId'ye
+  // bağlamak hep aynı 12'lik vitrini (ve hep aynı rastgele kriteri) verirdi (bug).
+  const [roundSeed, setRoundSeed] = useState(() => Math.random().toString(36).slice(2));
+
   // Bota karşı "kriter seç" ekranı için rastgele ~12'lik alt-küme (62 kart yerine
-  // makul UX + her oyun farklı vitrin). gameId'den seed'li → reload'da tutarlı.
+  // makul UX + her oyun farklı vitrin). prng.shuffle (Fisher-Yates) — taraflı
+  // sort hilesi DEĞİL.
   const selectChoices = useMemo(() => {
-    const prng = createPRNG(`squad-choices:${params.gameId}`);
-    const shuffled = [...squadCriteria].sort(() => prng.next() - 0.5);
-    return shuffled.slice(0, 12);
-  }, [squadCriteria, params.gameId]);
+    const prng = createPRNG(`squad-choices:${params.gameId}:${roundSeed}`);
+    return prng.shuffle(squadCriteria).slice(0, 12);
+  }, [squadCriteria, params.gameId, roundSeed]);
 
   const [phase, setPhase] = useState<Phase>('opponent');
   const [opponent, setOpponent] = useState<Opponent>('vs-bot');
@@ -110,8 +115,7 @@ export default function SquadGamePage() {
       setOpponent(opp);
       if (opp === 'hotseat') {
         // Arkadaşa karşı: kriter gizli/rastgele (iki taraf da seçemez) → snake draft.
-        const prng = createPRNG(`${params.gameId}-crit-${Date.now()}`);
-        setCriterion(squadCriteria[Math.floor(prng.next() * squadCriteria.length)]!);
+        setCriterion(squadCriteria[Math.floor(Math.random() * squadCriteria.length)]!);
         setP1Assignment(emptyAssignment(formation));
         setP2Assignment(emptyAssignment(formation));
         setDraftStep(0);
@@ -133,12 +137,10 @@ export default function SquadGamePage() {
   }, []);
 
   const onRandomCriterion = useCallback(() => {
-    const prng = createPRNG(`${params.gameId}-crit-${Date.now()}`);
-    const idx = Math.floor(prng.next() * squadCriteria.length);
-    setCriterion(squadCriteria[idx]!);
-    setShuffleSeed(Math.floor(prng.next() * 1e9));
+    setCriterion(squadCriteria[Math.floor(Math.random() * squadCriteria.length)]!);
+    setShuffleSeed(Math.floor(Math.random() * 1e9));
     setPhase('build');
-  }, [params.gameId, squadCriteria]);
+  }, [squadCriteria]);
 
   const onAssign = useCallback((slotId: string, playerId: string | null) => {
     setP1Assignment((prev) => {
@@ -262,10 +264,11 @@ export default function SquadGamePage() {
   const onRematch = useCallback(() => {
     setP1Assignment(emptyAssignment(formation));
     setP2Assignment(emptyAssignment(formation));
+    // Yeni oyun → kriter vitrini de tazelensin (yeni 12'lik alt-küme).
+    setRoundSeed(Math.random().toString(36).slice(2));
     if (opponent === 'hotseat') {
       // Arkadaşa karşı → yeni rastgele kriterle yeni snake draft.
-      const prng = createPRNG(`${params.gameId}-crit-${Date.now()}`);
-      setCriterion(squadCriteria[Math.floor(prng.next() * squadCriteria.length)]!);
+      setCriterion(squadCriteria[Math.floor(Math.random() * squadCriteria.length)]!);
       setDraftStep(0);
       setDraftJokerUsed({ P1: false, P2: false });
       setSuggestion(null);
@@ -274,7 +277,7 @@ export default function SquadGamePage() {
       setShuffleSeed(Math.floor(Math.random() * 1e9));
       setPhase('select');
     }
-  }, [formation, opponent, params.gameId, squadCriteria]);
+  }, [formation, opponent, squadCriteria]);
 
   // Faz-bilinçli "← Geri": bir önceki adıma döner. İlk adımdaysa (rakip seçimi)
   // ana sayfaya çıkar. Draft/result yarıda kesilirse o fazın state'i sıfırlanır.

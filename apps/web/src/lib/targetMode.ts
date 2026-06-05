@@ -11,7 +11,7 @@
  * squadMode.ts'in kardeş şablonu.
  */
 import type { Player } from '@futbol-kart/shared-types';
-import { METRIC_FIELDS, type MetricField } from './criteriaCatalog';
+import { METRIC_FIELDS, LIST_POOL_FILTERS, type MetricField, type PoolFilterDef } from './criteriaCatalog';
 
 /** Kaç oyuncu seçilir (görsellerdeki "5 futbolcu kullan"). */
 export const SLOT_COUNT = 5;
@@ -47,25 +47,41 @@ const statMetric =
   };
 
 /**
- * Kriter ÜRETİCİSİ — catalog'daki `targetEligible` + `targetBand`'i olan her
- * alandan bir TargetCriterion türetir. Hedef bandı (`targetRange`/`step`),
- * 5-oyuncu toplamının gerçek dağılımından hesaplanıp catalog'a yazıldı; çark
- * o bantta durur (ulaşılabilir ama kolay değil).
+ * Kriter ÜRETİCİSİ — catalog'daki `targetEligible` alanlar × (genel + milliyet/
+ * pozisyon filtreleri). Hedef bandı SABİT catalog değeri değil; her kriter için
+ * filtrelenmiş havuzdan DİNAMİK hesaplanır (buildTargetBands) — böylece "Türk
+ * oyuncularla milli gol toplamı" gibi küçük havuzlarda da ulaşılabilir hedef olur.
+ *
+ * Statik tanım: id + başlık + metric + (filtre). targetRange/step başta
+ * yer-tutucudur; gerçek değer `resolveTargetBands(pool)` ile doldurulur.
  */
-function buildTargetCriterion(field: MetricField): TargetCriterion {
+function buildTargetCriterion(field: MetricField, filter: PoolFilterDef | null): TargetCriterion {
+  const id = filter ? `tg_${field.key}_${filter.key}` : `tg_${field.key}`;
+  const title = filter ? `${field.shortLabel} (${filter.label})` : field.shortLabel;
   return {
-    id: `tg_${field.key}`,
-    title: field.shortLabel,
+    id,
+    title,
     unit: field.unit,
-    targetRange: field.targetBand!.range,
-    targetStep: field.targetBand!.step,
+    targetRange: field.targetBand?.range ?? [0, 0], // resolveTargetBands düzeltir
+    targetStep: field.targetBand?.step ?? 1,
     metric: statMetric(field.pick),
+    ...(filter ? { poolFilter: filter.test } : {}),
   };
 }
 
-export const TARGET_CRITERIA: TargetCriterion[] = METRIC_FIELDS
-  .filter((f) => f.targetEligible && f.targetBand)
-  .map(buildTargetCriterion);
+/** Statik kriter listesi (bantlar henüz yer-tutucu — resolveTargetBands ile çözülür). */
+export const TARGET_CRITERIA: TargetCriterion[] = (() => {
+  const out: TargetCriterion[] = [];
+  for (const field of METRIC_FIELDS) {
+    if (!field.targetEligible) continue;
+    out.push(buildTargetCriterion(field, null));
+    for (const filter of LIST_POOL_FILTERS) {
+      if (filter.appliesTo && !filter.appliesTo(field)) continue;
+      out.push(buildTargetCriterion(field, filter));
+    }
+  }
+  return out;
+})();
 
 /** Geriye dönük uyumluluk: eski tek kriter referansı. */
 export const CRITERION_WORLD_CUP_APPS = TARGET_CRITERIA.find((c) => c.id === 'tg_wcapps')!;
@@ -74,26 +90,51 @@ export function criterionById(id: string): TargetCriterion | undefined {
   return TARGET_CRITERIA.find((c) => c.id === id);
 }
 
+/** "Güzel" yuvarlak adım — büyüklüğe göre 5/10/25/50/100. */
+function niceStep(span: number): number {
+  if (span >= 2000) return 250;
+  if (span >= 800) return 100;
+  if (span >= 300) return 50;
+  if (span >= 120) return 25;
+  if (span >= 40) return 10;
+  return 5;
+}
+
 /**
- * Üretilen hedef kriterlerini gerçek havuza göre ayıkla — yalnız hedefe
- * ULAŞILABİLİR olanlar kalır: en iyi 5 oyuncunun toplamı, hedef üst sınırına
- * en az erişebilmeli (yoksa kimse hedefi tutturamaz → bozuk tur).
+ * Her kriter için hedef bandını GERÇEK (filtrelenmiş) havuzdan hesaplar ve
+ * ulaşılabilir olanları döndürür. Hedef = en iyi 5 toplamının ~%55-70'i bandı,
+ * yuvarlak adımlara hizalı. Yetersiz havuzlu (top5 çok küçük) kriterler elenir.
+ *
+ * Bu fonksiyon hem PRUNE hem BAND-ÇÖZÜMÜ yapar — sayfa bunu kullanır.
  */
-export function pruneTargetCriteria(
+export function resolveTargetBands(
   pool: Player[],
   criteria: TargetCriterion[] = TARGET_CRITERIA,
 ): TargetCriterion[] {
-  return criteria.filter((c) => {
-    const top5 = pool
-      .map((p) => c.metric(p))
-      .filter((v): v is number => v !== null)
+  const out: TargetCriterion[] = [];
+  for (const c of criteria) {
+    const eligible = pool.filter(
+      (p) => c.metric(p) !== null && (!c.poolFilter || c.poolFilter(p)),
+    );
+    const top5 = eligible
+      .map((p) => c.metric(p)!)
       .sort((a, b) => b - a)
       .slice(0, SLOT_COUNT)
       .reduce((s, v) => s + v, 0);
-    // En iyi 5'in toplamı, hedef bandının üst sınırını karşılayabilmeli.
-    return top5 >= c.targetRange[1];
-  });
+    // Ulaşılabilirlik: hedef üst sınırı (top5'in %70'i) anlamlı olmalı + havuz yeterli.
+    const hi = Math.round(top5 * 0.7);
+    const lo = Math.round(top5 * 0.45);
+    if (eligible.length < 30 || hi < 10) continue; // havuz/değer çok küçük → ele
+    const step = niceStep(hi - lo);
+    const range: [number, number] = [Math.max(step, Math.round(lo / step) * step), Math.round(hi / step) * step];
+    if (range[1] <= range[0]) continue;
+    out.push({ ...c, targetRange: range, targetStep: step });
+  }
+  return out;
 }
+
+/** Geriye dönük: eski isimle de çağrılabilsin (resolveTargetBands'e yönlendirir). */
+export const pruneTargetCriteria = resolveTargetBands;
 
 /**
  * Hedef değeri seç — kriterin aralığında, adıma hizalı (çark durakları net).

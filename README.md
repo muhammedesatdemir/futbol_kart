@@ -35,7 +35,7 @@ Detaylı veri raporu: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT
 
 ## Durum
 
-**Aktif geliştirme — 4 mod iskeleti çalışır.** **VS Düello** tam olgun (106 şablon + 3 joker + 3 zorunlu kategori bonusu + geri sayım süreleri). **Kadro Kur**, **Hedefe Yaklaş** ve **Liste Doldur** modlarının **iskeleti uçtan uca çalışıyor** (bota + arkadaşa karşı, sahneler, animasyonlar, sonuç ekranları); her biri **tek kriter/liste** ile canlı (Kadro Kur 14 kriterle gelir). Bu modların **içerik genişlemesi** (çoklu kriter/liste/soru şablonu + gerekirse ek veri çekimi) planlı — bkz. [Mod içerik yol haritası](#-mod-i̇çerik-yol-haritası). Veri katmanı doğrulandı, atmosfer cilası tamam, backend altyapısı (auth + DB + maç paylaşma) hazır ama Neon/Resend bağlanmadı.
+**Aktif geliştirme — 4 mod iskeleti çalışır.** **VS Düello** tam olgun (106 şablon + 3 joker + 3 zorunlu kategori bonusu + geri sayım süreleri). **Kadro Kur**, **Hedefe Yaklaş** ve **Liste Doldur** modlarının **iskeleti uçtan uca çalışıyor** (bota + arkadaşa karşı, sahneler, animasyonlar, sonuç ekranları); her biri **tek kriter/liste** ile canlı (Kadro Kur 14 kriterle gelir). Bu modların **içerik genişlemesi** (çoklu kriter/liste/soru şablonu + gerekirse ek veri çekimi) planlı — bkz. [Mod içerik yol haritası](#-mod-i̇çerik-yol-haritası). Veri katmanı doğrulandı, atmosfer cilası tamam, backend altyapısı (auth + DB + maç paylaşma) hazır ama Neon/Resend bağlanmadı. **Kulüp-bazlı gelecek modların (Çinko / Rastgele 7 / İki Takım Eşleşmesi) veri katmanı çekildi** (2026-06-05: kulüp logoları + `clubPool.json` + `clubPairs.json`) — bkz. [VERI.md](VERI.md); kalan iş kod tarafında.
 
 ### Tamamlananlar
 
@@ -220,7 +220,18 @@ merge.ts                  TmPlayer → Player + dedup + kalite filtresi
 honours.ts                Kupa + bireysel ödül sayıları (TM Erfolge → achievements.trophies)
 competitionStats.ts       Turnuva maç/gol (cache'ten reprocess, scrape YOK)
 rankedLists.ts            Sıralı listeler (ewige* → lists.json, Mod 3)
+
+# Kulüp-bazlı modlar için veri (ÇEKİLDİ 2026-06-05 — bkz. VERI.md)
+enrichClubLogos.ts        Kulüp crestUrl + colors (TM /clubs, top 120) — ✅ 120/120 crest, 117/120 renk
+enrichMarketValues.ts     marketValueEUR NULL fallback (list.json) — sınırlı fayda, ATLANDI (VERI.md §3.4)
+buildClubPool.ts          Top 75 Avrupa kulüp havuzu, ülke-tavanlı (lokal) → ✅ clubPool.json
+buildClubPairs.ts         ≥3 ortak oyunculu kulüp çiftleri (lokal) → ✅ clubPairs.json (1308 çift)
 ```
+
+> **📦 Veri durumu:** Kulüp-bazlı modların veri katmanı **çekildi** (2026-06-05): kulüp **logoları**
+> (top 120), kürasyonlu **kulüp havuzu** (`clubPool.json`) ve **eşleşme tablosu** (`clubPairs.json`)
+> hazır. Tüm süreç/ölçümler **[VERI.md](VERI.md)**'de. Aktif 3 modun "çeşitlilik" eksiği ise çoğunlukla
+> **kod** işi (`lib/*Mode.ts`'e kriter ekleme), veri değil — temel alanlar zaten %87-98 dolu.
 
 ---
 
@@ -676,6 +687,98 @@ sonradan, yalnız online'a eklenir.
 
 > **Ek veri (opsiyonel kalite):** Kulüp logoları (Mod A görseli) ve Mod B için isim havuzu
 > genişletme. Geri kalan her şey mevcut seed'den ek scrape'siz türetilebilir.
+
+---
+
+## 🏟️ Kulüp-Bazlı Mod Adayları (analiz edildi · yukarıdakilerden ÖNCELİKLİ)
+
+> Sosyal medyadaki **"Futbol Çinko"** ve **"Rastgele Beşler"** formatlarından feyz alınan, kullanıcının
+> yukarıdaki 3 modu da **önceleyen** 3 mod. Hepsi **oyuncunun kariyer kulüpleri** üzerine kurulu.
+> Mevcut veriyle ölçülerek doğrulandı; henüz kodlanmadı. Tam karar günlüğü: [PLAN.md §15](PLAN.md).
+
+### 🔑 Ortak temel — kulüp verisi (ölçüldü, hazır)
+
+- **`clubId → clubs.json` eşleşmesi %100.** Ünlü kariyerler birebir doğru: Eto'o →
+  Barça/Real/Inter/Sampdoria/Konyaspor/Antalyaspor/Chelsea; Lukaku → Man Utd/Roma/Napoli.
+- **Farklı kulüp sayısı** (çinko/skor puanı): oyuncuların çoğu **4-8 kulüpte** oynamış → "tek turda
+  3-5 takım seçilebilsin" gerçekçi.
+- **"En iyi 50-75 Avrupa kulübü"** havuzu doğrudan çıkıyor (kulüpteki farklı oyuncu sayısı = popülerlik).
+  Top 30 = beklenen kulüpler; Avrupa'da oyuncu≥20 olan **562 kulüp** mevcut.
+- **✅ Kulüp logosu + renkleri ÇEKİLDİ** (2026-06-05) — TM'den **top 120 kulüp** (crest 120/120, renk
+  117/120), `clubs.json`'da. Ayrıca **`clubPool.json`** (75 kulüp, logolu) + **`clubPairs.json`**
+  (1308 çift, ≥3 cevap) üretildi. Bu modların veri katmanı **hazır** (bkz. [VERI.md](VERI.md)).
+- **⚠️ Türk-kulüp ağırlığı:** Veri Süper Lig scrape'i nedeniyle Türk-yoğun (top 4 = FB/GS/TS/BJK);
+  havuz "Avrupa top N" ile dengelenir ama Konyaspor/Bursaspor bazı kariyerlerde kritik, tamamen elenmemeli.
+
+### 🟦 Mod A — Futbol Çinko (bitişik kulüp matrisi)
+
+N×N (5×5–7×7) kulüp matrisi. Oyuncu adı gir → kariyerindeki kulüplerden matriste **bitişik** olanların
+en büyük bağlı grubu seçilir = o kadar puan. (Eto'o: Barça-Konyaspor-Real-Inter-Sampdoria bitişikse
+seçilir, Chelsea gruba komşu değilse seçilmez; tek başına da olsa en büyük bağlı grup kazanır.)
+
+| | Durum |
+|---|---|
+| **Bitişiklik** | **4 yön** (yukarı/aşağı/sağ/sol — köşegen yok). |
+| **Algoritma** | Izgara komşuluk grafiğinde **BFS/flood-fill** → en büyük bağlı bileşen. Saf, hızlı, test edilebilir. |
+| **🔑 Asıl iş** | **Kürasyonlu-rastgele matris üretimi:** her tur farklı AMA en az birkaç yıldız oyuncu için bitişik 4-5'lik zincir mümkün olmalı (çözülebilirlik skoru < eşik → yeniden üret). Saf rastgele = sıkıcı turlar. |
+| **Veri** | ✅ Logo + havuz hazır (çekildi). **Kalan iş kod:** matris üretim algoritması + cevap havuzdan seçtirme (serbest metin değil). En özgün, en zor mod. |
+
+### 🟩 Mod B — Rastgele 7 Takım (bitişiklik yok)
+
+7 rastgele kulüp; oyuncu adı gir → bu 7'den kaçında oynadıysa o kadar puan (yan yana şartı yok;
+Lukaku → Man Utd+Roma+Napoli = 3). Snake-draft ile rekabetçi.
+
+- **Algoritma:** sadece kesişim sayma — adjacency yok → **Mod A'dan çok daha basit, en düşük riskli.**
+  Mod A'ya teknik ısınma olarak ideal.
+- **Dikkat:** 7'li seçim yine kürasyonlu-rastgele olmalı (7 alakasız kulüp → kimse bulamaz).
+
+### 🟨 Mod C — İki Takım Ortak Oyuncusu (online için en uygun)
+
+Ekrana 2 kulüp gelir; kullanıcı **her ikisinde de oynamış** futbolcuları bilir. Filtre: sorulan
+eşleşmenin **≥3 ortak cevabı** olsun (saçma eşleşme çıkmasın).
+
+- **ÜRETİLDİ (2026-06-05):** Top 75 havuzda **2775 çiftten 1308'i (%47) ≥3 ortak oyunculu** → filtre
+  çalışır, veri fazlasıyla yeter.
+- **Çıktı:** uygun çiftler + kabul edilen cevaplar → `clubPairs.json` (1.08 MB) hazır.
+- **Cevap doğrulama:** otomatik-tamamlamalı arama (mevcut `PlayerSearchBar`) — serbest metin değil (KOD).
+
+### Öncelik özeti
+
+| Mod | Veri | Ana zorluk | Karar |
+|---|---|---|---|
+| **A — Futbol Çinko** | ✅ logo+havuz hazır | Adjacency + **kürasyonlu matris üretimi** (kod) | En özgün/zor |
+| **B — Rastgele 7** | ✅ logo+havuz hazır | Kürasyonlu-rastgele 7'li (kod) | **En kolay — A'ya ısınma** |
+| **C — İki takım ortak (online)** | ✅ clubPairs.json (1308 çift, ≥3 cevap) | UI + cevap doğrulama (kod) | **Online'a en uygun** |
+
+> **Veri ön-koşulları ✅ tamamlandı (2026-06-05):** Kulüp logoları (top 120) + `clubPool.json` +
+> `clubPairs.json` hazır. **Kalan iş tamamen KOD:** (1) Kürasyonlu-rastgele üretim (çözülebilirlik
+> garantisi) — A & B'nin kalbi. (2) Otomatik-tamamlamalı isim girişi — B & C'de adil doğrulama.
+> **Hiç "yanlış" fikir yok**; tek uyarı: rastgelelik kürasyonlu olmalı, cevap havuzdan seçtirilmeli.
+
+---
+
+## 🕵️ "Futbol İmposter" — Sosyal Dedüksiyon Modu (Faz 2+ vizyon)
+
+> Among Us / kelime-çağrışım formatının ("Rayan Cherki") futbol + sosyal-dedüksiyon versiyonu.
+> **Diğer tüm modlardan kategorik olarak farklı:** statik soru/cevap değil, **canlı çok-oyunculu
+> gerçek-zamanlı** oyun. Tam karar günlüğü: [PLAN.md §16](PLAN.md).
+
+**Mekanik:** 5 oyuncu (4/6 da olabilir; 5 önerilen) online eşleşir, rastgele sıralanır. Biri gizli
+**imposter**'dır. Masumlara bir **kalburüstü** futbolcunun adı verilir; imposter'a verilmez —
+imposter'a oyuncuyla ilgili **bulanık ipucu** verilir. Her tur sırayla herkes kısa kelime yazar
+(anlık görünür). 3 tur + 1.5-2dk oylama → **imposter elenmezse kazanır** (berabere/masum elenirse de).
+
+| Boyut | Durum |
+|---|---|
+| **🔴 Altyapı** | **Hiç yok.** Realtime sunucu + lobi/matchmaking + senkron timer + gizli oylama + rol gizliliği (sunucu-otoritesi). **MVP-dışı → Faz 2+.** Diğer 6 mod backend'siz çalışır, bu çalışamaz. |
+| **🕵️ İpucu** | **Karar: kademeli "bulanık" ipucu** — pozisyon + milliyet/kıta + dönem + kupa sinyali (kimlik vermez, blöfe yeter). **Kulüp ASLA gösterilmez** (en ele-verici alan; "%30 kulüp" fikri tek/iki-kulüplü oyuncuda ifşa ediyor — örn. Musiala → "Bayern"). Zorluk = ipucu sayısı. |
+| **⌨️ Kelime** | Tek kelime/öbek, ~20 karakter, 1-2 kelime. Yasak: futbolcu adı + kulüp adları. |
+| **🗳️ Oy vermeyen** | **Karar: çekimser** (rastgele oy attırma adaleti bozar). Kronik AFK turdan düşürülür. |
+| **💬 Chat** | İlk sürüm chat'siz (sadece kelimeler + oylama); chat sonra (realtime'ın en zor parçası). |
+
+> Oyun tasarımı sağlam (Among Us iskeleti + futbol teması), ipucu için veri mevcut. Tek mesele:
+> **en yüksek maliyetli mod** (gerçek backend) ve doğru zamanı en son — önce realtime altyapı + yukarıdaki
+> 6 mod, imposter onların üstüne gelir.
 
 ---
 

@@ -1,0 +1,602 @@
+[
+  {
+    "id": "tm_36",
+    "name": "Fenerbahçe",
+    "country": "Türkiye",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/36.png",
+    "playerCount": 331,
+    "rank": 1
+  },
+  {
+    "id": "tm_141",
+    "name": "Galatasaray",
+    "country": "Türkiye",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/141.png",
+    "playerCount": 316,
+    "rank": 2
+  },
+  {
+    "id": "tm_449",
+    "name": "Trabzonspor",
+    "country": "Türkiye",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/449.png",
+    "playerCount": 296,
+    "rank": 3
+  },
+  {
+    "id": "tm_114",
+    "name": "Besiktas",
+    "country": "Türkiye",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/114.png",
+    "playerCount": 283,
+    "rank": 4
+  },
+  {
+    "id": "tm_5",
+    "name": "AC Milan",
+    "country": "Italy",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/5.png",
+    "playerCount": 261,
+    "rank": 5
+  },
+  {
+    "id": "tm_46",
+    "name": "Inter",
+    "country": "Italy",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/46.png",
+    "playerCount": 250,
+    "rank": 6
+  },
+  {
+    "id": "tm_506",
+    "name": "Juventus",
+    "country": "Italy",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/506.png",
+    "playerCount": 239,
+    "rank": 7
+  },
+  {
+    "id": "tm_131",
+    "name": "Barcelona",
+    "country": "Spain",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/131.png",
+    "playerCount": 227,
+    "rank": 8
+  },
+  {
+    "id": "tm_244",
+    "name": "Marseille",
+    "country": "France",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/244.png",
+    "playerCount": 220,
+    "rank": 9
+  },
+  {
+    "id": "tm_430",
+    "name": "Fiorentina",
+    "country": "Italy",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/430.png",
+    "playerCount": 215,
+    "rank": 10
+  },
+  {
+    "id": "tm_12",
+    "name": "Roma",
+    "country": "Italy",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/12.png",
+    "playerCount": 204,
+    "rank": 11
+  },
+  {
+    "id": "tm_20",
+    "name": "Bursaspor",
+    "country": "Türkiye",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/20.png",
+    "playerCount": 200,
+    "rank": 12
+  },
+  {
+    "id": "tm_418",
+    "name": "Real Madrid",
+    "country": "Spain",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/418.png",
+    "playerCount": 192,
+    "rank": 13
+  },
+  {
+    "id": "tm_631",
+    "name": "Chelsea",
+    "country": "England",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/631.png",
+    "playerCount": 188,
+    "rank": 14
+  },
+  {
+    "id": "tm_162",
+    "name": "Monaco",
+    "country": "Monaco",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/162.png",
+    "playerCount": 185,
+    "rank": 15
+  },
+  {
+    "id": "tm_27",
+    "name": "Bayern Munich",
+    "country": "Germany",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/27.png",
+    "playerCount": 181,
+    "rank": 16
+  },
+  {
+    "id": "tm_583",
+    "name": "PSG",
+    "country": "France",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/583.png",
+    "playerCount": 172,
+    "rank": 17
+  },
+  {
+    "id": "tm_13",
+    "name": "Atlético",
+    "country": "Spain",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/13.png",
+    "playerCount": 172,
+    "rank": 18
+  },
+  {
+    "id": "tm_252",
+    "name": "Genoa",
+    "country": "Italy",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/252.png",
+    "playerCount": 170,
+    "rank": 19
+  },
+  {
+    "id": "tm_1049",
+    "name": "Valencia",
+    "country": "Spain",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1049.png",
+    "playerCount": 168,
+    "rank": 20
+  },
+  {
+    "id": "tm_379",
+    "name": "West Ham",
+    "country": "England",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/379.png",
+    "playerCount": 167,
+    "rank": 21
+  },
+  {
+    "id": "tm_148",
+    "name": "Tottenham",
+    "country": "England",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/148.png",
+    "playerCount": 165,
+    "rank": 22
+  },
+  {
+    "id": "tm_1041",
+    "name": "Lyon",
+    "country": "France",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1041.png",
+    "playerCount": 165,
+    "rank": 23
+  },
+  {
+    "id": "tm_11",
+    "name": "Arsenal",
+    "country": "England",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/11.png",
+    "playerCount": 161,
+    "rank": 24
+  },
+  {
+    "id": "tm_281",
+    "name": "Man City",
+    "country": "England",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/281.png",
+    "playerCount": 160,
+    "rank": 25
+  },
+  {
+    "id": "tm_610",
+    "name": "Ajax",
+    "country": "Netherlands",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/610.png",
+    "playerCount": 159,
+    "rank": 26
+  },
+  {
+    "id": "tm_294",
+    "name": "Benfica",
+    "country": "Portugal",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/294.png",
+    "playerCount": 159,
+    "rank": 27
+  },
+  {
+    "id": "tm_31",
+    "name": "Liverpool",
+    "country": "England",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/31.png",
+    "playerCount": 157,
+    "rank": 28
+  },
+  {
+    "id": "tm_368",
+    "name": "Sevilla FC",
+    "country": "Spain",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/368.png",
+    "playerCount": 156,
+    "rank": 29
+  },
+  {
+    "id": "tm_6195",
+    "name": "Napoli",
+    "country": "Italy",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6195.png",
+    "playerCount": 151,
+    "rank": 30
+  },
+  {
+    "id": "tm_16",
+    "name": "Dortmund",
+    "country": "Germany",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/16.png",
+    "playerCount": 150,
+    "rank": 31
+  },
+  {
+    "id": "tm_405",
+    "name": "Aston Villa",
+    "country": "England",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/405.png",
+    "playerCount": 149,
+    "rank": 32
+  },
+  {
+    "id": "tm_683",
+    "name": "Olympiacos",
+    "country": "Greece",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/683.png",
+    "playerCount": 147,
+    "rank": 33
+  },
+  {
+    "id": "tm_762",
+    "name": "Newcastle",
+    "country": "England",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/762.png",
+    "playerCount": 147,
+    "rank": 34
+  },
+  {
+    "id": "tm_398",
+    "name": "Lazio",
+    "country": "Italy",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/398.png",
+    "playerCount": 146,
+    "rank": 35
+  },
+  {
+    "id": "tm_985",
+    "name": "Man Utd",
+    "country": "England",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/985.png",
+    "playerCount": 145,
+    "rank": 36
+  },
+  {
+    "id": "tm_1038",
+    "name": "Sampdoria",
+    "country": "Italy",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1038.png",
+    "playerCount": 145,
+    "rank": 37
+  },
+  {
+    "id": "tm_15",
+    "name": "Leverkusen",
+    "country": "Germany",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/15.png",
+    "playerCount": 144,
+    "rank": 38
+  },
+  {
+    "id": "tm_800",
+    "name": "Atalanta",
+    "country": "Italy",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/800.png",
+    "playerCount": 144,
+    "rank": 39
+  },
+  {
+    "id": "tm_416",
+    "name": "Torino",
+    "country": "Italy",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/416.png",
+    "playerCount": 142,
+    "rank": 40
+  },
+  {
+    "id": "tm_33",
+    "name": "FC Schalke 04",
+    "country": "Germany",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/33.png",
+    "playerCount": 141,
+    "rank": 41
+  },
+  {
+    "id": "tm_336",
+    "name": "Sporting",
+    "country": "Portugal",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/336.png",
+    "playerCount": 138,
+    "rank": 42
+  },
+  {
+    "id": "tm_6890",
+    "name": "Basaksehir",
+    "country": "Türkiye",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6890.png",
+    "playerCount": 138,
+    "rank": 43
+  },
+  {
+    "id": "tm_720",
+    "name": "Porto",
+    "country": "Portugal",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/720.png",
+    "playerCount": 137,
+    "rank": 44
+  },
+  {
+    "id": "tm_273",
+    "name": "Stade Rennais",
+    "country": "France",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/273.png",
+    "playerCount": 135,
+    "rank": 45
+  },
+  {
+    "id": "tm_41",
+    "name": "Hamburg",
+    "country": "Germany",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/41.png",
+    "playerCount": 134,
+    "rank": 46
+  },
+  {
+    "id": "tm_589",
+    "name": "Antalyaspor",
+    "country": "Türkiye",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/589.png",
+    "playerCount": 134,
+    "rank": 47
+  },
+  {
+    "id": "tm_868",
+    "name": "Ankaragücü",
+    "country": "Türkiye",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/868.png",
+    "playerCount": 133,
+    "rank": 48
+  },
+  {
+    "id": "tm_126",
+    "name": "C. Rizespor",
+    "country": "Türkiye",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/126.png",
+    "playerCount": 133,
+    "rank": 49
+  },
+  {
+    "id": "tm_130",
+    "name": "Parma",
+    "country": "Italy",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/130.png",
+    "playerCount": 132,
+    "rank": 50
+  },
+  {
+    "id": "tm_29",
+    "name": "Everton",
+    "country": "England",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/29.png",
+    "playerCount": 131,
+    "rank": 51
+  },
+  {
+    "id": "tm_79",
+    "name": "Stuttgart",
+    "country": "Germany",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/79.png",
+    "playerCount": 129,
+    "rank": 52
+  },
+  {
+    "id": "tm_383",
+    "name": "PSV",
+    "country": "Netherlands",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/383.png",
+    "playerCount": 129,
+    "rank": 53
+  },
+  {
+    "id": "tm_1082",
+    "name": "Lille",
+    "country": "France",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1082.png",
+    "playerCount": 129,
+    "rank": 54
+  },
+  {
+    "id": "tm_24",
+    "name": "Frankfurt",
+    "country": "Germany",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/24.png",
+    "playerCount": 128,
+    "rank": 55
+  },
+  {
+    "id": "tm_40",
+    "name": "G. Bordeaux",
+    "country": "France",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/40.png",
+    "playerCount": 126,
+    "rank": 56
+  },
+  {
+    "id": "tm_3",
+    "name": "1.FC Köln",
+    "country": "Germany",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3.png",
+    "playerCount": 124,
+    "rank": 57
+  },
+  {
+    "id": "tm_58",
+    "name": "RSC Anderlecht",
+    "country": "Belgium",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/58.png",
+    "playerCount": 123,
+    "rank": 58
+  },
+  {
+    "id": "tm_1050",
+    "name": "Villarreal",
+    "country": "Spain",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1050.png",
+    "playerCount": 123,
+    "rank": 59
+  },
+  {
+    "id": "tm_82",
+    "name": "Wolfsburg",
+    "country": "Germany",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/82.png",
+    "playerCount": 122,
+    "rank": 60
+  },
+  {
+    "id": "tm_714",
+    "name": "Espanyol",
+    "country": "Spain",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/714.png",
+    "playerCount": 121,
+    "rank": 61
+  },
+  {
+    "id": "tm_931",
+    "name": "Fulham",
+    "country": "England",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/931.png",
+    "playerCount": 119,
+    "rank": 62
+  },
+  {
+    "id": "tm_820",
+    "name": "Genclerbirligi",
+    "country": "Türkiye",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/820.png",
+    "playerCount": 118,
+    "rank": 63
+  },
+  {
+    "id": "tm_234",
+    "name": "Feyenoord",
+    "country": "Netherlands",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/234.png",
+    "playerCount": 117,
+    "rank": 64
+  },
+  {
+    "id": "tm_3205",
+    "name": "Kayserispor",
+    "country": "Türkiye",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3205.png",
+    "playerCount": 116,
+    "rank": 65
+  },
+  {
+    "id": "tm_2293",
+    "name": "Konyaspor",
+    "country": "Türkiye",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2293.png",
+    "playerCount": 115,
+    "rank": 66
+  },
+  {
+    "id": "tm_180",
+    "name": "Southampton",
+    "country": "England",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/180.png",
+    "playerCount": 113,
+    "rank": 67
+  },
+  {
+    "id": "tm_86",
+    "name": "Werder Bremen",
+    "country": "Germany",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/86.png",
+    "playerCount": 111,
+    "rank": 68
+  },
+  {
+    "id": "tm_18",
+    "name": "Mönchengladbach",
+    "country": "Germany",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/18.png",
+    "playerCount": 110,
+    "rank": 69
+  },
+  {
+    "id": "tm_371",
+    "name": "Celtic",
+    "country": "Scotland",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/371.png",
+    "playerCount": 110,
+    "rank": 70
+  },
+  {
+    "id": "tm_995",
+    "name": "FC Nantes",
+    "country": "France",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/995.png",
+    "playerCount": 109,
+    "rank": 71
+  },
+  {
+    "id": "tm_826",
+    "name": "Lens",
+    "country": "France",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/826.png",
+    "playerCount": 107,
+    "rank": 72
+  },
+  {
+    "id": "tm_44",
+    "name": "Hertha BSC",
+    "country": "Germany",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/44.png",
+    "playerCount": 106,
+    "rank": 73
+  },
+  {
+    "id": "tm_417",
+    "name": "Nice",
+    "country": "France",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/417.png",
+    "playerCount": 106,
+    "rank": 74
+  },
+  {
+    "id": "tm_150",
+    "name": "Real Betis",
+    "country": "Spain",
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/150.png",
+    "playerCount": 104,
+    "rank": 75
+  }
+]

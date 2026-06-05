@@ -8,6 +8,14 @@ export interface Club {
   lat: number;
   lng: number;
   founded?: number;
+  /** Kulüp amblemi (TM crestUrl). Popüler kulüplerde dolu — kulüp-bazlı modlar için. */
+  crestUrl?: string;
+  /** Kulüp renkleri (logo fallback / tema). */
+  colors?: {
+    primary?: string;
+    secondary?: string;
+    tertiary?: string;
+  };
 }
 
 export type Continent =

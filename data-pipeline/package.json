@@ -14,6 +14,10 @@
     "scrape:lists": "tsx scripts/scrape/rankedLists.ts",
     "reprocess:competitions": "tsx scripts/scrape/competitionStats.ts",
     "enrich:seed": "tsx scripts/scrape/enrichSeed.ts",
+    "enrich:logos": "tsx scripts/scrape/enrichClubLogos.ts",
+    "enrich:marketvalues": "tsx scripts/scrape/enrichMarketValues.ts",
+    "build:clubpool": "tsx scripts/buildClubPool.ts",
+    "build:clubpairs": "tsx scripts/buildClubPairs.ts",
     "scrape:all": "pnpm scrape:list && pnpm scrape:players && pnpm scrape:merge",
     "typecheck": "tsc --noEmit"
   },

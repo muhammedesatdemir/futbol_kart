@@ -17,6 +17,16 @@ export const clubSchema = z.object({
   lat: z.number(),
   lng: z.number(),
   founded: z.number().optional(),
+  // Kulüp-bazlı modlar (çinko, eşleşme, kariyer-yolu) için amblem + renk.
+  // enrichClubLogos.ts ile TM'den çekilir; popüler kulüplerde dolu, diğerlerinde yok.
+  crestUrl: z.string().url().optional(),
+  colors: z
+    .object({
+      primary: z.string().optional(),
+      secondary: z.string().optional(),
+      tertiary: z.string().optional(),
+    })
+    .optional(),
 });
 export type ClubInput = z.infer<typeof clubSchema>;
 

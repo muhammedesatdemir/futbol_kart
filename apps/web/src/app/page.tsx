@@ -106,21 +106,18 @@ export default async function HomePage() {
             emoji="✖️"
             title={t('joker1Title')}
             body={t('joker1Body')}
-            tooltip={t('joker1Body')}
             delay={0}
           />
           <JokerInfoCard
             emoji="👁"
             title={t('joker2Title')}
             body={t('joker2Body')}
-            tooltip={t('joker2Body')}
             delay={0.06}
           />
           <JokerInfoCard
             emoji="🔄"
             title={t('joker3Title')}
             body={t('joker3Body')}
-            tooltip={t('joker3Body')}
             delay={0.12}
           />
         </div>
@@ -138,7 +135,6 @@ export default async function HomePage() {
             emoji="💡"
             title={t('jokerSuggestTitle')}
             body={t('jokerSuggestBody')}
-            tooltip={t('jokerSuggestTooltip')}
             delay={0}
           />
         </div>
@@ -156,7 +152,6 @@ export default async function HomePage() {
             emoji="🔍"
             title={t('jokerXrayTitle')}
             body={t('jokerXrayBody')}
-            tooltip={t('jokerXrayTooltip')}
             delay={0}
           />
         </div>

@@ -6,6 +6,7 @@ import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
 import { CountdownRing } from '@/components/CountdownRing';
 import { XrayJokerButton } from '@/components/scenes/TargetXrayOverlay';
+import { JokerHelpButton } from '@/components/JokerHelpButton';
 import { cn } from '@/lib/cn';
 import { SLOT_COUNT, type TargetCriterion, type TargetPicks } from '@/lib/targetMode';
 
@@ -203,12 +204,17 @@ export function TargetBuildScene({
         })}
       </div>
 
-      {/* Joker barı */}
-      <div className="flex items-center justify-center">
+      {/* Joker barı — buton + (?) ipucu (VS Düello deseni) */}
+      <div className="flex items-center justify-center gap-2">
         <XrayJokerButton
           available={xrayAvailable}
           armed={xrayArmed}
           onClick={onToggleXray}
+        />
+        <JokerHelpButton
+          title="Röntgen Jokeri"
+          icon={<span className="text-sm">🔍</span>}
+          body="Kart seçmeden önce havuzdaki bir oyuncunun o sorudaki gizli değerini açtır. Jokere bas, bir karta dokun: değeri açılır. İstersen kadrona kat, istemezsen vazgeç. Taraf başına maçta 1 kez."
         />
       </div>
 

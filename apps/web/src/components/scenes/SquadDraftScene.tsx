@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
 import { CountdownRing } from '@/components/CountdownRing';
+import { JokerHelpButton } from '@/components/JokerHelpButton';
 import { cn } from '@/lib/cn';
 import {
   type Formation,
@@ -171,11 +172,16 @@ export function SquadDraftScene({
         />
       </div>
 
-      {/* Joker barı */}
-      <div className="flex items-center justify-center">
+      {/* Joker barı — buton + (?) ipucu (VS Düello deseni) */}
+      <div className="flex items-center justify-center gap-2">
         <JokerButton
           available={jokerAvailable}
           onClick={onUseJoker}
+        />
+        <JokerHelpButton
+          title="Öneri Jokeri"
+          icon={<span className="text-sm">💡</span>}
+          body="Sıradaki mevki için sistem en uygun oyuncuyu önerir — o kritere göre havuzdaki en iyi uygun oyuncu, değeriyle birlikte. Beğenirsen koy, beğenmezsen kendin seçmeye devam et. Maçta 1 kez."
         />
       </div>
 

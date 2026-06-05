@@ -38,10 +38,8 @@
     "jokerModeTarget": "Hedefe Yaklaş",
     "jokerSuggestTitle": "Öneri Jokeri",
     "jokerSuggestBody": "Sıradaki mevki için sistem en uygun oyuncuyu önerir — istatistiğiyle birlikte. Beğenirsen koy, beğenmezsen geç.",
-    "jokerSuggestTooltip": "Aktif mevkide takıldığında bas: o kritere göre havuzdaki en iyi uygun oyuncu, değeriyle birlikte önerilir. Kabul et ya da kendin seçmeye devam et. Maçta 1 kez.",
     "jokerXrayTitle": "Röntgen Jokeri",
-    "jokerXrayBody": "Kart seçmeden önce havuzdaki bir oyuncunun o sorudaki gizli değerini açtır — sonra kadrona kat ya da vazgeç.",
-    "jokerXrayTooltip": "Jokere bas, havuzdan bir karta dokun: o oyuncunun gizli metrik değeri açılır. İstersen kadrona eklersin, istemezsen vazgeçersin. Taraf başına maçta 1 kez."
+    "jokerXrayBody": "Kart seçmeden önce havuzdaki bir oyuncunun o sorudaki gizli değerini açtır — sonra kadrona kat ya da vazgeç."
   },
   "demo": {
     "kicker": "Kart önizleme",

@@ -39,6 +39,7 @@ CREATE TABLE "match" (
 	"p2_user_id" text NOT NULL,
 	"current_scene" text,
 	"state" jsonb NOT NULL,
+	"flow_state" jsonb,
 	"turn_deadline" timestamp with time zone,
 	"winner_side" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,

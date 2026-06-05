@@ -2,6 +2,10 @@ export interface PRNG {
   next(): number;
   pick<T>(arr: readonly T[]): T;
   shuffle<T>(arr: readonly T[]): T[];
+  /** İç durumu (tek sayı) — serileştirip sonra restore etmek için. */
+  getState(): number;
+  /** İç durumu geri yükler (sunucu-otoriteli online'da kaldığı yerden devam). */
+  setState(state: number): void;
 }
 
 function hashSeed(seed: string): number {
@@ -36,6 +40,12 @@ export function createPRNG(seed: string): PRNG {
         [out[i], out[j]] = [out[j]!, out[i]!];
       }
       return out;
+    },
+    getState() {
+      return a;
+    },
+    setState(state: number) {
+      a = state | 0;
     },
   };
 }

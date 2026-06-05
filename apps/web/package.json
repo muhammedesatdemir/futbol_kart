@@ -14,6 +14,7 @@
     "@futbol-kart/game-engine": "workspace:*",
     "@futbol-kart/question-templates": "workspace:*",
     "@futbol-kart/shared-types": "workspace:*",
+    "ably": "^2.21.0",
     "better-auth": "^1.2.1",
     "canvas-confetti": "^1.9.4",
     "clsx": "^2.1.1",

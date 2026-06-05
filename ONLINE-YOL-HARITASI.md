@@ -15,12 +15,26 @@
 - **Oyun motoru ortak pakete taşındı** — Gerçek oyun mantığı (sessionMachine, gameFlow, gameConstants, jokers, bonusConditions, bonusSelection) `apps/web/src/lib/` → `packages/game-engine/` taşındı. Eski ölü taslak (reducer/validate/events/bot) silindi. 16 dosyada import güncellendi. **Tek kural seti** artık web+sunucu+mobil için hazır. Tüm workspace typecheck temiz.
 - **Sunucu-otoriteli motor (kavram ispatı)** — `apps/web/src/lib/server/matchEngine.ts` (game-engine'i sunucuda çalıştırıp hamleyi doğrular/çözer, doğru cevabı sızdırmaz) + `apps/web/src/app/api/match/[matchId]/move/route.ts` (yetki + doğrulama + DB yazımı + güvenli yanıt). Typecheck temiz.
 
+- **Online mod (GameMode 'online')** — reducer eşzamanlı akış için uyarlandı (el seçimi + bonus eşzamanlı, HANDOFF yok). `game.ts` GameMode.
+- **Matchmaking** — `lib/server/matchmaking.ts` (kuyruk, FIFO eşleştirme, maç oluşturma) + `api/matchmaking` (POST/GET/DELETE).
+- **Deterministik soru seçimi** — game-engine'e FlowState serileştirme (`serializeFlowState`/`restoreFlowState`, PRNG getState/setState). `match.flowState` jsonb kolonu. Soru seçimi sunucu-otoriteli + kaldığı yerden devam (replay yok).
+- **Genişletilmiş move API** — action-tabanlı (`submit-hand` / `play-card`), otomatik tur başlatma + çözüm, audit log, Ably publish.
+- **Ably realtime** — `lib/server/ably.ts` (publish + token) + `api/match/[id]/ably-token`. Key yoksa polling'e düşer (graceful).
+- **Online UI** — mod seçiminde "🌐 Online" kartı → `/online` (eşleşme bekleme) → eşleşince `/oyna-online/[matchId]`.
+- **Online maç sayfası** — `/oyna-online/[matchId]` + `useOnlineMatch` hook (maç yükle, move gönder, Ably/polling dinle). Temel dilim: el seçimi → kart oynama → tur sonucu. **Production build geçiyor.**
+
+- **Online jokerler (Çarpan + İstatistik-Gör)** — sunucu-otoriteli. Move API'ye `use-multiplier` / `use-reveal` action'ları. Çarpan: kart oynamadan önce pendingMultiplier set eder, çözümde uygulanır. İstatistik-Gör: kendi elinin değerlerini SUNUCUDA hesaplar, YALNIZCA o oyuncuya döner (rakibinki sızmaz — hile koruması). `useOnlineMatch` + online maç sayfasında joker barı + reveal rozetleri. Build geçiyor.
+
+- **Transfer jokeri (online)** — sunucu-otoriteli tek-atımlık takas. `applyTransferJoker` (doğrula+swap), move API `transfer` action, `transfer-options` endpoint (rakibin transfer-edilebilir kartlarını AÇMA anında verir). Kurallar: kart oynamadan önce, ilk-gelen-kazanır (turda tek transfer), fazın son turunda kapalı. Tabela her iki tarafa açık (`TransferBoard`). **Reducer:** online'da TRANSFER_EXECUTE → ROUND_PLAY'de kalır (ara sahne yok).
+- **🔒 Rakip eli gizliliği** — `GET /api/match` artık rakibin elini MASKELER (kart id'leri gizli, sadece sayısı). Düz oyunda F12'den kart sayma engellendi. Rakip eli yalnızca transfer açılınca `transfer-options`'tan (transfer-edilebilir kartlarla sınırlı) gelir.
+
 ⏳ **Sıradaki:**
-- DB migration'ı Neon'a uygula (mevcut tablolarla çakışma kontrolüyle).
-- Matchmaking kuyruğu + maç oluşturma (Faz 4).
-- Ably realtime kanalı (Faz 3).
-- Online giriş kapısı UI + "Online oyna" kutusu (Faz 1.3).
-- Uçtan uca bir online maç simülasyonu (kavram ispatını gerçek veriyle doğrula).
+- **Senin kurulumun:** Neon DB (`DATABASE_URL`) → migration uygula; Google OAuth env; Ably key (opsiyonel).
+- Uçtan uca canlı test (iki tarayıcı, gerçek eşleşme) — DB bağlanınca.
+- Bonus mekaniği (3 zorunlu kategori), faz geçişleri (uzatma/sudden), süre/deadline.
+- Reconnect/kopma dayanıklılığı, rating hesabı (Elo), diğer modlara yayma.
+
+> **3 jokerin hepsi online'da hazır:** Çarpan (×2/÷2), İstatistiği Gör (gizli, sadece kendi eli), Transfer (açık takas). Hepsi sunucu-otoriteli + hile-korumalı.
 
 ⚠️ **Bilinen sınırlar / notlar:**
 - Sunucu motoru `loadGameData()` ile 25MB players.json'u `fs`'ten okuyor (cache'li ama ağır) → **Faz 0** ile maç-başına ince veri yüklemeye geçilecek.

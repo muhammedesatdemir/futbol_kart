@@ -175,6 +175,12 @@ export const match = pgTable(
     currentScene: text('current_scene'),
     /** Kaynak-doğru SessionState — her doğrulanmış hamleden sonra güncellenir. */
     state: jsonb('state').notNull(),
+    /**
+     * FlowContext'in tur-akışı durumu (FlowState: PRNG + usedQuestionIds +
+     * params). Soru seçimini deterministik kılar — sunucu her turda buradan
+     * yükler, seçer, geri yazar. SessionState'ten ayrı tutulur (onu kirletmez).
+     */
+    flowState: jsonb('flow_state'),
     /** Aktif turun sunucu-otoriteli bitiş anı (süre dolunca otomatik çözüm). */
     turnDeadline: timestamp('turn_deadline', { withTimezone: true }),
     /** 'P1' | 'P2' | 'tie' | null (bitmeden null). */

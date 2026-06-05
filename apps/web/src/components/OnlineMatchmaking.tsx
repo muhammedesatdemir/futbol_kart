@@ -31,7 +31,7 @@ export function OnlineMatchmaking({ onCancel }: { onCancel: () => void }) {
   const goToMatch = useCallback(
     (matchId: string) => {
       setPhase('matched');
-      router.push(`/oyna/${matchId}?online=1`);
+      router.push(`/oyna-online/${matchId}`);
     },
     [router],
   );

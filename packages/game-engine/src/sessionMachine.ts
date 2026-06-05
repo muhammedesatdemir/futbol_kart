@@ -559,7 +559,9 @@ export function reduceSession(
         ],
         transferOpenSide: null,
         transferThisRound: event.side,
-        scene: 'ROUND_INTRO',
+        // Online: ROUND_TRANSFER ara sahnesi yok; tek atımlık swap → ROUND_PLAY'de
+        // kal (oyuncu kart oynamaya devam eder). Diğer modlar ROUND_INTRO'ya döner.
+        scene: state.mode === 'online' ? 'ROUND_PLAY' : 'ROUND_INTRO',
       };
     }
 

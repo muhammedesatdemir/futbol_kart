@@ -48,6 +48,45 @@ export function createFlowContext(
   };
 }
 
+/**
+ * FlowContext'in TUR-AKIŞI durumu (oyuncu/kulüp verisi HARİÇ — onlar seed'den
+ * sabit). Sunucu-otoriteli online'da bu durum match.state'e kaydedilir; her
+ * istekte restoreFlowState ile geri yüklenerek soru seçimi deterministik
+ * (client + sunucu birebir aynı) kalır. Bkz ONLINE-YOL-HARITASI.md.
+ */
+export interface FlowState {
+  /** PRNG iç durumu (createPRNG.getState). */
+  prngState: number;
+  /** Bu maçta kullanılmış soru id'leri. */
+  usedQuestionIds: string[];
+  /** Parametrik sorular için üretilmiş değerler (questionId → params). */
+  params: Array<[string, TemplateParams]>;
+  /** Son seçilen sorunun kategorisi. */
+  lastCategory?: string;
+}
+
+/** FlowContext'in tur-akışı durumunu serileştirir (DB'ye yazmak için). */
+export function serializeFlowState(ctx: FlowContext): FlowState {
+  return {
+    prngState: ctx.prng.getState(),
+    usedQuestionIds: [...ctx.usedQuestionIds],
+    params: [...ctx.paramsByQuestion.entries()],
+    lastCategory: ctx.lastCategory,
+  };
+}
+
+/**
+ * Kaydedilmiş tur-akışı durumunu taze bir FlowContext'e geri yükler.
+ * `createFlowContext(seed, players, clubs)` ile kurulan context'e uygulanır →
+ * PRNG ve seçim geçmişi kaldığı yerden devam eder (replay'e gerek yok).
+ */
+export function restoreFlowState(ctx: FlowContext, state: FlowState): void {
+  ctx.prng.setState(state.prngState);
+  ctx.usedQuestionIds = new Set(state.usedQuestionIds);
+  ctx.paramsByQuestion = new Map(state.params);
+  ctx.lastCategory = state.lastCategory;
+}
+
 export function pickQuestion(
   ctx: FlowContext,
   p1CardIds: string[],

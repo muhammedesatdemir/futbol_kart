@@ -1,5 +1,5 @@
 {
-  "id": "4989f60b-4f36-4732-89f9-c3d51d9f3fb7",
+  "id": "57f9a018-9c65-4d74-9124-516f90009609",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "version": "7",
   "dialect": "postgresql",
@@ -354,6 +354,12 @@
           "type": "jsonb",
           "primaryKey": false,
           "notNull": true
+        },
+        "flow_state": {
+          "name": "flow_state",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
         },
         "turn_deadline": {
           "name": "turn_deadline",

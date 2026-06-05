@@ -291,6 +291,13 @@ export function reduceSession(
       return { ...state, p1Name: event.p1Name, p2Name: event.p2Name };
 
     case 'HAND_SUBMITTED': {
+      // Online: el seçimi EŞZAMANLI ve ayrı cihazlarda. Reducer her eli bağımsız
+      // set eder; sahne geçişini (iki el de gelince ROUND_INTRO) SUNUCU yönetir
+      // (cihaz devri/HANDOFF yok). Bkz ONLINE-YOL-HARITASI.md.
+      if (state.mode === 'online') {
+        const key = event.side === 'P1' ? 'p1Hand' : 'p2Hand';
+        return { ...state, [key]: event.cards };
+      }
       if (event.side === 'P1') {
         if (state.mode === 'vs-bot') {
           return { ...state, p1Hand: event.cards, scene: 'ROUND_INTRO' };
@@ -472,6 +479,11 @@ export function reduceSession(
     case 'BONUS_CONFIRMED': {
       // Hotseat: P1 onaylayınca P2'ye geç; P2 onaylayınca tura başla.
       // Vs-bot: P1 onaylayınca (P2 zaten otomatik atanmış) tura başla.
+      // Online: bonus atama EŞZAMANLI; reducer onayı kaydeder, iki taraf da
+      // onaylayınca ROUND_INTRO'ya geçişi SUNUCU yapar (sahne değiştirmez).
+      if (state.mode === 'online') {
+        return state;
+      }
       if (event.side === 'P1' && state.mode === 'hotseat') {
         return { ...state, bonusAssignSide: 'P2' };
       }

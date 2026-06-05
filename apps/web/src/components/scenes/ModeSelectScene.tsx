@@ -8,9 +8,11 @@ import { cn } from '@/lib/cn';
 
 interface ModeSelectSceneProps {
   onPick: (mode: GameMode) => void;
+  /** Online eşleşme akışını başlatır (giriş kontrolü + kuyruğa girme). */
+  onOnline?: () => void;
 }
 
-export function ModeSelectScene({ onPick }: ModeSelectSceneProps) {
+export function ModeSelectScene({ onPick, onOnline }: ModeSelectSceneProps) {
   const t = useTranslations('newGame');
   return (
     <section className="flex flex-col gap-10">
@@ -21,13 +23,25 @@ export function ModeSelectScene({ onPick }: ModeSelectSceneProps) {
         <p className="mt-3 text-white/65">{t('subtitle')}</p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className="grid gap-4 sm:grid-cols-3">
+        {onOnline && (
+          <ModeCard
+            emoji="🌐"
+            icon={<SwordsIcon size={28} />}
+            title={t('onlineTitle')}
+            body={t('onlineBody')}
+            cta={t('onlineCta')}
+            delay={0}
+            onClick={onOnline}
+            accent
+          />
+        )}
         <ModeCard
           emoji="👥"
           icon={<CardsIcon size={28} />}
           title={t('hotseatTitle')}
           body={t('hotseatBody')}
-          delay={0}
+          delay={0.08}
           onClick={() => onPick('hotseat')}
         />
         <ModeCard
@@ -35,9 +49,8 @@ export function ModeSelectScene({ onPick }: ModeSelectSceneProps) {
           icon={<SwordsIcon size={28} />}
           title={t('vsBotTitle')}
           body={t('vsBotBody')}
-          delay={0.08}
+          delay={0.16}
           onClick={() => onPick('vs-bot')}
-          accent
         />
       </div>
     </section>
@@ -52,9 +65,10 @@ interface ModeCardProps {
   delay: number;
   onClick: () => void;
   accent?: boolean;
+  cta?: string;
 }
 
-function ModeCard({ emoji, icon, title, body, delay, onClick, accent }: ModeCardProps) {
+function ModeCard({ emoji, icon, title, body, delay, onClick, accent, cta }: ModeCardProps) {
   return (
     <motion.button
       type="button"
@@ -83,7 +97,7 @@ function ModeCard({ emoji, icon, title, body, delay, onClick, accent }: ModeCard
         <p className="mt-1 text-sm leading-relaxed text-white/65">{body}</p>
       </div>
       <span className="mt-auto inline-flex items-center gap-2 text-sm font-semibold text-accent-goldHi">
-        <PlayIcon size={14} /> Seç
+        <PlayIcon size={14} /> {cta ?? 'Seç'}
       </span>
     </motion.button>
   );

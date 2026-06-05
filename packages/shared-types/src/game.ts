@@ -9,7 +9,7 @@ export type GamePhase =
   | 'ROUND_RESULT'
   | 'FINAL';
 
-export type GameMode = 'hotseat' | 'vs-bot';
+export type GameMode = 'hotseat' | 'vs-bot' | 'online';
 
 export type PlayerSide = 'P1' | 'P2';
 

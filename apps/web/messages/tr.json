@@ -53,12 +53,15 @@
   },
   "newGame": {
     "title": "Nasıl oynamak istersin?",
-    "subtitle": "İki modumuz var — birini seç, başlayalım.",
+    "subtitle": "Üç modumuz var — birini seç, başlayalım.",
     "hotseatTitle": "Arkadaşına Karşı",
     "hotseatBody": "İki oyuncu aynı ekranda sırayla oynar. Telefonu birbirine geçirerek kart seçersiniz.",
     "vsBotTitle": "Bota karşı",
     "vsBotBody": "Tek başına oyna; bot rastgele kart sürer. Akışı öğrenmek ve denemek için ideal.",
-    "start": "Devam"
+    "start": "Devam",
+    "onlineTitle": "Online Eşleşme",
+    "onlineBody": "Gerçek bir rakiple eşleş, süreye karşı kapış. Giriş gerekir.",
+    "onlineCta": "Rakip ara"
   },
   "pick": {
     "title": "Kartlarını seç",

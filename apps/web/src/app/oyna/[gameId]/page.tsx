@@ -159,6 +159,9 @@ export default function GameSessionPage() {
     [dispatch],
   );
 
+  // Online eşleşme: ayrı /online route'una git (eşleşme akışı izole).
+  const onOnline = useCallback(() => router.push('/online'), [router]);
+
   // Faz-bilinçli "← Geri":
   //  - Oyun-modu seçimi (pickedMode=null): geri yok (önceki sayfa zaten ana sayfa).
   //  - Rakip seçimi (MODE_SELECT + pickedMode='vs'): oyun-modu seçimine dön.
@@ -863,7 +866,7 @@ export default function GameSessionPage() {
 
         {state.scene === 'MODE_SELECT' && pickedMode === 'vs' && (
           <SceneShell sceneKey="mode" key="mode">
-            <ModeSelectScene onPick={onModeChosen} />
+            <ModeSelectScene onPick={onModeChosen} onOnline={onOnline} />
           </SceneShell>
         )}
 

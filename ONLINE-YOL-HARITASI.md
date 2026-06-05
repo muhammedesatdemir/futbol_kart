@@ -175,6 +175,10 @@ Her faz bağımsız olarak test edilebilir ve "çalışan ürün" bırakır. Ver
 
 **Sorun:** 25MB `players.json` her açılışta iniyor.
 
+> **✅ Hızlı kazanç yapıldı (2026-06-05):** Ölçüm bulgusu — players.json ham 26MB ama gzip'le **2.4MB**, brotli'yle **1.3MB** (JSON çok sıkışıyor). Asıl sorun boyut değil, `Cache-Control: max-age=0` idi: tarayıcı **her açılışta yeniden indiriyordu**. `next.config.mjs`'e `/data/*` için `max-age=86400, stale-while-revalidate=604800` eklendi → bir kez inip cache'lenir. Dev gzip sunuyor; Vercel prod otomatik brotli (~1.3MB) sunar. **Mimari değişiklik yapılmadı.**
+>
+> **Alan analizi (lazy-load için, henüz UYGULANMADI):** `stats` (%30) kalmalı — kart seçim/filtreleme tüm oyuncularda kullanıyor. `achievements` (%22.6) ve `clubs` dizisi (%35) **çıkarılabilir** — yalnızca tur çözümünde (2 kart) kullanılıyor, maç anında çekilebilir → ek ~%45-50 tasarruf. Risk: resolver + matchEngine'i etkiler, dikkatli test gerekir. **İleride değerlendir.**
+
 **Adımlar:**
 - [ ] **0.1** Veriyi ölç: hangi alanlar gerçekten oyun anında lazım? Çoğu oyuncu metası (koordinat, başarılar) yalnızca bazı sorularda gerekir.
 - [ ] **0.2 (Hızlı kazanç)** İki katmana böl:

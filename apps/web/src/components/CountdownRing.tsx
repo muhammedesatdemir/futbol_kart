@@ -6,6 +6,13 @@ import { cn } from '@/lib/cn';
 interface CountdownRingProps {
   /** Toplam süre (saniye). */
   seconds: number;
+  /**
+   * ONLINE: sunucu-otoriteli bitiş anı (epoch ms). Verilirse geri sayım buna
+   * KİLİTLENİR — kalan = deadline - now. Böylece sayfaya geç dönen oyuncu da
+   * doğru kalan süreyi görür ve iki tarafta süre EŞ akar (lokal `seconds`
+   * sayımı yerine). `seconds` yalnızca halkanın tam-oranı için referans kalır.
+   */
+  deadlineMs?: number | null;
   /** Süre dolunca bir kez çağrılır. */
   onComplete: () => void;
   /**
@@ -39,6 +46,7 @@ interface CountdownRingProps {
  */
 export function CountdownRing({
   seconds,
+  deadlineMs = null,
   onComplete,
   runKey = 'once',
   color = '#f0c14b',
@@ -78,6 +86,27 @@ export function CountdownRing({
       onCompleteRef.current();
     };
 
+    // ONLINE (deadline-tabanlı): kalan süreyi sunucu deadline'ından hesapla.
+    // Sayfaya geç dönen oyuncu doğru kalanı görür; iki tarafta süre EŞ akar.
+    if (deadlineMs != null) {
+      const deadlineTick = () => {
+        if (pausedRef.current) {
+          raf = requestAnimationFrame(deadlineTick);
+          return;
+        }
+        const remainingMs = deadlineMs - Date.now();
+        const r = Math.max(0, Math.min(1, remainingMs / totalMs));
+        setRatio(r);
+        if (remainingMs <= 0) {
+          finish();
+          return;
+        }
+        raf = requestAnimationFrame(deadlineTick);
+      };
+      raf = requestAnimationFrame(deadlineTick);
+      return () => cancelAnimationFrame(raf);
+    }
+
     if (reduce) {
       // Animasyonsuz: sade timeout (sayaç güncellenmez ama süre işler).
       const id = setTimeout(finish, totalMs);
@@ -110,9 +139,9 @@ export function CountdownRing({
     raf = requestAnimationFrame(tick);
 
     return () => cancelAnimationFrame(raf);
-    // runKey değişince yeniden başlar; seconds sabit varsayılır.
+    // runKey/deadline değişince yeniden başlar; seconds sabit varsayılır.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [runKey, seconds]);
+  }, [runKey, seconds, deadlineMs]);
 
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;

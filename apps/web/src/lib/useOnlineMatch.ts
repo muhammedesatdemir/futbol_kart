@@ -74,7 +74,10 @@ export interface RevealedValue {
   value: number | boolean | null;
 }
 
-const POLL_MS = 2500;
+// Polling nabzı. Süre dolumunu yeterince çabuk yakalamak için sık (1.5sn).
+// Ably bağlıyken anlık güncellemeler zaten gelir; bu nabız deadline kontrolü
+// + "ekrandan bağımsız ilerleme" için. Ably ücretsiz katmanı bu yükü kaldırır.
+const POLL_MS = 1500;
 
 export function useOnlineMatch(matchId: string | null): OnlineMatch {
   const [state, setState] = useState<SessionState | null>(null);
@@ -120,7 +123,7 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
       if (disposed) return;
       setLoading(false);
 
-      // Ably token al; yapılandırılmışsa realtime, değilse polling.
+      // Ably (varsa): anlık güncellemeler için. Hamle olunca rakip ANINDA görür.
       try {
         const res = await fetch(`/api/match/${matchId}/ably-token`);
         const data = await res.json();
@@ -132,22 +135,23 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
           ablyRef.current = client;
           const channel = client.channels.get(`match:${matchId}`);
           channel.subscribe('state-changed', (msg) => {
-            // Sunucu durum değişikliğini bildirdi → en güncel state'i çek.
             const payload = msg.data as
               | { reveal?: RoundReveal; transfer?: TransferInfo }
               | undefined;
             if (payload?.reveal) setLastReveal(payload.reveal);
-            // Transfer tabelası — rakibin yaptığı transferi de burada görürüm.
             if (payload?.transfer) setLastTransfer(payload.transfer);
             void refresh();
           });
-          return;
         }
       } catch {
-        // token alınamadı → polling'e düş
+        // token alınamadı — yalnızca polling ile devam
       }
 
-      // Polling yedek (Ably yoksa).
+      // POLLING HER ZAMAN çalışır (Ably olsa da). KRİTİK: bu, "ekrandan bağımsız
+      // süreç" mantığının kalbi. Her tick GET çağırır; sunucu lazy timeout
+      // uygular → bir taraf hamle yapmasa/sayfadan çıksa bile DİĞERİNİN
+      // yoklaması deadline'ı geçirir ve maçı ilerletir. Ably sadece "değişti"
+      // diye yayar; süre dolumu için bağımsız nabız şart. Bkz ONLINE-YOL-HARITASI.
       pollRef.current = setInterval(() => void refresh(), POLL_MS);
     })();
 

@@ -33,6 +33,10 @@ interface CardPickSceneProps {
   ctaLabel: string;
   handSize?: number;
   playerName?: string;
+  /** ONLINE: sunucu deadline'ı (epoch ms) — el seçimi geri sayımı buna kilitlenir. */
+  deadlineMs?: number | null;
+  /** ONLINE: süre dolumunu sunucu yönetir → lokal otomatik-tamamlama yapma. */
+  serverManagedTimeout?: boolean;
 }
 
 const INITIAL_VISIBLE = 32;
@@ -46,6 +50,8 @@ export function CardPickScene({
   ctaLabel,
   handSize = DEFAULT_HAND_SIZE,
   playerName,
+  deadlineMs = null,
+  serverManagedTimeout = false,
 }: CardPickSceneProps) {
   const t = useTranslations('pick');
 
@@ -170,6 +176,9 @@ export function CardPickScene({
   // Tek-sefer guard (süre + olası manuel submit çakışmasın).
   const autoSubmittedRef = useRef(false);
   const onTimeUp = useCallback(() => {
+    // ONLINE: süre dolumunu sunucu yönetir (rastgele tamamlama orada). Lokal
+    // otomatik-onay yapma — yoksa client/sunucu çift hamle yapar.
+    if (serverManagedTimeout) return;
     if (autoSubmittedRef.current) return;
     autoSubmittedRef.current = true;
     setPicked((prev) => {
@@ -218,6 +227,7 @@ export function CardPickScene({
       <div className="pointer-events-none fixed bottom-4 right-4 z-40 flex flex-col items-center gap-1 rounded-2xl border border-white/10 bg-black/60 p-2 backdrop-blur">
         <CountdownRing
           seconds={handPickSeconds(handSize)}
+          deadlineMs={deadlineMs}
           onComplete={onTimeUp}
           color="#f0c14b"
           urgentColor="#ef4444"

@@ -71,6 +71,8 @@ interface RoundSceneProps {
   cardPlaySeconds: number;
   /** Geri sayım yeniden başlatma anahtarı (faz-tur-taraf). */
   cardTimerKey: string;
+  /** ONLINE: sunucu deadline'ı (epoch ms) — geri sayım buna kilitlenir. */
+  cardDeadlineMs?: number | null;
   /** Süre dolunca: aktif elden rastgele kart otomatik oynanır. */
   onCardPlayTimeout: () => void;
 }
@@ -107,6 +109,7 @@ export function RoundScene({
   transferUsed,
   cardPlaySeconds,
   cardTimerKey,
+  cardDeadlineMs = null,
   onCardPlayTimeout,
 }: RoundSceneProps) {
   const t = useTranslations('round');
@@ -168,6 +171,7 @@ export function RoundScene({
               <div className="flex shrink-0 flex-col items-center gap-1">
                 <CountdownRing
                   seconds={cardPlaySeconds}
+                  deadlineMs={cardDeadlineMs}
                   runKey={cardTimerKey}
                   onComplete={onCardPlayTimeout}
                   color="#38bdf8"

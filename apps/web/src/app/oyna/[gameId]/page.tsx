@@ -525,6 +525,19 @@ export default function GameSessionPage() {
     return () => clearTimeout(t);
   }, [isOnline, state.scene]);
 
+  // ONLINE: tur sonucu gösterilince (REVEAL/RESULT) reveal animasyonu kadar
+  // bekle, sonra OTOMATİK ack gönder → sunucu sonraki tura ilerletir. Böylece
+  // "devam" butonuna basmaya gerek kalmaz; iki taraf da otomatik ilerler
+  // (sunucu idempotent — ilk ack ilerletir, ikincisi no-op).
+  useEffect(() => {
+    if (!isOnline) return;
+    if (state.scene !== 'ROUND_REVEAL' && state.scene !== 'ROUND_RESULT') return;
+    const t = setTimeout(() => {
+      dispatch({ type: 'ROUND_ACK' });
+    }, 3500); // flip + skor say + sonucu okuma payı
+    return () => clearTimeout(t);
+  }, [isOnline, state.scene, state.roundIndex, dispatch]);
+
   const onRematch = useCallback(() => {
     const newId = Math.random().toString(36).slice(2, 10);
     router.push(`/oyna/${newId}`);
@@ -936,6 +949,12 @@ export default function GameSessionPage() {
                 playerName={activeSide === 'P1' ? state.p1Name : state.p2Name}
                 onSubmit={activeSide === 'P1' ? onP1Hand : onP2Hand}
                 ctaLabel="Hazırım"
+                deadlineMs={
+                  controller.online?.turnDeadline
+                    ? new Date(controller.online.turnDeadline).getTime()
+                    : null
+                }
+                serverManagedTimeout
               />
             </SceneShell>
           ) : (
@@ -1071,7 +1090,16 @@ export default function GameSessionPage() {
               transferUsed={activeJokers.transferUsed}
               cardPlaySeconds={CARD_PLAY_SECONDS}
               cardTimerKey={`${state.phase}-${state.roundIndex}-${activeSide}`}
-              onCardPlayTimeout={() => onCardPlayTimeout(activeSide, activeHand)}
+              cardDeadlineMs={
+                isOnline && controller.online?.turnDeadline
+                  ? new Date(controller.online.turnDeadline).getTime()
+                  : null
+              }
+              onCardPlayTimeout={
+                isOnline
+                  ? () => void 0 // online: süre dolumunu sunucu yönetir (polling)
+                  : () => onCardPlayTimeout(activeSide, activeHand)
+              }
             />
           </SceneShell>
         )}

@@ -25,6 +25,9 @@ import {
   revealHand,
   canUseMultiplier,
   transferableCards,
+  pickBonus,
+  autoAssignBonus,
+  completeBonus,
   CARD_PLAY_SECONDS,
   handPickSeconds,
   type SessionState,
@@ -59,11 +62,16 @@ export async function computeQuestionTitle(
  * başlar; süre dolunca sunucu otomatik işlem yapar (rastgele kart). Offline'la
  * aynı değerler (gameConstants). Süresiz sahneler için null.
  */
+/** Online bonus (3 zorunlu kategori) atama süresi (sn). Offline 50; online 30. */
+export const ONLINE_BONUS_SECONDS = 30;
+
 export function sceneDeadlineSeconds(state: SessionState): number | null {
   switch (state.scene) {
     case 'CARD_PICK_P1':
     case 'CARD_PICK_P2':
       return handPickSeconds(state.handSize); // el seçimi (8 kart → 104sn)
+    case 'BONUS_ASSIGN':
+      return ONLINE_BONUS_SECONDS; // bonus atama (30sn)
     case 'ROUND_PLAY':
       return CARD_PLAY_SECONDS; // kart oynama (34sn)
     default:
@@ -129,6 +137,96 @@ export function applyHandSubmit(
 }
 
 /**
+ * Bonus aşamasında bir kartı bir slota atar (BONUS_CARD_ASSIGNED). Online'da
+ * her oyuncu kendi 3 slotunu doldurur. Yalnızca BONUS_ASSIGN sahnesinde + henüz
+ * onaylamamış tarafça geçerli.
+ */
+export function applyBonusAssign(
+  state: SessionState,
+  side: 'P1' | 'P2',
+  slot: number,
+  cardId: string | null,
+): SessionState {
+  if (state.scene !== 'BONUS_ASSIGN') {
+    throw new Error('Bonus ataması yalnızca bonus aşamasında yapılır.');
+  }
+  const confirmed = side === 'P1' ? state.p1BonusConfirmed : state.p2BonusConfirmed;
+  if (confirmed) {
+    throw new Error('Bonus atamanı zaten onayladın.');
+  }
+  if (slot < 0 || slot > 2) {
+    throw new Error('Geçersiz bonus slotu.');
+  }
+  // cardId verildiyse oyuncunun elinde olmalı.
+  if (cardId !== null) {
+    const hand = side === 'P1' ? state.p1Hand : state.p2Hand;
+    if (!hand.includes(cardId)) {
+      throw new Error('Atanan kart elinde değil.');
+    }
+  }
+  return reduceSession(state, {
+    type: 'BONUS_CARD_ASSIGNED',
+    side,
+    slot,
+    cardId,
+  });
+}
+
+/**
+ * Bonus atamasını onaylar (BONUS_CONFIRMED). Eksik slotlar varsa süre dolmadan
+ * da onaylanabilir mi? Hayır — UI tam 3 atama yapmadan onay göndermez; yine de
+ * sunucu eksikse fizibil tamamlar (completeBonus). İki taraf da onaylayınca
+ * maybeStartRound tura geçer.
+ */
+export async function applyBonusConfirm(
+  state: SessionState,
+  side: 'P1' | 'P2',
+  flowState: FlowState | null,
+): Promise<{
+  state: SessionState;
+  flowState: FlowState | null;
+  questionId: string | null;
+}> {
+  if (state.scene !== 'BONUS_ASSIGN') {
+    // Zaten geçilmiş — idempotent.
+    return { state, flowState, questionId: state.currentQuestionId };
+  }
+  const already = side === 'P1' ? state.p1BonusConfirmed : state.p2BonusConfirmed;
+  if (already) {
+    return maybeStartRound(state, flowState);
+  }
+
+  // Eksik atamaları fizibil tamamla (oyuncu 3'ten az atadıysa).
+  let s = state;
+  const assigned = side === 'P1' ? state.p1BonusCards : state.p2BonusCards;
+  if (assigned.some((c) => c === null)) {
+    const flow = await loadFlow(state.seed, flowState);
+    const hand = side === 'P1' ? state.p1Hand : state.p2Hand;
+    const completed = completeBonus(
+      flow,
+      state.bonusConditions.map((c) => c.id),
+      hand,
+      assigned,
+    );
+    // Tamamlanan atamaları slot slot uygula.
+    for (let slot = 0; slot < 3; slot++) {
+      if (completed[slot] !== assigned[slot]) {
+        s = reduceSession(s, {
+          type: 'BONUS_CARD_ASSIGNED',
+          side,
+          slot,
+          cardId: completed[slot] ?? null,
+        });
+      }
+    }
+  }
+
+  s = reduceSession(s, { type: 'BONUS_CONFIRMED', side });
+  // İki taraf da onayladıysa tura geç.
+  return maybeStartRound(s, flowState);
+}
+
+/**
  * İki el de seçildiyse turu başlatır: soruyu SUNUCUDA deterministik seçer
  * (flowState'ten yüklenen PRNG ile) ve ROUND_STARTED uygular → ROUND_PLAY.
  * Henüz iki el seçilmediyse state'i değiştirmeden döner (null question).
@@ -150,6 +248,55 @@ export async function maybeStartRound(
     return { state, flowState, questionId: state.currentQuestionId };
   }
 
+  // BONUS AŞAMASI (yalnızca ANA MAÇ ilk turu, henüz çözülmedi). İki el geldikten
+  // sonra, sorular başlamadan ÖNCE: 3 zorunlu kategori belirlenir, her oyuncu
+  // 3 kartını atar. Uzatma/sudden'da bonus yok.
+  if (
+    state.phase === 'main' &&
+    state.roundIndex === 0 &&
+    !state.bonusResolved
+  ) {
+    const flow = await loadFlow(state.seed, flowState);
+    const conditions = pickBonus(flow, state.p1Hand, state.p2Hand);
+    const next = reduceSession(state, {
+      type: 'BONUS_CONDITIONS_SET',
+      conditions,
+    });
+    // Fizibil 3 koşul yoksa reducer ROUND_INTRO'da bıraktı → soru seçimine devam.
+    // 3 koşul varsa BONUS_ASSIGN'e geçti → bekle (oyuncular atayacak).
+    if (next.scene === 'BONUS_ASSIGN') {
+      return {
+        state: next,
+        flowState: serializeFlowState(flow),
+        questionId: null,
+      };
+    }
+    // Bonus atlandı (fizibil değil) — soru seçimine düş.
+    return maybeStartRoundCore(next, serializeFlowState(flow));
+  }
+
+  // BONUS_ASSIGN'deyiz: iki taraf da onaylamadıysa bekle.
+  if (state.scene === 'BONUS_ASSIGN') {
+    if (!state.p1BonusConfirmed || !state.p2BonusConfirmed) {
+      return { state, flowState, questionId: null };
+    }
+    // İki taraf da onayladı → ROUND_INTRO'ya geç, soru seç.
+    const toIntro = { ...state, scene: 'ROUND_INTRO' as const };
+    return maybeStartRoundCore(toIntro, flowState);
+  }
+
+  return maybeStartRoundCore(state, flowState);
+}
+
+/** Soru seçip ROUND_PLAY'e geçen çekirdek (bonus aşamasından sonra). */
+async function maybeStartRoundCore(
+  state: SessionState,
+  flowState: FlowState | null,
+): Promise<{
+  state: SessionState;
+  flowState: FlowState | null;
+  questionId: string | null;
+}> {
   const flow = await loadFlow(state.seed, flowState);
   const q = pickQuestion(flow, state.p1Hand, state.p2Hand);
   if (!q) {
@@ -377,6 +524,22 @@ export async function applyTimeout(
     }
     const started = await maybeStartRound(s, flowState);
     return { state: started.state, flowState: started.flowState, changed: true };
+  }
+
+  // BONUS_ASSIGN süresi doldu: onaylamamış tarafları otomatik tamamla + onayla.
+  if (state.scene === 'BONUS_ASSIGN') {
+    let s = state;
+    let fs = flowState;
+    for (const side of ['P1', 'P2'] as const) {
+      const confirmed =
+        side === 'P1' ? s.p1BonusConfirmed : s.p2BonusConfirmed;
+      if (!confirmed) {
+        const r = await applyBonusConfirm(s, side, fs);
+        s = r.state;
+        fs = r.flowState;
+      }
+    }
+    return { state: s, flowState: fs, changed: true };
   }
 
   if (state.scene === 'ROUND_PLAY') {

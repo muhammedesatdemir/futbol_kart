@@ -113,10 +113,16 @@ export interface SessionState {
   /** P1/P2 için condIndex → cardId ataması (3 slot). null = boş. */
   p1BonusCards: Array<string | null>;
   p2BonusCards: Array<string | null>;
-  /** BONUS_ASSIGN sahnesinde atama yapan aktif taraf. */
+  /** BONUS_ASSIGN sahnesinde atama yapan aktif taraf (hotseat sıra mantığı). */
   bonusAssignSide: PlayerSide;
   /** Bu fazın bonus kararı verildi mi (tek-sefer tetikleme guard'ı). */
   bonusResolved: boolean;
+  /**
+   * ONLINE: bonus atamasını onaylayan taraflar (eşzamanlı atama). İki taraf da
+   * onaylayınca sunucu tura geçer. Offline'da kullanılmaz (sıra mantığı var).
+   */
+  p1BonusConfirmed: boolean;
+  p2BonusConfirmed: boolean;
 
   /** Joker kullanım durumu (maç boyu kalıcı, taraf bazlı). */
   p1Jokers: JokerState;
@@ -249,6 +255,8 @@ export function initialSession(gameId: string, seed: string): SessionState {
     p2BonusCards: [null, null, null],
     bonusAssignSide: 'P1',
     bonusResolved: false,
+    p1BonusConfirmed: false,
+    p2BonusConfirmed: false,
     p1Jokers: freshJokers(),
     p2Jokers: freshJokers(),
     transferLockedIds: [],
@@ -479,10 +487,13 @@ export function reduceSession(
     case 'BONUS_CONFIRMED': {
       // Hotseat: P1 onaylayınca P2'ye geç; P2 onaylayınca tura başla.
       // Vs-bot: P1 onaylayınca (P2 zaten otomatik atanmış) tura başla.
-      // Online: bonus atama EŞZAMANLI; reducer onayı kaydeder, iki taraf da
-      // onaylayınca ROUND_INTRO'ya geçişi SUNUCU yapar (sahne değiştirmez).
+      // Online: bonus atama EŞZAMANLI; reducer her tarafın ONAYINI kaydeder.
+      // İki taraf da onaylayınca ROUND_INTRO'ya geçişi SUNUCU yapar (sahne
+      // burada değişmez — maybeStartRound kontrol eder).
       if (state.mode === 'online') {
-        return state;
+        const key =
+          event.side === 'P1' ? 'p1BonusConfirmed' : 'p2BonusConfirmed';
+        return { ...state, [key]: true };
       }
       if (event.side === 'P1' && state.mode === 'hotseat') {
         return { ...state, bonusAssignSide: 'P2' };

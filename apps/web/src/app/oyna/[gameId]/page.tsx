@@ -796,8 +796,14 @@ export default function GameSessionPage() {
       .map((id) => session.players.find((p) => p.id === id))
       .filter(Boolean) as typeof session.players;
 
-  // BONUS_ASSIGN sahnesi için: aktif taraf + eli + atamaları.
-  const bonusSide = state.bonusAssignSide;
+  // BONUS_ASSIGN sahnesi için: atama yapan taraf. OFFLINE: sıra (bonusAssignSide).
+  // ONLINE: her zaman KENDİ tarafım (eşzamanlı atama).
+  const bonusSide = isOnline ? (yourSide ?? 'P1') : state.bonusAssignSide;
+  // Online'da kendi onayımı verdim mi (verdiysem "rakip bekleniyor" gösterilir).
+  const myBonusConfirmed =
+    bonusSide === 'P1' ? state.p1BonusConfirmed : state.p2BonusConfirmed;
+  const oppBonusConfirmed =
+    bonusSide === 'P1' ? state.p2BonusConfirmed : state.p1BonusConfirmed;
   const bonusHandIds = bonusSide === 'P1' ? state.p1Hand : state.p2Hand;
   const bonusAssigned = bonusSide === 'P1' ? state.p1BonusCards : state.p2BonusCards;
   const bonusHandPlayers = bonusHandIds
@@ -1055,35 +1061,68 @@ export default function GameSessionPage() {
           </SceneShell>
         )}
 
-        {state.scene === 'BONUS_ASSIGN' && state.bonusConditions.length === 3 && (
-          <SceneShell sceneKey={`bonus-${bonusSide}`} key={`bonus-${bonusSide}`}>
-            <BonusAssignScene
-              sideName={bonusSide === 'P1' ? p1Display : p2Display}
-              conditions={state.bonusConditions}
-              hand={bonusHandPlayers}
-              assigned={bonusAssigned}
-              ctx={bonusCtxValue}
-              onAssign={(slot, cardId) => onBonusAssign(bonusSide, slot, cardId)}
-              onConfirm={() => onBonusConfirm(bonusSide)}
-              onTimeUp={() => {
-                // Süre doldu: kullanıcı seçimini koruyarak fizibil tamamla,
-                // her slotu dispatch et, sonra onayla.
-                const filled = completeBonus(
-                  flow,
-                  state.bonusConditions.map((c) => c.id),
-                  bonusHandIds,
-                  bonusAssigned,
-                );
-                filled.forEach((cardId, slot) => {
-                  if (cardId !== bonusAssigned[slot]) {
-                    onBonusAssign(bonusSide, slot, cardId);
+        {/* ONLINE: bonusumu onayladıysam rakip bekleniyor ekranı. */}
+        {state.scene === 'BONUS_ASSIGN' &&
+          state.bonusConditions.length === 3 &&
+          isOnline &&
+          myBonusConfirmed && (
+            <SceneShell sceneKey="bonus-wait" key="bonus-wait">
+              <div className="glass-panel flex min-h-[45vh] items-center justify-center p-8">
+                <BallLoader
+                  size={64}
+                  label="Kategorilerini belirledin ✓"
+                  sub={
+                    oppBonusConfirmed
+                      ? 'Tur başlıyor…'
+                      : 'Rakibin kategori seçimi bekleniyor…'
                   }
-                });
-                onBonusConfirm(bonusSide);
-              }}
-            />
-          </SceneShell>
-        )}
+                />
+              </div>
+            </SceneShell>
+          )}
+
+        {state.scene === 'BONUS_ASSIGN' &&
+          state.bonusConditions.length === 3 &&
+          !(isOnline && myBonusConfirmed) && (
+            <SceneShell sceneKey={`bonus-${bonusSide}`} key={`bonus-${bonusSide}`}>
+              <BonusAssignScene
+                sideName={bonusSide === 'P1' ? p1Display : p2Display}
+                conditions={state.bonusConditions}
+                hand={bonusHandPlayers}
+                assigned={bonusAssigned}
+                ctx={bonusCtxValue}
+                seconds={isOnline ? 30 : undefined}
+                deadlineMs={
+                  isOnline && controller.online?.turnDeadline
+                    ? new Date(controller.online.turnDeadline).getTime()
+                    : null
+                }
+                onAssign={(slot, cardId) => onBonusAssign(bonusSide, slot, cardId)}
+                onConfirm={() => onBonusConfirm(bonusSide)}
+                onTimeUp={() => {
+                  if (isOnline) {
+                    // Online: süre dolumunu SUNUCU yönetir (otomatik tamamla).
+                    // Yine de client kendi onayını gönderip hızlandırabilir.
+                    onBonusConfirm(bonusSide);
+                    return;
+                  }
+                  // Offline: kullanıcı seçimini koruyarak fizibil tamamla + onayla.
+                  const filled = completeBonus(
+                    flow,
+                    state.bonusConditions.map((c) => c.id),
+                    bonusHandIds,
+                    bonusAssigned,
+                  );
+                  filled.forEach((cardId, slot) => {
+                    if (cardId !== bonusAssigned[slot]) {
+                      onBonusAssign(bonusSide, slot, cardId);
+                    }
+                  });
+                  onBonusConfirm(bonusSide);
+                }}
+              />
+            </SceneShell>
+          )}
 
         {state.scene === 'ROUND_TRANSFER' && (
           <SceneShell sceneKey="transfer" key="transfer">

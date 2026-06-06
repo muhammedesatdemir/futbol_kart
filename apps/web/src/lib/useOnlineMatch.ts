@@ -43,6 +43,10 @@ export interface OnlineMatch {
   ack: () => Promise<void>;
   /** Faz-geçiş duyurusu görüldü → yeni fazın el seçimine geç. */
   phaseAck: () => Promise<void>;
+  /** Bonus: bir kartı bir slota ata (henüz onaylamadan). */
+  assignBonus: (slot: number, cardId: string | null) => Promise<void>;
+  /** Bonus atamasını onayla → iki taraf onaylayınca tur başlar. */
+  confirmBonus: () => Promise<void>;
   /** Bu aşamanın sunucu-otoriteli bitiş anı (ISO) — client geri sayım gösterir. */
   turnDeadline: string | null;
   /** Parametrelerle dolu soru başlığı (sunucudan; {targetApps} → 500). */
@@ -253,6 +257,15 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
   const phaseAck = useCallback(async () => {
     await sendMove({ action: 'phase-ack' });
   }, [sendMove]);
+  const assignBonus = useCallback(
+    async (slot: number, cardId: string | null) => {
+      await sendMove({ action: 'assign-bonus', slot, cardId });
+    },
+    [sendMove],
+  );
+  const confirmBonus = useCallback(async () => {
+    await sendMove({ action: 'confirm-bonus' });
+  }, [sendMove]);
 
   return {
     state,
@@ -272,6 +285,8 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
     clearTransfer,
     ack,
     phaseAck,
+    assignBonus,
+    confirmBonus,
     turnDeadline,
     questionTitle,
     refresh,

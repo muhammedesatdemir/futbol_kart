@@ -14,6 +14,8 @@ import {
   resolveRoundOnServer,
   acknowledgeRound,
   acknowledgePhaseTransition,
+  applyBonusAssign,
+  applyBonusConfirm,
   applyTimeout,
   sceneDeadlineSeconds,
 } from '@/lib/server/matchEngine';
@@ -137,6 +139,15 @@ export async function POST(
       flowState = acked.flowState;
     } else if (action.type === 'phase-ack') {
       state = acknowledgePhaseTransition(state);
+    } else if (action.type === 'assign-bonus') {
+      // Bonus kartını slota ata (henüz onaylamadan; audit gerekmez — ara adım).
+      state = applyBonusAssign(state, side, action.slot, action.cardId);
+    } else if (action.type === 'confirm-bonus') {
+      // Bonus atamasını onayla → iki taraf da onaylayınca tur başlar.
+      const r = await applyBonusConfirm(state, side, flowState);
+      state = r.state;
+      flowState = r.flowState;
+      pendingLog.push({ side, event: { type: 'BONUS_CONFIRMED', side } });
     } else if (action.type === 'transfer') {
       const t = applyTransferJoker(state, side, action.give, action.take);
       state = t.nextState;
@@ -277,6 +288,8 @@ type Action =
   | { type: 'use-reveal' }
   | { type: 'ack' }
   | { type: 'phase-ack' }
+  | { type: 'assign-bonus'; slot: number; cardId: string | null }
+  | { type: 'confirm-bonus' }
   | { type: 'transfer'; give: string; take: string };
 
 function parseAction(body: unknown): Action | null {
@@ -286,6 +299,13 @@ function parseAction(body: unknown): Action | null {
   if (b.action === 'use-reveal') return { type: 'use-reveal' };
   if (b.action === 'ack') return { type: 'ack' };
   if (b.action === 'phase-ack') return { type: 'phase-ack' };
+  if (b.action === 'confirm-bonus') return { type: 'confirm-bonus' };
+  if (b.action === 'assign-bonus') {
+    if (typeof b.slot !== 'number' || b.slot < 0 || b.slot > 2) return null;
+    const cid = b.cardId;
+    if (cid !== null && typeof cid !== 'string') return null;
+    return { type: 'assign-bonus', slot: b.slot, cardId: cid as string | null };
+  }
   if (b.action === 'transfer') {
     if (typeof b.give !== 'string' || !b.give) return null;
     if (typeof b.take !== 'string' || !b.take) return null;

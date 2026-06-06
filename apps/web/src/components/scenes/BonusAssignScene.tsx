@@ -26,6 +26,10 @@ interface BonusAssignSceneProps {
   onConfirm: () => void;
   /** Süre dolunca: kalan slotları fizibil tamamla + onayla (page.tsx hesaplar). */
   onTimeUp: () => void;
+  /** Toplam süre (sn). Verilmezse offline varsayılanı (BONUS_ASSIGN_SECONDS). */
+  seconds?: number;
+  /** ONLINE: sunucu deadline'ı (epoch ms) — geri sayım buna kilitlenir. */
+  deadlineMs?: number | null;
 }
 
 const LIBRARY = buildConditionLibrary();
@@ -40,6 +44,8 @@ export function BonusAssignScene({
   onAssign,
   onConfirm,
   onTimeUp,
+  seconds = BONUS_ASSIGN_SECONDS,
+  deadlineMs = null,
 }: BonusAssignSceneProps) {
   // Aktif slot — kart seçince buraya atanır. Varsayılan: ilk boş slot.
   const firstEmpty = assigned.findIndex((c) => c === null);
@@ -87,7 +93,8 @@ export function BonusAssignScene({
           slotlar fizibil tamamlanıp otomatik onaylanır (kullanıcı seçimi korunur). */}
       <div className="pointer-events-none fixed right-4 top-20 z-40 flex flex-col items-center gap-1 rounded-2xl border border-white/10 bg-black/60 p-2 backdrop-blur">
         <CountdownRing
-          seconds={BONUS_ASSIGN_SECONDS}
+          seconds={seconds}
+          deadlineMs={deadlineMs}
           onComplete={onTimeUp}
           color="#f0c14b"
           urgentColor="#ef4444"

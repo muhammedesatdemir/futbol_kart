@@ -76,6 +76,9 @@ export function useGameController(matchId: string | null): GameController {
         case 'ROUND_ACK':
           void onlineMatch.ack();
           break;
+        case 'PHASE_TRANSITION_ACK':
+          void onlineMatch.phaseAck();
+          break;
         // Aşağıdakiler online'da SUNUCU tarafından yönetilir → no-op:
         // MODE_CHOSEN, NAMES_SET, HANDOFF_CONTINUED, ROUND_STARTED,
         // ROUND_RESOLVED, PHASE_TRANSITION_ACK, BONUS_*, JOKER_TRANSFER_OPEN,

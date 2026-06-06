@@ -571,6 +571,20 @@ export default function GameSessionPage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isOnline, state.scene, ackKey]);
 
+  // ONLINE: faz-geçiş duyurusu (Uzatma!/Penaltılar!) ~5sn gösterilir, sonra
+  // OTOMATİK olarak yeni fazın el seçimine geçilir. Kullanıcı ne olduğunu anlar
+  // (berabere → uzatma) — direkt kart seçime atılmaz. dispatch ref'ten (polling
+  // re-render'ı 5sn timeout'u iptal etmesin).
+  useEffect(() => {
+    if (!isOnline) return;
+    if (state.scene !== 'PHASE_TRANSITION') return;
+    const t = setTimeout(() => {
+      dispatchRef.current({ type: 'PHASE_TRANSITION_ACK' });
+    }, 5000);
+    return () => clearTimeout(t);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline, state.scene, state.phase]);
+
   const onRematch = useCallback(() => {
     const newId = Math.random().toString(36).slice(2, 10);
     router.push(`/oyna/${newId}`);
@@ -1142,6 +1156,20 @@ export default function GameSessionPage() {
                 isOnline
                   ? () => void 0 // online: süre dolumunu sunucu yönetir (polling)
                   : () => onCardPlayTimeout(activeSide, activeHand)
+              }
+              transferAvailable={
+                isOnline &&
+                !state.transferThisRound &&
+                state.roundIndex < state.totalRounds - 1
+              }
+              onFetchTransferOptions={controller.online?.fetchTransferOptions}
+              onTransfer={(give, take) =>
+                dispatch({
+                  type: 'TRANSFER_EXECUTE',
+                  side: activeSide,
+                  give,
+                  take,
+                })
               }
             />
           </SceneShell>

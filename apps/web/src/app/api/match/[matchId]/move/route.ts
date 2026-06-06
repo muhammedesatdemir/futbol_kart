@@ -13,6 +13,7 @@ import {
   maybeStartRound,
   resolveRoundOnServer,
   acknowledgeRound,
+  acknowledgePhaseTransition,
   applyTimeout,
   sceneDeadlineSeconds,
 } from '@/lib/server/matchEngine';
@@ -134,6 +135,9 @@ export async function POST(
       const acked = await acknowledgeRound(state, flowState);
       state = acked.state;
       flowState = acked.flowState;
+    } else if (action.type === 'phase-ack') {
+      // Faz-geçiş duyurusu görüldü → yeni fazın el seçimine geç.
+      state = acknowledgePhaseTransition(state);
     } else if (action.type === 'transfer') {
       // Transfer takası — tek atımlık swap, her iki tarafa tabela gösterilir.
       const t = applyTransferJoker(state, side, action.give, action.take);
@@ -248,6 +252,7 @@ type Action =
   | { type: 'use-multiplier' }
   | { type: 'use-reveal' }
   | { type: 'ack' }
+  | { type: 'phase-ack' }
   | { type: 'transfer'; give: string; take: string };
 
 function parseAction(body: unknown): Action | null {
@@ -256,6 +261,7 @@ function parseAction(body: unknown): Action | null {
   if (b.action === 'use-multiplier') return { type: 'use-multiplier' };
   if (b.action === 'use-reveal') return { type: 'use-reveal' };
   if (b.action === 'ack') return { type: 'ack' };
+  if (b.action === 'phase-ack') return { type: 'phase-ack' };
   if (b.action === 'transfer') {
     if (typeof b.give !== 'string' || !b.give) return null;
     if (typeof b.take !== 'string' || !b.take) return null;

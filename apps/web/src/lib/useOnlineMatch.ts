@@ -41,6 +41,8 @@ export interface OnlineMatch {
   clearTransfer: () => void;
   /** Tur sonucu görüldü → sonraki tura ilerle (sunucu-otoriteli, idempotent). */
   ack: () => Promise<void>;
+  /** Faz-geçiş duyurusu görüldü → yeni fazın el seçimine geç. */
+  phaseAck: () => Promise<void>;
   /** Bu aşamanın sunucu-otoriteli bitiş anı (ISO) — client geri sayım gösterir. */
   turnDeadline: string | null;
   /** Parametrelerle dolu soru başlığı (sunucudan; {targetApps} → 500). */
@@ -234,6 +236,9 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
   const ack = useCallback(async () => {
     await sendMove({ action: 'ack' });
   }, [sendMove]);
+  const phaseAck = useCallback(async () => {
+    await sendMove({ action: 'phase-ack' });
+  }, [sendMove]);
 
   return {
     state,
@@ -252,6 +257,7 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
     lastTransfer,
     clearTransfer,
     ack,
+    phaseAck,
     turnDeadline,
     questionTitle,
     refresh,

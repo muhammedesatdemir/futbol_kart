@@ -434,24 +434,27 @@ export async function acknowledgeRound(
   }
 
   // ROUND_ACK: roundIndex++ + ROUND_INTRO (veya faz geçişi / FINAL).
-  let next = reduceSession(state, { type: 'ROUND_ACK' });
+  const next = reduceSession(state, { type: 'ROUND_ACK' });
 
   // Yeni tur ROUND_INTRO'ya geçtiyse soruyu otomatik seç → ROUND_PLAY.
   if (next.scene === 'ROUND_INTRO') {
     return maybeStartRound(next, flowState);
   }
 
-  // FAZ GEÇİŞİ (berabere → uzatma/sudden): reducer PHASE_TRANSITION'a geçti.
-  // Online'da ayrı "uzatma duyuru" ekranı yok; otomatik olarak yeni fazın el
-  // seçimine (CARD_PICK_P1) geç. Böylece maç berabere bitince UZATMAYA gider
-  // (offline'daki gibi: 4 kart/3 tur, yine berabere → sudden 1 kart/1 tur).
-  if (next.scene === 'PHASE_TRANSITION') {
-    next = reduceSession(next, { type: 'PHASE_TRANSITION_ACK' }); // → CARD_PICK_P1
-    return { state: next, flowState, questionId: null };
-  }
-
-  // FINAL: maç bitti.
+  // FAZ GEÇİŞİ (berabere → uzatma/sudden) ya da FINAL: PHASE_TRANSITION'da KAL.
+  // Client "Uzatma!/Penaltılar!" duyurusunu gösterip ~5sn sonra phase-ack
+  // gönderir → yeni fazın el seçimine geçilir. Böylece kullanıcı ne olduğunu
+  // anlar (otomatik atlanmaz). FINAL ise zaten maç biter.
   return { state: next, flowState, questionId: null };
+}
+
+/**
+ * Faz-geçiş duyurusu görüldü → yeni fazın el seçimine ilerlet (PHASE_TRANSITION
+ * → CARD_PICK_P1). İdempotent: PHASE_TRANSITION'da değilse no-op (çift güvenli).
+ */
+export function acknowledgePhaseTransition(state: SessionState): SessionState {
+  if (state.scene !== 'PHASE_TRANSITION') return state;
+  return reduceSession(state, { type: 'PHASE_TRANSITION_ACK' });
 }
 
 /**

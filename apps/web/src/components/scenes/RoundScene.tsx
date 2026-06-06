@@ -11,6 +11,7 @@ import { CountUp } from '@/components/CountUp';
 import { CountdownRing } from '@/components/CountdownRing';
 import { WinFx } from '@/components/WinFx';
 import { GoalVideoFx } from '@/components/GoalVideoFx';
+import { TransferPanel } from '@/components/scenes/TransferPanel';
 import {
   PlayIcon,
   QuestionIcon,
@@ -75,6 +76,12 @@ interface RoundSceneProps {
   cardDeadlineMs?: number | null;
   /** ONLINE mod mu — bekleme bandı + "rakip seçiyor" gösterimi için. */
   isOnline?: boolean;
+  /** ONLINE transfer: bu turda transfer yapılabilir mi (hak var + son tur değil). */
+  transferAvailable?: boolean;
+  /** ONLINE transfer: panel açılınca kendi+rakip transfer-edilebilir kartları getir. */
+  onFetchTransferOptions?: () => Promise<{ ownCards: string[]; oppCards: string[] }>;
+  /** ONLINE transfer: takası uygula (kendi give → rakip take). */
+  onTransfer?: (give: string, take: string) => void;
   /** Süre dolunca: aktif elden rastgele kart otomatik oynanır. */
   onCardPlayTimeout: () => void;
 }
@@ -113,9 +120,28 @@ export function RoundScene({
   cardTimerKey,
   cardDeadlineMs = null,
   isOnline = false,
+  transferAvailable = false,
+  onFetchTransferOptions,
+  onTransfer,
   onCardPlayTimeout,
 }: RoundSceneProps) {
   const t = useTranslations('round');
+
+  // ONLINE transfer paneli: açık options (null = kapalı), + hata.
+  const [transferOpts, setTransferOpts] = useState<{
+    ownCards: string[];
+    oppCards: string[];
+  } | null>(null);
+  const [transferErr, setTransferErr] = useState<string | null>(null);
+  const openTransfer = async () => {
+    if (!onFetchTransferOptions) return;
+    setTransferErr(null);
+    try {
+      setTransferOpts(await onFetchTransferOptions());
+    } catch (e) {
+      setTransferErr(e instanceof Error ? e.message : 'Transfer açılamadı.');
+    }
+  };
 
   const turnLabel =
     scene === 'ROUND_PLAY'
@@ -299,6 +325,41 @@ export function RoundScene({
           multiplierPendingHere={multiplierPendingHere}
           multiplierDir={multiplierDir}
           revealActive={revealActive}
+        />
+      )}
+
+      {/* ONLINE TRANSFER butonu — soruyu gördükten sonra, kart oynamadan önce.
+          Hak varsa + son tur değilse + henüz kart oynamadıysan tıklanabilir. */}
+      {isOnline &&
+        showHand &&
+        !activeHasPlayed &&
+        !transferUsed &&
+        transferAvailable && (
+          <div className="flex justify-center">
+            <button
+              type="button"
+              onClick={() => void openTransfer()}
+              className="glass-panel inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-accent-goldHi transition hover:border-accent-gold/50 hover:bg-white/10"
+            >
+              🔄 Transfer Hamlesi — bir kartını rakiple takas et
+            </button>
+          </div>
+        )}
+      {transferErr && (
+        <p className="text-center text-xs text-side-red">{transferErr}</p>
+      )}
+
+      {/* Transfer paneli */}
+      {transferOpts && (
+        <TransferPanel
+          ownCards={transferOpts.ownCards}
+          oppCards={transferOpts.oppCards}
+          players={players}
+          onCancel={() => setTransferOpts(null)}
+          onConfirm={(give, take) => {
+            setTransferOpts(null);
+            onTransfer?.(give, take);
+          }}
         />
       )}
 

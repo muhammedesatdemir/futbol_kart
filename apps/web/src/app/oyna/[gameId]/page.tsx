@@ -114,16 +114,29 @@ export default function GameSessionPage() {
     };
   }, []);
 
-  // Kart flip sesi — ikinci kart oynandığı anda (ROUND_PLAY içinde),
-  // REVEAL'e geçmeden ~0.5sn önce. Böylece flip ile win sesi arasındaki
-  // boşluk yarım saniye daha açılır (win sabit kalır).
+  // Kart flip sesi — OFFLINE: ikinci kart oynandığı anda (ROUND_PLAY içinde).
+  // ONLINE'da iki kartın ROUND_PLAY'de birlikte görüldüğü an çok kısa (sunucu
+  // hemen REVEAL'e geçirir, polling arası kaçar) → flip sesini REVEAL'e
+  // geçişte çalarız (aşağıdaki reveal effect'i).
   useEffect(() => {
+    if (isOnline) return;
     if (state.scene !== 'ROUND_PLAY') return;
     if (!state.currentP1Card || !state.currentP2Card) return;
     playSfx('flip');
-    // İki kart da oynandığı tek ana bağlı — sahne içinde bir kez tetiklenir.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.scene, state.currentP1Card, state.currentP2Card]);
+  }, [isOnline, state.scene, state.currentP1Card, state.currentP2Card]);
+
+  // ONLINE flip sesi: REVEAL sahnesine girince (kartlar açılıyor anı).
+  const prevRevealRef = useRef(false);
+  useEffect(() => {
+    if (!isOnline) return;
+    const isReveal = state.scene === 'ROUND_REVEAL';
+    if (isReveal && !prevRevealRef.current) {
+      playSfx('flip');
+    }
+    prevRevealRef.current = isReveal;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline, state.scene]);
 
   // Kazanma / beraberlik / final sesleri — sahne GEÇİŞİNE bağlı.
   // prevScene ile, mount/remount sırasında (rematch sonrası yeni sayfa hâlâ
@@ -134,7 +147,10 @@ export default function GameSessionPage() {
     const prev = prevSceneRef.current;
     prevSceneRef.current = state.scene;
     if (prev === state.scene) return; // değişim yok
-    if (state.scene === 'ROUND_RESULT') {
+    // Sonuç sesi: offline ROUND_RESULT'ta, ONLINE ise ROUND_REVEAL'de (online'da
+    // ROUND_RESULT sahnesi oluşmaz; reveal = sonuç). İki yolu da kapsa.
+    const resultScene = isOnline ? 'ROUND_REVEAL' : 'ROUND_RESULT';
+    if (state.scene === resultScene) {
       const last = state.history[state.history.length - 1];
       if (last && last.winner !== 'tie') playSfx('win');
       else playSfx('tie');

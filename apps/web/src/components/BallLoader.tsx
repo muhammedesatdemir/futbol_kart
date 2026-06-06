@@ -70,29 +70,83 @@ export function BallLoader({
   );
 }
 
-/** Dönen futbol topu SVG'si (klasik beyaz-siyah desen). */
+/**
+ * Dönen gerçekçi futbol topu SVG'si — klasik Telstar (beyaz top + siyah
+ * beşgenler). Merkez beşgen + çevresinde 5 beşgen, aralarda beyaz altıgenler;
+ * hafif küresel gölge ile hacim hissi.
+ */
 function SoccerBall({ size }: { size: number }) {
+  // Merkez beşgenin 5 köşesi (R=14, merkez 50,50, tepe yukarı).
+  const cx = 50;
+  const cy = 50;
+  const R = 15;
+  const centerPts = pentagon(cx, cy, R, -90);
+  // Dış beşgenlerin merkezleri (merkez beşgenin kenar ortalarından dışa).
+  const outerR = 34;
+  const outer = [-90, -18, 54, 126, 198].map((a) =>
+    pentagon(
+      cx + outerR * Math.cos((a * Math.PI) / 180),
+      cy + outerR * Math.sin((a * Math.PI) / 180),
+      9,
+      a + 180,
+    ),
+  );
+
   return (
     <motion.svg
       width={size}
       height={size}
       viewBox="0 0 100 100"
       animate={{ rotate: 360 }}
-      transition={{ duration: 1.2, repeat: Infinity, ease: 'linear' }}
-      style={{ filter: 'drop-shadow(0 2px 6px rgba(0,0,0,0.4))' }}
+      transition={{ duration: 2, repeat: Infinity, ease: 'linear' }}
+      style={{ filter: 'drop-shadow(0 3px 8px rgba(0,0,0,0.45))' }}
     >
-      <circle cx="50" cy="50" r="48" fill="#ffffff" stroke="#1f2937" strokeWidth="2" />
-      {/* Merkez beşgen */}
-      <polygon
-        points="50,28 64,39 59,56 41,56 36,39"
-        fill="#1f2937"
-      />
-      {/* Çevre desenleri (basitleştirilmiş) */}
-      <path d="M50,28 L50,8" stroke="#1f2937" strokeWidth="3" />
-      <path d="M64,39 L82,32" stroke="#1f2937" strokeWidth="3" />
-      <path d="M59,56 L72,70" stroke="#1f2937" strokeWidth="3" />
-      <path d="M41,56 L28,70" stroke="#1f2937" strokeWidth="3" />
-      <path d="M36,39 L18,32" stroke="#1f2937" strokeWidth="3" />
+      <defs>
+        {/* Küresel parlama — hacim hissi */}
+        <radialGradient id="ballShade" cx="38%" cy="32%" r="75%">
+          <stop offset="0%" stopColor="#ffffff" />
+          <stop offset="70%" stopColor="#eef1f4" />
+          <stop offset="100%" stopColor="#c2c9d2" />
+        </radialGradient>
+      </defs>
+
+      <circle cx={cx} cy={cy} r="48" fill="url(#ballShade)" stroke="#11161d" strokeWidth="2.5" />
+
+      {/* Merkez siyah beşgen */}
+      <polygon points={ptsStr(centerPts)} fill="#11161d" />
+      {/* Merkezden dış beşgenlere bağlayan dikişler */}
+      {centerPts.map((p, i) => (
+        <line
+          key={`s${i}`}
+          x1={p[0]}
+          y1={p[1]}
+          x2={cx + outerR * Math.cos(((-90 + i * 72) * Math.PI) / 180)}
+          y2={cy + outerR * Math.sin(((-90 + i * 72) * Math.PI) / 180)}
+          stroke="#11161d"
+          strokeWidth="1.6"
+        />
+      ))}
+      {/* Dış 5 siyah beşgen */}
+      {outer.map((pts, i) => (
+        <polygon key={`o${i}`} points={ptsStr(pts)} fill="#11161d" />
+      ))}
     </motion.svg>
   );
+}
+
+/** Merkez (cx,cy), yarıçap r, başlangıç açısı (derece) ile beşgen köşeleri. */
+function pentagon(
+  cx: number,
+  cy: number,
+  r: number,
+  startDeg: number,
+): Array<[number, number]> {
+  return Array.from({ length: 5 }, (_, i) => {
+    const a = ((startDeg + i * 72) * Math.PI) / 180;
+    return [cx + r * Math.cos(a), cy + r * Math.sin(a)] as [number, number];
+  });
+}
+
+function ptsStr(pts: Array<[number, number]>): string {
+  return pts.map(([x, y]) => `${x.toFixed(1)},${y.toFixed(1)}`).join(' ');
 }

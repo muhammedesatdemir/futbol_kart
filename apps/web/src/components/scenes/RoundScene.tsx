@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Player, PlayerSide } from '@futbol-kart/shared-types';
@@ -143,10 +143,10 @@ export function RoundScene({
         {question && (
           <motion.div
             key={question.id}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -10 }}
-            transition={{ duration: 0.32, ease: [0.22, 1, 0.36, 1] }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
             className="glass-panel-strong flex items-start gap-4 p-5"
           >
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-accent-gold/15 text-accent-goldHi ring-1 ring-accent-gold/30">
@@ -528,6 +528,20 @@ function HandDisplay({
   // Eşitlikte hepsi vurgulanır. revealValues yoksa boş set.
   const bestCardIds = computeBestRevealCards(revealValues, revealCompareOp);
 
+  // OPTIMISTIC SEÇİM (madde 3): kart tıklanınca SUNUCU yanıtını beklemeden o
+  // kartı anında vurgula + diğerlerini soldur. Online'da polling gecikmesi
+  // varken "tıkladım mı?" belirsizliğini ortadan kaldırır. El değişince sıfırlanır.
+  const [pickedLocal, setPickedLocal] = useState<string | null>(null);
+  const handKey = hand.join(',');
+  useEffect(() => {
+    setPickedLocal(null); // yeni tur / yeni el → seçim sıfırla
+  }, [handKey]);
+  const handlePick = (id: string) => {
+    if (pickedLocal) return; // çift tık koruması
+    setPickedLocal(id);
+    onCardPlay(id);
+  };
+
   // Bot beklerken P1'in eli gösterilir → P1 bonus seti; aksi halde aktif taraf.
   const shownBonus = new Set(
     (botWaitingForP1Reveal || activeSide === 'P1' ? p1BonusCards : p2BonusCards).filter(
@@ -595,15 +609,22 @@ function HandDisplay({
             // En iyi cevap (madde 3): istatistik açıkken bu sorunun en iyi
             // değerli kartı altın çerçeve + glow + "★ EN İYİ" ile işaretlenir.
             const isBest = hasReveal && bestCardIds.has(id);
+            const isPickedNow = pickedLocal === id;
+            const someoneElsePicked = pickedLocal !== null && !isPickedNow;
             return (
               <div
                 key={id}
                 role="button"
-                onClick={() => onCardPlay(id)}
+                onClick={() => handlePick(id)}
                 className={cn(
-                  'relative transition hover:-translate-y-1',
+                  'relative transition duration-300',
+                  !pickedLocal && 'hover:-translate-y-1',
                   isBonus && !isBest && 'drop-shadow-[0_0_18px_rgba(240,193,75,0.45)]',
                   isBest && '-translate-y-1 drop-shadow-[0_0_26px_rgba(255,215,107,0.85)]',
+                  // Tıklanan kart: öne çık + yeşil onay glow'u. Diğerleri: sol + küçül.
+                  isPickedNow &&
+                    '-translate-y-3 scale-105 drop-shadow-[0_0_30px_rgba(74,222,128,0.9)] z-10',
+                  someoneElsePicked && 'scale-90 opacity-30 saturate-50',
                 )}
               >
                 {isBonus && <BonusTag />}
@@ -615,10 +636,18 @@ function HandDisplay({
                   />
                 )}
                 {isBest && <BestAnswerTag />}
+                {/* Seçim onay rozeti — "bu kartı oynadın" netliği */}
+                {isPickedNow && (
+                  <div className="absolute -top-2 left-1/2 z-20 -translate-x-1/2 rounded-full bg-emerald-500 px-2 py-0.5 text-[10px] font-black text-white shadow-lg">
+                    ✓ SEÇİLDİ
+                  </div>
+                )}
                 <div
                   className={cn(
-                    isBest &&
-                      'rounded-xl ring-[3px] ring-accent-goldHi ring-offset-2 ring-offset-transparent',
+                    (isBest || isPickedNow) &&
+                      'rounded-xl ring-[3px] ring-offset-2 ring-offset-transparent',
+                    isBest && !isPickedNow && 'ring-accent-goldHi',
+                    isPickedNow && 'ring-emerald-400',
                   )}
                 >
                   <PlayerCard player={p} selected={isBonus} size="md" />

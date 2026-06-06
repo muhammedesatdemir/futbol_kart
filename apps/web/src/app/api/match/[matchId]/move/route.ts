@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { eq, getDb, match as matchTable, matchMove } from '@futbol-kart/db';
+import { and, eq, getDb, match as matchTable, matchMove } from '@futbol-kart/db';
 import { nanoid } from 'nanoid';
 import type { SessionState, FlowState } from '@futbol-kart/game-engine';
 import { auth } from '@/lib/auth';
@@ -99,63 +99,63 @@ export async function POST(
   // Transfer takası: her iki tarafa tabela olarak gösterilir.
   let transfer: { side: 'P1' | 'P2'; give: string; take: string } | null = null;
 
+  // YAN ETKİLERİ BİRİKTİR: audit log'ları UPDATE'ten ÖNCE yazma! Çakışmada
+  // (409) UPDATE başarısız olur ama erken yazılmış audit + seq retry'da
+  // tekrar yazılıp unique index'i bozar (eski bug buydu). Bu yüzden state'i
+  // saf hesapla, audit'i biriktir, yalnızca UPDATE başarılıysa topluca yaz.
+  const pendingLog: Array<{ side: 'P1' | 'P2'; event: Record<string, unknown> }> =
+    [];
+
   try {
     if (action.type === 'submit-hand') {
       state = applyHandSubmit(state, side, action.cards);
-      await logMove(db, matchId, seq++, side, {
-        type: 'HAND_SUBMITTED',
+      pendingLog.push({
         side,
-        cards: action.cards,
+        event: { type: 'HAND_SUBMITTED', side, cards: action.cards },
       });
       // İki el de geldiyse turu başlat (soruyu deterministik seç).
       const started = await maybeStartRound(state, flowState);
       state = started.state;
       flowState = started.flowState;
       if (started.questionId) {
-        await logMove(db, matchId, seq++, 'P1', {
-          type: 'ROUND_STARTED',
-          questionId: started.questionId,
+        pendingLog.push({
+          side: 'P1',
+          event: { type: 'ROUND_STARTED', questionId: started.questionId },
         });
       }
     } else if (action.type === 'use-multiplier') {
-      // Çarpan jokeri — kart oynamadan önce, pendingMultiplier set eder.
       state = applyMultiplierJoker(state, side);
-      await logMove(db, matchId, seq++, side, {
-        type: 'JOKER_MULTIPLIER',
-        side,
-      });
+      pendingLog.push({ side, event: { type: 'JOKER_MULTIPLIER', side } });
     } else if (action.type === 'use-reveal') {
-      // İstatistik-gör — kendi elinin değerlerini sunucuda hesapla (gizli).
       const r = await applyRevealJoker(state, side, flowState);
       state = r.nextState;
       revealValues = r.values;
-      await logMove(db, matchId, seq++, side, { type: 'JOKER_REVEAL', side });
+      pendingLog.push({ side, event: { type: 'JOKER_REVEAL', side } });
     } else if (action.type === 'ack') {
-      // Tur sonucu görüldü → sonraki tura ilerle (idempotent, çift ack güvenli).
       const acked = await acknowledgeRound(state, flowState);
       state = acked.state;
       flowState = acked.flowState;
     } else if (action.type === 'phase-ack') {
-      // Faz-geçiş duyurusu görüldü → yeni fazın el seçimine geç.
       state = acknowledgePhaseTransition(state);
     } else if (action.type === 'transfer') {
-      // Transfer takası — tek atımlık swap, her iki tarafa tabela gösterilir.
       const t = applyTransferJoker(state, side, action.give, action.take);
       state = t.nextState;
       transfer = { side: t.side, give: t.give, take: t.take };
-      await logMove(db, matchId, seq++, side, {
-        type: 'TRANSFER_EXECUTE',
-        side: t.side,
-        give: t.give,
-        take: t.take,
+      pendingLog.push({
+        side,
+        event: {
+          type: 'TRANSFER_EXECUTE',
+          side: t.side,
+          give: t.give,
+          take: t.take,
+        },
       });
     } else {
       // play-card
       state = applyCardPlay(state, side, action.cardId);
-      await logMove(db, matchId, seq++, side, {
-        type: 'CARD_PLAYED',
+      pendingLog.push({
         side,
-        cardId: action.cardId,
+        event: { type: 'CARD_PLAYED', side, cardId: action.cardId },
       });
       // İki kart da geldiyse turu çöz (doğru cevap sunucuda kalır).
       if (state.currentP1Card && state.currentP2Card) {
@@ -163,9 +163,9 @@ export async function POST(
         state = resolved.nextState;
         flowState = resolved.flowState;
         reveal = resolved.reveal;
-        await logMove(db, matchId, seq++, 'P1', {
-          type: 'ROUND_RESOLVED',
-          ...reveal,
+        pendingLog.push({
+          side: 'P1',
+          event: { type: 'ROUND_RESOLVED', ...reveal },
         });
       }
     }
@@ -186,18 +186,42 @@ export async function POST(
   );
 
   // Kaynak-doğru state + flowState + deadline'ı DB'ye yaz.
-  await db
+  // OPTIMISTIC LOCKING: yalnızca okuduğumuz sürüm hâlâ geçerliyse yaz. Araya
+  // başka hamle girdiyse (version değiştiyse) UPDATE 0 satır eder → 409 dön,
+  // client retry eder. Eşzamanlı iki hamlede kaybolan hamle olmaz.
+  const updated = await db
     .update(matchTable)
     .set({
       state,
       flowState,
       currentScene: state.scene,
       turnDeadline: newDeadline,
+      version: m.version + 1,
       winnerSide: state.scene === 'FINAL' ? finalWinner(state) : null,
       status: state.scene === 'FINAL' ? 'finished' : 'active',
       updatedAt: new Date(),
     })
-    .where(eq(matchTable.id, matchId));
+    .where(and(eq(matchTable.id, matchId), eq(matchTable.version, m.version)))
+    .returning({ id: matchTable.id });
+
+  if (updated.length === 0) {
+    // Sürüm çakışması: başka bir hamle araya girdi. Client retry etmeli.
+    // Audit yazılmadı (pendingLog beklemede) → retry temiz tekrarlar.
+    return NextResponse.json(
+      { error: 'conflict', retry: true },
+      { status: 409 },
+    );
+  }
+
+  // UPDATE başarılı → şimdi audit log'ları yaz (seq çakışması olmaz çünkü bu
+  // sürümü biz aldık). Hata olursa yut (audit kritik değil, state kaynak-doğru).
+  for (const entry of pendingLog) {
+    try {
+      await logMove(db, matchId, seq++, entry.side, entry.event);
+    } catch {
+      // audit yazımı başarısız — state zaten yazıldı, yut
+    }
+  }
 
   // Rakibe Ably ile haber ver (key yoksa sessizce atlanır — polling yedek).
   // transfer tabelası her iki tarafa gösterilir (gizli değil — açık takas).

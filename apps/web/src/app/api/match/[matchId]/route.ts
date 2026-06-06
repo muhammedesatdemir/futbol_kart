@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { eq, getDb, match as matchTable } from '@futbol-kart/db';
+import { and, eq, getDb, match as matchTable } from '@futbol-kart/db';
 import type { SessionState, FlowState } from '@futbol-kart/game-engine';
 import { auth } from '@/lib/auth';
 import {
@@ -68,28 +68,37 @@ export async function GET(
     Date.now(),
   );
   if (timedOut.changed) {
-    fullState = timedOut.state;
-    flowState = timedOut.flowState;
     // Yeni sahne için yeni deadline.
-    const secs = sceneDeadlineSeconds(fullState);
-    deadline = secs ? new Date(Date.now() + secs * 1000) : null;
-    await db
+    const secs = sceneDeadlineSeconds(timedOut.state);
+    const newDeadline = secs ? new Date(Date.now() + secs * 1000) : null;
+    // OPTIMISTIC LOCKING: GET sık çağrılır (polling); iki client aynı anda
+    // timeout uygulayabilir. Sürüm koşuluyla yalnızca biri yazar; diğeri
+    // sessizce geçer (bir sonraki polling güncel state'i görür — retry gerekmez).
+    const updated = await db
       .update(matchTable)
       .set({
-        state: fullState,
-        flowState,
-        currentScene: fullState.scene,
-        turnDeadline: deadline,
-        status: fullState.scene === 'FINAL' ? 'finished' : 'active',
+        state: timedOut.state,
+        flowState: timedOut.flowState,
+        currentScene: timedOut.state.scene,
+        turnDeadline: newDeadline,
+        version: m.version + 1,
+        status: timedOut.state.scene === 'FINAL' ? 'finished' : 'active',
         updatedAt: new Date(),
       })
-      .where(eq(matchTable.id, m.id));
-    // Rakibe de haber ver (süre dolumuyla state değişti).
-    await publishMatchEvent(m.id, 'state-changed', {
-      scene: fullState.scene,
-      roundIndex: fullState.roundIndex,
-      questionId: fullState.currentQuestionId,
-    });
+      .where(and(eq(matchTable.id, m.id), eq(matchTable.version, m.version)))
+      .returning({ id: matchTable.id });
+    if (updated.length > 0) {
+      fullState = timedOut.state;
+      flowState = timedOut.flowState;
+      deadline = newDeadline;
+      await publishMatchEvent(m.id, 'state-changed', {
+        scene: fullState.scene,
+        roundIndex: fullState.roundIndex,
+        questionId: fullState.currentQuestionId,
+      });
+    }
+    // updated.length === 0 → başka istek araya girdi; bu GET eski state'i
+    // gösterir, sorun değil (1.5sn sonra polling güncelini çeker).
   }
 
   // GİZLİLİK: rakibin elini maskele — kart id'lerini gönderme (F12'den kart

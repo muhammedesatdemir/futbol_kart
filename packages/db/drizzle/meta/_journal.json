@@ -8,6 +8,13 @@
       "when": 1780679607942,
       "tag": "0000_new_punisher",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780776462518,
+      "tag": "0001_violet_obadiah_stane",
+      "breakpoints": true
     }
   ]
 }

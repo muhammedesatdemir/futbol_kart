@@ -174,20 +174,34 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
   const sendMove = useCallback(
     async (bodyObj: Record<string, unknown>): Promise<Record<string, unknown>> => {
       if (!matchId) return {};
-      const res = await fetch(`/api/match/${matchId}/move`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(bodyObj),
-      });
-      if (!res.ok) {
-        const data = await res.json().catch(() => ({}));
-        throw new Error(data.error ?? 'Hamle reddedildi.');
+      // OPTIMISTIC LOCKING: sunucu 409 (conflict) dönerse başka bir hamle araya
+      // girmiş demektir. Kısa, artan beklemeyle birkaç kez retry et — yoğun
+      // ortamda eşzamanlı hamlelerde kaybolan hamle olmaz. Bkz ONLINE-YOL-HARITASI.
+      const MAX_RETRY = 4;
+      for (let attempt = 0; attempt <= MAX_RETRY; attempt++) {
+        const res = await fetch(`/api/match/${matchId}/move`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(bodyObj),
+        });
+        if (res.status === 409 && attempt < MAX_RETRY) {
+          // Çakışma: kısa bekle (artan + küçük jitter), tekrar dene.
+          await new Promise((r) =>
+            setTimeout(r, 80 * (attempt + 1) + Math.floor((attempt * 37) % 50)),
+          );
+          continue;
+        }
+        if (!res.ok) {
+          const data = await res.json().catch(() => ({}));
+          throw new Error(data.error ?? 'Hamle reddedildi.');
+        }
+        const data = await res.json();
+        if (data.reveal) setLastReveal(data.reveal as RoundReveal);
+        // Hamle sonrası kendi state'imizi de tazele (Ably'yi beklemeden).
+        await refresh();
+        return data;
       }
-      const data = await res.json();
-      if (data.reveal) setLastReveal(data.reveal as RoundReveal);
-      // Hamle sonrası kendi state'imizi de tazele (Ably'yi beklemeden).
-      await refresh();
-      return data;
+      throw new Error('Hamle çok kez çakıştı, tekrar dene.');
     },
     [matchId, refresh],
   );

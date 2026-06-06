@@ -183,6 +183,13 @@ export const match = pgTable(
     flowState: jsonb('flow_state'),
     /** Aktif turun sunucu-otoriteli bitiş anı (süre dolunca otomatik çözüm). */
     turnDeadline: timestamp('turn_deadline', { withTimezone: true }),
+    /**
+     * OPTIMISTIC LOCKING sürüm sayacı. Her yazmada artar; UPDATE yalnızca
+     * okunan sürüm hâlâ geçerliyse (WHERE version = okunan) uygulanır. Eşzamanlı
+     * iki hamle (aynı ms'de) yarışırsa biri reddedilir → kaybolan hamle olmaz.
+     * Bkz ONLINE-YOL-HARITASI.md (eşzamanlılık).
+     */
+    version: integer('version').notNull().default(0),
     /** 'P1' | 'P2' | 'tie' | null (bitmeden null). */
     winnerSide: text('winner_side'),
     createdAt: timestamp('created_at', { withTimezone: true })

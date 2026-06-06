@@ -31,7 +31,9 @@ export function OnlineMatchmaking({ onCancel }: { onCancel: () => void }) {
   const goToMatch = useCallback(
     (matchId: string) => {
       setPhase('matched');
-      router.push(`/oyna-online/${matchId}`);
+      // Gerçek oyna sayfası, online modda (?online=1). Tam deneyim: sesler,
+      // efektler, gerçek kartlar, arka plan — offline ile birebir.
+      router.push(`/oyna/${matchId}?online=1`);
     },
     [router],
   );

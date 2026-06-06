@@ -12,6 +12,9 @@ import {
   applyTransferJoker,
   maybeStartRound,
   resolveRoundOnServer,
+  acknowledgeRound,
+  applyTimeout,
+  sceneDeadlineSeconds,
 } from '@/lib/server/matchEngine';
 import { publishMatchEvent } from '@/lib/server/ably';
 
@@ -82,6 +85,13 @@ export async function POST(
   let state = m.state as SessionState;
   let flowState = (m.flowState as FlowState | null) ?? null;
   let seq = await nextMoveSeq(db, matchId);
+
+  // SÜRE KONTROLÜ (lazy): önceki aşamanın süresi dolduysa otomatik tamamla.
+  // Böylece rakip bekletse / sekme kapansa bile maç ilerler.
+  const prevDeadline = m.turnDeadline ? new Date(m.turnDeadline).getTime() : null;
+  const timedOut = await applyTimeout(state, flowState, prevDeadline, Date.now());
+  state = timedOut.state;
+  flowState = timedOut.flowState;
   let reveal = null;
   // İstatistik-gör jokeri: YALNIZCA bu isteği yapan oyuncuya döner (gizli).
   let revealValues = null;
@@ -119,6 +129,11 @@ export async function POST(
       state = r.nextState;
       revealValues = r.values;
       await logMove(db, matchId, seq++, side, { type: 'JOKER_REVEAL', side });
+    } else if (action.type === 'ack') {
+      // Tur sonucu görüldü → sonraki tura ilerle (idempotent, çift ack güvenli).
+      const acked = await acknowledgeRound(state, flowState);
+      state = acked.state;
+      flowState = acked.flowState;
     } else if (action.type === 'transfer') {
       // Transfer takası — tek atımlık swap, her iki tarafa tabela gösterilir.
       const t = applyTransferJoker(state, side, action.give, action.take);
@@ -157,13 +172,25 @@ export async function POST(
     );
   }
 
-  // Kaynak-doğru state + flowState'i DB'ye yaz.
+  // Yeni deadline hesapla. SAHNE DEĞİŞTİYSE yeni süre başlat; aynı sahnedeyse
+  // (örn. P1 el seçti, P2 hâlâ seçiyor) mevcut deadline'ı KORU — yoksa rakibin
+  // her hamlesi öbürünün süresini sıfırlardı.
+  const sceneChanged = state.scene !== m.currentScene;
+  const newDeadline = computeDeadline(
+    state,
+    sceneChanged ? null : prevDeadline,
+  );
+
+  // Kaynak-doğru state + flowState + deadline'ı DB'ye yaz.
   await db
     .update(matchTable)
     .set({
       state,
       flowState,
       currentScene: state.scene,
+      turnDeadline: newDeadline,
+      winnerSide: state.scene === 'FINAL' ? finalWinner(state) : null,
+      status: state.scene === 'FINAL' ? 'finished' : 'active',
       updatedAt: new Date(),
     })
     .where(eq(matchTable.id, matchId));
@@ -188,6 +215,7 @@ export async function POST(
     p1HandCount: state.p1Hand.length,
     p2HandCount: state.p2Hand.length,
     pendingMultiplier: state.pendingMultiplier,
+    turnDeadline: newDeadline ? newDeadline.toISOString() : null,
     reveal,
     // revealValues YALNIZCA bu isteği yapan oyuncuya döner (kendi eli — gizli).
     revealValues,
@@ -196,11 +224,30 @@ export async function POST(
   });
 }
 
+/**
+ * Mevcut sahneye göre yeni deadline. `keep` verilirse (aynı sahne) o korunur.
+ * Süresiz sahnelerde null.
+ */
+function computeDeadline(state: SessionState, keep: number | null): Date | null {
+  const secs = sceneDeadlineSeconds(state);
+  if (secs === null) return null;
+  if (keep !== null) return new Date(keep);
+  return new Date(Date.now() + secs * 1000);
+}
+
+/** FINAL'de kazananı cumulative skora göre belirler. */
+function finalWinner(state: SessionState): 'P1' | 'P2' | 'tie' {
+  if (state.cumulativeP1 > state.cumulativeP2) return 'P1';
+  if (state.cumulativeP2 > state.cumulativeP1) return 'P2';
+  return 'tie';
+}
+
 type Action =
   | { type: 'submit-hand'; cards: string[] }
   | { type: 'play-card'; cardId: string }
   | { type: 'use-multiplier' }
   | { type: 'use-reveal' }
+  | { type: 'ack' }
   | { type: 'transfer'; give: string; take: string };
 
 function parseAction(body: unknown): Action | null {
@@ -208,6 +255,7 @@ function parseAction(body: unknown): Action | null {
   const b = body as Record<string, unknown>;
   if (b.action === 'use-multiplier') return { type: 'use-multiplier' };
   if (b.action === 'use-reveal') return { type: 'use-reveal' };
+  if (b.action === 'ack') return { type: 'ack' };
   if (b.action === 'transfer') {
     if (typeof b.give !== 'string' || !b.give) return null;
     if (typeof b.take !== 'string' || !b.take) return null;

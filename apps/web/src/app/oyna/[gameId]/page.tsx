@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import type { GameMode, Player } from '@futbol-kart/shared-types';
@@ -26,6 +26,7 @@ import { useProfileStore } from '@/lib/profileStore';
 import { useGameSession } from '@/lib/GameSessionProvider';
 import { useSessionStore } from '@/lib/sessionStore';
 import { useSessionHydration } from '@/lib/useSessionHydration';
+import { useGameController } from '@/lib/useGameController';
 import {
   botPickCard,
   pickQuestion,
@@ -52,11 +53,22 @@ import { templateById } from '@futbol-kart/question-templates';
 
 export default function GameSessionPage() {
   const params = useParams<{ gameId: string }>();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const session = useGameSession();
   const hydrated = useSessionHydration();
-  const state = useSessionStore((s) => s.state);
-  const dispatch = useSessionStore((s) => s.dispatch);
+
+  // ONLINE MOD: ?online=1 ise gameId aslında bir maç id'sidir. Controller
+  // state'i sunucudan besler, dispatch'i sunucuya yönlendirir. Aksi halde
+  // (bot/hotseat) yerel store kullanılır. Bkz useGameController.
+  const isOnlineRoute = searchParams.get('online') === '1';
+  const matchId = isOnlineRoute ? params.gameId : null;
+  const controller = useGameController(matchId);
+  const state = controller.state;
+  const dispatch = controller.dispatch;
+  const isOnline = controller.isOnline;
+  const yourSide = controller.yourSide;
+
   const init = useSessionStore((s) => s.init);
   const profileP1 = useProfileStore((s) => s.p1Name);
   const profileP2 = useProfileStore((s) => s.p2Name);
@@ -68,12 +80,14 @@ export default function GameSessionPage() {
   }, []);
 
   useEffect(() => {
+    // Online'da state sunucudan gelir — yerel init yapma.
+    if (isOnline) return;
     if (!hydrated) return;
     if (state.gameId !== params.gameId) {
       const seed = `${params.gameId}-${Date.now()}`;
       init(params.gameId, seed);
     }
-  }, [hydrated, params.gameId, state.gameId, init]);
+  }, [isOnline, hydrated, params.gameId, state.gameId, init]);
 
   const flow = useMemo(
     () => session.getFlow(state.seed || params.gameId),
@@ -257,6 +271,7 @@ export default function GameSessionPage() {
   // Eller hazır + henüz karar verilmemişse hesapla ve dispatch et
   // (BONUS_CONDITIONS_SET → fizibilse BONUS_ASSIGN, değilse ROUND_INTRO'da kalır).
   useEffect(() => {
+    if (isOnline) return; // online: bonus sunucu tarafında (temel dilimde yok)
     if (state.scene !== 'ROUND_INTRO') return;
     if (state.phase !== 'main' || state.roundIndex !== 0) return;
     if (state.bonusResolved) return;
@@ -285,6 +300,7 @@ export default function GameSessionPage() {
   // (her oyuncu kendi hakkını bağımsız kullanır). Her (tur, taraf) bir kez işlenir.
   // Bot tarafı ayrı effect'te (vs-bot P2). Bir teklif açıksa beklenir.
   useEffect(() => {
+    if (isOnline) return; // online: transfer'i kullanıcı butonla açar
     if (state.scene !== 'ROUND_INTRO') return;
     if (state.p1Hand.length === 0 || state.p2Hand.length === 0) return;
     if (state.phase === 'main' && state.roundIndex === 0 && !state.bonusResolved)
@@ -419,6 +435,7 @@ export default function GameSessionPage() {
       transferHandledRef.current.has(`${roundKey}:${s}`),
     );
     if (!allHandled) return;
+    if (isOnline) return; // online: soruyu sunucu deterministik seçer
     const q = pickQuestion(flow, state.p1Hand, state.p2Hand);
     if (!q) return;
     const t = setTimeout(
@@ -461,6 +478,7 @@ export default function GameSessionPage() {
 
   // ROUND_PLAY: iki kart oynandi -> resolve
   useEffect(() => {
+    if (isOnline) return; // online: turu sunucu çözer (doğru cevap sızmaz)
     if (state.scene !== 'ROUND_PLAY') return;
     if (!state.currentP1Card || !state.currentP2Card) return;
     if (!state.currentQuestionId) return;
@@ -497,6 +515,7 @@ export default function GameSessionPage() {
 
   // ROUND_REVEAL -> ROUND_RESULT (flip 550ms + count-up 700ms + buffer)
   useEffect(() => {
+    if (isOnline) return; // online: sahne geçişini sunucu yönetir
     if (state.scene !== 'ROUND_REVEAL') return;
     const t = setTimeout(() => {
       useSessionStore.setState((s) => ({
@@ -504,7 +523,7 @@ export default function GameSessionPage() {
       }));
     }, 1450);
     return () => clearTimeout(t);
-  }, [state.scene]);
+  }, [isOnline, state.scene]);
 
   const onRematch = useCallback(() => {
     const newId = Math.random().toString(36).slice(2, 10);
@@ -619,7 +638,8 @@ export default function GameSessionPage() {
   if (!hydrated || state.gameId !== params.gameId) return null;
 
   const botMode = state.mode === 'vs-bot';
-  const nameModalOpen = state.mode !== null && state.p1Name === '';
+  // İsim modalı YALNIZCA offline (bot/hotseat) — online'da isimler hesaptan gelir.
+  const nameModalOpen = !isOnline && state.mode !== null && state.p1Name === '';
   const showScoreboard =
     state.scene !== 'MODE_SELECT' &&
     state.scene !== 'CARD_PICK_P1' &&
@@ -649,8 +669,14 @@ export default function GameSessionPage() {
     ? resolvedTitle(flow, currentTemplate)
     : null;
 
-  const activeSide: 'P1' | 'P2' =
-    state.currentP1Card === null ? 'P1' : 'P2';
+  // Aktif taraf: hotseat'te sıraya göre (P1 oynamadıysa P1, sonra P2). Online'da
+  // ise HER ZAMAN kendi tarafım (yourSide) — eşzamanlı oynuyoruz, rakibi
+  // beklemeden kendi kartımı seçerim.
+  const activeSide: 'P1' | 'P2' = isOnline
+    ? (yourSide ?? 'P1')
+    : state.currentP1Card === null
+      ? 'P1'
+      : 'P2';
   const activeHand = activeSide === 'P1' ? state.p1Hand : state.p2Hand;
   const onCardPlay = activeSide === 'P1' ? onP1CardPlay : onP2CardPlay;
 
@@ -734,6 +760,32 @@ export default function GameSessionPage() {
     }
     return { side: who, count: n };
   })();
+
+  // ONLINE: maç sunucudan yüklenene kadar bekleme ekranı. Böylece yarım/eski
+  // state ile sahneler üst üste render olmaz (offline akış kalıntıları tetiklenmez).
+  if (isOnline && controller.online?.loading) {
+    return (
+      <>
+        <SceneBackground scene="MODE_SELECT" phase="main" />
+        <main className="relative z-10 flex min-h-screen items-center justify-center text-white/70">
+          Maç yükleniyor…
+        </main>
+      </>
+    );
+  }
+  if (isOnline && controller.online?.error) {
+    return (
+      <>
+        <SceneBackground scene="MODE_SELECT" phase="main" />
+        <main className="relative z-10 flex min-h-screen flex-col items-center justify-center gap-4 text-center">
+          <p className="text-side-red">{controller.online.error}</p>
+          <button onClick={() => router.push('/')} className="btn-ghost">
+            Ana sayfa
+          </button>
+        </main>
+      </>
+    );
+  }
 
   return (
     <>
@@ -870,7 +922,31 @@ export default function GameSessionPage() {
           </SceneShell>
         )}
 
-        {state.scene === 'CARD_PICK_P1' && (
+        {/* ONLINE el seçimi: eşzamanlı. Sahne CARD_PICK_* iken kendi tarafımın
+            elini seçerim (yourSide). Henüz seçtiysem "rakip bekleniyor". */}
+        {isOnline &&
+          (state.scene === 'CARD_PICK_P1' || state.scene === 'CARD_PICK_P2') &&
+          (activeHand.length === 0 ? (
+            <SceneShell sceneKey={`pick-online-${state.phase}`} key={`pick-online-${state.phase}`}>
+              <CardPickScene
+                side={activeSide}
+                players={session.players}
+                excludedCards={activeSide === 'P1' ? p1Excluded : p2Excluded}
+                handSize={state.handSize}
+                playerName={activeSide === 'P1' ? state.p1Name : state.p2Name}
+                onSubmit={activeSide === 'P1' ? onP1Hand : onP2Hand}
+                ctaLabel="Hazırım"
+              />
+            </SceneShell>
+          ) : (
+            <SceneShell sceneKey="pick-online-wait" key="pick-online-wait">
+              <div className="glass-panel flex min-h-[40vh] items-center justify-center p-8 text-center text-white/70">
+                Elini seçtin. Rakibin el seçmesi bekleniyor…
+              </div>
+            </SceneShell>
+          ))}
+
+        {!isOnline && state.scene === 'CARD_PICK_P1' && (
           <SceneShell sceneKey={`pick-p1-${state.phase}`} key={`pick-p1-${state.phase}`}>
             <CardPickScene
               side="P1"
@@ -884,13 +960,13 @@ export default function GameSessionPage() {
           </SceneShell>
         )}
 
-        {state.scene === 'HANDOFF' && (
+        {!isOnline && state.scene === 'HANDOFF' && (
           <SceneShell sceneKey="handoff" key="handoff">
             <HandoffScene onContinue={onHandoffContinue} />
           </SceneShell>
         )}
 
-        {state.scene === 'CARD_PICK_P2' && (
+        {!isOnline && state.scene === 'CARD_PICK_P2' && (
           <SceneShell sceneKey={`pick-p2-${state.phase}`} key={`pick-p2-${state.phase}`}>
             <CardPickScene
               side="P2"

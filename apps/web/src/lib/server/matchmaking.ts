@@ -25,6 +25,7 @@ import {
   reduceSession,
   type SessionState,
 } from '@futbol-kart/game-engine';
+import { sceneDeadlineSeconds } from '@/lib/server/matchEngine';
 
 /** Pilot: yalnızca VS Düello online. İleride diğer modlar eklenir. */
 export const ONLINE_MODES = ['vs-duello'] as const;
@@ -94,6 +95,10 @@ export async function joinMatchmaking(
     ]);
     const state = buildOnlineMatchState(matchId, seed, p1Name, p2Name);
 
+    // Süre EŞLEŞME ANINDA başlar (iki tarafta eş). İlk sahne el seçimi.
+    const secs = sceneDeadlineSeconds(state);
+    const turnDeadline = secs ? new Date(Date.now() + secs * 1000) : null;
+
     await db.insert(matchTable).values({
       id: matchId,
       mode,
@@ -103,6 +108,7 @@ export async function joinMatchmaking(
       p2UserId: userId,
       currentScene: state.scene,
       state,
+      turnDeadline,
     });
 
     // 4) Rakibi kuyruktan çıkar (artık maçta).

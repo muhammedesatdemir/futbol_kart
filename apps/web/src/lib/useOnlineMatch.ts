@@ -39,6 +39,10 @@ export interface OnlineMatch {
   lastTransfer: TransferInfo | null;
   /** Transfer tabelasını kapat (gösterim bitince). */
   clearTransfer: () => void;
+  /** Tur sonucu görüldü → sonraki tura ilerle (sunucu-otoriteli, idempotent). */
+  ack: () => Promise<void>;
+  /** Bu aşamanın sunucu-otoriteli bitiş anı (ISO) — client geri sayım gösterir. */
+  turnDeadline: string | null;
   /** Sunucudan en güncel state'i yeniden çek. */
   refresh: () => Promise<void>;
 }
@@ -79,6 +83,7 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
   const [lastReveal, setLastReveal] = useState<RoundReveal | null>(null);
   const [revealValues, setRevealValues] = useState<RevealedValue[] | null>(null);
   const [lastTransfer, setLastTransfer] = useState<TransferInfo | null>(null);
+  const [turnDeadline, setTurnDeadline] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -97,6 +102,7 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
       setState(data.state as SessionState);
       setYourSide(data.yourSide);
       setStatus(data.status);
+      setTurnDeadline(data.turnDeadline ?? null);
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Maç yüklenemedi.');
@@ -217,6 +223,9 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
     [sendMove],
   );
   const clearTransfer = useCallback(() => setLastTransfer(null), []);
+  const ack = useCallback(async () => {
+    await sendMove({ action: 'ack' });
+  }, [sendMove]);
 
   return {
     state,
@@ -234,6 +243,8 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
     transfer,
     lastTransfer,
     clearTransfer,
+    ack,
+    turnDeadline,
     refresh,
   };
 }

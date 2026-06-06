@@ -25,6 +25,8 @@ import {
   revealHand,
   canUseMultiplier,
   transferableCards,
+  CARD_PLAY_SECONDS,
+  handPickSeconds,
   type SessionState,
   type FlowContext,
   type FlowState,
@@ -32,6 +34,23 @@ import {
 } from '@futbol-kart/game-engine';
 import { templateById } from '@futbol-kart/question-templates';
 import { loadGameData } from '@/lib/data';
+
+/**
+ * Bir sahnenin SÜRE LİMİTİ (saniye). Sunucu-otoriteli geri sayım bu süreyle
+ * başlar; süre dolunca sunucu otomatik işlem yapar (rastgele kart). Offline'la
+ * aynı değerler (gameConstants). Süresiz sahneler için null.
+ */
+export function sceneDeadlineSeconds(state: SessionState): number | null {
+  switch (state.scene) {
+    case 'CARD_PICK_P1':
+    case 'CARD_PICK_P2':
+      return handPickSeconds(state.handSize); // el seçimi (8 kart → 104sn)
+    case 'ROUND_PLAY':
+      return CARD_PLAY_SECONDS; // kart oynama (34sn)
+    default:
+      return null; // reveal/result/intro/final — süresiz (kısa, otomatik akar)
+  }
+}
 
 /**
  * Maçın seed'iyle taze FlowContext kurar; kaydedilmiş flowState varsa geri
@@ -284,6 +303,127 @@ export function applyCardPlay(
     throw new Error(`${side} bu turda zaten kart oynadı.`);
   }
   return reduceSession(state, { type: 'CARD_PLAYED', side, cardId });
+}
+
+/**
+ * Süre dolumunu uygular (sunucu-otoriteli). `nowMs` >= deadline ise süre
+ * dolmuştur: eksik aksiyonları OTOMATİK tamamlar (offline'daki gibi rastgele).
+ *
+ *  - CARD_PICK: elini seçmemiş taraf(lar) için rastgele el seç → tur başlar.
+ *  - ROUND_PLAY: kart oynamamış taraf(lar) için rastgele kart oyna → tur çözülür.
+ *
+ * Auto-fill için tüm oyuncu havuzu gerekir (el seçimi). `nowMs` ve deadline ms.
+ * Değişiklik olduysa changed=true döner (DB'ye yazılmalı + Ably publish).
+ *
+ * NOT: rastgelelik PRNG'den BAĞIMSIZ (deadline'a bağlı basit index) — soru
+ * seçimi flowState PRNG'sini bozmamalı.
+ */
+export async function applyTimeout(
+  state: SessionState,
+  flowState: FlowState | null,
+  deadlineMs: number | null,
+  nowMs: number,
+): Promise<{
+  state: SessionState;
+  flowState: FlowState | null;
+  changed: boolean;
+}> {
+  if (deadlineMs === null || nowMs < deadlineMs) {
+    return { state, flowState, changed: false };
+  }
+
+  // Deadline'a bağlı sözde-rastgele seçici (PRNG'yi tüketmez).
+  let pickSeed = Math.floor(deadlineMs / 1000);
+  const pick = <T>(arr: T[]): T => {
+    pickSeed = (pickSeed * 1103515245 + 12345) & 0x7fffffff;
+    return arr[pickSeed % arr.length]!;
+  };
+
+  if (state.scene === 'CARD_PICK_P1' || state.scene === 'CARD_PICK_P2') {
+    const { players } = await loadGameData();
+    const allIds = players.map((p) => p.id);
+    let s = state;
+    for (const side of ['P1', 'P2'] as const) {
+      const hand = side === 'P1' ? s.p1Hand : s.p2Hand;
+      if (hand.length === 0) {
+        // Rastgele benzersiz handSize kart seç.
+        const chosen = new Set<string>();
+        while (chosen.size < s.handSize) chosen.add(pick(allIds));
+        s = reduceSession(s, {
+          type: 'HAND_SUBMITTED',
+          side,
+          cards: [...chosen],
+        });
+      }
+    }
+    const started = await maybeStartRound(s, flowState);
+    return { state: started.state, flowState: started.flowState, changed: true };
+  }
+
+  if (state.scene === 'ROUND_PLAY') {
+    let s = state;
+    for (const side of ['P1', 'P2'] as const) {
+      const played = side === 'P1' ? s.currentP1Card : s.currentP2Card;
+      if (!played) {
+        const hand = side === 'P1' ? s.p1Hand : s.p2Hand;
+        if (hand.length > 0) {
+          s = reduceSession(s, {
+            type: 'CARD_PLAYED',
+            side,
+            cardId: pick(hand),
+          });
+        }
+      }
+    }
+    // İki kart da oynandıysa turu çöz.
+    if (s.currentP1Card && s.currentP2Card) {
+      const resolved = await resolveRoundOnServer(s, flowState);
+      return {
+        state: resolved.nextState,
+        flowState: resolved.flowState,
+        changed: true,
+      };
+    }
+    return { state: s, flowState, changed: true };
+  }
+
+  return { state, flowState, changed: false };
+}
+
+/**
+ * Tur sonucu gösterildikten sonra SONRAKİ tura ilerletir (sunucu-otoriteli).
+ *
+ * Akış: ROUND_REVEAL/ROUND_RESULT → ROUND_ACK → (faz kontrolü) → yeni tur için
+ * ROUND_INTRO → otomatik soru seç → ROUND_PLAY. Faz bitmişse PHASE_TRANSITION
+ * veya FINAL'e gider (o durumda soru seçilmez).
+ *
+ * İDEMPOTENT: iki oyuncu da "devam" gönderebilir; zaten ilerlemişse (artık
+ * REVEAL/RESULT sahnesinde değilse) state'i değiştirmeden döner. Böylece çift
+ * ack güvenli.
+ */
+export async function acknowledgeRound(
+  state: SessionState,
+  flowState: FlowState | null,
+): Promise<{
+  state: SessionState;
+  flowState: FlowState | null;
+  questionId: string | null;
+}> {
+  // Yalnızca tur-sonucu sahnelerinden ilerlenir; aksi halde idempotent no-op.
+  if (state.scene !== 'ROUND_REVEAL' && state.scene !== 'ROUND_RESULT') {
+    return { state, flowState, questionId: state.currentQuestionId };
+  }
+
+  // ROUND_ACK: roundIndex++ + ROUND_INTRO (veya faz geçişi / FINAL).
+  let next = reduceSession(state, { type: 'ROUND_ACK' });
+
+  // Yeni tur ROUND_INTRO'ya geçtiyse soruyu otomatik seç → ROUND_PLAY.
+  if (next.scene === 'ROUND_INTRO') {
+    return maybeStartRound(next, flowState);
+  }
+
+  // Faz geçişi / final: soru seçilmez (eller boş; PHASE_TRANSITION veya FINAL).
+  return { state: next, flowState, questionId: null };
 }
 
 /**

@@ -1,8 +1,10 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
 import { eq, getDb, match as matchTable } from '@futbol-kart/db';
-import type { SessionState } from '@futbol-kart/game-engine';
+import type { SessionState, FlowState } from '@futbol-kart/game-engine';
 import { auth } from '@/lib/auth';
+import { applyTimeout, sceneDeadlineSeconds } from '@/lib/server/matchEngine';
+import { publishMatchEvent } from '@/lib/server/ably';
 
 export const runtime = 'nodejs';
 
@@ -49,12 +51,46 @@ export async function GET(
     );
   }
 
-  const fullState = m.state as SessionState;
+  // SÜRE KONTROLÜ (lazy): yükleme anında süre dolduysa otomatik tamamla.
+  // Polling/Ably ile rakip sekmesi kapalı olsa bile maç ilerler.
+  let fullState = m.state as SessionState;
+  let deadline = m.turnDeadline ? new Date(m.turnDeadline) : null;
+  let flowState = (m.flowState as FlowState | null) ?? null;
+
+  const timedOut = await applyTimeout(
+    fullState,
+    flowState,
+    deadline ? deadline.getTime() : null,
+    Date.now(),
+  );
+  if (timedOut.changed) {
+    fullState = timedOut.state;
+    flowState = timedOut.flowState;
+    // Yeni sahne için yeni deadline.
+    const secs = sceneDeadlineSeconds(fullState);
+    deadline = secs ? new Date(Date.now() + secs * 1000) : null;
+    await db
+      .update(matchTable)
+      .set({
+        state: fullState,
+        flowState,
+        currentScene: fullState.scene,
+        turnDeadline: deadline,
+        status: fullState.scene === 'FINAL' ? 'finished' : 'active',
+        updatedAt: new Date(),
+      })
+      .where(eq(matchTable.id, m.id));
+    // Rakibe de haber ver (süre dolumuyla state değişti).
+    await publishMatchEvent(m.id, 'state-changed', {
+      scene: fullState.scene,
+      roundIndex: fullState.roundIndex,
+      questionId: fullState.currentQuestionId,
+    });
+  }
+
   // GİZLİLİK: rakibin elini maskele — kart id'lerini gönderme (F12'den kart
   // sayma engellenir). Yalnızca sayısı kalır (UI rakip el boyutunu gösterir).
-  // Transfer açılınca rakibin transfer-edilebilir kartları AYRI endpoint'ten
-  // gelir (transfer-options). Bkz ONLINE-YOL-HARITASI.md (hile modeli).
-  const state = maskOpponentHand(fullState, side);
+  const maskedState = maskOpponentHand(fullState, side);
 
   return NextResponse.json({
     matchId: m.id,
@@ -63,12 +99,13 @@ export async function GET(
     /** Bu isteği yapan oyuncunun tarafı — client kendi perspektifini bilir. */
     yourSide: side,
     seed: m.seed,
-    state,
+    state: maskedState,
     /** Rakibin el boyutu (kartları gizli ama sayısı görünür). */
     opponentHandCount:
       side === 'P1' ? fullState.p2Hand.length : fullState.p1Hand.length,
     winnerSide: m.winnerSide,
-    turnDeadline: m.turnDeadline,
+    /** Bu aşamanın sunucu-otoriteli bitiş anı (ISO) — client geri sayım gösterir. */
+    turnDeadline: deadline ? deadline.toISOString() : null,
   });
 }
 

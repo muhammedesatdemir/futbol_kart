@@ -2,9 +2,8 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { motion } from 'framer-motion';
 import { useSession } from '@/lib/authClient';
-import { SwordsIcon } from '@/components/icons';
+import { BallLoader } from '@/components/BallLoader';
 
 type Phase = 'checking-auth' | 'searching' | 'matched' | 'error';
 
@@ -107,32 +106,24 @@ export function OnlineMatchmaking({ onCancel }: { onCancel: () => void }) {
 
   return (
     <section className="flex min-h-[60vh] flex-col items-center justify-center gap-8 text-center">
-      <motion.div
-        animate={{ rotate: phase === 'searching' ? 360 : 0 }}
-        transition={
-          phase === 'searching'
-            ? { repeat: Infinity, duration: 2, ease: 'linear' }
-            : { duration: 0.3 }
-        }
-        className="flex h-20 w-20 items-center justify-center rounded-2xl bg-accent-gold/15 text-accent-goldHi ring-1 ring-accent-gold/30"
-      >
-        <SwordsIcon size={40} />
-      </motion.div>
-
       {phase === 'error' ? (
-        <div>
+        <div className="text-center">
           <h2 className="text-2xl font-black text-side-red">Eşleşme hatası</h2>
           <p className="mt-2 text-sm text-white/65">{error}</p>
         </div>
       ) : phase === 'matched' ? (
-        <h2 className="text-2xl font-black text-accent-goldHi">Rakip bulundu! 🎯</h2>
-      ) : (
-        <div>
-          <h2 className="text-2xl font-black">Rakip aranıyor…</h2>
-          <p className="mt-2 text-sm text-white/65">
-            Seninle eşleşecek bir oyuncu bekleniyor. Bu birkaç saniye sürebilir.
-          </p>
+        <div className="flex flex-col items-center gap-4">
+          <BallLoader size={64} />
+          <h2 className="text-2xl font-black text-accent-goldHi">
+            Rakip bulundu! 🎯
+          </h2>
         </div>
+      ) : (
+        <BallLoader
+          size={64}
+          label="Rakip aranıyor…"
+          sub="Seninle eşleşecek bir oyuncu bekleniyor. Bu birkaç saniye sürebilir."
+        />
       )}
 
       <button type="button" onClick={handleCancel} className="btn-ghost">

@@ -159,15 +159,26 @@ export async function findActiveMatchFor(
   return rows[0]?.id ?? null;
 }
 
-/** Kullanıcının görünen adını döndürür (maç state'inde gösterim için). */
+/**
+ * Kullanıcının görünen adını döndürür (maç state'inde gösterim için).
+ * İsim boşsa (magic-link kayıtta isim sormaz) e-postanın baş kısmından türetir
+ * — örn. "ali.gursoy@x.com" → "ali.gursoy". Böylece "Oyuncu 1/2" yerine
+ * tanınabilir bir ad görünür. (Kalıcı çözüm: profil ekranında ad belirleme.)
+ */
 async function displayNameOf(
   db: ReturnType<typeof getDb>,
   userId: string,
 ): Promise<string> {
   const rows = await db
-    .select({ name: userTable.name })
+    .select({ name: userTable.name, email: userTable.email })
     .from(userTable)
     .where(eq(userTable.id, userId))
     .limit(1);
-  return rows[0]?.name ?? 'Oyuncu';
+  const row = rows[0];
+  if (row?.name && row.name.trim()) return row.name.trim();
+  if (row?.email) {
+    const local = row.email.split('@')[0] ?? '';
+    if (local) return local.slice(0, 20);
+  }
+  return 'Oyuncu';
 }

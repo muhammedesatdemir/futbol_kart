@@ -27,6 +27,7 @@ import { useGameSession } from '@/lib/GameSessionProvider';
 import { useSessionStore } from '@/lib/sessionStore';
 import { useSessionHydration } from '@/lib/useSessionHydration';
 import { useGameController } from '@/lib/useGameController';
+import { BallLoader } from '@/components/BallLoader';
 import {
   botPickCard,
   pickQuestion,
@@ -529,14 +530,23 @@ export default function GameSessionPage() {
   // bekle, sonra OTOMATİK ack gönder → sunucu sonraki tura ilerletir. Böylece
   // "devam" butonuna basmaya gerek kalmaz; iki taraf da otomatik ilerler
   // (sunucu idempotent — ilk ack ilerletir, ikincisi no-op).
+  //
+  // KRİTİK: dispatch'i ref'te tut. Polling her 1.5sn re-render tetikler;
+  // dispatch dependency'de olsaydı effect sürekli sıfırlanır, 3.5sn'lik
+  // timeout HİÇ dolmaz → ack gönderilmez → tur ilerlemez (eski bug buydu).
+  // Effect yalnızca (scene, roundIndex) değişince yeniden kurulur.
+  const dispatchRef = useRef(dispatch);
+  dispatchRef.current = dispatch;
+  const ackKey = `${state.phase}-${state.roundIndex}`;
   useEffect(() => {
     if (!isOnline) return;
     if (state.scene !== 'ROUND_REVEAL' && state.scene !== 'ROUND_RESULT') return;
     const t = setTimeout(() => {
-      dispatch({ type: 'ROUND_ACK' });
+      dispatchRef.current({ type: 'ROUND_ACK' });
     }, 3500); // flip + skor say + sonucu okuma payı
     return () => clearTimeout(t);
-  }, [isOnline, state.scene, state.roundIndex, dispatch]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOnline, state.scene, ackKey]);
 
   const onRematch = useCallback(() => {
     const newId = Math.random().toString(36).slice(2, 10);
@@ -780,8 +790,8 @@ export default function GameSessionPage() {
     return (
       <>
         <SceneBackground scene="MODE_SELECT" phase="main" />
-        <main className="relative z-10 flex min-h-screen items-center justify-center text-white/70">
-          Maç yükleniyor…
+        <main className="relative z-10 flex min-h-screen items-center justify-center">
+          <BallLoader size={64} label="Maç yükleniyor…" />
         </main>
       </>
     );
@@ -959,8 +969,12 @@ export default function GameSessionPage() {
             </SceneShell>
           ) : (
             <SceneShell sceneKey="pick-online-wait" key="pick-online-wait">
-              <div className="glass-panel flex min-h-[40vh] items-center justify-center p-8 text-center text-white/70">
-                Elini seçtin. Rakibin el seçmesi bekleniyor…
+              <div className="glass-panel flex min-h-[45vh] items-center justify-center p-8">
+                <BallLoader
+                  size={64}
+                  label="Elini seçtin ✓"
+                  sub="Rakibin el seçmesi bekleniyor…"
+                />
               </div>
             </SceneShell>
           ))}

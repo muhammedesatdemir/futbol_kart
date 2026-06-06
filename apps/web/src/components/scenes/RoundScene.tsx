@@ -73,6 +73,8 @@ interface RoundSceneProps {
   cardTimerKey: string;
   /** ONLINE: sunucu deadline'ı (epoch ms) — geri sayım buna kilitlenir. */
   cardDeadlineMs?: number | null;
+  /** ONLINE mod mu — bekleme bandı + "rakip seçiyor" gösterimi için. */
+  isOnline?: boolean;
   /** Süre dolunca: aktif elden rastgele kart otomatik oynanır. */
   onCardPlayTimeout: () => void;
 }
@@ -110,6 +112,7 @@ export function RoundScene({
   cardPlaySeconds,
   cardTimerKey,
   cardDeadlineMs = null,
+  isOnline = false,
   onCardPlayTimeout,
 }: RoundSceneProps) {
   const t = useTranslations('round');
@@ -299,10 +302,23 @@ export function RoundScene({
         />
       )}
 
+      {/* ONLINE: kendi kartını oynadın, rakip henüz oynamadı → net bekleme bandı.
+          Kullanıcı "tıkladım mı / hata mı yaptım" diye düşünmesin diye açık bilgi. */}
+      {isOnline && showHand && activeHasPlayed && !showReveal && (
+        <div className="glass-panel flex items-center justify-center gap-3 p-4 text-center">
+          <span className="inline-block h-2.5 w-2.5 animate-pulse rounded-full bg-emerald-400" />
+          <span className="text-sm font-semibold text-white/80">
+            Kartını oynadın ✓ — rakip seçimini yapıyor…
+          </span>
+        </div>
+      )}
+
       {showHand && (
         <div
           className={cn(
             'relative rounded-2xl transition-all duration-500',
+            // Online'da kart oynandıysa eli soluklaştır (artık etkileşim yok).
+            isOnline && activeHasPlayed && 'pointer-events-none opacity-50',
             jokerInteractive && (multiplierPendingHere || revealActive)
               ? 'bg-accent-gold/[0.04] shadow-[0_0_40px_-8px_rgba(240,193,75,0.4)] ring-1 ring-accent-gold/25'
               : '',

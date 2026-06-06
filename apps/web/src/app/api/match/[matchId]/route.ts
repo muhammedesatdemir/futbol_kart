@@ -3,7 +3,11 @@ import { headers } from 'next/headers';
 import { eq, getDb, match as matchTable } from '@futbol-kart/db';
 import type { SessionState, FlowState } from '@futbol-kart/game-engine';
 import { auth } from '@/lib/auth';
-import { applyTimeout, sceneDeadlineSeconds } from '@/lib/server/matchEngine';
+import {
+  applyTimeout,
+  sceneDeadlineSeconds,
+  computeQuestionTitle,
+} from '@/lib/server/matchEngine';
 import { publishMatchEvent } from '@/lib/server/ably';
 
 export const runtime = 'nodejs';
@@ -92,6 +96,10 @@ export async function GET(
   // sayma engellenir). Yalnızca sayısı kalır (UI rakip el boyutunu gösterir).
   const maskedState = maskOpponentHand(fullState, side);
 
+  // Soru başlığını parametrelerle dolu olarak SUNUCUDA üret (client'ın flow'u
+  // soruyu seçmediği için {targetApps} gibi yer tutucuları dolduramaz).
+  const questionTitle = await computeQuestionTitle(fullState, flowState);
+
   return NextResponse.json({
     matchId: m.id,
     mode: m.mode,
@@ -100,6 +108,8 @@ export async function GET(
     yourSide: side,
     seed: m.seed,
     state: maskedState,
+    /** Parametrelerle dolu soru başlığı (online'da client bunu kullanır). */
+    currentQuestionTitle: questionTitle,
     /** Rakibin el boyutu (kartları gizli ama sayısı görünür). */
     opponentHandCount:
       side === 'P1' ? fullState.p2Hand.length : fullState.p1Hand.length,

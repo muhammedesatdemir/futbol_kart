@@ -36,6 +36,25 @@ import { templateById } from '@futbol-kart/question-templates';
 import { loadGameData } from '@/lib/data';
 
 /**
+ * Mevcut sorunun PARAMETRELERLE DOLU başlığını üretir ({targetApps} → 500 gibi).
+ *
+ * Online'da soruyu sunucu seçtiği için parametreler sunucunun flowState'inde
+ * üretilir; client'ın kendi flow'u bunları bilmez → client `resolvedTitle`
+ * çağırırsa {targetApps} ham kalır. Bu yüzden dolu başlığı SUNUCU hesaplayıp
+ * client'a gönderir. Soru yoksa null.
+ */
+export async function computeQuestionTitle(
+  state: SessionState,
+  flowState: FlowState | null,
+): Promise<string | null> {
+  if (!state.currentQuestionId) return null;
+  const template = templateById(state.currentQuestionId);
+  if (!template) return null;
+  const flow = await loadFlow(state.seed, flowState);
+  return resolvedTitle(flow, template) || template.id;
+}
+
+/**
  * Bir sahnenin SÜRE LİMİTİ (saniye). Sunucu-otoriteli geri sayım bu süreyle
  * başlar; süre dolunca sunucu otomatik işlem yapar (rastgele kart). Offline'la
  * aynı değerler (gameConstants). Süresiz sahneler için null.
@@ -422,7 +441,16 @@ export async function acknowledgeRound(
     return maybeStartRound(next, flowState);
   }
 
-  // Faz geçişi / final: soru seçilmez (eller boş; PHASE_TRANSITION veya FINAL).
+  // FAZ GEÇİŞİ (berabere → uzatma/sudden): reducer PHASE_TRANSITION'a geçti.
+  // Online'da ayrı "uzatma duyuru" ekranı yok; otomatik olarak yeni fazın el
+  // seçimine (CARD_PICK_P1) geç. Böylece maç berabere bitince UZATMAYA gider
+  // (offline'daki gibi: 4 kart/3 tur, yine berabere → sudden 1 kart/1 tur).
+  if (next.scene === 'PHASE_TRANSITION') {
+    next = reduceSession(next, { type: 'PHASE_TRANSITION_ACK' }); // → CARD_PICK_P1
+    return { state: next, flowState, questionId: null };
+  }
+
+  // FINAL: maç bitti.
   return { state: next, flowState, questionId: null };
 }
 

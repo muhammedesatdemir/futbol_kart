@@ -43,6 +43,8 @@ export interface OnlineMatch {
   ack: () => Promise<void>;
   /** Bu aşamanın sunucu-otoriteli bitiş anı (ISO) — client geri sayım gösterir. */
   turnDeadline: string | null;
+  /** Parametrelerle dolu soru başlığı (sunucudan; {targetApps} → 500). */
+  questionTitle: string | null;
   /** Sunucudan en güncel state'i yeniden çek. */
   refresh: () => Promise<void>;
 }
@@ -87,6 +89,7 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
   const [revealValues, setRevealValues] = useState<RevealedValue[] | null>(null);
   const [lastTransfer, setLastTransfer] = useState<TransferInfo | null>(null);
   const [turnDeadline, setTurnDeadline] = useState<string | null>(null);
+  const [questionTitle, setQuestionTitle] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -106,6 +109,7 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
       setYourSide(data.yourSide);
       setStatus(data.status);
       setTurnDeadline(data.turnDeadline ?? null);
+      setQuestionTitle(data.currentQuestionTitle ?? null);
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : 'Maç yüklenemedi.');
@@ -249,6 +253,7 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
     clearTransfer,
     ack,
     turnDeadline,
+    questionTitle,
     refresh,
   };
 }

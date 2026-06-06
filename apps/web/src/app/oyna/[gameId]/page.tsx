@@ -152,8 +152,15 @@ export default function GameSessionPage() {
     const resultScene = isOnline ? 'ROUND_REVEAL' : 'ROUND_RESULT';
     if (state.scene === resultScene) {
       const last = state.history[state.history.length - 1];
-      if (last && last.winner !== 'tie') playSfx('win');
-      else playSfx('tie');
+      const sfx = last && last.winner !== 'tie' ? 'win' : 'tie';
+      // ONLINE: REVEAL'e girer girmez flip sesi çalıyor; sonuç sesini onun
+      // ÜSTÜNE bindirmemek için ~900ms geciktir (flip bitsin, sonra sonuç sesi).
+      // Offline'da ROUND_RESULT zaten flip'ten sonra gelir → gecikme gerekmez.
+      if (isOnline) {
+        const t = setTimeout(() => playSfx(sfx), 900);
+        return () => clearTimeout(t);
+      }
+      playSfx(sfx);
     } else if (state.scene === 'FINAL' && prev !== null) {
       // prev === null → ilk mount (muhtemelen rematch sonrası eski state); çalma.
       playSfx('final');
@@ -704,9 +711,14 @@ export default function GameSessionPage() {
   const currentTemplate = state.currentQuestionId
     ? templateById(state.currentQuestionId) ?? null
     : null;
-  const currentQuestionTitle = currentTemplate
-    ? resolvedTitle(flow, currentTemplate)
-    : null;
+  // ONLINE: başlığı SUNUCU dolduruyor (parametreler sunucunun flow'unda üretildi;
+  // client kendi flow'undan {targetApps} gibi yer tutucuları dolduramaz).
+  // OFFLINE: client kendi flow'undan üretir.
+  const currentQuestionTitle = isOnline
+    ? controller.online?.questionTitle ?? currentTemplate?.title.tr ?? null
+    : currentTemplate
+      ? resolvedTitle(flow, currentTemplate)
+      : null;
 
   // Aktif taraf: hotseat'te sıraya göre (P1 oynamadıysa P1, sonra P2). Online'da
   // ise HER ZAMAN kendi tarafım (yourSide) — eşzamanlı oynuyoruz, rakibi
@@ -1094,6 +1106,7 @@ export default function GameSessionPage() {
               questionTitle={currentQuestionTitle}
               activeSide={activeSide}
               botMode={botMode}
+              isOnline={isOnline}
               p1Name={p1Display}
               p2Name={p2Display}
               hand={activeHand}

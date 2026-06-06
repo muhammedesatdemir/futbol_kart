@@ -39,6 +39,7 @@ export interface GameController {
     revealValues: RevealedValue[] | null;
     lastTransfer: TransferInfo | null;
     turnDeadline: string | null;
+    questionTitle: string | null;
     clearTransfer: () => void;
     fetchTransferOptions: OnlineMatch['fetchTransferOptions'];
   } | null;
@@ -100,6 +101,7 @@ export function useGameController(matchId: string | null): GameController {
           revealValues: onlineMatch.revealValues,
           lastTransfer: onlineMatch.lastTransfer,
           turnDeadline: onlineMatch.turnDeadline ?? null,
+          questionTitle: onlineMatch.questionTitle ?? null,
           clearTransfer: onlineMatch.clearTransfer,
           fetchTransferOptions: onlineMatch.fetchTransferOptions,
         },

@@ -97,23 +97,31 @@ export function useGameController(matchId: string | null): GameController {
   );
 
   return useMemo<GameController>(() => {
-    if (isOnline && onlineMatch.state) {
+    if (isOnline) {
+      // ONLINE: matchId varsa HER ZAMAN online mod. State henüz yüklenmediyse
+      // (onlineMatch.state null) bile isOnline=true + loading bilgisi ver —
+      // böylece sayfa loading guard'ı BallLoader gösterir, yerel MODE_SELECT
+      // sahnesi ASLA görünmez (eski "hangi mod sayfası kısa görünüyor" bug'ı).
+      const online = {
+        // state yüklenene kadar loading=true (state null veya hook loading).
+        loading: onlineMatch.loading || onlineMatch.state === null,
+        error: onlineMatch.error,
+        lastReveal: onlineMatch.lastReveal,
+        revealValues: onlineMatch.revealValues,
+        lastTransfer: onlineMatch.lastTransfer,
+        turnDeadline: onlineMatch.turnDeadline ?? null,
+        questionTitle: onlineMatch.questionTitle ?? null,
+        clearTransfer: onlineMatch.clearTransfer,
+        fetchTransferOptions: onlineMatch.fetchTransferOptions,
+      };
       return {
-        state: onlineMatch.state,
+        // state null iken yerel boş state'i KULLANMA — placeholder ver ama
+        // sayfa zaten loading guard'ında dönecek (state'e erişmeyecek).
+        state: onlineMatch.state ?? localState,
         dispatch: onlineDispatch,
         isOnline: true,
         yourSide: onlineMatch.yourSide,
-        online: {
-          loading: onlineMatch.loading,
-          error: onlineMatch.error,
-          lastReveal: onlineMatch.lastReveal,
-          revealValues: onlineMatch.revealValues,
-          lastTransfer: onlineMatch.lastTransfer,
-          turnDeadline: onlineMatch.turnDeadline ?? null,
-          questionTitle: onlineMatch.questionTitle ?? null,
-          clearTransfer: onlineMatch.clearTransfer,
-          fetchTransferOptions: onlineMatch.fetchTransferOptions,
-        },
+        online,
       };
     }
     // Yerel mod (bot/hotseat).

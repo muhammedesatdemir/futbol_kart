@@ -137,6 +137,19 @@ export async function joinMatchmaking(
       turnDeadline,
     });
 
+    // GÜVENLİK AĞI: maç kurulduğunda HER İKİ oyuncuyu da kuyruktan temizle.
+    // Claim edilen zaten silindi; ama eşzamanlı bir self-enqueue (kullanıcı
+    // maça girerken POST'u araya girip kendini kuyruğa yazmış olabilir) kalıntı
+    // bırakabilir → "hem maçta hem kuyrukta" tutarsızlığı. Bunu siler.
+    await db
+      .delete(matchmakingQueue)
+      .where(
+        or(
+          eq(matchmakingQueue.userId, opponentId),
+          eq(matchmakingQueue.userId, userId),
+        ),
+      );
+
     return { matched: true, matchId };
   }
 

@@ -10,6 +10,7 @@
 'use client';
 
 import type { Player } from '@futbol-kart/shared-types';
+import type { ClubLite } from '@futbol-kart/question-templates';
 import { buildClubLookup, type ClubLookup } from './playerFilters';
 
 interface ClubRaw {
@@ -28,6 +29,8 @@ interface GameData {
   players: Player[];
   clubs: ClubRaw[];
   clubsById: Map<string, ClubLookup>;
+  /** Flow/soru çözümü için hafif kulüp verisi (createFlowContext kullanır). */
+  clubsLite: ClubLite[];
 }
 
 let cached: GameData | null = null;
@@ -48,8 +51,16 @@ export async function fetchGameData(): Promise<GameData> {
     const players = (await playersRes.json()) as Player[];
     const clubs = (await clubsRes.json()) as ClubRaw[];
     const clubsById = buildClubLookup(clubs);
+    const clubsLite: ClubLite[] = clubs.map((c) => ({
+      id: c.id,
+      country: c.country,
+      countryCode: c.countryCode,
+      continent: c.continent,
+      lat: c.lat,
+      lng: c.lng,
+    }));
 
-    cached = { players, clubs, clubsById };
+    cached = { players, clubs, clubsById, clubsLite };
     return cached;
   })();
 

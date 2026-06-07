@@ -586,9 +586,17 @@ export default function GameSessionPage() {
   }, [isOnline, state.scene, state.phase]);
 
   const onRematch = useCallback(() => {
+    if (isOnline) {
+      // ONLINE: rastgele bir gameId'ye gitmek YANLIŞ — o id'de maç yok, sayfa
+      // ?v=0'da donar ("Oyuncu 1/2" boş isim + kara ekran). Doğrusu: yeni bir
+      // eşleşme aramak → /online matchmaking ekranına dön. (Aynı rakiple tekrar
+      // maç daveti ileride eklenebilir.)
+      router.push('/online');
+      return;
+    }
     const newId = Math.random().toString(36).slice(2, 10);
     router.push(`/oyna/${newId}`);
-  }, [router]);
+  }, [isOnline, router]);
 
   const onP1CardPlay = useCallback(
     (cardId: string) => dispatch({ type: 'CARD_PLAYED', side: 'P1', cardId }),
@@ -695,7 +703,13 @@ export default function GameSessionPage() {
     setTransferOfferSide(null);
   }, [transferOfferSide, state.phase, state.roundIndex]);
 
-  if (!hydrated || state.gameId !== params.gameId) return null;
+  // OFFLINE guard: yerel store hydrate olana + doğru oyuna ait olana kadar bekle.
+  // ONLINE'da bu kontrolü YAPMA — online state sunucudan gelir (state.gameId
+  // localState'ten gelip matchId'yle uyuşmayabilir) ve `hydrated` offline
+  // store'a aittir. Online yükleme durumu aşağıdaki BallLoader guard'ında
+  // (controller.online.loading) ele alınır. Aksi halde online'da burada
+  // `return null` olur → BallLoader'a hiç ulaşılmaz → KARA EKRAN.
+  if (!isOnline && (!hydrated || state.gameId !== params.gameId)) return null;
 
   const botMode = state.mode === 'vs-bot';
   // İsim modalı YALNIZCA offline (bot/hotseat) — online'da isimler hesaptan gelir.

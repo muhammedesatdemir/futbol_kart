@@ -32,7 +32,14 @@ export async function GET(
   // timeout da tetiklenmediyse) TAM yanıt yerine minik "unchanged" döneriz →
   // computeQuestionTitle (loadGameData + şablon tarama) ve state serileştirme
   // ATLANIR. Poll'lerin çoğu (kimse hamle yapmıyorken) böylece neredeyse bedava.
-  const clientVersion = Number(new URL(req.url).searchParams.get('v'));
+  //
+  // KRİTİK: `?v=` parametresi YOKKEN (ilk yükleme) clientVersion NaN olmalı —
+  // `Number(null)` 0 verir ve yeni maç version=0 ile başladığı için "0===0"
+  // çakışıp İLK GET'i `unchanged` yapardı → client TAM state'i HİÇ alamaz →
+  // sayfa kara ekranda (return null) ~deadline kadar takılırdı (kök neden bug).
+  // null → NaN → Number.isFinite(NaN)=false → kısa-devre atlanır, tam state döner.
+  const vParam = new URL(req.url).searchParams.get('v');
+  const clientVersion = vParam === null ? NaN : Number(vParam);
 
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) {

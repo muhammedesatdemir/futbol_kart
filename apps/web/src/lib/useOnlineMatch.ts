@@ -82,10 +82,19 @@ export interface RevealedValue {
   value: number | boolean | null;
 }
 
-// Polling nabzı. Süre dolumunu yeterince çabuk yakalamak için sık (1.5sn).
-// Ably bağlıyken anlık güncellemeler zaten gelir; bu nabız deadline kontrolü
-// + "ekrandan bağımsız ilerleme" için. Ably ücretsiz katmanı bu yükü kaldırır.
-const POLL_MS = 1500;
+// Polling nabzı — Ably durumuna göre iki hız (HİBRİT PUSH modeli):
+//
+// • POLL_MS_NO_ABLY (1.5sn): Ably YOKKEN. Poll TEK güncelleme kaynağı, rakip
+//   hamlesini yeterince çabuk yakalamak için sık olmalı.
+// • POLL_MS_WITH_ABLY (5sn): Ably BAĞLIYKEN. Anlık güncellemeyi artık Ably
+//   getirir (hamle olunca rakip mesajı alır → ANINDA ucuz ?v= GET → render).
+//   Poll bu durumda yalnızca GÜVENLİK NABZI: bir taraf takılıp kalsa / sekme
+//   kapansa / Ably mesajı düşse bile deadline'ı geçirip maçı ilerletir. Sık
+//   olması gerekmez → GET fırtınası biter, Neon/bant yükü düşer.
+//
+// Bkz ONLINE-YOL-HARITASI.md (Faz 3 — gerçek push).
+const POLL_MS_NO_ABLY = 1500;
+const POLL_MS_WITH_ABLY = 5000;
 
 export function useOnlineMatch(matchId: string | null): OnlineMatch {
   const [state, setState] = useState<SessionState | null>(null);
@@ -162,7 +171,16 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
       if (disposed) return;
       setLoading(false);
 
+      // Poll'ü verilen hızda (yeniden) kurar. Ably durumu değişince çağrılır →
+      // bağlıyken yavaş güvenlik-nabzı, koptuğunda hızlı tek-kaynak nabzı.
+      const startPoll = (ms: number) => {
+        if (pollRef.current) clearInterval(pollRef.current);
+        pollRef.current = setInterval(() => void refresh(), ms);
+      };
+
       // Ably (varsa): anlık güncellemeler için. Hamle olunca rakip ANINDA görür.
+      // Bağlanırsa poll'ü yavaş güvenlik-nabzına indiririz (hibrit push).
+      let ablyConnected = false;
       try {
         const res = await fetch(`/api/match/${matchId}/ably-token`);
         const data = await res.json();
@@ -174,6 +192,11 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
           ablyRef.current = client;
           const channel = client.channels.get(`match:${matchId}`);
           channel.subscribe('state-changed', (msg) => {
+            // HİBRİT PUSH: mesaj küçük (yalnızca "değişti" sinyali + reveal/
+            // transfer gibi gizli-olmayan özetler); rakip eli gibi gizli veri
+            // TAŞIMAZ. Mesaj gelir gelmez ucuz ?v= GET ile maskeli tam state'i
+            // çekeriz → maskeleme SUNUCUDA kalır (hile koruması), ama rakip
+            // hamlesi poll'ü beklemeden ANINDA düşer (~100-150ms).
             const payload = msg.data as
               | { reveal?: RoundReveal; transfer?: TransferInfo }
               | undefined;
@@ -181,17 +204,33 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
             if (payload?.transfer) setLastTransfer(payload.transfer);
             void refresh();
           });
+          // DAYANIKLILIK: Ably bağlantı durumu değişince poll hızını ayarla.
+          // Bağlı → yavaş (5sn güvenlik nabzı, anlık iş Ably'de). Koptu/askıda
+          // → hızlı (1.5sn, poll yeniden tek kaynak) + anında bir refresh.
+          // Böylece geçici kopmada bile güncellemeler donmaz.
+          client.connection.on('connected', () => {
+            startPoll(POLL_MS_WITH_ABLY);
+          });
+          const onDrop = () => {
+            startPoll(POLL_MS_NO_ABLY);
+            void refresh();
+          };
+          client.connection.on('disconnected', onDrop);
+          client.connection.on('suspended', onDrop);
+          ablyConnected = true;
         }
       } catch {
         // token alınamadı — yalnızca polling ile devam
       }
 
-      // POLLING HER ZAMAN çalışır (Ably olsa da). KRİTİK: bu, "ekrandan bağımsız
-      // süreç" mantığının kalbi. Her tick GET çağırır; sunucu lazy timeout
-      // uygular → bir taraf hamle yapmasa/sayfadan çıksa bile DİĞERİNİN
-      // yoklaması deadline'ı geçirir ve maçı ilerletir. Ably sadece "değişti"
-      // diye yayar; süre dolumu için bağımsız nabız şart. Bkz ONLINE-YOL-HARITASI.
-      pollRef.current = setInterval(() => void refresh(), POLL_MS);
+      // POLLING HER ZAMAN çalışır (Ably olsa da) ama HIZI Ably durumuna bağlı.
+      // KRİTİK: bu nabız "ekrandan bağımsız ilerleme"nin kalbi — her tick GET
+      // çağırır, sunucu lazy timeout uygular → bir taraf hamle yapmasa/sekme
+      // kapansa bile DİĞERİNİN yoklaması deadline'ı geçirir, maçı ilerletir.
+      // Ably bağlıysa anlık güncelleme Ably'den gelir → poll yalnızca güvenlik
+      // nabzı (5sn). Ably yoksa poll tek kaynak → sık (1.5sn). Bağlantı durumu
+      // değişince yukarıdaki connection.on(...) poll'ü yeniden ayarlar.
+      startPoll(ablyConnected ? POLL_MS_WITH_ABLY : POLL_MS_NO_ABLY);
     })();
 
     return () => {

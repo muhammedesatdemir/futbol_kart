@@ -12,6 +12,7 @@ import { nanoid } from 'nanoid';
 import {
   and,
   asc,
+  desc,
   eq,
   getDb,
   match as matchTable,
@@ -61,8 +62,14 @@ export function buildOnlineMatchState(
  * Kullanıcıyı eşleştirmeye sok. Kuyrukta bekleyen BAŞKA bir oyuncu varsa
  * onunla maç oluşturur; yoksa kullanıcıyı kuyruğa ekler.
  *
- * Yarış koşulu notu: gerçek üretimde eşleştirme transaction/locking ister
- * (iki istek aynı rakibi kapmasın). Bu MVP basit tutuldu; sağlamlaştırma Faz 4.
+ * YARIŞ KOŞULU ÇÖZÜMÜ (kritik — çift maç oluşmasını önler):
+ * İki istek aynı anda gelirse, rakibi "SELECT sonra INSERT" deseniyle almak
+ * GÜVENSİZ — ikisi de aynı bekleyeni görüp İKİ maç kurar (gözlenen bug:
+ * aynı iki oyuncuya iki active maç → her sekme farklı maça düşer → donma).
+ * Çözüm: rakibi kuyruktan ATOMİK `DELETE ... RETURNING` ile çıkar. Bu tek
+ * işlemdir → yalnızca BİR istek o satırı silebilir (ilk gelen kapar);
+ * ikincisi 0 satır siler ve kuyruğa girer. Tek maç garanti.
+ * Bkz ONLINE-YOL-HARITASI.md (Faz 4 — atomik eşleştirme).
  */
 export async function joinMatchmaking(
   userId: string,
@@ -76,21 +83,40 @@ export async function joinMatchmaking(
     return { matched: true, matchId: existingMatch };
   }
 
-  // 2) Kuyrukta bekleyen başka oyuncu var mı? (kendisi hariç, aynı mod)
-  const waiting = await db
-    .select()
-    .from(matchmakingQueue)
-    .where(and(eq(matchmakingQueue.mode, mode), ne(matchmakingQueue.userId, userId)))
-    .orderBy(asc(matchmakingQueue.enqueuedAt))
-    .limit(1);
+  // 2) Önce KENDİMİ kuyruktan çıkar — eski/bayat bir kayıt kendimle eşleşmeyi
+  //    veya tekrar girişte çift kayıt riskini önler.
+  await db.delete(matchmakingQueue).where(eq(matchmakingQueue.userId, userId));
 
-  if (waiting.length > 0) {
-    const opponent = waiting[0]!;
-    // 3) Maç oluştur. p1 = bekleyen (önce gelen), p2 = yeni katılan.
+  // 3) ATOMİK: en eski bekleyen rakibi kuyruktan TEK işlemle çıkarmayı dene.
+  //    Drizzle subquery ile "en eski uygun satırı sil ve döndür" — Postgres
+  //    bu DELETE'i atomik uygular; iki eşzamanlı istek aynı satırı SİLEMEZ.
+  const claimed = await db
+    .delete(matchmakingQueue)
+    .where(
+      eq(
+        matchmakingQueue.userId,
+        db
+          .select({ id: matchmakingQueue.userId })
+          .from(matchmakingQueue)
+          .where(
+            and(
+              eq(matchmakingQueue.mode, mode),
+              ne(matchmakingQueue.userId, userId),
+            ),
+          )
+          .orderBy(asc(matchmakingQueue.enqueuedAt))
+          .limit(1),
+      ),
+    )
+    .returning({ userId: matchmakingQueue.userId });
+
+  if (claimed.length > 0) {
+    const opponentId = claimed[0]!.userId;
+    // 4) Maç oluştur. p1 = kapılan bekleyen (önce gelen), p2 = yeni katılan.
     const matchId = nanoid();
     const seed = `${matchId}-${mode}`;
     const [p1Name, p2Name] = await Promise.all([
-      displayNameOf(db, opponent.userId),
+      displayNameOf(db, opponentId),
       displayNameOf(db, userId),
     ]);
     const state = buildOnlineMatchState(matchId, seed, p1Name, p2Name);
@@ -104,22 +130,17 @@ export async function joinMatchmaking(
       mode,
       seed,
       status: 'active',
-      p1UserId: opponent.userId,
+      p1UserId: opponentId,
       p2UserId: userId,
       currentScene: state.scene,
       state,
       turnDeadline,
     });
 
-    // 4) Rakibi kuyruktan çıkar (artık maçta).
-    await db
-      .delete(matchmakingQueue)
-      .where(eq(matchmakingQueue.userId, opponent.userId));
-
     return { matched: true, matchId };
   }
 
-  // 5) Bekleyen yok → kuyruğa ekle (zaten varsa zaman damgasını tazele).
+  // 5) Rakip kapılamadı (kuyruk boş / başkası kaptı) → kuyruğa ekle.
   await db
     .insert(matchmakingQueue)
     .values({ userId, mode })
@@ -154,7 +175,9 @@ export async function findActiveMatchFor(
         or(eq(matchTable.p1UserId, userId), eq(matchTable.p2UserId, userId)),
       ),
     )
-    .orderBy(asc(matchTable.createdAt))
+    // EN YENİ active maç (desc). Eski bir zombi maç kalmışsa ona değil, en son
+    // oluşturulana yönlendir — yeni eşleşmenin geçerli maçı budur.
+    .orderBy(desc(matchTable.createdAt))
     .limit(1);
   return rows[0]?.id ?? null;
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { memo, useCallback, useEffect, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { AnimatePresence, motion } from 'framer-motion';
 import type { Player, PlayerSide } from '@futbol-kart/shared-types';
@@ -153,10 +153,47 @@ export function RoundScene({
       : null;
 
   const showHand = scene === 'ROUND_PLAY';
+
+  // OPTIMISTIC KART OYNAMA (online): kullanıcı bir karta tıkladığı an, sunucu
+  // yanıtını (~200-300ms) BEKLEMEDEN "oynadım" durumuna geç → geri sayım durur,
+  // "kartını oynadın ✓" bandı çıkar, el solar. Sunucu state'i gelince gerçek
+  // currentXCard zaten dolacak; bu sadece o kısa pencereyi kapatır (takılma
+  // hissini siler). Tur değişince (cardTimerKey) sıfırlanır.
+  const [optimisticPlayed, setOptimisticPlayed] = useState(false);
+  useEffect(() => {
+    // Yeni tur/faz/taraf → optimistic "oynadım" bayrağını sıfırla.
+    setOptimisticPlayed(false);
+  }, [cardTimerKey]);
+
   // Tur içi geri sayım yalnızca aktif İNSAN HENÜZ kart seçmemişken çalışır
   // (bot beklerken veya aktif taraf kartını oynadıysa gösterme).
-  const activeHasPlayed =
+  const serverHasPlayed =
     activeSide === 'P1' ? currentP1Card !== null : currentP2Card !== null;
+  const activeHasPlayed = serverHasPlayed || optimisticPlayed;
+
+  // GÜVENLİK: optimistic "oynadım" dedik ama sunucu makul sürede onaylamazsa
+  // (POST hata aldı / retry tükendi), bayrağı geri al → kullanıcı kilitlenmez,
+  // tekrar oynayabilir. Normal akışta sunucu çok önce onaylar (serverHasPlayed
+  // true olur), watchdog'u temizleriz; bu yalnızca hata kurtarması.
+  useEffect(() => {
+    if (!optimisticPlayed || serverHasPlayed) return;
+    const t = setTimeout(() => setOptimisticPlayed(false), 4000);
+    return () => clearTimeout(t);
+  }, [optimisticPlayed, serverHasPlayed]);
+
+  const handleCardPlay = useCallback(
+    (cardId: string) => {
+      // ÇİFT/GEÇ HAMLE KORUMASI: yalnızca ROUND_PLAY'de ve henüz oynanmamışsa
+      // gönder. Reveal'e geçiş anında (optimistic ya da sunucu kartı dolu)
+      // ikinci bir play-card POST'u sunucuda 422 ("sahne ROUND_PLAY değil")
+      // üretir; bunu kaynağında engelle.
+      if (scene !== 'ROUND_PLAY') return;
+      if (isOnline && (serverHasPlayed || optimisticPlayed)) return;
+      if (isOnline) setOptimisticPlayed(true);
+      onCardPlay(cardId);
+    },
+    [isOnline, onCardPlay, scene, serverHasPlayed, optimisticPlayed],
+  );
   const cardTimerActive =
     scene === 'ROUND_PLAY' &&
     !(botMode && activeSide === 'P2') &&
@@ -402,7 +439,7 @@ export function RoundScene({
               currentP1Card={currentP1Card}
               p1BonusCards={p1BonusCards}
               p2BonusCards={p2BonusCards}
-              onCardPlay={onCardPlay}
+              onCardPlay={handleCardPlay}
               revealValues={revealValues}
               revealTemplateId={question?.id ?? ''}
               revealCompareOp={question?.compareOp ?? 'max'}
@@ -596,7 +633,7 @@ interface HandDisplayProps {
  * - Bot eli daima kapalı (face-down).
  * - Arkadaşına karşı modu: aktif oyuncunun eli açık.
  */
-function HandDisplay({
+const HandDisplay = memo(function HandDisplay({
   activeSide,
   botMode,
   p1Name,
@@ -751,7 +788,7 @@ function HandDisplay({
       )}
     </div>
   );
-}
+});
 
 /** Bonus kartı rozeti — kartın sol üstüne "⭐ +2" altın etiket. */
 function BonusTag() {

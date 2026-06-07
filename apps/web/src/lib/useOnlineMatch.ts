@@ -210,6 +210,15 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
           );
           continue;
         }
+        if (res.status === 422) {
+          // GEÇERSİZ/GEÇ HAMLE (örn. sahne artık ROUND_PLAY değil çünkü tur
+          // çözüldü). Bu İYİ HUYLU bir yarış: sunucu otoriter, durum zaten
+          // ilerlemiş. THROW ETME — yoksa `void playCard()` yakalanmamış promise
+          // reddi olur ve dev overlay "Unhandled Runtime Error" basar. Sessizce
+          // güncel state'i çek ve çık (UI sunucudaki doğru sahneye oturur).
+          void refresh();
+          return {};
+        }
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           throw new Error(data.error ?? 'Hamle reddedildi.');

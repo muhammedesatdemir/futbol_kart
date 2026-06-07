@@ -440,6 +440,14 @@ export function applyTransferJoker(
   if (!oppPool.includes(take)) {
     throw new Error('Alınacak kart rakipte / transfer-edilebilir değil.');
   }
+  // DUPLICATE-ID KORUMASI (online'a özgü): offline'da iki el daima ayrıktır ama
+  // online'da çapraz-dışlama yoktur → iki oyuncunun elinde AYNI kart id'si
+  // olabilir. `take` zaten kendi elimizdeyse, TRANSFER_EXECUTE'un el'e concat'i
+  // INTRA-HAND DUPLICATE yaratır → el bir kart "küçülür" gibi görünür (7 kart) +
+  // React'te çift `key={id}` → render artefaktı (kayıp kart). Bunu engelle.
+  if (ownHand.includes(take) || ownBonus.includes(take)) {
+    throw new Error('Bu kart zaten elinde — transfer ile alınamaz.');
+  }
 
   // Önce jokeri "açıldı" işaretle (hak yanar — kaos kuralı), sonra swap uygula.
   let next = reduceSession(state, { type: 'JOKER_TRANSFER_OPEN', side });

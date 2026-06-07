@@ -33,20 +33,22 @@ export function TransferPanel({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
-      <div className="glass-panel-strong w-full max-w-2xl p-6">
-        <h3 className="text-center text-xl font-black text-accent-goldHi">
+      {/* Geniş pencere (max-w-5xl) + büyük kartlar (size md) — kartlar rahat
+          görünsün. İç içerik dikeyde taşarsa kaydırılabilir (max-h + overflow). */}
+      <div className="glass-panel-strong max-h-[92vh] w-full max-w-5xl overflow-y-auto p-6 sm:p-8">
+        <h3 className="text-center text-2xl font-black text-accent-goldHi">
           🔄 Transfer Hamlesi
         </h3>
-        <p className="mt-1 text-center text-xs text-white/55">
+        <p className="mt-1 text-center text-sm text-white/55">
           Bir kartını ver, rakipten bir kart al. Hak bir kez — değişim kalıcı.
         </p>
 
-        <div className="mt-5 grid grid-cols-2 gap-5">
+        <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2">
           <div>
-            <p className="mb-2 text-center text-xs font-semibold uppercase tracking-wide text-side-red">
+            <p className="mb-3 text-center text-sm font-semibold uppercase tracking-wide text-side-red">
               Vereceğin kart
             </p>
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
               {ownCards.length === 0 && (
                 <span className="text-xs text-white/40">Verilebilir kart yok</span>
               )}
@@ -61,21 +63,21 @@ export function TransferPanel({
                     className={cn(
                       'rounded-xl transition',
                       give === id
-                        ? '-translate-y-1 ring-[3px] ring-side-red ring-offset-2 ring-offset-transparent'
-                        : 'opacity-80 hover:opacity-100',
+                        ? '-translate-y-1.5 ring-[3px] ring-side-red ring-offset-2 ring-offset-transparent'
+                        : 'opacity-80 hover:-translate-y-1 hover:opacity-100',
                     )}
                   >
-                    <PlayerCard player={p} size="sm" />
+                    <PlayerCard player={p} size="md" />
                   </button>
                 );
               })}
             </div>
           </div>
           <div>
-            <p className="mb-2 text-center text-xs font-semibold uppercase tracking-wide text-accent-goldHi">
+            <p className="mb-3 text-center text-sm font-semibold uppercase tracking-wide text-accent-goldHi">
               Alacağın kart (rakip)
             </p>
-            <div className="flex flex-wrap justify-center gap-2">
+            <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
               {oppCards.length === 0 && (
                 <span className="text-xs text-white/40">Alınabilir kart yok</span>
               )}
@@ -90,11 +92,11 @@ export function TransferPanel({
                     className={cn(
                       'rounded-xl transition',
                       take === id
-                        ? '-translate-y-1 ring-[3px] ring-accent-goldHi ring-offset-2 ring-offset-transparent'
-                        : 'opacity-80 hover:opacity-100',
+                        ? '-translate-y-1.5 ring-[3px] ring-accent-goldHi ring-offset-2 ring-offset-transparent'
+                        : 'opacity-80 hover:-translate-y-1 hover:opacity-100',
                     )}
                   >
-                    <PlayerCard player={p} size="sm" />
+                    <PlayerCard player={p} size="md" />
                   </button>
                 );
               })}
@@ -102,7 +104,7 @@ export function TransferPanel({
           </div>
         </div>
 
-        <div className="mt-6 flex justify-center gap-3">
+        <div className="mt-8 flex justify-center gap-3">
           <button type="button" onClick={onCancel} className="btn-ghost">
             Vazgeç
           </button>

@@ -1,6 +1,6 @@
 # DerbyGoal
 
-> **DerbyGoal** — 8.912 futbolculuk veri üzerinde **4 oyun modu** sunan, hot-seat ve bota karşı oynanan dijital futbol kart & tahmin oyunu.
+> **DerbyGoal** — 8.912 futbolculuk veri üzerinde **4 oyun modu** sunan, hot-seat · bota karşı **ve online (VS Düello)** oynanan dijital futbol kart & tahmin oyunu.
 
 **Marka kimliği:**
 | | Değer |
@@ -13,14 +13,14 @@
 
 > Repo dizini/iç paket adları (`@futbol-kart/*`) şimdilik teknik olarak `futbol-kart` kalıyor; marka geçişi kademeli (kullanıcıya görünen isimler önce). Konsept ve kararlar: [PLAN.md §2](PLAN.md).
 
-Oyuncu ana sayfada bir **oyun modu** seçer; her mod aynı oyuncu havuzunu kullanır, kendi sahne akışına sahiptir ve hem **bota karşı** hem **arkadaşa karşı (hot-seat)** oynanır. Dört mod:
+Oyuncu ana sayfada bir **oyun modu** seçer; her mod aynı oyuncu havuzunu kullanır, kendi sahne akışına sahiptir ve **bota karşı** + **arkadaşa karşı (hot-seat)** oynanır. **VS Düello ayrıca online** (gerçek rakiple, sunucu-otoriteli) oynanabilir — bkz. [🌐 Online Mod](#-online-mod--vs-düello-gerçek-zamanlı-multiplayer). Dört mod:
 
-- **⚔️ VS Düello** — *(ana / olgun mod)* İki oyuncu kör seçimle **8'er kart** seçer, moderatör **106 şablondan** rastgele bir soru sorar (forma no toplamı, ekvatora yakınlık, kariyer golü, "yaşı 30'a yakın" gibi parametrik sorular), birer kart sürülür, kazanan turu alır. **7 tur**, eşitlikte uzatma (4 kart × 3 tur) → penaltı (1 kart). Değerler eşitse tur **berabere** (keyfî puan yok). Maç başı **3 zorunlu kategori** (+2 puan taktik katmanı) + **3 joker** (Çarpan ×2/÷2 · İstatistiği Gör · Transfer Hamlesi). Tüm adımlar **geri sayım süreli**, süre dolarsa sistem akıllıca tamamlar.
+- **⚔️ VS Düello** — *(ana / olgun mod · bota + arkadaşa + **online**)* İki oyuncu kör seçimle **8'er kart** seçer, moderatör **106 şablondan** rastgele bir soru sorar (forma no toplamı, ekvatora yakınlık, kariyer golü, "yaşı 30'a yakın" gibi parametrik sorular), birer kart sürülür, kazanan turu alır. **7 tur**, eşitlikte uzatma (4 kart × 3 tur) → penaltı (1 kart). Değerler eşitse tur **berabere** (keyfî puan yok). Maç başı **3 zorunlu kategori** (+2 puan taktik katmanı) + **3 joker** (Çarpan ×2/÷2 · İstatistiği Gör · Transfer Hamlesi). Tüm adımlar **geri sayım süreli**, süre dolarsa sistem akıllıca tamamlar. **Online'da** aynı akış gerçek rakiple, **sunucu-otoriteli** (doğru cevap reveal'a kadar client'a sızmaz) + **Ably hibrit push** ile gerçek zamanlı oynanır.
 - **⚽ Kadro Kur** — Bir kritere göre (en uzun / en golcü / en değerli / en kupalı …) **4-3-3 formasyonu** doldur, seçilen istatistiğin toplamını rakiple kapıştır. Bota karşı kör seçim; arkadaşa karşı **snake draft** (A-B-B-A) + öneri jokeri.
 - **🎯 Hedefe Yaklaş** — **5 oyuncu** seç; seçilen metriğin (örn. Dünya Kupası maçı) toplamı bir **hedefe (60–80)** en yakın olan kazanır (sadece-uzaklık; üstü serbest). Oyunvari "hedef çarkı" + **Röntgen jokeri** (1×/taraf — havuzdaki bir kartın gizli değerini açar). Bota karşı (±10 sapmalı bot) + arkadaşa karşı snake.
 - **📋 Liste Doldur** — Sıralı bir **top-10 listesini** (örn. "En çok milli maç") havuzdan isim tahmin ederek doldur; doğru tahmin gerçek sırasına oturur + sıra puanı (10. sıra = 10 puan; alt sıralar daha değerli). Her tarafa **3 can** (yanlış/pas can götürür), iki tarafın canı bitince sonuç. Bota karşı + arkadaşa karşı (sırayla).
 
-> **Durum (mod olgunluğu):** Dört mod da **içerik olarak canlıya hazır.** VS Düello 106 şablon; **Liste Doldur 235**, **Hedefe Yaklaş 205**, **Kadro Kur 151** kriter (toplam **697** — kriter ÜRETİCİSİ ile alan×filtre kombinasyonundan türetilir, `criteriaCatalog.ts`). Her oyun OTURUMU rastgele farklı kriter seçer (`roundSeed`). Geriye kalan: kulüp-bazlı yeni modlar + online (bkz. [VERI.md](VERI.md)).
+> **Durum (mod olgunluğu):** Dört mod da **içerik olarak canlıya hazır.** VS Düello 106 şablon; **Liste Doldur 235**, **Hedefe Yaklaş 205**, **Kadro Kur 151** kriter (toplam **697** — kriter ÜRETİCİSİ ile alan×filtre kombinasyonundan türetilir, `criteriaCatalog.ts`). Her oyun OTURUMU rastgele farklı kriter seçer (`roundSeed`). **VS Düello online'ı çalışıyor** (sunucu-otoriteli + Ably). Geriye kalan: online'ı diğer 3 moda yayma + kulüp-bazlı yeni modlar (bkz. [VERI.md](VERI.md)).
 
 ---
 
@@ -46,7 +46,7 @@ Detaylı veri raporu: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT
 
 ## Durum
 
-**Aktif geliştirme — 4 mod içerik olarak canlıya hazır.** **VS Düello** tam olgun (106 şablon + 3 joker + 3 zorunlu kategori bonusu + geri sayım süreleri). **Kadro Kur (151 kriter)**, **Hedefe Yaklaş (205 kriter)** ve **Liste Doldur (235 kriter)** modları artık zengin içerikle canlı — toplam **591 kriter**, kriter ÜRETİCİSİ ([`criteriaCatalog.ts`](apps/web/src/lib/criteriaCatalog.ts)) ile alan×filtre (pozisyon/aktiflik/milliyet) kombinasyonundan türetilir; her oyun OTURUMU `roundSeed` ile farklı kriter seçer (sağlıksız kombinasyonlar `prune*`/`resolveTargetBands` ile elenir). Veri katmanı doğrulandı, atmosfer cilası tamam, backend altyapısı (auth + DB + maç paylaşma) hazır ama Neon/Resend bağlanmadı. **Kulüp-bazlı gelecek modların (Çinko / Rastgele 7 / İki Takım Eşleşmesi) veri katmanı çekildi** (2026-06-05: kulüp logoları + `clubPool.json` + `clubPairs.json`) — bkz. [VERI.md](VERI.md); kalan iş kod tarafında.
+**Aktif geliştirme — 4 mod içerik olarak canlıya hazır + VS Düello ONLINE oynanabilir.** **VS Düello** tam olgun (106 şablon + 3 joker + 3 zorunlu kategori bonusu + geri sayım süreleri) **ve online multiplayer'ı çalışıyor** (sunucu-otoriteli motor + Ably hibrit push + Neon Postgres; bkz. [🌐 Online Mod](#-online-mod--vs-düello-gerçek-zamanlı-multiplayer)). **Kadro Kur (151 kriter)**, **Hedefe Yaklaş (205 kriter)** ve **Liste Doldur (235 kriter)** modları artık zengin içerikle canlı — toplam **591 kriter**, kriter ÜRETİCİSİ ([`criteriaCatalog.ts`](apps/web/src/lib/criteriaCatalog.ts)) ile alan×filtre (pozisyon/aktiflik/milliyet) kombinasyonundan türetilir; her oyun OTURUMU `roundSeed` ile farklı kriter seçer (sağlıksız kombinasyonlar `prune*`/`resolveTargetBands` ile elenir). Veri katmanı doğrulandı, atmosfer cilası tamam. **Backend artık bağlı:** Neon Postgres (Frankfurt) kuruldu, migration'lar uygulandı, Better-Auth (e-posta magic-link) + Ably realtime aktif — online maçlar uçtan uca test edildi. **Kulüp-bazlı gelecek modların (Çinko / Rastgele 7 / İki Takım Eşleşmesi) veri katmanı çekildi** (2026-06-05: kulüp logoları + `clubPool.json` + `clubPairs.json`) — bkz. [VERI.md](VERI.md); kalan iş kod tarafında.
 
 ### Tamamlananlar
 
@@ -78,8 +78,25 @@ Her mod ana sayfadaki **oyun-modu seçimiyle** (`GameModeSelectScene`) açılır
 - ✅ **Kart tasarımı** — FIFA UT tarzı edge-to-edge portre, foto %60 alan, agresif yüz crop (objectPosition + scale override sistemi), pozisyon bazlı renk teması (GK mor / DEF mavi / MID sarı / FWD kırmızı), holo conic gradient + shine band hover, 3D mouse tilt. Boyut sistemi: `default` (responsive), `sm`/`md` (sabit, taşmasız — bonus/el), `reveal` (VS ekranı).
 - ✅ **Atmosfer cilası** — Saha temalı arka plan (PitchBackground), 6 sahne için AI üretimli WebP arka planlar, hero Ken Burns + altın partiküller, broadcast tarzı skorboard, sahne içi cross-fade.
 - ✅ **Final ekranı** — Gold/slate semantik, data-driven skor barı (kazanan baskın), count-up reveal, ŞAMPİYON başlığı, glass paneller transparan.
-- ✅ **Backend iskeleti** — Drizzle ORM + Neon Postgres + Better-Auth (magic-link) + Resend mail. API routes (`POST /api/games`, `GET /api/games/[shareId]`). Paylaşılabilir maç sayfası (`/mac/[shareId]`).
+- ✅ **Backend iskeleti** — Drizzle ORM + Neon Postgres + Better-Auth (magic-link) + Resend mail. API routes (`POST /api/games`, `GET /api/games/[shareId]`). Paylaşılabilir maç sayfası (`/mac/[shareId]`). **Online mod için genişletildi:** `match` / `match_move` / `matchmaking_queue` / `user_rating` tabloları + tam realtime API katmanı (bkz. [🌐 Online Mod](#-online-mod--vs-düello-gerçek-zamanlı-multiplayer)).
 - ✅ **Performans** — Görseller WebP (-%88 boyut), kritik sahnelerin preload'u, sayfa geçişleri 200ms. Web bundle `/oyna/[gameId]` ≈ 34 kB (3 joker + transfer sahnesi + 4 geri sayım dahil).
+
+#### 🌐 Online Mod — VS Düello gerçek zamanlı multiplayer
+
+VS Düello'nun **online sürümü canlı ve uçtan uca test edildi**: iki gerçek oyuncu eşleşir, aynı maçı **sunucu-otoriteli** oynar (offline ile birebir akış — el seçimi, 3 zorunlu kategori, 3 joker, faz zinciri, süre). Aynı `/oyna/[matchId]?online=1` sayfası `useGameController` köprüsüyle hem offline hem online'ı sunar — sahneler/sesler/efektler değişmeden çalışır.
+
+- ✅ **Sunucu-otoriteli motor** ([`lib/server/matchEngine.ts`](apps/web/src/lib/server/matchEngine.ts)) — Oyun motoru (`packages/game-engine/`) sunucuda çalışır: el doğrulama, **deterministik soru seçimi** (FlowState serileştirme — PRNG durumu DB'de), kart çözümü, jokerler, bonus, faz geçişi, süre dolumu. **Doğru cevap reveal'a kadar client'a HİÇ gönderilmez** (hile koruması). İstatistik-Gör jokeri yalnızca kendi elinin değerlerini döndürür; rakip eli `match` GET'inde **maskelenir** (kart id'leri gizli).
+- ✅ **Eşleştirme — atomik** ([`lib/server/matchmaking.ts`](apps/web/src/lib/server/matchmaking.ts)) — Kuyruk + FIFO eşleştirme. Rakip kuyruktan **`DELETE ... RETURNING` ile atomik** çıkarılır → iki eşzamanlı istek aynı rakibi kapamaz (çift maç imkansız). Tek-aktif-maç kuralı (`findActiveMatchFor`, en yeni active'e yönlendirir). Maç kurulunca her iki oyuncu da kuyruktan temizlenir.
+- ✅ **Realtime — Ably hibrit push** ([`lib/server/ably.ts`](apps/web/src/lib/server/ably.ts) + [`useOnlineMatch.ts`](apps/web/src/lib/useOnlineMatch.ts)) — Her maç bir kanal (`match:<id>`). Sunucu doğrulanmış her durum değişimini publish eder; rakip **anında** alır → hemen ucuz `?v=` GET ile maskeli tam state'i çeker (maskeleme sunucuda kalır = hile koruması). Ably bağlıyken poll **5sn** (yalnızca "ekrandan bağımsız ilerleme" güvenlik nabzı), Ably yoksa **1.5sn** (tek kaynak, graceful fallback). Token-auth (API key client'a gitmez). Bağlantı kopunca otomatik hızlı-poll'e geçer.
+- ✅ **Versiyon-tabanlı GET** ([`api/match/[matchId]`](apps/web/src/app/api/match/[matchId]/route.ts)) — GET `?v=<version>` alır; sürüm değişmemiş + timeout yoksa minik `{ unchanged }` döner (ağır iş — `loadGameData` + şablon tarama + serileştirme — atlanır). Değişmeyen poll'ler neredeyse bedava → Neon/bant yükü ~%70 düşer.
+- ✅ **Eşzamanlılık — optimistic locking** — `match.version` kolonu; move route `WHERE version = okunan, SET version+1` ile yazar, 0 satır → **409 → client otomatik retry** (artan backoff). Audit log (`match_move`) UPDATE'ten **sonra** yazılır (seq çakışması olmaz). Yoğun ortamda kayıp hamle yok.
+- ✅ **Optimistic UI** — Kategori atama ([`BonusAssignScene`](apps/web/src/components/scenes/BonusAssignScene.tsx)) ve kart oynama ([`RoundScene`](apps/web/src/components/scenes/RoundScene.tsx) `optimisticPlayed` + 4sn watchdog) tıklama anında tepki verir; sunucu yanıtı gelince senkronlanır. `HandDisplay` `React.memo`'lu. Geç/çift/maç-sonu hamleleri (422/409-finished) sessizce yutulur — UI çökmez, sunucu tek otorite.
+- ✅ **Veri yükleme — lazy** ([`GameSessionProvider`](apps/web/src/lib/GameSessionProvider.tsx)) — 25MB `players.json` artık SSR'a gömülmez; client-side bir kez çekilir (force-cache). Online zaten sunucu-otoriteli; veriye yalnızca kart seçim ekranı muhtaç. `session.ready` gelene kadar oyun render edilmez (kara ekran / boş kart yarışı önlenir).
+- ✅ **Kimlik** — Better-Auth (e-posta magic-link aktif; Google OAuth kodu hazır, env bekliyor). Online yalnızca girişli kullanıcıya; bot/offline misafir kalır. İsim e-postadan türetilir (kullanıcı adı sistemi sonra).
+- ✅ **DB şeması** — `match` (state + flowState + version + turnDeadline jsonb/kolonlar), `match_move` (audit/replay/reconnect, `(match_id, seq)` benzersiz), `matchmaking_queue`, `user_rating` (Elo şeması hazır, **hesap sonra** — herkes 1000'de başlar, UI'da gizli).
+- 🟡 **Maliyet: 0 TL** — Neon Postgres + Better-Auth + Ably (6M mesaj/ay) + Vercel Hobby, hepsi ücretsiz katmanda. Ably ücreti mesaj **adedine** göre (içeriğe değil); ~100k maç/ay kapasitesi.
+
+> Tam plan, fazlar ve kararlar: [ONLINE-YOL-HARITASI.md](ONLINE-YOL-HARITASI.md). Bu mimari **diğer 3 moda yayma için şablon** — `match`/`move`/`queue`/Ably mod-agnostik; mod-özel olan yalnızca reducer/sahne akışı.
 
 #### Veri pipeline'ı
 - ✅ **TM JSON API mimarisi** — Transfermarkt'ın resmi (açık) JSON API'leri (`tmapi-alpha/players`, `tmapi-alpha/clubs`, `ceapi/performance-game`) kullanılarak ~34,000 HTTP isteği ile 8,912 oyuncuya ait detaylı veri çekildi.
@@ -96,7 +113,7 @@ Her mod ana sayfadaki **oyun-modu seçimiyle** (`GameModeSelectScene`) açılır
 - ⏳ **Vercel deploy** — kod hazır, henüz publish edilmedi.
 - ⏳ **Domain bağlama** — bir alan adı satın alınıp bağlanacak.
 - ⏳ **Gerçek oyuncu fotoğrafları** — %87 TM portresi mevcut, kalan oyuncularda monogram fallback.
-- ⏳ **Online multiplayer** — yol haritası dışı, hot-seat + bot ile sınırlı.
+- 🟡 **Online multiplayer** — **VS Düello için CANLI** (sunucu-otoriteli + Ably hibrit push; bkz. [🌐 Online Mod](#-online-mod--vs-düello-gerçek-zamanlı-multiplayer)). Kalan: rating/Elo hesabı (şema hazır), Google OAuth env (kod hazır), diğer 3 moda yayma, kopma/reconnect kenar durumları.
 - ⏳ **Lisans / KVKK metni** — yayın öncesi.
 - ⏳ **Eksik veri kapsama iyileştirmesi** — boy %86, ayak %82 (eski oyuncular). Wikipedia infobox veya manuel `corrections.csv` ile genişletilebilir.
 
@@ -112,7 +129,8 @@ Her mod ana sayfadaki **oyun-modu seçimiyle** (`GameModeSelectScene`) açılır
 | i18n | next-intl (TR, çoğul dile genişlemeye hazır) |
 | Şablon sistemi | Zod schema + parametrik şablon + custom compute resolver |
 | DB | Neon Postgres (serverless) + Drizzle ORM |
-| Auth | Better-Auth (magic-link / şifresiz email) |
+| Auth | Better-Auth (magic-link / şifresiz email; Google OAuth hazır) |
+| Realtime | **Ably** (hibrit push — online mod; serverless WS tutamadığı için ayrı katman) |
 | Mail | Resend |
 | Hosting | Vercel (önerilen) — Cloudflare Pages alternatifi mümkün |
 | Veri kaynakları | Transfermarkt JSON API + Nominatim (OSM) geocode |
@@ -128,10 +146,14 @@ futbol-kart/
 │   └── web/                              Next.js uygulaması
 │       ├── src/
 │       │   ├── app/                      App Router (page, layout, api)
-│       │   │   ├── oyna/[gameId]/        VS Düello + oyun-modu seçim kapısı
+│       │   │   ├── oyna/[gameId]/        VS Düello + oyun-modu seçim kapısı (?online=1 → online mod)
+│       │   │   ├── online/              Online eşleşme bekleme ekranı (matchmaking)
 │       │   │   ├── kadro/[gameId]/       Mod 1 — Kadro Kur route'u
 │       │   │   ├── hedefe-yaklas/[gameId]/  Mod 2 — Hedefe Yaklaş route'u
-│       │   │   └── liste-doldur/[gameId]/   Mod 3 — Liste Doldur route'u
+│       │   │   ├── liste-doldur/[gameId]/   Mod 3 — Liste Doldur route'u
+│       │   │   └── api/
+│       │   │       ├── matchmaking/             Kuyruğa gir/çık + eşleşme (atomik)
+│       │   │       └── match/[matchId]/         GET (versiyon-tabanlı) · move (action) · ably-token · transfer-options
 │       │   ├── components/
 │       │   │   ├── PlayerCard.tsx        FIFA UT kart (boyut: default/sm/md/reveal/squad; hideBadges, hideName)
 │       │   │   ├── PlayerSearchBar.tsx   ⌘K odaklı arama
@@ -148,6 +170,13 @@ futbol-kart/
 │       │   │       ├── Target*Scene.tsx          Hedefe Yaklaş (Reveal/Build/Draft/Result) + TargetXrayOverlay
 │       │   │       └── List*Scene.tsx            Liste Doldur (Reveal/Play/Result)
 │       │   └── lib/
+│       │       ├── server/               ONLINE sunucu katmanı:
+│       │       │   ├── matchEngine.ts    Sunucu-otoriteli motor (doğrula/çöz/maskele)
+│       │       │   ├── matchmaking.ts    Atomik eşleştirme (DELETE...RETURNING)
+│       │       │   └── ably.ts           Realtime publish + token üretimi
+│       │       ├── useOnlineMatch.ts     ONLINE client köprüsü (Ably + poll + versiyon-GET + optimistic)
+│       │       ├── useGameController.ts  Online/offline tek arayüz (dispatch yönlendirme)
+│       │       ├── GameSessionProvider.tsx  Oyuncu verisi lazy yükleyici (25MB, client-side)
 │       │       ├── playerFilters.ts      Saf filtre/curate/arama fonksiyonları
 │       │       ├── playersClient.ts      Client-side fetch + cache
 │       │       ├── playerImageOverrides  Manuel crop sistem (scale + objectPosition)
@@ -277,8 +306,11 @@ cp .env.example .env.local
 | `NEXT_PUBLIC_APP_URL` | `http://localhost:3000` |
 | `RESEND_API_KEY` | Opsiyonel — boş bırakırsan magic-link konsola yazılır |
 | `EMAIL_FROM` | `onboarding@resend.dev` (doğrulanmış domain yoksa) |
+| `ABLY_API_KEY` | **Online mod için** (free tier — https://ably.com). Boşsa online polling'e düşer (graceful); push için gerekir. |
 
-**Sadece hot-seat / bot oynamak için** auth ve DB gerekmez; uygulama bu env'ler boş olsa da çalışır. Sadece `/giris`, `/mac/[shareId]` ve "Maçı paylaş" butonu DB ister.
+**Sadece hot-seat / bot oynamak için** auth ve DB gerekmez; uygulama bu env'ler boş olsa da çalışır. Sadece `/giris`, `/mac/[shareId]` ve "Maçı paylaş" butonu DB ister. **Online mod** için `DATABASE_URL` + `BETTER_AUTH_*` zorunlu, `ABLY_API_KEY` ise push için gerekir (yoksa 1.5sn polling ile yine çalışır).
+
+> ⚠️ **Monorepo env tuzağı:** Next.js env'i `apps/web/.env.local`'den okur, kök `.env.local`'den DEĞİL. Migration (drizzle) kökü okur. İkisini senkron tut (symlink veya elle kopya); aksi halde "key var ama görünmüyor" olur.
 
 ### 3. Veritabanı kurulumu (auth + paylaş için)
 

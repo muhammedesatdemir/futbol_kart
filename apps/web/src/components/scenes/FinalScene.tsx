@@ -311,26 +311,21 @@ function ScoreBar({
   const isP2Winner = winnerSide === 'P2';
   const isTie = winnerSide === 'tie';
 
-  // Non-linear baskınlık abartması: kazanan tarafa bonus.
-  // Tie ise 50/50.
+  // Bölme GERÇEK skor oranına yakın olsun — eski "Math.pow(.,0.55) + min %60"
+  // abartması 5-4 gibi başa baş maçları 73/27 gösteriyordu (çirkin, gerçekçi
+  // değil). Artık ham oran kullanılır, yalnızca aşırı uçları (tek taraf çok
+  // baskınsa okunabilirlik için) %30-70 aralığına yumuşakça kırparız. Beraberlik
+  // 50/50. Böylece 5-4 ≈ 56/44, 6-0 ≈ 70/30 — dengeli ve doğal.
   let p1Pct = 50;
   let p2Pct = 50;
   if (!isTie) {
     const total = p1Score + p2Score;
     if (total > 0) {
-      // raw oran (kazanan tarafın payı)
-      const winnerRaw = Math.max(p1Score, p2Score) / total;
-      // power < 1 ile abartma: 0.55 → 0.66, 0.71 → 0.80, 1.0 → 1.0
-      const winnerAdjusted = Math.pow(winnerRaw, 0.55);
-      // %10..%90 aralığına clip
-      const winnerPct = Math.max(60, Math.min(90, winnerAdjusted * 100));
-      if (isP1Winner) {
-        p1Pct = winnerPct;
-        p2Pct = 100 - winnerPct;
-      } else {
-        p2Pct = winnerPct;
-        p1Pct = 100 - winnerPct;
-      }
+      const rawP1 = (p1Score / total) * 100;
+      // Min %30 / max %70: bir taraf 0 puansa bile diğeri ekranı tamamen
+      // yutmaz (isim/skor okunur kalır), ama oran gerçeğe yakın hissedilir.
+      p1Pct = Math.max(30, Math.min(70, rawP1));
+      p2Pct = 100 - p1Pct;
     }
   }
 
@@ -395,14 +390,18 @@ function SidePanel({
       animate={{ flexBasis: `${widthPct}%` }}
       transition={{ duration: 1.0, ease: [0.22, 1, 0.36, 1], delay: 0.2 }}
       className={cn(
-        'relative flex min-w-0 items-center gap-3 px-4 py-5 sm:px-6 sm:py-6',
+        // gap artırıldı (3→5): isim ile büyük sayı arasında net boşluk.
+        'relative flex min-w-0 items-center gap-5 px-4 py-5 sm:px-6 sm:py-6',
         align === 'right' && 'flex-row-reverse text-right',
       )}
       style={{ background: fillBg }}
     >
       <div
         className={cn(
-          'flex min-w-0 flex-col',
+          // flex-1 + min-w-0: isim kalan alanı alır, sayıyı dışarı (kenara)
+          // iter → sayı hep ismin İÇ tarafında (sol oyuncu sağında, sağ
+          // oyuncu solunda) kalır, üst üste binmez.
+          'flex min-w-0 flex-1 flex-col',
           align === 'left' ? 'items-start' : 'items-end',
         )}
       >
@@ -421,7 +420,8 @@ function SidePanel({
       </div>
       <span
         className={cn(
-          'text-4xl font-black leading-none tabular-nums sm:text-5xl',
+          // shrink-0: büyük sayı asla küçülmez/taşmaz, sabit yer kaplar.
+          'shrink-0 text-4xl font-black leading-none tabular-nums sm:text-5xl',
           isWinner
             ? 'bg-clip-text text-transparent drop-shadow-[0_2px_14px_rgba(240,193,75,0.45)]'
             : isTie

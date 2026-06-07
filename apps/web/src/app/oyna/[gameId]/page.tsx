@@ -703,13 +703,21 @@ export default function GameSessionPage() {
     setTransferOfferSide(null);
   }, [transferOfferSide, state.phase, state.roundIndex]);
 
-  // OFFLINE guard: yerel store hydrate olana + doğru oyuna ait olana kadar bekle.
+  // OFFLINE guard: yerel store hydrate olana + doğru oyuna ait olana + OYUNCU
+  // VERİSİ (session.players) lazy yüklenene kadar bekle. KRİTİK: session.players
+  // boşken bot eli (vs-bot HAND_SUBMITTED P2, satır ~273 session.players'tan
+  // kart seçer) BOŞ atanır → bot havuzu boş → transfer teklifi "rakip havuzu
+  // boş" diye atlanır (P1'e teklif çıkmaz) + kart seçim/reveal players.find
+  // bulamaz. `session.ready` gelene kadar bekleyince bu yarış önlenir.
   // ONLINE'da bu kontrolü YAPMA — online state sunucudan gelir (state.gameId
   // localState'ten gelip matchId'yle uyuşmayabilir) ve `hydrated` offline
   // store'a aittir. Online yükleme durumu aşağıdaki BallLoader guard'ında
-  // (controller.online.loading) ele alınır. Aksi halde online'da burada
-  // `return null` olur → BallLoader'a hiç ulaşılmaz → KARA EKRAN.
-  if (!isOnline && (!hydrated || state.gameId !== params.gameId)) return null;
+  // (controller.online.loading + session.ready) ele alınır.
+  if (
+    !isOnline &&
+    (!hydrated || !session.ready || state.gameId !== params.gameId)
+  )
+    return null;
 
   const botMode = state.mode === 'vs-bot';
   // İsim modalı YALNIZCA offline (bot/hotseat) — online'da isimler hesaptan gelir.
@@ -846,9 +854,12 @@ export default function GameSessionPage() {
     return { side: who, count: n };
   })();
 
-  // ONLINE: maç sunucudan yüklenene kadar bekleme ekranı. Böylece yarım/eski
-  // state ile sahneler üst üste render olmaz (offline akış kalıntıları tetiklenmez).
-  if (isOnline && controller.online?.loading) {
+  // ONLINE: maç sunucudan yüklenene kadar VEYA oyuncu verisi (session.players)
+  // henüz lazy yüklenmediyse bekleme ekranı. KRİTİK: players boşken kart/reveal
+  // bileşenleri `players.find()` ile kartı bulamaz → kart GÖRÜNMEZ (boş alan).
+  // `session.ready` gelene kadar bekleyince bu yarış (bazen sol/sağ kart eksik)
+  // tamamen önlenir. Bkz GameSessionProvider (Faz 0 lazy yükleme).
+  if (isOnline && (controller.online?.loading || !session.ready)) {
     return (
       <>
         <SceneBackground scene="MODE_SELECT" phase="main" />

@@ -263,7 +263,15 @@ export function RoundScene({
       {showReveal && (
           <motion.div
             key="reveal"
-            layout
+            // `layout` propu KALDIRILDI (kök neden): iç içe 3D flip kartlarıyla
+            // (RevealSide rotateY + PlayerCard preserve-3d/backfaceVisibility)
+            // çakışıyordu. ONLINE'da reveal anında dış kaynaklı re-render fırtınası
+            // (Ably/poll/refresh) `layout` ölçümünü tetikleyip, bir kart henüz
+            // arka yüzünü gösterirken (rotateY≈180, backface gizli) transform'u
+            // bozuyor → o taraf BOŞ/bulanık kalıyordu ("bazen sol bazen sağ").
+            // Offline'da araya giren render olmadığı için sorun görünmezdi.
+            // opacity+scale girişi aynen kalır; play-zone zıplaması zaten
+            // AnimatePresence-yok + sabit key ile çözülü.
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.25 }}
@@ -369,8 +377,13 @@ export function RoundScene({
               revealUsed={revealUsed}
               revealActive={revealActive}
               transferUsed={transferUsed}
+              // Transfer çipi yalnızca ONLINE'da + kart oynamadan önce tıklanabilir.
+              transferAvailable={
+                isOnline && !activeHasPlayed && transferAvailable
+              }
               onMultiplier={onJokerMultiplier}
               onReveal={onJokerReveal}
+              onTransfer={isOnline ? () => void openTransfer() : undefined}
             />
           )}
 
@@ -383,21 +396,7 @@ export function RoundScene({
             />
           )}
 
-          {/* ONLINE TRANSFER butonu — soruyu gördükten sonra, kart oynamadan önce. */}
-          {isOnline &&
-            !activeHasPlayed &&
-            !transferUsed &&
-            transferAvailable && (
-              <div className="flex justify-center">
-                <button
-                  type="button"
-                  onClick={() => void openTransfer()}
-                  className="glass-panel inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-accent-goldHi transition hover:border-accent-gold/50 hover:bg-white/10"
-                >
-                  🔄 Transfer Hamlesi — bir kartını rakiple takas et
-                </button>
-              </div>
-            )}
+          {/* Transfer artık joker barındaki çipten tetiklenir; ayrı buton kaldırıldı. */}
           {transferErr && (
             <p className="text-center text-xs text-side-red">{transferErr}</p>
           )}
@@ -889,8 +888,10 @@ function JokerBar({
   revealUsed,
   revealActive,
   transferUsed,
+  transferAvailable,
   onMultiplier,
   onReveal,
+  onTransfer,
 }: {
   multiplierEligible: boolean;
   multiplierDir: 'x2' | 'half';
@@ -899,8 +900,12 @@ function JokerBar({
   revealUsed: boolean;
   revealActive: boolean;
   transferUsed: boolean;
+  /** Bu turda transfer yapılabilir mi (online + hak var + son tur değil). */
+  transferAvailable: boolean;
   onMultiplier: () => void;
   onReveal: () => void;
+  /** Transfer panelini aç (online). Verilmezse çip salt-durum gösterir. */
+  onTransfer?: () => void;
 }) {
   const dirLabel = multiplierDir === 'x2' ? '×2' : '÷2';
   // Çarpan: bu tur aktive edildiyse "aktif" göster; maçta kullanıldıysa kilitli;
@@ -963,27 +968,53 @@ function JokerBar({
         onClick={onReveal}
       />
 
-      {/* Transfer — yalnızca DURUM gösterimi (tur başında, soru açıklanmadan
-          kullanılır; buradan tetiklenmez). */}
-      <TransferStatusChip used={transferUsed} />
+      {/* Transfer — diğer jokerler gibi BURADAN tetiklenir (online'da kart
+          oynamadan önce). available değilse salt-durum gösterir. */}
+      <TransferStatusChip
+        used={transferUsed}
+        available={transferAvailable}
+        onTransfer={onTransfer}
+      />
     </div>
   );
 }
 
 /**
- * Transfer jokeri durum çipi — bilgilendirme amaçlı (tıklanmaz). Transfer tur
- * başında, soru açıklanmadan önce kullanılır; burada sadece "kaldı mı" gösterilir.
+ * Transfer jokeri çipi. Diğer jokerler gibi TIKLANABİLİR: `available` iken
+ * tıklanınca `onTransfer` (transfer panelini açar) çalışır. `available` değilse
+ * (kullanıldı / son tur / bu turda zaten transfer var) tıklanamaz, durum gösterir.
+ * Tasarım JokerButton ile aynı dilde (sol panel + sağ "?" popover).
  */
-function TransferStatusChip({ used }: { used: boolean }) {
+function TransferStatusChip({
+  used,
+  available,
+  onTransfer,
+}: {
+  used: boolean;
+  available: boolean;
+  onTransfer?: () => void;
+}) {
   const [open, setOpen] = useState(false);
+  // Tıklanabilir mi: hak var (kullanılmadı) + bu turda yapılabilir + callback var.
+  const clickable = !used && available && !!onTransfer;
+  const statusText = used
+    ? 'KULLANILDI'
+    : available
+      ? 'HAMLE YAP'
+      : 'KULLANILAMAZ';
   return (
     <div className="relative flex items-stretch">
-      <div
+      <button
+        type="button"
+        disabled={!clickable}
+        onClick={() => clickable && onTransfer?.()}
         className={cn(
-          'flex min-w-[116px] flex-col justify-center gap-1 rounded-l-2xl border px-3.5 py-2.5',
+          'flex min-w-[116px] flex-col justify-center gap-1 rounded-l-2xl border px-3.5 py-2.5 text-left transition',
           used
-            ? 'border-white/8 bg-white/[0.03]'
-            : 'border-side-red/30 bg-side-red/[0.08]',
+            ? 'cursor-not-allowed border-white/8 bg-white/[0.03]'
+            : clickable
+              ? 'border-side-red/40 bg-side-red/[0.1] hover:border-side-red/70 hover:bg-side-red/[0.16]'
+              : 'cursor-not-allowed border-side-red/20 bg-side-red/[0.05]',
         )}
       >
         <div className="flex items-center gap-2">
@@ -1009,14 +1040,18 @@ function TransferStatusChip({ used }: { used: boolean }) {
             <span
               className={cn(
                 'text-[10px] font-bold uppercase tracking-wide',
-                used ? 'text-white/40' : 'text-side-red/90',
+                used
+                  ? 'text-white/40'
+                  : clickable
+                    ? 'text-emerald-300/90'
+                    : 'text-side-red/70',
               )}
             >
-              {used ? 'KULLANILDI' : 'TUR BAŞINDA'}
+              {statusText}
             </span>
           </div>
         </div>
-      </div>
+      </button>
       <span
         className={cn(
           'pointer-events-none absolute -left-1.5 -top-1.5 z-10 flex h-5 min-w-5 items-center justify-center rounded-full px-1 text-[11px] font-black leading-none ring-2 ring-[#0b1120]',
@@ -1049,8 +1084,8 @@ function TransferStatusChip({ used }: { used: boolean }) {
               <SwapIcon size={14} />
               Transfer Hamlesi
             </div>
-            Her turun başında (soru açıklanmadan) çıkar: rakibin elinden bir kart al,
-            kendininkinden birini ver. Son turda kullanılamaz. Maçta 1 kez.
+            Kart oynamadan önce: rakibin elinden bir kart al, kendininkinden birini
+            ver. Son turda kullanılamaz. Maçta 1 kez.
           </motion.div>
         )}
       </AnimatePresence>
@@ -1274,7 +1309,10 @@ function RevealSide({
             : {
                 duration: 0.55,
                 ease: [0.22, 1, 0.36, 1],
-                delay: side === 'P1' ? 0 : 0.15,
+                // Stagger (P2 0.15s) KALDIRILDI: iki kart aynı anda flip'i
+                // bitirir → online re-render'ın flip ortasına denk gelme penceresi
+                // ~3x daralır + simetrik olur (artık bir taraf diğerinden daha
+                // uzun "arka yüzde" beklemez). "Bazen sağ boş" riskini sıfıra yaklaştırır.
               }
         }
         style={{ transformStyle: 'preserve-3d', perspective: 800 }}

@@ -260,12 +260,27 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(bodyObj),
         });
-        if (res.status === 409 && attempt < MAX_RETRY) {
-          // Çakışma: kısa bekle (artan + küçük jitter), tekrar dene.
-          await new Promise((r) =>
-            setTimeout(r, 80 * (attempt + 1) + Math.floor((attempt * 37) % 50)),
-          );
-          continue;
+        if (res.status === 409) {
+          // 409 iki anlama gelebilir:
+          //  (a) Optimistic-lock ÇAKIŞMASI (geçici) → kısa bekle, retry et.
+          //  (b) Maç BİTTİ/terk edildi (`finished: true`, KALICI) → retry etme,
+          //      sessizce yut. Maç sonu otomatik ack/phase-ack'leri buraya düşer
+          //      (FINAL'de ROUND_ACK gönderilir ama maç artık 'finished'). Throw
+          //      edersek `void ack()` yakalanmamış promise reddi → dev overlay.
+          const data = await res.json().catch(() => ({}));
+          if (data.finished) {
+            void refresh();
+            return {};
+          }
+          if (attempt < MAX_RETRY) {
+            await new Promise((r) =>
+              setTimeout(r, 80 * (attempt + 1) + Math.floor((attempt * 37) % 50)),
+            );
+            continue;
+          }
+          // Retry tükendi ama gerçek çakışma — yine de UI'ı çökertme; yut + tazele.
+          void refresh();
+          return {};
         }
         if (res.status === 422) {
           // GEÇERSİZ/GEÇ HAMLE (örn. sahne artık ROUND_PLAY değil çünkü tur

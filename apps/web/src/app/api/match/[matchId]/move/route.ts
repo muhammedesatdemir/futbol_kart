@@ -73,7 +73,13 @@ export async function POST(
   }
   const m = rows[0]!;
   if (m.status !== 'active') {
-    return NextResponse.json({ error: 'Maç aktif değil.' }, { status: 409 });
+    // Maç bitti/terk edildi — bu KALICI bir durum, optimistic-lock çakışması
+    // DEĞİL. `finished: true` işaretiyle 409 dön ki client retry ETMESİN ve
+    // hatayı yutsun (maç sonu otomatik ack'leri buraya düşer — iyi huylu).
+    return NextResponse.json(
+      { error: 'Maç aktif değil.', finished: true },
+      { status: 409 },
+    );
   }
 
   const side =

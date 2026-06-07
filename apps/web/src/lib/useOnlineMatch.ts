@@ -216,8 +216,12 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
         }
         const data = await res.json();
         if (data.reveal) setLastReveal(data.reveal as RoundReveal);
-        // Hamle sonrası kendi state'imizi de tazele (Ably'yi beklemeden).
-        await refresh();
+        // Hamle sonrası state'i tazele AMA BEKLEME (ateşle-unut). Eskiden
+        // `await refresh()` vardı → her aksiyon fazladan bir tam GET gidiş-
+        // dönüşü (~200-300ms) kadar BLOKLANIYORDU; "Hazırım"/kategori sonrası
+        // ekran geç açılıyordu. Artık POST döner dönmez UI ilerler; refresh
+        // arka planda kaynak-doğru state'i getirir (Ably + 1.5sn poll de yedek).
+        void refresh();
         return data;
       }
       throw new Error('Hamle çok kez çakıştı, tekrar dene.');

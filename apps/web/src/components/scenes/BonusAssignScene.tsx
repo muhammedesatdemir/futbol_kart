@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
 import { CountdownRing } from '@/components/CountdownRing';
@@ -47,8 +47,24 @@ export function BonusAssignScene({
   seconds = BONUS_ASSIGN_SECONDS,
   deadlineMs = null,
 }: BonusAssignSceneProps) {
+  // OPTIMISTIC ATAMA: kart seçimi ANINDA burada görünür; `onAssign` sunucuya
+  // arka planda gider. Online'da sunucu gidiş-dönüşü (~300ms) UI'ı bekletmesin
+  // → tıklama hissi offline kadar anlık. `assigned` prop'u sunucu KAYNAK-DOĞRU
+  // durumu; sunucu yanıtı geldiğinde optimistic durumu onunla EŞİTLERİZ.
+  // Eşitleme yalnızca prop GERÇEKTEN değişince olur (referans değil içerik) —
+  // böylece 1.5sn poll'ün aynı içerikli prop'u optimistic'i geri almaz.
+  const [optimistic, setOptimistic] = useState<Array<string | null>>(assigned);
+  const assignedKey = assigned.join('|');
+  const prevAssignedKey = useRef(assignedKey);
+  useEffect(() => {
+    if (prevAssignedKey.current !== assignedKey) {
+      prevAssignedKey.current = assignedKey;
+      setOptimistic(assigned);
+    }
+  }, [assignedKey, assigned]);
+
   // Aktif slot — kart seçince buraya atanır. Varsayılan: ilk boş slot.
-  const firstEmpty = assigned.findIndex((c) => c === null);
+  const firstEmpty = optimistic.findIndex((c) => c === null);
   const [activeSlot, setActiveSlot] = useState<number>(firstEmpty === -1 ? 0 : firstEmpty);
 
   const handById = useMemo(() => new Map(hand.map((p) => [p.id, p])), [hand]);
@@ -63,29 +79,40 @@ export function BonusAssignScene({
   }, [activeCond, hand, ctx]);
 
   const assignedSet = useMemo(
-    () => new Set(assigned.filter((c): c is string => c !== null)),
-    [assigned],
+    () => new Set(optimistic.filter((c): c is string => c !== null)),
+    [optimistic],
   );
 
-  const allFilled = assigned.every((c) => c !== null);
+  const allFilled = optimistic.every((c) => c !== null);
 
   const handleCardClick = (cardId: string) => {
-    // Zaten bir slota atanmışsa: o slotu boşalt.
-    const existingSlot = assigned.indexOf(cardId);
+    // Zaten bir slota atanmışsa: o slotu boşalt (optimistic + sunucu).
+    const existingSlot = optimistic.indexOf(cardId);
     if (existingSlot !== -1) {
+      setOptimistic((prev) => {
+        const next = [...prev];
+        next[existingSlot] = null;
+        return next;
+      });
       onAssign(existingSlot, null);
       setActiveSlot(existingSlot);
       return;
     }
     // Aktif slot için uygun değilse yoksay.
     if (!eligibleIds.has(cardId)) return;
+    // ANINDA yerel atama (optimistic) → UI beklemez.
+    setOptimistic((prev) => {
+      const next = [...prev];
+      next[activeSlot] = cardId;
+      return next;
+    });
     onAssign(activeSlot, cardId);
     // Sonraki boş slota geç.
-    const nextEmpty = assigned.findIndex((c, i) => c === null && i !== activeSlot);
+    const nextEmpty = optimistic.findIndex((c, i) => c === null && i !== activeSlot);
     if (nextEmpty !== -1) setActiveSlot(nextEmpty);
   };
 
-  const filledCount = assigned.filter((c) => c !== null).length;
+  const filledCount = optimistic.filter((c) => c !== null).length;
 
   return (
     <section className="flex flex-col gap-3 pb-20">
@@ -122,7 +149,7 @@ export function BonusAssignScene({
       {/* 3 koşul slotu — büyük kart kabı (w-28 ≈ 1.4×) */}
       <div className="grid grid-cols-3 gap-2 sm:gap-3">
         {conditions.map((cond, slot) => {
-          const cardId = assigned[slot];
+          const cardId = optimistic[slot];
           const card = cardId ? handById.get(cardId) : undefined;
           const isActive = slot === activeSlot;
           return (

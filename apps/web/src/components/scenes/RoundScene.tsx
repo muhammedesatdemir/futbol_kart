@@ -172,6 +172,7 @@ export function RoundScene({
         {question && (
           <motion.div
             key={question.id}
+            layout
             initial={{ opacity: 0, y: 6 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0 }}
@@ -217,14 +218,18 @@ export function RoundScene({
         )}
       </AnimatePresence>
 
-      <AnimatePresence mode="wait">
-        {showReveal && (
+      {/* Reveal paneli — AnimatePresence YOK: scene değişince ANINDA kaybolur,
+          layout'ta yer kaplamayı bırakır. Önceki sorun: exit animasyonu (0.25s)
+          sırasında reveal hâlâ yer kaplarken play-zone altında render olur,
+          exit bitince play-zone yukarı zıplardı ("aşağıdan yukarı takılma").
+          Şimdi reveal anında gider, play-zone DOĞRUDAN doğru konumda fade-in olur. */}
+      {showReveal && (
           <motion.div
             key="reveal"
+            layout
             initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.35 }}
+            transition={{ duration: 0.25 }}
             className="glass-panel flex flex-col items-stretch gap-6 p-6 sm:flex-row sm:items-center sm:justify-center"
           >
             <RevealSide
@@ -266,7 +271,6 @@ export function RoundScene({
             />
           </motion.div>
         )}
-      </AnimatePresence>
 
       <AnimatePresence>
         {scene === 'ROUND_RESULT' && lastLog && (
@@ -304,52 +308,110 @@ export function RoundScene({
           />
         )}
 
-      {showHand && jokerInteractive && (
-        <JokerBar
-          multiplierEligible={multiplierEligible}
-          multiplierDir={multiplierDir}
-          multiplierUsed={multiplierUsed}
-          multiplierPendingHere={multiplierPendingHere}
-          revealUsed={revealUsed}
-          revealActive={revealActive}
-          transferUsed={transferUsed}
-          onMultiplier={onJokerMultiplier}
-          onReveal={onJokerReveal}
-        />
-      )}
+      {/* TUR OYNAMA BÖLGESİ — joker barı + transfer + bekleme + el HEPSİ tek
+          sarmalda. Reveal'den ROUND_PLAY'e geçerken bu blok YUMUŞAK FADE ile
+          gelir (alttan kayma YOK). Eski sorun: ayrı flex çocukları reveal paneli
+          kaybolunca aniden yukarı çekilir, "takılarak aşağıdan çıkma" görünürdü.
+          Tek sarmal + opacity geçişi bunu giderir; key sabit ("play-zone") →
+          turlar arası remount/zıplama olmaz. */}
+      {showHand && (
+        <motion.div
+          key="play-zone"
+          layout
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.3, ease: 'easeOut' }}
+          className="flex flex-col gap-6"
+        >
+          {jokerInteractive && (
+            <JokerBar
+              multiplierEligible={multiplierEligible}
+              multiplierDir={multiplierDir}
+              multiplierUsed={multiplierUsed}
+              multiplierPendingHere={multiplierPendingHere}
+              revealUsed={revealUsed}
+              revealActive={revealActive}
+              transferUsed={transferUsed}
+              onMultiplier={onJokerMultiplier}
+              onReveal={onJokerReveal}
+            />
+          )}
 
-      {/* O tur joker aktifse: kalıcı durum şeridi + el bölgesine altın aura.
-          Çarpan ve İstatistik aynı anda aktif olabilir. */}
-      {showHand && jokerInteractive && (multiplierPendingHere || revealActive) && (
-        <ActiveJokerBanner
-          multiplierPendingHere={multiplierPendingHere}
-          multiplierDir={multiplierDir}
-          revealActive={revealActive}
-        />
-      )}
+          {/* O tur joker aktifse: kalıcı durum şeridi + el bölgesine altın aura. */}
+          {jokerInteractive && (multiplierPendingHere || revealActive) && (
+            <ActiveJokerBanner
+              multiplierPendingHere={multiplierPendingHere}
+              multiplierDir={multiplierDir}
+              revealActive={revealActive}
+            />
+          )}
 
-      {/* ONLINE TRANSFER butonu — soruyu gördükten sonra, kart oynamadan önce.
-          Hak varsa + son tur değilse + henüz kart oynamadıysan tıklanabilir. */}
-      {isOnline &&
-        showHand &&
-        !activeHasPlayed &&
-        !transferUsed &&
-        transferAvailable && (
-          <div className="flex justify-center">
-            <button
-              type="button"
-              onClick={() => void openTransfer()}
-              className="glass-panel inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-accent-goldHi transition hover:border-accent-gold/50 hover:bg-white/10"
-            >
-              🔄 Transfer Hamlesi — bir kartını rakiple takas et
-            </button>
+          {/* ONLINE TRANSFER butonu — soruyu gördükten sonra, kart oynamadan önce. */}
+          {isOnline &&
+            !activeHasPlayed &&
+            !transferUsed &&
+            transferAvailable && (
+              <div className="flex justify-center">
+                <button
+                  type="button"
+                  onClick={() => void openTransfer()}
+                  className="glass-panel inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold text-accent-goldHi transition hover:border-accent-gold/50 hover:bg-white/10"
+                >
+                  🔄 Transfer Hamlesi — bir kartını rakiple takas et
+                </button>
+              </div>
+            )}
+          {transferErr && (
+            <p className="text-center text-xs text-side-red">{transferErr}</p>
+          )}
+
+          {/* ONLINE: kartını oynadın, rakip bekleniyor → net bekleme bandı. */}
+          {isOnline && activeHasPlayed && !showReveal && (
+            <div className="glass-panel flex items-center justify-center gap-3 p-4 text-center">
+              <span className="inline-block h-2.5 w-2.5 animate-pulse rounded-full bg-emerald-400" />
+              <span className="text-sm font-semibold text-white/80">
+                Kartını oynadın ✓ — rakip seçimini yapıyor…
+              </span>
+            </div>
+          )}
+
+          <div
+            className={cn(
+              'relative rounded-2xl transition-all duration-500',
+              // Online'da kart oynandıysa eli soluklaştır (artık etkileşim yok).
+              isOnline && activeHasPlayed && 'pointer-events-none opacity-50',
+              jokerInteractive && (multiplierPendingHere || revealActive)
+                ? 'bg-accent-gold/[0.04] shadow-[0_0_40px_-8px_rgba(240,193,75,0.4)] ring-1 ring-accent-gold/25'
+                : '',
+            )}
+          >
+            {/* Joker aktivasyon patlaması — her aktivasyonda bir kez. */}
+            {jokerInteractive && multiplierPendingHere && (
+              <JokerActivateBurst tone="gold" fireKey={`mult-${activeSide}`} />
+            )}
+            {jokerInteractive && revealActive && (
+              <JokerActivateBurst tone="cyan" fireKey={`reveal-${activeSide}`} />
+            )}
+            <HandDisplay
+              activeSide={activeSide}
+              botMode={botMode}
+              p1Name={p1Name}
+              p2Name={p2Name}
+              hand={hand}
+              players={players}
+              currentP1Card={currentP1Card}
+              p1BonusCards={p1BonusCards}
+              p2BonusCards={p2BonusCards}
+              onCardPlay={onCardPlay}
+              revealValues={revealValues}
+              revealTemplateId={question?.id ?? ''}
+              revealCompareOp={question?.compareOp ?? 'max'}
+            />
           </div>
-        )}
-      {transferErr && (
-        <p className="text-center text-xs text-side-red">{transferErr}</p>
+        </motion.div>
       )}
 
-      {/* Transfer paneli */}
+      {/* Transfer paneli (modal, fixed overlay — tur-oynama sarmalının DIŞINDA). */}
       {transferOpts && (
         <TransferPanel
           ownCards={transferOpts.ownCards}
@@ -361,53 +423,6 @@ export function RoundScene({
             onTransfer?.(give, take);
           }}
         />
-      )}
-
-      {/* ONLINE: kendi kartını oynadın, rakip henüz oynamadı → net bekleme bandı.
-          Kullanıcı "tıkladım mı / hata mı yaptım" diye düşünmesin diye açık bilgi. */}
-      {isOnline && showHand && activeHasPlayed && !showReveal && (
-        <div className="glass-panel flex items-center justify-center gap-3 p-4 text-center">
-          <span className="inline-block h-2.5 w-2.5 animate-pulse rounded-full bg-emerald-400" />
-          <span className="text-sm font-semibold text-white/80">
-            Kartını oynadın ✓ — rakip seçimini yapıyor…
-          </span>
-        </div>
-      )}
-
-      {showHand && (
-        <div
-          className={cn(
-            'relative rounded-2xl transition-all duration-500',
-            // Online'da kart oynandıysa eli soluklaştır (artık etkileşim yok).
-            isOnline && activeHasPlayed && 'pointer-events-none opacity-50',
-            jokerInteractive && (multiplierPendingHere || revealActive)
-              ? 'bg-accent-gold/[0.04] shadow-[0_0_40px_-8px_rgba(240,193,75,0.4)] ring-1 ring-accent-gold/25'
-              : '',
-          )}
-        >
-          {/* Joker aktivasyon patlaması — her aktivasyonda bir kez. */}
-          {jokerInteractive && multiplierPendingHere && (
-            <JokerActivateBurst tone="gold" fireKey={`mult-${activeSide}`} />
-          )}
-          {jokerInteractive && revealActive && (
-            <JokerActivateBurst tone="cyan" fireKey={`reveal-${activeSide}`} />
-          )}
-          <HandDisplay
-            activeSide={activeSide}
-            botMode={botMode}
-            p1Name={p1Name}
-            p2Name={p2Name}
-            hand={hand}
-            players={players}
-            currentP1Card={currentP1Card}
-            p1BonusCards={p1BonusCards}
-            p2BonusCards={p2BonusCards}
-            onCardPlay={onCardPlay}
-            revealValues={revealValues}
-            revealTemplateId={question?.id ?? ''}
-            revealCompareOp={question?.compareOp ?? 'max'}
-          />
-        </div>
       )}
     </section>
   );

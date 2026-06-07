@@ -36,6 +36,13 @@
 
 > **3 jokerin hepsi online'da hazır:** Çarpan (×2/÷2), İstatistiği Gör (gizli, sadece kendi eli), Transfer (açık takas). Hepsi sunucu-otoriteli + hile-korumalı.
 
+> **Akıcılık iyileştirmeleri (2026-06-07):**
+> - **Render gürültüsü kesildi:** Poll'de state değişmediyse `setState` atlanır (yeni obje referansı üretilmez) → 1.5sn'lik tüm-sayfa re-render'ı yok, framer-motion animasyonları kasmaz.
+> - **Aksiyon bloklaması kalktı:** `sendMove` artık POST sonrası `await refresh()` yapmaz (ateşle-unut) → her "Hazırım"/kart/kategori ~200ms hızlandı.
+> - **Optimistic UI:** Kategori atama (`BonusAssignScene`) ve kart oynama (`RoundScene` `optimisticPlayed` + 4sn watchdog) tıklama anında tepki verir; sunucu yanıtı gelince senkronlanır. `HandDisplay` artık `React.memo`'lu.
+> - **Geç/çift hamle dayanıklılığı:** `sendMove` 422'yi (geç play-card vb.) yutar (throw etmez → dev overlay çökmesi yok); `handleCardPlay` sahne ROUND_PLAY değilse veya zaten oynanmışsa POST göndermez.
+> - **🏗️ Versiyon-tabanlı GET (mimari):** GET `/api/match/[id]` artık `?v=<version>` alır. Sürüm değişmemiş VE timeout tetiklenmemişse minik `{ unchanged, version, turnDeadline }` döner → `computeQuestionTitle` (loadGameData + şablon tarama) + maskeleme + tam state serileştirme ATLANIR. Değişmeyen poll'ler (GET'lerin çoğu) neredeyse bedava. Yanıta `version` eklendi; client `versionRef`'te tutar. POST/Ably sonrası sürüm uyuşmazlığı tam state'i tetikler (doğru).
+
 ⚠️ **Bilinen sınırlar / notlar:**
 - Sunucu motoru `loadGameData()` ile 25MB players.json'u `fs`'ten okuyor (cache'li ama ağır) → **Faz 0** ile maç-başına ince veri yüklemeye geçilecek.
 - Kavram-ispatı route'unda realtime yayın (Ably) ve süre/deadline zorlaması YOK — Faz 3/5'te eklenecek.

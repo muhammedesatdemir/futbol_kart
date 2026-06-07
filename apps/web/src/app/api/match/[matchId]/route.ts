@@ -24,10 +24,15 @@ export const runtime = 'nodejs';
  * kartları/skorları içerir (zaten her iki oyuncuya da görünür bilgi).
  */
 export async function GET(
-  _req: Request,
+  req: Request,
   ctx: { params: Promise<{ matchId: string }> },
 ) {
   const { matchId } = await ctx.params;
+  // Client en son gördüğü sürümü ?v= ile gönderir. Sürüm değişmediyse (ve
+  // timeout da tetiklenmediyse) TAM yanıt yerine minik "unchanged" döneriz →
+  // computeQuestionTitle (loadGameData + şablon tarama) ve state serileştirme
+  // ATLANIR. Poll'lerin çoğu (kimse hamle yapmıyorken) böylece neredeyse bedava.
+  const clientVersion = Number(new URL(req.url).searchParams.get('v'));
 
   const session = await auth.api.getSession({ headers: await headers() });
   if (!session?.user) {
@@ -60,6 +65,8 @@ export async function GET(
   let fullState = m.state as SessionState;
   let deadline = m.turnDeadline ? new Date(m.turnDeadline) : null;
   let flowState = (m.flowState as FlowState | null) ?? null;
+  // Bu yanıtta dönecek güncel sürüm. Timeout yazımı başarılı olursa artar.
+  let currentVersion = m.version;
 
   const timedOut = await applyTimeout(
     fullState,
@@ -67,6 +74,24 @@ export async function GET(
     deadline ? deadline.getTime() : null,
     Date.now(),
   );
+
+  // VERSİYON KISA-DEVRESİ: timeout bir şey değiştirmedi VE client zaten güncel
+  // sürümü görüyorsa, ağır işi (computeQuestionTitle → loadGameData + tarama,
+  // maskeleme, tam state serileştirme) hiç yapma. Deadline'ı yine döneriz ki
+  // client geri sayımı senkron tutsun. Bu, "değişmeyen poll" durumunu —
+  // GET'lerin büyük çoğunluğunu — neredeyse bedava yapar.
+  if (
+    !timedOut.changed &&
+    Number.isFinite(clientVersion) &&
+    clientVersion === m.version
+  ) {
+    return NextResponse.json({
+      unchanged: true,
+      version: m.version,
+      turnDeadline: deadline ? deadline.toISOString() : null,
+    });
+  }
+
   if (timedOut.changed) {
     // Yeni sahne için yeni deadline.
     const secs = sceneDeadlineSeconds(timedOut.state);
@@ -91,6 +116,7 @@ export async function GET(
       fullState = timedOut.state;
       flowState = timedOut.flowState;
       deadline = newDeadline;
+      currentVersion = m.version + 1;
       await publishMatchEvent(m.id, 'state-changed', {
         scene: fullState.scene,
         roundIndex: fullState.roundIndex,
@@ -113,6 +139,8 @@ export async function GET(
     matchId: m.id,
     mode: m.mode,
     status: m.status,
+    /** Maçın güncel sürümü — client saklar, bir sonraki GET'te ?v= ile yollar. */
+    version: currentVersion,
     /** Bu isteği yapan oyuncunun tarafı — client kendi perspektifini bilir. */
     yourSide: side,
     seed: m.seed,

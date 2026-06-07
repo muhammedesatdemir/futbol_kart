@@ -106,16 +106,33 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
   // ATLA → yeni obje referansı üretilmez → tüm sahne ağacı boşuna re-render
   // olmaz → framer-motion animasyonları araya giren render'la kasmaz.
   const lastStateJsonRef = useRef<string | null>(null);
+  // Son görülen maç sürümü. GET'e ?v= ile yollanır; sunucu sürüm değişmemiş
+  // VE timeout tetiklenmemişse minik "unchanged" döner → ağır iş (loadGameData,
+  // şablon tarama, tam serileştirme) sunucuda hiç yapılmaz. Değişmeyen
+  // poll'lerin maliyetini kökten düşürür.
+  const versionRef = useRef<number | null>(null);
 
   const refresh = useCallback(async () => {
     if (!matchId) return;
     try {
-      const res = await fetch(`/api/match/${matchId}`);
+      const v = versionRef.current;
+      const url =
+        v !== null ? `/api/match/${matchId}?v=${v}` : `/api/match/${matchId}`;
+      const res = await fetch(url);
       if (!res.ok) {
         const data = await res.json().catch(() => ({}));
         throw new Error(data.error ?? 'Maç yüklenemedi.');
       }
       const data = await res.json();
+      // SÜRÜM DEĞİŞMEDİ: sunucu tam state yollamadı. Sadece deadline'ı tazele
+      // (geri sayım senkronu) ve çık — state/title/side aynı kalır.
+      if (data.unchanged) {
+        if (typeof data.version === 'number') versionRef.current = data.version;
+        setTurnDeadline(data.turnDeadline ?? null);
+        setError(null);
+        return;
+      }
+      if (typeof data.version === 'number') versionRef.current = data.version;
       // state DEĞİŞTİYSE yeni referans ver; değişmediyse aynı referansı koru.
       // (yourSide/status/deadline/title primitive → aynı değerde React zaten
       //  bail-out yapar, re-render tetiklemez; asıl maliyet `state` objesinde.)
@@ -179,9 +196,10 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
 
     return () => {
       disposed = true;
-      // Maç değişti → state karşılaştırma ref'ini sıfırla (yeni maçın ilk
-      // state'i kesin uygulanır).
+      // Maç değişti → state + sürüm ref'lerini sıfırla (yeni maçın ilk GET'i
+      // ?v= olmadan gider, tam state alır).
       lastStateJsonRef.current = null;
+      versionRef.current = null;
       if (pollRef.current) clearInterval(pollRef.current);
       if (ablyRef.current) {
         ablyRef.current.close();

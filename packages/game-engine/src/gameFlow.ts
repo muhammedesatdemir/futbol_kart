@@ -185,13 +185,19 @@ function compareForWinner(
   v2: number | boolean | null,
   op: 'max' | 'min' | 'bool',
 ): PlayerSide | 'tie' {
+  // BOOL: kazanmak SADECE soruyu sağlamakla (value === true). null/false =
+  // sağlamıyor → kaybeder. İkisi de true değilse berabere. (resolver.ts
+  // compareValues ile birebir aynı — çarpan sonrası tutarlılık için.)
+  if (op === 'bool') {
+    const p1Yes = v1 === true;
+    const p2Yes = v2 === true;
+    if (p1Yes && !p2Yes) return 'P1';
+    if (p2Yes && !p1Yes) return 'P2';
+    return 'tie';
+  }
   if (v1 === null && v2 === null) return 'tie';
   if (v1 === null) return 'P2';
   if (v2 === null) return 'P1';
-  if (op === 'bool') {
-    if (v1 === v2) return 'tie';
-    return v1 === true ? 'P1' : 'P2';
-  }
   const n1 = typeof v1 === 'boolean' ? (v1 ? 1 : 0) : v1;
   const n2 = typeof v2 === 'boolean' ? (v2 ? 1 : 0) : v2;
   if (n1 === n2) return 'tie';

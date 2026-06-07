@@ -655,19 +655,29 @@ export function resolveRound(
   return { winner: winnerByValue, p1Value: v1, p2Value: v2 };
 }
 
-function compareValues(
+export function compareValues(
   v1: ComputedValue,
   v2: ComputedValue,
   op: 'max' | 'min' | 'bool',
 ): 'P1' | 'P2' | 'tie' {
+  // BOOL soruları null kontrolünden ÖNCE ele al. Bool'da kazanmak SADECE
+  // soruyu SAĞLAMAKLA olur (value === true). null (veri yok) veya false (hayır)
+  // = sağlamıyor → kaybeder. Yalnızca bir taraf true ise o kazanır; ikisi de
+  // true değilse (false/false, false/null, null/null, true/true) BERABERE.
+  // Örn: "Afrika'da doğan kazanır" — biri null, diğeri false → ikisi de
+  // sağlamıyor → berabere (eski hata: false olan "kazanıyordu").
+  if (op === 'bool') {
+    const p1Yes = v1 === true;
+    const p2Yes = v2 === true;
+    if (p1Yes && !p2Yes) return 'P1';
+    if (p2Yes && !p1Yes) return 'P2';
+    return 'tie'; // ikisi de evet veya ikisi de evet-değil
+  }
+
+  // Sayısal (max/min): değer biliniyorsa kazanır; ikisi de yoksa berabere.
   if (v1 === null && v2 === null) return 'tie';
   if (v1 === null) return 'P2';
   if (v2 === null) return 'P1';
-
-  if (op === 'bool') {
-    if (v1 === v2) return 'tie';
-    return v1 === true ? 'P1' : 'P2';
-  }
 
   const n1 = typeof v1 === 'boolean' ? (v1 ? 1 : 0) : v1;
   const n2 = typeof v2 === 'boolean' ? (v2 ? 1 : 0) : v2;

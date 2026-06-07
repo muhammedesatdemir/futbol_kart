@@ -1,5 +1,10 @@
 import { describe, expect, it } from 'vitest';
-import { computeValue, resolveRound, templateApplicable } from './resolver';
+import {
+  compareValues,
+  computeValue,
+  resolveRound,
+  templateApplicable,
+} from './resolver';
 import { templateById, TEMPLATES } from './templates';
 import { haversineKm, ISTANBUL } from './geo';
 import {
@@ -279,6 +284,33 @@ describe('resolveRound', () => {
     // Aynı oyuncuyu iki tarafa koyarsak değerler eşit → tie
     const r = resolveRound(t, fixtureMessi, fixtureMessi, fixtureContext);
     expect(r.winner).toBe('tie');
+  });
+});
+
+describe('compareValues — bool kuralı (kazanmak = soruyu sağlamak)', () => {
+  // Bool soruda kazanmak SADECE true olmakla. null/false = sağlamıyor.
+  it('true vs false → true kazanır', () => {
+    expect(compareValues(true, false, 'bool')).toBe('P1');
+    expect(compareValues(false, true, 'bool')).toBe('P2');
+  });
+  it('true vs null → true kazanır (veri yok = sağlamıyor)', () => {
+    expect(compareValues(true, null, 'bool')).toBe('P1');
+    expect(compareValues(null, true, 'bool')).toBe('P2');
+  });
+  it('KRİTİK: false vs null → BERABERE (ikisi de sağlamıyor)', () => {
+    // "Afrika'da doğan kazanır": biri hayır, diğeri veri yok → kimse kazanmaz.
+    // Eski hata: false (hayır) olan kazanıyordu.
+    expect(compareValues(false, null, 'bool')).toBe('tie');
+    expect(compareValues(null, false, 'bool')).toBe('tie');
+  });
+  it('false vs false → berabere', () => {
+    expect(compareValues(false, false, 'bool')).toBe('tie');
+  });
+  it('true vs true → berabere (ikisi de sağlıyor)', () => {
+    expect(compareValues(true, true, 'bool')).toBe('tie');
+  });
+  it('null vs null → berabere', () => {
+    expect(compareValues(null, null, 'bool')).toBe('tie');
   });
 });
 

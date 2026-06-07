@@ -101,6 +101,11 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
 
   const ablyRef = useRef<Ably.Realtime | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  // Son uygulanan state'in serileştirilmiş hali. Polling her 1.5sn GET çağırır
+  // ama state çoğu zaman AYNIDIR (kimse hamle yapmadı). Aynıysa setState'i
+  // ATLA → yeni obje referansı üretilmez → tüm sahne ağacı boşuna re-render
+  // olmaz → framer-motion animasyonları araya giren render'la kasmaz.
+  const lastStateJsonRef = useRef<string | null>(null);
 
   const refresh = useCallback(async () => {
     if (!matchId) return;
@@ -111,7 +116,14 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
         throw new Error(data.error ?? 'Maç yüklenemedi.');
       }
       const data = await res.json();
-      setState(data.state as SessionState);
+      // state DEĞİŞTİYSE yeni referans ver; değişmediyse aynı referansı koru.
+      // (yourSide/status/deadline/title primitive → aynı değerde React zaten
+      //  bail-out yapar, re-render tetiklemez; asıl maliyet `state` objesinde.)
+      const nextStateJson = JSON.stringify(data.state ?? null);
+      if (nextStateJson !== lastStateJsonRef.current) {
+        lastStateJsonRef.current = nextStateJson;
+        setState(data.state as SessionState);
+      }
       setYourSide(data.yourSide);
       setStatus(data.status);
       setTurnDeadline(data.turnDeadline ?? null);
@@ -167,6 +179,9 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
 
     return () => {
       disposed = true;
+      // Maç değişti → state karşılaştırma ref'ini sıfırla (yeni maçın ilk
+      // state'i kesin uygulanır).
+      lastStateJsonRef.current = null;
       if (pollRef.current) clearInterval(pollRef.current);
       if (ablyRef.current) {
         ablyRef.current.close();

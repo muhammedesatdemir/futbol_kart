@@ -8,6 +8,12 @@ import {
   sceneDeadlineSeconds,
   computeQuestionTitle,
 } from '@/lib/server/matchEngine';
+import {
+  applyTargetTimeout,
+  targetSceneDeadlineSeconds,
+  targetCriterionView,
+  type TargetMatchState,
+} from '@/lib/server/targetMatchEngine';
 import { publishMatchEvent } from '@/lib/server/ably';
 
 export const runtime = 'nodejs';
@@ -65,6 +71,15 @@ export async function GET(
       { error: 'Bu maçın oyuncusu değilsin.' },
       { status: 403 },
     );
+  }
+
+  // ── MOD DALLANMASI ────────────────────────────────────────────────────────
+  // VS Düello dışındaki modlar (hedef, …) kendi opak state'lerini taşır ve
+  // VS Düello'nun ağır işine (maskeleme, computeQuestionTitle, flowState) İHTİYAÇ
+  // DUYMAZ. Bu yüzden erken, sade bir kolla yanıt veririz. VS Düello kolu (alt)
+  // birebir korunur. Bkz PLAN.md §19 (state opak, GET m.mode ile dallanır).
+  if (m.mode === 'hedef') {
+    return getTargetMatch(db, m, side, clientVersion);
   }
 
   // SÜRE KONTROLÜ (lazy): yükleme anında süre dolduysa otomatik tamamla.
@@ -187,4 +202,92 @@ function maskOpponentHand(
     return { ...state, p2Hand: [] };
   }
   return { ...state, p1Hand: [] };
+}
+
+/**
+ * "Hedefe Yaklaş" maçı için GET — sade kol. Maskeleme YOK (hedef değer ve draft
+ * pick'leri snake draft'ın doğası gereği AÇIK — offline'da da açık). Süre dolumu
+ * lazy uygulanır (rakip beklerse maç ilerler). Versiyon kısa-devresi VS Düello
+ * deseniyle aynı (değişmeyen poll'ler neredeyse bedava).
+ */
+async function getTargetMatch(
+  db: ReturnType<typeof getDb>,
+  m: typeof matchTable.$inferSelect,
+  side: 'P1' | 'P2',
+  clientVersion: number,
+) {
+  let state = m.state as TargetMatchState;
+  let deadline = m.turnDeadline ? new Date(m.turnDeadline) : null;
+  let currentVersion = m.version;
+
+  // DAYANIKLILIK: timeout throw ederse yut (her poll 500 olmasın — VS dersi).
+  let timed: { state: TargetMatchState; changed: boolean };
+  try {
+    timed = await applyTargetTimeout(
+      state,
+      deadline ? deadline.getTime() : null,
+      Date.now(),
+    );
+  } catch (err) {
+    console.error('applyTargetTimeout hatası (maç çökmesi önlendi):', err);
+    timed = { state, changed: false };
+  }
+
+  // Versiyon kısa-devresi: değişiklik yok + client güncel → minik unchanged.
+  if (
+    !timed.changed &&
+    Number.isFinite(clientVersion) &&
+    clientVersion === m.version
+  ) {
+    return NextResponse.json({
+      unchanged: true,
+      version: m.version,
+      turnDeadline: deadline ? deadline.toISOString() : null,
+    });
+  }
+
+  if (timed.changed) {
+    const secs = targetSceneDeadlineSeconds(timed.state);
+    const newDeadline = secs ? new Date(Date.now() + secs * 1000) : null;
+    const updated = await db
+      .update(matchTable)
+      .set({
+        state: timed.state,
+        currentScene: timed.state.scene,
+        turnDeadline: newDeadline,
+        version: m.version + 1,
+        winnerSide: timed.state.scene === 'RESULT' ? timed.state.winner : null,
+        status: timed.state.scene === 'RESULT' ? 'finished' : 'active',
+        updatedAt: new Date(),
+      })
+      .where(and(eq(matchTable.id, m.id), eq(matchTable.version, m.version)))
+      .returning({ id: matchTable.id });
+    if (updated.length > 0) {
+      state = timed.state;
+      deadline = newDeadline;
+      currentVersion = m.version + 1;
+      await publishMatchEvent(m.id, 'state-changed', {
+        scene: state.scene,
+        draftStep: state.draftStep,
+      });
+    }
+  }
+
+  // Kriter metaverisi (metric fonksiyonu serileştirilemez → id'den başlık/birim).
+  const criterion = await targetCriterionView(state.criterionId);
+
+  return NextResponse.json({
+    matchId: m.id,
+    mode: m.mode,
+    status: m.status,
+    version: currentVersion,
+    yourSide: side,
+    seed: m.seed,
+    // state OPAK döner — client TargetMatchState olarak yorumlar. Maskeleme yok.
+    state,
+    /** Kriter başlık/birim (client gösterimi; metric sunucuda kalır). */
+    criterion,
+    winnerSide: m.winnerSide,
+    turnDeadline: deadline ? deadline.toISOString() : null,
+  });
 }

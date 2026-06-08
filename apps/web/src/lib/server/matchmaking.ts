@@ -27,9 +27,19 @@ import {
   type SessionState,
 } from '@futbol-kart/game-engine';
 import { sceneDeadlineSeconds } from '@/lib/server/matchEngine';
+import {
+  buildInitialTargetState,
+  targetSceneDeadlineSeconds,
+} from '@/lib/server/targetMatchEngine';
 
-/** Pilot: yalnızca VS Düello online. İleride diğer modlar eklenir. */
-export const ONLINE_MODES = ['vs-duello'] as const;
+/**
+ * Online oynanabilen modlar. Her yeni mod buraya eklenir; `matchmaking_queue`
+ * `mode` kolonuyla filtreli eşleştirir → "hedef bekleyen" yalnızca "hedef
+ * bekleyenle" eşleşir. Mod-özel maç state'i `buildInitialMatchState`'te kurulur.
+ *  - 'vs-duello' : VS Düello (kart kapışma) — SessionState
+ *  - 'hedef'     : Hedefe Yaklaş — TargetMatchState
+ */
+export const ONLINE_MODES = ['vs-duello', 'hedef'] as const;
 export type OnlineMode = (typeof ONLINE_MODES)[number];
 
 export interface MatchmakingResult {
@@ -56,6 +66,27 @@ export function buildOnlineMatchState(
   s = reduceSession(s, { type: 'MODE_CHOSEN', mode: 'online' });
   s = reduceSession(s, { type: 'NAMES_SET', p1Name, p2Name });
   return s;
+}
+
+/**
+ * Mod-özel başlangıç state + ilk sahnenin süre limiti (sn). VS Düello'ya HİÇ
+ * dokunmaz — yeni modlar kendi kollarını ekler. Dönen `state` opak olarak
+ * `match.state` jsonb'ye yazılır (mode kolonuyla yorumlanır).
+ */
+async function buildInitialMatchState(
+  mode: OnlineMode,
+  matchId: string,
+  seed: string,
+  p1Name: string,
+  p2Name: string,
+): Promise<{ state: unknown; deadlineSecs: number | null }> {
+  if (mode === 'hedef') {
+    const state = await buildInitialTargetState(seed, p1Name, p2Name);
+    return { state, deadlineSecs: targetSceneDeadlineSeconds(state) };
+  }
+  // vs-duello (varsayılan, mevcut davranış — değişmedi).
+  const state = buildOnlineMatchState(matchId, seed, p1Name, p2Name);
+  return { state, deadlineSecs: sceneDeadlineSeconds(state) };
 }
 
 /**
@@ -119,11 +150,19 @@ export async function joinMatchmaking(
       displayNameOf(db, opponentId),
       displayNameOf(db, userId),
     ]);
-    const state = buildOnlineMatchState(matchId, seed, p1Name, p2Name);
+    // Mod-özel başlangıç state (vs-duello → SessionState, hedef → TargetMatchState).
+    const { state, deadlineSecs } = await buildInitialMatchState(
+      mode,
+      matchId,
+      seed,
+      p1Name,
+      p2Name,
+    );
 
-    // Süre EŞLEŞME ANINDA başlar (iki tarafta eş). İlk sahne el seçimi.
-    const secs = sceneDeadlineSeconds(state);
-    const turnDeadline = secs ? new Date(Date.now() + secs * 1000) : null;
+    // Süre EŞLEŞME ANINDA başlar (iki tarafta eş). İlk sahnenin süre limiti.
+    const turnDeadline = deadlineSecs
+      ? new Date(Date.now() + deadlineSecs * 1000)
+      : null;
 
     await db.insert(matchTable).values({
       id: matchId,
@@ -132,7 +171,7 @@ export async function joinMatchmaking(
       status: 'active',
       p1UserId: opponentId,
       p2UserId: userId,
-      currentScene: state.scene,
+      currentScene: (state as { scene: string }).scene,
       state,
       turnDeadline,
     });

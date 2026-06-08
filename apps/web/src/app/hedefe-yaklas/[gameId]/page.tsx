@@ -1,12 +1,13 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { HomeIcon, ArrowLeftIcon } from '@/components/icons';
 import { SceneShell } from '@/components/scenes/SceneShell';
 import { SceneBackground } from '@/components/SceneBackground';
+import { BallLoader } from '@/components/BallLoader';
 import { OpponentSelectScene, type Opponent } from '@/components/scenes/OpponentSelectScene';
 import { TargetRevealScene } from '@/components/scenes/TargetRevealScene';
 import { TargetBuildScene } from '@/components/scenes/TargetBuildScene';
@@ -20,6 +21,7 @@ import { useGameSession } from '@/lib/GameSessionProvider';
 import { useProfileStore } from '@/lib/profileStore';
 import { createPRNG } from '@futbol-kart/game-engine';
 import { TARGET_PICK_SECONDS, TARGET_DRAFT_SECONDS } from '@futbol-kart/game-engine';
+import { useOnlineTargetMatch } from '@/lib/useOnlineTargetMatch';
 import {
   pruneTargetCriteria,
   pickTarget,
@@ -39,26 +41,49 @@ import {
 type Phase = 'opponent' | 'reveal-target' | 'build' | 'draft' | 'result';
 
 /**
- * "Hedefe Yaklaş" modu — Bota karşı (kör build) + Arkadaşa karşı (snake draft).
- * 5 oyuncu seç, toplamı hedefe (60–80) yaklaştır; en yakın kazanır.
- * VS/Kadro sayfalarından bağımsız: kendi hafif faz makinesi + saf targetMode.
+ * "Hedefe Yaklaş" modu — Bota karşı (kör build) + Arkadaşa karşı (snake draft)
+ * + ONLINE (sunucu-otoriteli, gerçek rakip). 5 oyuncu seç, toplamı hedefe
+ * (60–80) yaklaştır; en yakın kazanır.
+ *
+ * Online entegrasyonu VS Düello desenini izler (`?online=1` → matchId →
+ * `useOnlineTargetMatch`). Offline akış (bota/arkadaşa karşı) tamamen korunur;
+ * tüm online kod `isOnline` ile gate'lidir. Bkz PLAN.md §19.
  */
 export default function TargetGamePage() {
   const params = useParams<{ gameId: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const session = useGameSession();
 
-  // Her oyun OTURUMUNDA değişen tohum — kriter seçimi buna bağlı. gameId mod
-  // menüsünden taşınıp SABİT kaldığı için yalnız gameId'ye bağlamak hep aynı
-  // kriteri verirdi (bug); roundSeed mount'ta rastgele üretilir, "tekrar oyna"da
-  // yenilenir → her oyun farklı bir hedef kriteri gelir.
+  // ── ONLINE TESPİTİ (VS Düello deseni) ──────────────────────────────────────
+  // ?online=1 ise gameId aslında matchId'dir. matchId null → useOnlineTargetMatch
+  // fetch yapmaz, offline yerel akış çalışır.
+  const isOnline = searchParams.get('online') === '1';
+  const matchId = isOnline ? params.gameId : null;
+  const online = useOnlineTargetMatch(matchId);
+
+  // Her oyun OTURUMUNDA değişen tohum — kriter seçimi buna bağlı (OFFLINE).
   const [roundSeed, setRoundSeed] = useState(() => Math.random().toString(36).slice(2));
 
-  const criterion: TargetCriterion = useMemo(() => {
+  // OFFLINE kriter (roundSeed'e bağlı deterministik rastgele).
+  const offlineCriterion: TargetCriterion = useMemo(() => {
     const healthy = pruneTargetCriteria(session.players);
     const prng = createPRNG(`target:${params.gameId}:${roundSeed}`);
     return healthy[Math.floor(prng.next() * healthy.length)] ?? healthy[0]!;
   }, [session.players, params.gameId, roundSeed]);
+
+  // ONLINE kriter: sunucu state'indeki criterionId'den TAM kriteri (metric'li)
+  // client havuzundan yeniden çöz (sahneler metric fonksiyonu bekliyor).
+  const onlineCriterion: TargetCriterion | null = useMemo(() => {
+    const cid = online.state?.criterionId;
+    if (!cid) return null;
+    const healthy = pruneTargetCriteria(session.players);
+    return healthy.find((c) => c.id === cid) ?? null;
+  }, [online.state?.criterionId, session.players]);
+
+  // Etkin kriter: online'da sunucununki, offline'da yerel. Online'da henüz
+  // çözülmediyse offline'a düşme (loading guard zaten render'ı engeller).
+  const criterion = isOnline ? (onlineCriterion ?? offlineCriterion) : offlineCriterion;
 
   const playersById = useMemo(
     () => new Map(session.players.map((p) => [p.id, p])),
@@ -72,7 +97,7 @@ export default function TargetGamePage() {
   const [p1Picks, setP1Picks] = useState<TargetPicks>(() => emptyPicks());
   const [p2Picks, setP2Picks] = useState<TargetPicks>(() => emptyPicks());
 
-  // -------- Hot-seat isim + snake draft state'i --------
+  // -------- Hot-seat isim + snake draft state'i (OFFLINE) --------
   const profileP1 = useProfileStore((s) => s.p1Name);
   const profileP2 = useProfileStore((s) => s.p2Name);
   const setProfileNames = useProfileStore((s) => s.setNames);
@@ -84,7 +109,7 @@ export default function TargetGamePage() {
   const draftActiveSide = draftOrder[draftStep] ?? 'P1';
 
   // -------- Röntgen jokeri state'i --------
-  // Maç başına 1×/taraf. Bota karşı yalnız P1 kullanır.
+  // OFFLINE: maç başına 1×/taraf. ONLINE: hak sunucuda; overlay için değer tutulur.
   const [xrayUsed, setXrayUsed] = useState<{ P1: boolean; P2: boolean }>({
     P1: false,
     P2: false,
@@ -93,17 +118,18 @@ export default function TargetGamePage() {
   const [xrayPlayerId, setXrayPlayerId] = useState<string | null>(null);
   // Röntgenlenen oyuncu hangi tarafça açıldı (hak düşürme + kabulde slot için).
   const [xraySide, setXraySide] = useState<'P1' | 'P2'>('P1');
+  // ONLINE: sunucudan dönen röntgen değeri (overlay'de gösterilir).
+  const [onlineXrayValue, setOnlineXrayValue] = useState<number | null>(null);
 
   // Joker hakları sıfırla (yeni maç / yeniden oyna / geri).
   const resetXray = useCallback(() => {
     setXrayUsed({ P1: false, P2: false });
     setXrayArmed(false);
     setXrayPlayerId(null);
+    setOnlineXrayValue(null);
   }, []);
 
-  // Yeni maç / yeniden oyna: yeni kriter (roundSeed) + havuz seed. Hedef değeri
-  // criterion'a bağlı olduğundan aşağıdaki effect'te (criterion değişince)
-  // hesaplanır — böylece gösterilen kriter ile hedef HER ZAMAN tutarlı olur.
+  // Yeni maç / yeniden oyna (OFFLINE): yeni kriter (roundSeed) + havuz seed.
   const freshTarget = useCallback(() => {
     setRoundSeed(Math.random().toString(36).slice(2));
     setShuffleSeed(Math.floor(Math.random() * 1e9));
@@ -113,14 +139,14 @@ export default function TargetGamePage() {
     resetXray();
   }, [resetXray]);
 
-  // Hedef değeri DAİMA güncel criterion'a göre seçilir (criterion roundSeed ile
-  // değişince yeniden hesaplanır) — kriter ile hedef bandı tutarlı kalır.
+  // Hedef değeri DAİMA güncel criterion'a göre (OFFLINE).
   useEffect(() => {
+    if (isOnline) return; // online'da hedef sunucudan gelir
     const prng = createPRNG(`${params.gameId}:${roundSeed}:tgt`);
-    setTarget(pickTarget(criterion, () => prng.next()));
-  }, [criterion, params.gameId, roundSeed]);
+    setTarget(pickTarget(offlineCriterion, () => prng.next()));
+  }, [offlineCriterion, params.gameId, roundSeed, isOnline]);
 
-  // Rakip seçildi → hedef çarkına geç (opponent state'i sakla).
+  // Rakip seçildi → hedef çarkına geç (OFFLINE; online'da bu ekran gösterilmez).
   const onPickOpponent = useCallback(
     (opp: Opponent) => {
       setOpponent(opp);
@@ -130,12 +156,17 @@ export default function TargetGamePage() {
     [freshTarget],
   );
 
-  // Hedef çarkı bitti → bota karşı build, arkadaşa karşı snake draft.
+  // Online eşleşmeye git (mod-özel kuyruk).
+  const onOnline = useCallback(() => {
+    router.push('/online?mode=hedef');
+  }, [router]);
+
+  // Hedef çarkı bitti → bota karşı build, arkadaşa karşı snake draft (OFFLINE).
   const onTargetRevealed = useCallback(() => {
     setPhase(opponent === 'hotseat' ? 'draft' : 'build');
   }, [opponent]);
 
-  // ---- Bota karşı (build) ----
+  // ---- Bota karşı (build) ---- (OFFLINE)
   const onPick = useCallback((slotIdx: number, playerId: string | null) => {
     setP1Picks((prev) => {
       const next = [...prev];
@@ -152,7 +183,7 @@ export default function TargetGamePage() {
       const prng = createPRNG(`${params.gameId}-tg-bot`);
       const excludeIds = new Set(finalP1.filter((v): v is string => v !== null));
       const botPicks = buildAutoTarget(
-        criterion,
+        offlineCriterion,
         session.players,
         excludeIds,
         target,
@@ -161,7 +192,7 @@ export default function TargetGamePage() {
       setP2Picks(botPicks);
       setPhase('result');
     },
-    [params.gameId, criterion, session.players, target],
+    [params.gameId, offlineCriterion, session.players, target],
   );
 
   const onSubmit = useCallback(() => submitWith(p1Picks), [submitWith, p1Picks]);
@@ -170,17 +201,16 @@ export default function TargetGamePage() {
     const prng = createPRNG(`${params.gameId}-tg-auto`);
     const filled = autoFillTarget(
       p1Picks,
-      criterion,
+      offlineCriterion,
       session.players,
       new Set<string>(),
       () => prng.next(),
     );
     setP1Picks(filled);
     submitWith(filled);
-  }, [params.gameId, p1Picks, criterion, session.players, submitWith]);
+  }, [params.gameId, p1Picks, offlineCriterion, session.players, submitWith]);
 
-  // ---- Arkadaşa karşı (snake draft) ----
-  // Bir seçim uygula → aktif tarafın ilk boş slotuna koy + adım ilerlet.
+  // ---- Arkadaşa karşı (snake draft) ---- (OFFLINE)
   const applyDraftPick = useCallback(
     (side: 'P1' | 'P2', playerId: string) => {
       const setter = side === 'P1' ? setP1Picks : setP2Picks;
@@ -199,41 +229,78 @@ export default function TargetGamePage() {
     [draftOrder.length],
   );
 
-  const onDraftSelect = useCallback(
+  const onDraftSelectOffline = useCallback(
     (playerId: string) => applyDraftPick(draftActiveSide, playerId),
     [applyDraftPick, draftActiveSide],
   );
 
-  // Süre doldu → aktif tarafın ilk boş slotuna rastgele uygun oyuncu.
-  const onDraftTimeout = useCallback(() => {
+  const onDraftTimeoutOffline = useCallback(() => {
     const prng = createPRNG(`${params.gameId}-tg-draft-${draftStep}`);
     const myPicks = draftActiveSide === 'P1' ? p1Picks : p2Picks;
     const excluded = draftedTargetIds(p1Picks, p2Picks);
     const auto = autoPickForTargetDraft(
       myPicks,
-      criterion,
+      offlineCriterion,
       session.players,
       excluded,
       () => prng.next(),
     );
     if (auto) applyDraftPick(draftActiveSide, auto.playerId);
-  }, [params.gameId, draftStep, draftActiveSide, p1Picks, p2Picks, criterion, session.players, applyDraftPick]);
+  }, [params.gameId, draftStep, draftActiveSide, p1Picks, p2Picks, offlineCriterion, session.players, applyDraftPick]);
 
-  // ---- Röntgen jokeri ----
-  // Aktif taraf: build'de hep P1; draft'ta sıradaki taraf.
+  // ============================================================================
+  // ONLINE türev değerler (sunucu state'inden) — render'da kullanılır.
+  // ============================================================================
+  const onlineState = online.state;
+  const onlineActiveSide: 'P1' | 'P2' =
+    onlineState && onlineState.scene === 'DRAFT'
+      ? (onlineState.draftOrder[onlineState.draftStep] ?? 'P1')
+      : 'P1';
+  const isMyTurn = isOnline ? online.yourSide === onlineActiveSide : true;
+  // Online draft'ta süre yalnızca AKTİF taraf için anlamlı; sayaç runKey'i adım.
+  const onlineDraftSeconds = useMemo(() => {
+    if (!isOnline || !online.turnDeadline) return TARGET_DRAFT_SECONDS;
+    const ms = new Date(online.turnDeadline).getTime() - Date.now();
+    return Math.max(1, Math.round(ms / 1000));
+  }, [isOnline, online.turnDeadline]);
+
+  // Online draft seçim: sunucuya yolla (sıra-tabanlı; sunucu aktif tarafı doğrular).
+  const onDraftSelectOnline = useCallback(
+    (playerId: string) => {
+      void online.draftPick(playerId);
+    },
+    [online],
+  );
+
+  // Online röntgen: jokeri kullan (sunucudan değer al → overlay).
+  const onXrayPickOnline = useCallback(
+    (playerId: string) => {
+      setXrayPlayerId(playerId);
+      setXrayArmed(false);
+      void online.useXray(playerId).then((v) => setOnlineXrayValue(v));
+    },
+    [online],
+  );
+
+  // ---- Röntgen jokeri (OFFLINE) ----
   const xraySideNow: 'P1' | 'P2' = phase === 'draft' ? draftActiveSide : 'P1';
-  const xrayAvailable = !xrayUsed[xraySideNow];
+  // Online'da kendi tarafımın hakkı sunucuda; basitçe sıram + henüz kullanmadıysam.
+  const xrayAvailable = isOnline
+    ? !!onlineState &&
+      onlineState.scene === 'DRAFT' &&
+      isMyTurn &&
+      !onlineState.xrayUsed[online.yourSide ?? 'P1']
+    : !xrayUsed[xraySideNow];
 
-  // Joker butonu: hakkı varsa armed aç; armed iken iptal.
   const onToggleXray = useCallback(() => {
     setXrayArmed((a) => {
-      if (a) return false; // armed → iptal
-      return !xrayUsed[xraySideNow] ? true : false;
+      if (a) return false;
+      return xrayAvailable ? true : false;
     });
-  }, [xrayUsed, xraySideNow]);
+  }, [xrayAvailable]);
 
-  // Armed iken bir karta dokunuldu → değeri overlay'de aç, hakkı düşür.
-  const onXrayPick = useCallback(
+  // OFFLINE armed iken karta dokunma.
+  const onXrayPickOffline = useCallback(
     (playerId: string) => {
       setXrayPlayerId(playerId);
       setXraySide(xraySideNow);
@@ -243,11 +310,17 @@ export default function TargetGamePage() {
     [xraySideNow],
   );
 
-  // Overlay "Kadroya kat" → röntgenlenen kartı normal seçim akışına sok.
+  // Overlay "Kadroya kat".
   const onXrayAccept = useCallback(() => {
     if (!xrayPlayerId) return;
+    if (isOnline) {
+      // Online: röntgenlenen kartı normal draft pick olarak gönder.
+      void online.draftPick(xrayPlayerId);
+      setXrayPlayerId(null);
+      setOnlineXrayValue(null);
+      return;
+    }
     if (xraySide === 'P1' && phase === 'build') {
-      // Build: P1'in ilk boş slotuna koy (onPick mantığı).
       setP1Picks((prev) => {
         const next = [...prev];
         const slot = firstEmptySlot(next);
@@ -255,14 +328,15 @@ export default function TargetGamePage() {
         return next;
       });
     } else {
-      // Draft: aktif tarafın seçimi + adım ilerlet.
       applyDraftPick(xraySide, xrayPlayerId);
     }
     setXrayPlayerId(null);
-  }, [xrayPlayerId, xraySide, phase, applyDraftPick]);
+  }, [xrayPlayerId, xraySide, phase, applyDraftPick, isOnline, online]);
 
-  // Overlay "Vazgeç" → katmadan kapat (hak zaten yandı).
-  const onXrayDismiss = useCallback(() => setXrayPlayerId(null), []);
+  const onXrayDismiss = useCallback(() => {
+    setXrayPlayerId(null);
+    setOnlineXrayValue(null);
+  }, []);
 
   const xrayPlayer = useMemo(
     () => (xrayPlayerId ? playersById.get(xrayPlayerId) ?? null : null),
@@ -279,14 +353,22 @@ export default function TargetGamePage() {
     [setProfileNames],
   );
 
-  // Yeniden oyna: rakip aynı kalır, yeni hedef çarkı.
+  // Yeniden oyna: OFFLINE yeni hedef çarkı; ONLINE yeni eşleşme (VS Düello deseni).
   const onRematch = useCallback(() => {
+    if (isOnline) {
+      router.push('/online?mode=hedef');
+      return;
+    }
     freshTarget();
     setPhase('reveal-target');
-  }, [freshTarget]);
+  }, [isOnline, router, freshTarget]);
 
-  // Faz-bilinçli "← Geri" (Kadro Kur deseni).
+  // Faz-bilinçli "← Geri" (OFFLINE). ONLINE'da maçtan çıkış = ana sayfa.
   const onBack = useCallback(() => {
+    if (isOnline) {
+      router.push('/');
+      return;
+    }
     switch (phase) {
       case 'opponent':
         router.push(`/oyna/${params.gameId}`);
@@ -302,22 +384,29 @@ export default function TargetGamePage() {
         setPhase('opponent');
         break;
     }
-  }, [phase, router, params.gameId, resetXray]);
+  }, [isOnline, phase, router, params.gameId, resetXray]);
 
-  const winner = useMemo(() => {
+  // OFFLINE kazanan.
+  const offlineWinner = useMemo(() => {
     if (phase !== 'result') return 'tie' as const;
-    const p1 = scoreTarget(p1Picks, criterion, playersById);
-    const p2 = scoreTarget(p2Picks, criterion, playersById);
+    const p1 = scoreTarget(p1Picks, offlineCriterion, playersById);
+    const p2 = scoreTarget(p2Picks, offlineCriterion, playersById);
     return compareToTarget(p1.total, p2.total, target);
-  }, [phase, p1Picks, p2Picks, criterion, playersById, target]);
+  }, [phase, p1Picks, p2Picks, offlineCriterion, playersById, target]);
 
-  // Build havuzundan rakip (bot result öncesi boş; hot-seat'te build yok).
   const usedByBot = useMemo(
     () => new Set(p2Picks.filter((v): v is string => v !== null)),
     [p2Picks],
   );
 
-  const bgKey =
+  // ── BG anahtarı (online: sunucu sahnesine göre) ──
+  const onlineBg =
+    onlineState?.scene === 'REVEAL_TARGET'
+      ? 'handoff'
+      : onlineState?.scene === 'DRAFT'
+        ? 'pick'
+        : 'final';
+  const offlineBg =
     phase === 'opponent'
       ? 'mode'
       : phase === 'reveal-target'
@@ -325,9 +414,44 @@ export default function TargetGamePage() {
         : phase === 'build' || phase === 'draft'
           ? 'pick'
           : 'final';
+  const bgKey = isOnline ? onlineBg : offlineBg;
 
-  // Hot-seat draft başında isim modalı (isimler boşken).
-  const draftNameModalOpen = phase === 'draft' && p1Name === '';
+  // Hot-seat draft başında isim modalı (isimler boşken) — OFFLINE.
+  const draftNameModalOpen = !isOnline && phase === 'draft' && p1Name === '';
+
+  // ── ONLINE LOADING / ERROR GUARD (VS Düello deseni) ──
+  // State yüklenene + oyuncu verisi gelene kadar BallLoader. Online'da yerel
+  // "opponent" sahnesi ASLA görünmez (sunucu otoriter).
+  if (isOnline) {
+    if (online.error) {
+      return (
+        <>
+          <SceneBackground bgKey="mode" />
+          <main className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 px-5 text-center">
+            <h2 className="text-2xl font-black text-side-red">Maç hatası</h2>
+            <p className="text-sm text-white/65">{online.error}</p>
+            <button type="button" onClick={() => router.push('/')} className="btn-ghost">
+              Ana sayfa
+            </button>
+          </main>
+        </>
+      );
+    }
+    if (online.loading || !onlineState || !session.ready) {
+      return (
+        <>
+          <SceneBackground bgKey="handoff" />
+          <main className="relative z-10 mx-auto flex min-h-screen flex-col items-center justify-center px-5">
+            <BallLoader size={64} label="Maç yükleniyor…" />
+          </main>
+        </>
+      );
+    }
+  }
+
+  // Online isimler (sunucu state'inden).
+  const onP1Name = onlineState?.p1Name ?? 'Oyuncu 1';
+  const onP2Name = onlineState?.p2Name ?? 'Oyuncu 2';
 
   return (
     <>
@@ -345,94 +469,163 @@ export default function TargetGamePage() {
           </div>
           <div className="flex items-center gap-2">
             <span className="rounded-full border border-accent-gold/40 bg-accent-gold/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent-goldHi">
-              Hedefe Yaklaş · {opponent === 'hotseat' ? 'Arkadaşa karşı' : 'Bota karşı'}
+              Hedefe Yaklaş ·{' '}
+              {isOnline ? '🌐 Online' : opponent === 'hotseat' ? 'Arkadaşa karşı' : 'Bota karşı'}
             </span>
             <SoundToggle />
             <UserMenu />
           </div>
         </header>
 
-        <AnimatePresence mode="wait">
-          {phase === 'opponent' && (
-            <SceneShell sceneKey="target-opponent" key="target-opponent">
-              <OpponentSelectScene
-                modeName="Hedefe Yaklaş"
-                available={{ hotseat: true, vsBot: true }}
-                onPick={onPickOpponent}
-              />
-            </SceneShell>
-          )}
+        {/* ====================== ONLINE RENDER ====================== */}
+        {isOnline && onlineState && (
+          <AnimatePresence mode="wait">
+            {onlineState.scene === 'REVEAL_TARGET' && (
+              <SceneShell sceneKey="target-online-reveal" key="target-online-reveal">
+                <TargetRevealScene
+                  target={onlineState.target}
+                  criterion={criterion}
+                  onDone={online.ackReveal}
+                />
+              </SceneShell>
+            )}
 
-          {phase === 'reveal-target' && (
-            <SceneShell sceneKey="target-reveal" key="target-reveal">
-              <TargetRevealScene
-                target={target}
-                criterion={criterion}
-                onDone={onTargetRevealed}
-              />
-            </SceneShell>
-          )}
+            {onlineState.scene === 'DRAFT' && (
+              <SceneShell sceneKey="target-online-draft" key="target-online-draft">
+                <TargetDraftScene
+                  criterion={criterion}
+                  target={onlineState.target}
+                  pool={session.players}
+                  p1Name={onP1Name}
+                  p2Name={onP2Name}
+                  p1Picks={onlineState.p1Picks}
+                  p2Picks={onlineState.p2Picks}
+                  activeSide={onlineActiveSide}
+                  stepIndex={onlineState.draftStep}
+                  seconds={onlineDraftSeconds}
+                  // Sıra-tabanlı: yalnız BENİM sıramda seçim/röntgen aktif. Rakip
+                  // sırasındaysa onSelect no-op (sunucu zaten reddederdi); UI'da
+                  // "Rakip seçiyor" hissi için seçim sunucuya gitmez.
+                  onSelect={isMyTurn ? onDraftSelectOnline : () => {}}
+                  // Süre dolumunu SUNUCU yönetir (lazy timeout). Client onTimeout
+                  // tetiklerse sadece tazele — sunucu otomatik pick'i uygular.
+                  onTimeout={() => void online.refresh()}
+                  xrayAvailable={xrayAvailable}
+                  xrayArmed={xrayArmed && isMyTurn}
+                  onToggleXray={onToggleXray}
+                  onXrayPick={onXrayPickOnline}
+                />
+                {!isMyTurn && (
+                  <p className="mt-2 text-center text-sm font-semibold text-accent-goldHi">
+                    ⏳ Rakip seçiyor… (sıra {onlineActiveSide === 'P1' ? onP1Name : onP2Name})
+                  </p>
+                )}
+              </SceneShell>
+            )}
 
-          {phase === 'build' && (
-            <SceneShell sceneKey="target-build" key="target-build">
-              <TargetBuildScene
-                criterion={criterion}
-                target={target}
-                pool={session.players}
-                picks={p1Picks}
-                excludeIds={usedByBot}
-                shuffleSeed={shuffleSeed}
-                seconds={TARGET_PICK_SECONDS}
-                onPick={onPick}
-                onSubmit={onSubmit}
-                onTimeout={onBuildTimeout}
-                xrayAvailable={xrayAvailable}
-                xrayArmed={xrayArmed}
-                onToggleXray={onToggleXray}
-                onXrayPick={onXrayPick}
-              />
-            </SceneShell>
-          )}
+            {onlineState.scene === 'RESULT' && (
+              <SceneShell sceneKey="target-online-result" key="target-online-result">
+                <TargetResultScene
+                  criterion={criterion}
+                  target={onlineState.target}
+                  p1Picks={onlineState.p1Picks}
+                  p2Picks={onlineState.p2Picks}
+                  p1Name={onP1Name}
+                  p2Name={onP2Name}
+                  winner={onlineState.winner ?? 'tie'}
+                  playersById={playersById}
+                  onRematch={onRematch}
+                />
+              </SceneShell>
+            )}
+          </AnimatePresence>
+        )}
 
-          {phase === 'draft' && !draftNameModalOpen && (
-            <SceneShell sceneKey="target-draft" key="target-draft">
-              <TargetDraftScene
-                criterion={criterion}
-                target={target}
-                pool={session.players}
-                p1Name={p1Name || 'Oyuncu 1'}
-                p2Name={p2Name || 'Oyuncu 2'}
-                p1Picks={p1Picks}
-                p2Picks={p2Picks}
-                activeSide={draftActiveSide}
-                stepIndex={draftStep}
-                seconds={TARGET_DRAFT_SECONDS}
-                onSelect={onDraftSelect}
-                onTimeout={onDraftTimeout}
-                xrayAvailable={xrayAvailable}
-                xrayArmed={xrayArmed}
-                onToggleXray={onToggleXray}
-                onXrayPick={onXrayPick}
-              />
-            </SceneShell>
-          )}
+        {/* ====================== OFFLINE RENDER ====================== */}
+        {!isOnline && (
+          <AnimatePresence mode="wait">
+            {phase === 'opponent' && (
+              <SceneShell sceneKey="target-opponent" key="target-opponent">
+                <OpponentSelectScene
+                  modeName="Hedefe Yaklaş"
+                  available={{ hotseat: true, vsBot: true }}
+                  onPick={onPickOpponent}
+                  onOnline={onOnline}
+                />
+              </SceneShell>
+            )}
 
-          {phase === 'result' && (
-            <SceneShell sceneKey="target-result" key="target-result">
-              <TargetResultScene
-                criterion={criterion}
-                target={target}
-                p1Picks={p1Picks}
-                p2Picks={p2Picks}
-                p1Name={opponent === 'hotseat' ? p1Name || 'Oyuncu 1' : 'Sen'}
-                p2Name={opponent === 'hotseat' ? p2Name || 'Oyuncu 2' : 'Bot'}
-                winner={winner}
-                playersById={playersById}
-                onRematch={onRematch}
-              />
-            </SceneShell>
-          )}
-        </AnimatePresence>
+            {phase === 'reveal-target' && (
+              <SceneShell sceneKey="target-reveal" key="target-reveal">
+                <TargetRevealScene
+                  target={target}
+                  criterion={offlineCriterion}
+                  onDone={onTargetRevealed}
+                />
+              </SceneShell>
+            )}
+
+            {phase === 'build' && (
+              <SceneShell sceneKey="target-build" key="target-build">
+                <TargetBuildScene
+                  criterion={offlineCriterion}
+                  target={target}
+                  pool={session.players}
+                  picks={p1Picks}
+                  excludeIds={usedByBot}
+                  shuffleSeed={shuffleSeed}
+                  seconds={TARGET_PICK_SECONDS}
+                  onPick={onPick}
+                  onSubmit={onSubmit}
+                  onTimeout={onBuildTimeout}
+                  xrayAvailable={xrayAvailable}
+                  xrayArmed={xrayArmed}
+                  onToggleXray={onToggleXray}
+                  onXrayPick={onXrayPickOffline}
+                />
+              </SceneShell>
+            )}
+
+            {phase === 'draft' && !draftNameModalOpen && (
+              <SceneShell sceneKey="target-draft" key="target-draft">
+                <TargetDraftScene
+                  criterion={offlineCriterion}
+                  target={target}
+                  pool={session.players}
+                  p1Name={p1Name || 'Oyuncu 1'}
+                  p2Name={p2Name || 'Oyuncu 2'}
+                  p1Picks={p1Picks}
+                  p2Picks={p2Picks}
+                  activeSide={draftActiveSide}
+                  stepIndex={draftStep}
+                  seconds={TARGET_DRAFT_SECONDS}
+                  onSelect={onDraftSelectOffline}
+                  onTimeout={onDraftTimeoutOffline}
+                  xrayAvailable={xrayAvailable}
+                  xrayArmed={xrayArmed}
+                  onToggleXray={onToggleXray}
+                  onXrayPick={onXrayPickOffline}
+                />
+              </SceneShell>
+            )}
+
+            {phase === 'result' && (
+              <SceneShell sceneKey="target-result" key="target-result">
+                <TargetResultScene
+                  criterion={offlineCriterion}
+                  target={target}
+                  p1Picks={p1Picks}
+                  p2Picks={p2Picks}
+                  p1Name={opponent === 'hotseat' ? p1Name || 'Oyuncu 1' : 'Sen'}
+                  p2Name={opponent === 'hotseat' ? p2Name || 'Oyuncu 2' : 'Bot'}
+                  winner={offlineWinner}
+                  playersById={playersById}
+                  onRematch={onRematch}
+                />
+              </SceneShell>
+            )}
+          </AnimatePresence>
+        )}
       </main>
 
       {/* Röntgen jokeri overlay'i — bir kartın gizli değerini açar. */}
@@ -440,7 +633,11 @@ export default function TargetGamePage() {
         {xrayPlayer && (
           <TargetXrayOverlay
             player={xrayPlayer}
-            value={criterion.metric(xrayPlayer) ?? 0}
+            value={
+              isOnline
+                ? (onlineXrayValue ?? 0)
+                : (criterion.metric(xrayPlayer) ?? 0)
+            }
             unit={criterion.unit}
             onAccept={onXrayAccept}
             onDismiss={onXrayDismiss}
@@ -448,7 +645,7 @@ export default function TargetGamePage() {
         )}
       </AnimatePresence>
 
-      {/* Hot-seat draft isim modalı */}
+      {/* Hot-seat draft isim modalı (OFFLINE) */}
       <NameModal
         open={draftNameModalOpen}
         mode="hotseat"

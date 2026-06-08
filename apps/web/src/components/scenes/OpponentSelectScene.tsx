@@ -12,6 +12,11 @@ interface OpponentSelectSceneProps {
   onPick: (opponent: Opponent) => void;
   /** Hangi rakipler hazır? Hazır olmayan "yakında" rozetiyle soluk gösterilir. */
   available: { hotseat: boolean; vsBot: boolean };
+  /**
+   * Online eşleşme mevcutsa çağrılır → "🌐 Online" kartı gösterilir. VERİLMEZSE
+   * online kartı HİÇ görünmez (offline-only modlar için geri uyumlu).
+   */
+  onOnline?: () => void;
 }
 
 /**
@@ -22,6 +27,7 @@ export function OpponentSelectScene({
   modeName,
   onPick,
   available,
+  onOnline,
 }: OpponentSelectSceneProps) {
   return (
     <section className="flex flex-col gap-10">
@@ -34,7 +40,7 @@ export function OpponentSelectScene({
         </h1>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      <div className={cn('grid gap-4', onOnline ? 'sm:grid-cols-3' : 'sm:grid-cols-2')}>
         <OpponentCard
           emoji="👥"
           icon={<CardsIcon size={28} />}
@@ -52,8 +58,20 @@ export function OpponentSelectScene({
           delay={0.08}
           ready={available.vsBot}
           onClick={available.vsBot ? () => onPick('vs-bot') : undefined}
-          accent
+          accent={!onOnline}
         />
+        {onOnline && (
+          <OpponentCard
+            emoji="🌐"
+            icon={<PlayIcon size={28} />}
+            title="Online Eşleşme"
+            body="Gerçek bir rakiple eşleş; sunucu-otoriteli, canlı."
+            delay={0.16}
+            ready
+            onClick={onOnline}
+            accent
+          />
+        )}
       </div>
     </section>
   );

@@ -8,8 +8,17 @@ import { BallLoader } from '@/components/BallLoader';
 
 type Phase = 'checking-auth' | 'searching' | 'found' | 'error';
 
-/** Pilot online mod kimliği — matchmaking API'siyle aynı string. */
-const ONLINE_MODE = 'vs-duello';
+/**
+ * Online oynanabilen modlar + her birinin eşleşince gidilecek oyun route'u.
+ * Mod-özel kuyruk: matchmaking_queue `mode` ile filtreler → yalnız aynı modu
+ * bekleyenler eşleşir. Yeni mod buraya + ONLINE_MODES (matchmaking.ts) eklenir.
+ */
+const MODE_ROUTES: Record<string, (matchId: string) => string> = {
+  'vs-duello': (id) => `/oyna/${id}?online=1`,
+  hedef: (id) => `/hedefe-yaklas/${id}?online=1`,
+};
+/** Bilinmeyen/eksik mod → VS Düello (geri uyumluluk). */
+const DEFAULT_MODE = 'vs-duello';
 /** Bekleme yoklaması aralığı (ms). */
 const POLL_MS = 2000;
 /** "Rakip bulundu" ekranının gösterim süresi (ms) — sonra maça geçilir. */
@@ -30,7 +39,14 @@ interface FoundInfo {
  *     üzerinde ad/mail) ~3.5sn göster, SONRA maça geç. Böylece ani sayfa
  *     yığılması olmaz; kullanıcı kiminle eşleştiğini görür.
  */
-export function OnlineMatchmaking({ onCancel }: { onCancel: () => void }) {
+export function OnlineMatchmaking({
+  onCancel,
+  mode = DEFAULT_MODE,
+}: {
+  onCancel: () => void;
+  /** Hangi modda eşleşilecek (vs-duello | hedef | …). Varsayılan vs-duello. */
+  mode?: string;
+}) {
   const router = useRouter();
   const { data: sessionData, isPending } = useSession();
   const [phase, setPhase] = useState<Phase>('checking-auth');
@@ -38,6 +54,10 @@ export function OnlineMatchmaking({ onCancel }: { onCancel: () => void }) {
   const [found, setFound] = useState<FoundInfo | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const handledRef = useRef(false); // eşleşme bir kez işlensin
+
+  // Geçersiz mod gelirse VS Düello'ya düş (route haritasında yoksa).
+  const safeMode = MODE_ROUTES[mode] ? mode : DEFAULT_MODE;
+  const routeFor = MODE_ROUTES[safeMode]!;
 
   // Eşleşme bulununca: maç bilgisini çek, "rakip bulundu" göster, sonra git.
   const onMatched = useCallback(
@@ -57,20 +77,20 @@ export function OnlineMatchmaking({ onCancel }: { onCancel: () => void }) {
         setPhase('found');
       } catch {
         // Bilgi çekilemese de maça geç (sade).
-        router.push(`/oyna/${matchId}?online=1`);
+        router.push(routeFor(matchId));
       }
     },
-    [router],
+    [router, routeFor],
   );
 
-  // "Rakip bulundu" gösterildikten sonra maça geç.
+  // "Rakip bulundu" gösterildikten sonra maça geç (mod-özel route).
   useEffect(() => {
     if (phase !== 'found' || !found) return;
     const t = setTimeout(() => {
-      router.push(`/oyna/${found.matchId}?online=1`);
+      router.push(routeFor(found.matchId));
     }, FOUND_SHOW_MS);
     return () => clearTimeout(t);
-  }, [phase, found, router]);
+  }, [phase, found, router, routeFor]);
 
   // 1) Giriş kontrolü → kuyruğa gir.
   useEffect(() => {
@@ -85,7 +105,7 @@ export function OnlineMatchmaking({ onCancel }: { onCancel: () => void }) {
         const res = await fetch('/api/matchmaking', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: ONLINE_MODE }),
+          body: JSON.stringify({ mode: safeMode }),
         });
         if (!res.ok) throw new Error('Eşleşme başlatılamadı.');
         const data = await res.json();

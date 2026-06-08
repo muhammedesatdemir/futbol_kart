@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/cn';
 import type { Player } from '@futbol-kart/shared-types';
@@ -120,10 +120,26 @@ export function TargetDraftScene({
   const runKey = `${activeSide}-${stepIndex}`;
 
   const [search, setSearch] = useState('');
-  // Kilitliyken (sıra bende değil) karta tıklanırsa uyarıyı GÜÇLENDİR: kısa süre
-  // shake/gölge tetikle (erişimi olmayan kişinin "izin yok" geri bildirimi).
-  const [denyPulse, setDenyPulse] = useState(0);
-  const triggerDeny = () => setDenyPulse((n) => n + 1);
+  // Kilitliyken (sıra bende değil) karta tıklanırsa uyarıyı GEÇİCİ olarak GÜÇLENDİR:
+  // ~2.5sn kırmızı + shake ("izin yok" geri bildirimi), sonra normale (sarı) döner.
+  // `denyActive` = geçici kırmızı; `denyShake` = her tıklamada artan shake tetiği.
+  // Üst üste tıklamada timer yenilenir (kırmızı süresi uzar) — akışı kullanıcı hisseder.
+  const [denyActive, setDenyActive] = useState(false);
+  const [denyShake, setDenyShake] = useState(0);
+  const denyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const triggerDeny = () => {
+    setDenyActive(true);
+    setDenyShake((n) => n + 1); // her tıklama yeni shake (key değişir → animasyon tekrar)
+    if (denyTimerRef.current) clearTimeout(denyTimerRef.current);
+    denyTimerRef.current = setTimeout(() => setDenyActive(false), 2500);
+  };
+  // Unmount / kilit kalkınca timer'ı temizle (sızıntı + bayat kırmızı önle).
+  useEffect(() => {
+    if (!locked && denyActive) setDenyActive(false);
+    return () => {
+      if (denyTimerRef.current) clearTimeout(denyTimerRef.current);
+    };
+  }, [locked, denyActive]);
 
   const excluded = useMemo(
     () => draftedTargetIds(p1Picks, p2Picks),
@@ -209,22 +225,24 @@ export function TargetDraftScene({
             değil" geri bildirimi (erişimsiz kullanıcının klasik uyarısı gibi). */}
         {locked && waitingLabel && (
           <motion.div
-            key={denyPulse}
+            // key = shake tetiği: her "izin yok" tıklamasında değişir → shake yeniden oynar.
+            key={denyShake}
             animate={
-              denyPulse > 0
+              denyActive
                 ? { x: [0, -8, 8, -6, 6, -3, 3, 0], scale: [1, 1.06, 1] }
                 : {}
             }
             transition={{ duration: 0.45 }}
             className={cn(
-              'inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-bold transition',
-              denyPulse > 0
+              'inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-bold transition-colors duration-300',
+              // denyActive: GEÇİCİ kırmızı (~2.5sn), sonra normale (sarı) döner.
+              denyActive
                 ? 'border-side-red/70 bg-side-red/20 text-side-red shadow-[0_0_22px_-2px_rgba(220,38,38,0.7)]'
                 : 'border-accent-gold/40 bg-accent-gold/10 text-accent-goldHi',
             )}
           >
-            <span aria-hidden>⏳</span>
-            {waitingLabel}
+            <span aria-hidden>{denyActive ? '🚫' : '⏳'}</span>
+            {denyActive ? 'Sıra sende değil!' : waitingLabel}
           </motion.div>
         )}
       </div>

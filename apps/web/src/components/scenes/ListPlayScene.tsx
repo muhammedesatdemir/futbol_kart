@@ -61,6 +61,12 @@ interface ListPlaySceneProps {
   /** ONLINE (opsiyonel): yan paneli hafif küçült (kartların üstüne binmesin). */
   compactPanel?: boolean;
   /**
+   * ONLINE (opsiyonel): geri sayım halkasını GİZLE (result-hold süresince). Hold'da
+   * süre işlemez/gösterilmez → "lokal 35'ten saymaya başlama + sıçrama" sorunu biter.
+   * Yerine sade bir "sonuç" durağı görünür. Hold bitince timer normal döner.
+   */
+  hideTimer?: boolean;
+  /**
    * ONLINE (opsiyonel): tahmin sonucu rozeti — panelin altında, tahmini YAPAN
    * tarafta gösterilir (sıra geçişi GECİKTİRİLİR → sonuç net görünür, karşı tarafa
    * taşmaz). `missTick` yerine bunu kullan (online). null → rozet yok.
@@ -70,7 +76,11 @@ interface ListPlaySceneProps {
   resultBadge?: {
     kind: 'hit' | 'miss';
     points?: number;
-    eliminated?: { you: string; other: string } | null;
+    /**
+     * Elenme alt-rozeti. `kind:'first'` → rakip tek başına devam; `kind:'last'`
+     * → MAÇ BİTTİ (her iki taraf da elendi, sonuçlara geçilir). null → elenme yok.
+     */
+    eliminated?: { kind: 'first' | 'last'; other: string } | null;
   } | null;
 }
 
@@ -145,6 +155,7 @@ export function ListPlayScene({
   valueByRank,
   poolCols = 6,
   compactPanel = false,
+  hideTimer = false,
   resultBadge = null,
 }: ListPlaySceneProps) {
   const [search, setSearch] = useState('');
@@ -224,16 +235,28 @@ export function ListPlayScene({
           >
             {activeName}
           </span>
-          <CountdownRing
-            seconds={seconds}
-            deadlineMs={deadlineMs}
-            runKey={timerKey}
-            onComplete={onTimeout}
-            size={compactPanel ? 68 : 96}
-            stroke={compactPanel ? 6 : 8}
-            color={activeSide === 'P1' ? '#ef4444' : '#3b82f6'}
-            urgentColor="#ef4444"
-          />
+          {/* hideTimer (result-hold): sayaç GİZLENİR — süre işlemez/gösterilmez
+              (lokal sayma + sıçrama önlenir). Yerine aynı boyutta sade bir durak
+              (layout zıplamaz). Hold bitince CountdownRing geri döner. */}
+          {hideTimer ? (
+            <div
+              className="flex items-center justify-center rounded-full border-2 border-white/10 text-white/30"
+              style={{ width: compactPanel ? 68 : 96, height: compactPanel ? 68 : 96 }}
+            >
+              <span className="text-2xl">⏸</span>
+            </div>
+          ) : (
+            <CountdownRing
+              seconds={seconds}
+              deadlineMs={deadlineMs}
+              runKey={timerKey}
+              onComplete={onTimeout}
+              size={compactPanel ? 68 : 96}
+              stroke={compactPanel ? 6 : 8}
+              color={activeSide === 'P1' ? '#ef4444' : '#3b82f6'}
+              urgentColor="#ef4444"
+            />
+          )}
           {/* Can — kalpler (dinamik, büyük) */}
           <Hearts side={activeSide} count={activeLives} />
 
@@ -530,7 +553,8 @@ function ResultBadge({
         </span>
       </div>
 
-      {/* Elenme alt-rozeti (yalnız bu hamleyle elendiyse) */}
+      {/* Elenme alt-rozeti. 'first' → rakip tek başına devam. 'last' → MAÇ BİTTİ
+          (her iki taraf da elendi); "rakip devam" YANLIŞ olur → "sonuçlara geçiliyor". */}
       {badge.eliminated && (
         <motion.div
           initial={{ opacity: 0, y: -6 }}
@@ -543,7 +567,9 @@ function ResultBadge({
             Elendin!
           </span>
           <span className="text-[10px] font-semibold text-white/65">
-            {badge.eliminated.other} tek başına devam ediyor…
+            {badge.eliminated.kind === 'last'
+              ? 'Maç bitti, sonuçlara geçiliyor…'
+              : `${badge.eliminated.other} tek başına devam ediyor…`}
           </span>
         </motion.div>
       )}

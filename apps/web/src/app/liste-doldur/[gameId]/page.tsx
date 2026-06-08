@@ -124,8 +124,8 @@ export default function ListGamePage() {
     lives: { P1: number; P2: number };
     /** hit puanı (rozet). */
     points?: number;
-    /** Bu hamleyle elendiyse karşı tarafın adı için işaret. */
-    eliminated: boolean;
+    /** Bu hamleyle elenme: 'first' (rakip devam) | 'last' (maç bitti) | null. */
+    eliminated: 'first' | 'last' | null;
   } | null>(null);
   const HOLD_MS = 2800;
 
@@ -356,7 +356,15 @@ export default function ListGamePage() {
         // RESULT-HOLD aç: sonuç ~2.8sn TAHMİNİ YAPAN tarafta net gösterilir
         // (sıra görsel olarak geçmez). Ses bu anla senkron. Hold bitince effect
         // temizler + refresh → gerçek sıra (karşı taraf).
-        const eliminated = !outcome.hit && outcome.lives[side] <= 0;
+        // ELENME türü: tahmini yapan elendiyse → rakip de 0 ise 'last' (maç bitti,
+        // sonuçlara geçilir), rakip canlıysa 'first' (rakip tek başına devam).
+        const other: ListSide = side === 'P1' ? 'P2' : 'P1';
+        const meEliminated = !outcome.hit && outcome.lives[side] <= 0;
+        const eliminated: 'first' | 'last' | null = meEliminated
+          ? outcome.lives[other] <= 0
+            ? 'last'
+            : 'first'
+          : null;
         setResultHold({
           side,
           kind: outcome.hit ? 'hit' : 'miss',
@@ -542,6 +550,8 @@ export default function ListGamePage() {
                   p2Name={onP2Name}
                   poolCols={5}
                   compactPanel
+                  // Hold süresince sayacı gizle → "35'ten sayma + sıçrama" biter.
+                  hideTimer={!!resultHold}
                   // SONUÇ ROZETİ (hold süresi) — hit/miss + opsiyonel elenme, tahmini
                   // yapan tarafta net. Hold bitince kaybolur, sıra karşıya geçer.
                   resultBadge={
@@ -551,7 +561,8 @@ export default function ListGamePage() {
                           points: resultHold.points,
                           eliminated: resultHold.eliminated
                             ? {
-                                you: resultHold.side === 'P1' ? onP1Name : onP2Name,
+                                // 'first' → rakip tek başına devam; 'last' → maç bitti.
+                                kind: resultHold.eliminated,
                                 other: resultHold.side === 'P1' ? onP2Name : onP1Name,
                               }
                             : null,

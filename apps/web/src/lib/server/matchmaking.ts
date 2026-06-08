@@ -117,8 +117,9 @@ export async function joinMatchmaking(
 ): Promise<MatchmakingResult> {
   const db = getDb();
 
-  // 1) Zaten bir aktif maçta mı? Öyleyse o maça yönlendir (tek aktif maç kuralı).
-  const existingMatch = await findActiveMatchFor(userId);
+  // 1) Zaten BU MODDA bir aktif maçta mı? Öyleyse o maça yönlendir (tek aktif
+  //    maç kuralı). MOD-ÖZEL: başka moddaki eski/zombi maç bu eşleşmeye karışmaz.
+  const existingMatch = await findActiveMatchFor(userId, mode);
   if (existingMatch) {
     return { matched: true, matchId: existingMatch };
   }
@@ -222,20 +223,27 @@ export async function leaveMatchmaking(userId: string): Promise<void> {
 /**
  * Kullanıcı eşleşmeyi beklerken: bu arada onun için bir maç oluşturulmuş mu?
  * (Rakip onu kaptıysa, kullanıcı artık bir maçın oyuncusudur.)
+ *
+ * MOD-ÖZEL (kritik): `mode` verilirse yalnızca O MODDAKİ aktif maça yönlendirir.
+ * Yoksa kullanıcının başka moddaki eski/zombi aktif maçı (örn. hiç bitmemiş bir
+ * 'hedef' maçı) 'kadro' eşleşmesinde döndürülüp YANLIŞ sayfada açılır → state
+ * şekli uyuşmaz, mod-özel move route 409 verir (gözlenen bug: hedef maçı kadro
+ * sayfasında → squad-move 409 fırtınası). Mod filtresi bunu kökten keser.
  */
 export async function findActiveMatchFor(
   userId: string,
+  mode?: OnlineMode,
 ): Promise<string | null> {
   const db = getDb();
+  const conditions = [
+    eq(matchTable.status, 'active'),
+    or(eq(matchTable.p1UserId, userId), eq(matchTable.p2UserId, userId)),
+  ];
+  if (mode) conditions.push(eq(matchTable.mode, mode));
   const rows = await db
     .select({ id: matchTable.id })
     .from(matchTable)
-    .where(
-      and(
-        eq(matchTable.status, 'active'),
-        or(eq(matchTable.p1UserId, userId), eq(matchTable.p2UserId, userId)),
-      ),
-    )
+    .where(and(...conditions))
     // EN YENİ active maç (desc). Eski bir zombi maç kalmışsa ona değil, en son
     // oluşturulana yönlendir — yeni eşleşmenin geçerli maçı budur.
     .orderBy(desc(matchTable.createdAt))

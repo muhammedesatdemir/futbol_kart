@@ -42,15 +42,23 @@ export async function POST(req: Request) {
 }
 
 /**
- * GET /api/matchmaking  — Bekleme durumunu yokla.
+ * GET /api/matchmaking?mode=kadro  — Bekleme durumunu yokla.
  * Yanıt: { matched: true, matchId } (rakip bizi kaptıysa) | { matched: false }
+ *
+ * MOD-ÖZEL: `?mode=` ile yalnızca O MODDAKİ aktif maça bakar. Yoksa kullanıcının
+ * başka moddaki eski/zombi maçı yanlış sayfada açılır (gözlenen bug). Mode yoksa
+ * mod-agnostik (geri uyumluluk).
  */
-export async function GET() {
+export async function GET(req: Request) {
   const userId = await requireUser();
   if (!userId) {
     return NextResponse.json({ error: 'Giriş gerekli.' }, { status: 401 });
   }
-  const matchId = await findActiveMatchFor(userId);
+  const modeParam = new URL(req.url).searchParams.get('mode');
+  const mode = ONLINE_MODES.includes(modeParam as OnlineMode)
+    ? (modeParam as OnlineMode)
+    : undefined;
+  const matchId = await findActiveMatchFor(userId, mode);
   if (matchId) {
     return NextResponse.json({ matched: true, matchId });
   }

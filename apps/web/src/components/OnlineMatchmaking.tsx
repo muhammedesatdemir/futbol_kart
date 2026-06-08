@@ -133,7 +133,11 @@ export function OnlineMatchmaking({
     if (phase !== 'searching') return;
     pollRef.current = setInterval(async () => {
       try {
-        const res = await fetch('/api/matchmaking', { method: 'GET' });
+        // MOD-ÖZEL yokla: yalnız bu modda aktif maça yönlen (başka moddaki eski
+        // maç bu eşleşmeye karışmasın).
+        const res = await fetch(`/api/matchmaking?mode=${encodeURIComponent(safeMode)}`, {
+          method: 'GET',
+        });
         if (!res.ok) return;
         const data = await res.json();
         if (data.matched && data.matchId) {
@@ -146,7 +150,7 @@ export function OnlineMatchmaking({
     return () => {
       if (pollRef.current) clearInterval(pollRef.current);
     };
-  }, [phase, onMatched]);
+  }, [phase, onMatched, safeMode]);
 
   const handleCancel = useCallback(async () => {
     if (pollRef.current) clearInterval(pollRef.current);

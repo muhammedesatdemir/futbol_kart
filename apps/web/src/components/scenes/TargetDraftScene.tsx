@@ -30,6 +30,20 @@ interface TargetDraftSceneProps {
   stepIndex: number;
   /** Süre (sn). */
   seconds: number;
+  /**
+   * ONLINE (opsiyonel): sunucu-otoriteli bitiş anı (epoch ms). Verilirse geri
+   * sayım buna KİLİTLENİR (kalan = deadline - now) → iki tarafta süre EŞ akar,
+   * optimistic seçimde sayaç lokal sıfırlanıp "sıçramaz". OFFLINE'da verilmez
+   * (undefined) → mevcut lokal `seconds` sayımı aynen korunur (davranış değişmez).
+   */
+  deadlineMs?: number | null;
+  /**
+   * ONLINE (opsiyonel): true iken geri sayım DURAKLAR. Optimistic seçimden sonra
+   * (kullanıcı seçti, sunucu yanıtı bekleniyor) sayaç boşuna saymasın diye —
+   * kullanıcının sırası bitti, sunucu yeni tura geçince taze deadline'la başlar.
+   * OFFLINE'da verilmez (false) → davranış değişmez.
+   */
+  paused?: boolean;
   onSelect: (playerId: string) => void;
   onTimeout: () => void;
   // -------- Röntgen jokeri (aktif tarafın hakkı) --------
@@ -72,6 +86,8 @@ export function TargetDraftScene({
   activeSide,
   stepIndex,
   seconds,
+  deadlineMs = null,
+  paused = false,
   onSelect,
   onTimeout,
   xrayAvailable,
@@ -120,6 +136,8 @@ export function TargetDraftScene({
           </h1>
           <CountdownRing
             seconds={seconds}
+            deadlineMs={deadlineMs}
+            paused={paused}
             runKey={runKey}
             onComplete={onTimeout}
             size={48}

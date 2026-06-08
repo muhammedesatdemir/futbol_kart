@@ -270,12 +270,14 @@ export default function TargetGamePage() {
       ? (onlineState.draftOrder[onlineState.draftStep] ?? 'P1')
       : 'P1';
   const isMyTurn = isOnline ? online.yourSide === onlineActiveSide : true;
-  // Online draft'ta süre yalnızca AKTİF taraf için anlamlı; sayaç runKey'i adım.
-  const onlineDraftSeconds = useMemo(() => {
-    if (!isOnline || !online.turnDeadline) return TARGET_DRAFT_SECONDS;
-    const ms = new Date(online.turnDeadline).getTime() - Date.now();
-    return Math.max(1, Math.round(ms / 1000));
-  }, [isOnline, online.turnDeadline]);
+  // Online draft sayacı SUNUCU DEADLINE'ına kilitlenir (CountdownRing deadlineMs).
+  // `seconds` yalnız halka tam-oranı referansı (sabit TARGET_DRAFT_SECONDS); kalan
+  // süre `deadline - now`'dan gelir → iki tarafta EŞ akar + optimistic seçimde
+  // "süre 40'a sıçradı" sorunu biter (sunucu yeni deadline yazınca pürüzsüz geçer).
+  const onlineDeadlineMs = useMemo(
+    () => (online.turnDeadline ? new Date(online.turnDeadline).getTime() : null),
+    [online.turnDeadline],
+  );
 
   // Online draft seçim: OPTIMISTIC anında slota koy + sunucuya yolla. Sunucu
   // aktif tarafı + kart geçerliliğini doğrular; reddederse (422) bir sonraki
@@ -557,7 +559,13 @@ export default function TargetGamePage() {
                   p2Picks={optimisticPicks.p2}
                   activeSide={onlineActiveSide}
                   stepIndex={onlineState.draftStep}
-                  seconds={onlineDraftSeconds}
+                  seconds={TARGET_DRAFT_SECONDS}
+                  // Sayaç sunucu deadline'ına kilitli (lokal sayım değil) → iki
+                  // tarafta eş + optimistic seçimde sıçramasız.
+                  deadlineMs={onlineDeadlineMs}
+                  // Optimistic beklerken (seçtim, sunucu işliyor) sayacı duraklat —
+                  // sıram bitti; sunucu yeni tura geçince taze deadline'la başlar.
+                  paused={!!optimisticPick}
                   // Sıra-tabanlı: yalnız BENİM sıramda + optimistic beklemiyorken
                   // seçim aktif. Rakip sırasında / optimistic beklerken no-op
                   // (çift POST önlenir; UI "Rakip seçiyor" / "Gönderiliyor" hissi).

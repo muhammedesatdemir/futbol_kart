@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { HomeIcon, ArrowLeftIcon } from '@/components/icons';
 import { SceneShell } from '@/components/scenes/SceneShell';
@@ -105,34 +105,29 @@ export default function ListGamePage() {
   const [p2Name, setP2Name] = useState('');
   const [turnKey, setTurnKey] = useState(0);
 
-  // ── ONLINE missTick (yanlış tahmin animasyonu — sunucu outcome'una göre) ──
-  const [onlineMissTick, setOnlineMissTick] = useState(0);
-
-  // ── ONLINE anlık (sunucu-doğrulanmış) feedback ──
-  // Tahmin POST'u DB yüzünden ~1-3sn sürer; `refresh()` beklemek "ses önce, görsel
-  // sonra" hissi yaratır. ÇÖZÜM: POST yanıtındaki `outcome` (hit/rank/value/lives —
-  // SUNUCU hesabı, tahmin değil) ile UI'ı ANINDA güncelle; refresh teyit edince
-  // optimistic temizlenir. Böylece ses + sıra açılma + can azalma SENKRON.
-  //  - pendingGuess: tıklama→yanıt arası "kontrol ediliyor" + tahmin kilidi (çift POST önle).
-  //  - optimisticFill: yanıt hit ise anında açılan sıra (sunucu state gelene kadar).
-  //  - optimisticLives: yanıt sonrası anlık can (kalp animasyonu senkron).
+  // ── ONLINE tahmin akışı: pendingGuess + RESULT-HOLD ──
+  // Sorun: tahmin POST'u (DB) ~1-3sn sürer + sunucu sırayı ANINDA karşı tarafa
+  // geçirir → ses/görsel/kalp animasyonu yarım kalır, uyarı karşı tarafa taşar.
+  // ÇÖZÜM (resultHold): POST yanıtı (outcome = SUNUCU hesabı) gelince ~2.8sn'lik
+  // bir "sonuç gösterme penceresi" açılır. Bu pencerede sıra geçişi GÖRSEL olarak
+  // ERTELENİR: panel/uyarı/kalp/rozet TAHMİNİ YAPAN tarafta net görünür (karşıya
+  // taşmaz). Pencere bitince gerçek sunucu state'i (karşı taraf) gösterilir.
+  // Sunucu otoritesi değişmez (sıra zaten geçti) — yalnız client görsel geçişi geciktirir.
   const [pendingGuess, setPendingGuess] = useState<string | null>(null);
-  const [optimisticFill, setOptimisticFill] = useState<{
-    rank: number;
-    playerId: string;
-    value: number;
+  const [resultHold, setResultHold] = useState<{
+    /** Tahmini yapan taraf — hold boyunca panel/rozet burada gösterilir. */
     side: ListSide;
-    /** Bu optimistic'i koyduğumuz andaki açık-sıra sayısı (sunucu geçince temizle). */
-    pendingFilled: number;
-  } | null>(null);
-  const [optimisticLives, setOptimisticLives] = useState<{
+    kind: 'hit' | 'miss';
+    /** hit: açılan sıra (anlık göster); miss: yok. */
+    fill?: { rank: number; playerId: string; value: number };
+    /** Bu tahmin sonrası canlar (kalp animasyonu + panel). */
     lives: { P1: number; P2: number };
-    pendingFilled: number;
-    /** Bu anki toplam can (sunucu farklı toplam gösterince temizle). */
-    pendingLivesSum: number;
+    /** hit puanı (rozet). */
+    points?: number;
+    /** Bu hamleyle elendiyse karşı tarafın adı için işaret. */
+    eliminated: boolean;
   } | null>(null);
-  // Elenme duyurusu: bir taraf 3 canını bitirince "X elendi" (her iki tarafa).
-  const [eliminatedSide, setEliminatedSide] = useState<ListSide | null>(null);
+  const HOLD_MS = 2800;
 
   const resetRound = useCallback(() => {
     setFilledBy(new Map());
@@ -271,25 +266,21 @@ export default function ListGamePage() {
   // ============================================================================
   const onlineState = online.state;
 
-  // Sunucu state ilerleyince (açık-sıra sayısı değişti) optimistic'i temizle —
-  // gerçek state artık sonucu içeriyor. (RESULT'a geçince de temizlenir.)
+  // RESULT-HOLD süresi dolunca temizle → gerçek sunucu state (karşı taraf) görünür.
   useEffect(() => {
-    if (!onlineState) return;
-    const filledNow = Object.keys(onlineState.filledPlayer).length;
-    if (optimisticFill && filledNow !== optimisticFill.pendingFilled) {
-      setOptimisticFill(null);
-    }
-    // Can optimistic'i: sunucu canları geldiğinde (toplam farklıysa veya açık-sıra
-    // değiştiyse) temizle — gerçek lives state'ten okunur.
-    if (optimisticLives) {
-      const serverSum = onlineState.lives.P1 + onlineState.lives.P2;
-      if (serverSum <= optimisticLives.pendingLivesSum || filledNow !== optimisticLives.pendingFilled) {
-        setOptimisticLives(null);
-      }
-    }
-  }, [onlineState, optimisticFill, optimisticLives]);
+    if (!resultHold) return;
+    const t = setTimeout(() => {
+      setResultHold(null);
+      void online.refresh(); // hold sonrası en güncel state'i çek (sıra karşıda)
+    }, HOLD_MS);
+    return () => clearTimeout(t);
+  }, [resultHold, online]);
+  // Maç RESULT'a geçince hold'u hemen bırak (sonuç ekranı gelsin).
+  useEffect(() => {
+    if (onlineState?.scene === 'RESULT' && resultHold) setResultHold(null);
+  }, [onlineState?.scene, resultHold]);
 
-  // ONLINE açılmış sıralar: Record → Map (+ optimistic açılan sıra).
+  // ONLINE açılmış sıralar: Record → Map (+ hold'daki hit'in açtığı sıra anlık).
   const onlineFilledBy = useMemo(() => {
     const m = new Map<number, ListSide>();
     if (onlineState) {
@@ -297,11 +288,11 @@ export default function ListGamePage() {
         m.set(Number(rank), side);
       }
     }
-    if (optimisticFill && !m.has(optimisticFill.rank)) {
-      m.set(optimisticFill.rank, optimisticFill.side);
+    if (resultHold?.fill && !m.has(resultHold.fill.rank)) {
+      m.set(resultHold.fill.rank, resultHold.side);
     }
     return m;
-  }, [onlineState, optimisticFill]);
+  }, [onlineState, resultHold]);
   const onlineFilledPlayer = useMemo(() => {
     const m = new Map<number, string>();
     if (onlineState) {
@@ -309,39 +300,25 @@ export default function ListGamePage() {
         m.set(Number(rank), pid);
       }
     }
-    if (optimisticFill && !m.has(optimisticFill.rank)) {
-      m.set(optimisticFill.rank, optimisticFill.playerId);
+    if (resultHold?.fill && !m.has(resultHold.fill.rank)) {
+      m.set(resultHold.fill.rank, resultHold.fill.playerId);
     }
     return m;
-  }, [onlineState, optimisticFill]);
-  // ONLINE açık sıra değerleri (+ optimistic) — ListPlayScene valueByRank için.
+  }, [onlineState, resultHold]);
+  // ONLINE açık sıra değerleri (+ hold) — ListPlayScene valueByRank için.
   const onlineValueByRank = useMemo(() => {
     const out: Record<number, number> = { ...(onlineState?.filledValue ?? {}) };
-    if (optimisticFill && out[optimisticFill.rank] == null) {
-      out[optimisticFill.rank] = optimisticFill.value;
+    if (resultHold?.fill && out[resultHold.fill.rank] == null) {
+      out[resultHold.fill.rank] = resultHold.fill.value;
     }
     return out;
-  }, [onlineState, optimisticFill]);
-  // ONLINE canlar — optimistic varsa onu göster (anlık azalma), yoksa sunucu.
-  const onlineLives = optimisticLives?.lives ?? onlineState?.lives ?? { P1: LIST_LIVES, P2: LIST_LIVES };
-
-  // ELENME DUYURUSU: bir taraf 3 canını bitirince (lives 0) "X elendi" göster.
-  // Optimistic onGuessOnline anlık set eder; bu effect sunucu state'inden de
-  // teyit/tespit eder (kaçan durum). Oyun PLAY'de + bir taraf elenmiş + diğeri
-  // hâlâ canlıysa duyuru anlamlı (tek taraf devam eder). RESULT'ta temizle.
-  useEffect(() => {
-    if (!onlineState || onlineState.scene !== 'PLAY') {
-      setEliminatedSide(null);
-      return;
-    }
-    const elim: ListSide | null =
-      onlineLives.P1 <= 0 && onlineLives.P2 > 0
-        ? 'P1'
-        : onlineLives.P2 <= 0 && onlineLives.P1 > 0
-          ? 'P2'
-          : null;
-    setEliminatedSide(elim);
-  }, [onlineState, onlineLives.P1, onlineLives.P2]);
+  }, [onlineState, resultHold]);
+  // ONLINE canlar — hold varsa hold'un (azalmış) canlarını göster, yoksa sunucu.
+  const onlineLives = resultHold?.lives ?? onlineState?.lives ?? { P1: LIST_LIVES, P2: LIST_LIVES };
+  // Görsel aktif taraf — HOLD sırasında tahmini YAPAN tarafta kal (karşıya taşma);
+  // hold yoksa gerçek sunucu sırası.
+  const displayActiveSide: ListSide =
+    resultHold?.side ?? onlineState?.activeSide ?? 'P1';
 
   // ONLINE MASKELİ liste — sahne sadece rank/puan için kullanır; oyuncu/değer
   // açık sıralardan (filledPlayer/valueByRank) gelir. Cevaplar client'a gelmez.
@@ -366,9 +343,8 @@ export default function ListGamePage() {
   // AYNI ANDA oynar — refresh beklenmez. Optimistic, sunucu state'i gelince temizlenir.
   const onGuessOnline = useCallback(
     (playerId: string) => {
-      if (!onlineState || pendingGuess) return; // çift gönderim / sıra-dışı engeli
+      if (!onlineState || pendingGuess || resultHold) return; // çift/hold engeli
       const side = onlineState.activeSide;
-      const filledNow = Object.keys(onlineState.filledPlayer).length;
       setPendingGuess(playerId);
       void online.guess(playerId).then((outcome) => {
         setPendingGuess(null);
@@ -377,32 +353,26 @@ export default function ListGamePage() {
           void online.refresh();
           return;
         }
-        if (outcome.hit && outcome.rank != null) {
-          // DOĞRU: sırayı ANINDA aç (sunucu state gelene kadar) + zafer sesi.
-          setOptimisticFill({
-            rank: outcome.rank,
-            playerId,
-            value: outcome.value ?? 0,
-            side,
-            pendingFilled: filledNow,
-          });
-          playSfx('win');
-        } else {
-          // YANLIŞ: can'ı ANINDA düşür (kalp kırılma animasyonu senkron) + ses.
-          setOptimisticLives({
-            lives: outcome.lives,
-            pendingFilled: filledNow,
-            pendingLivesSum: outcome.lives.P1 + outcome.lives.P2,
-          });
-          setOnlineMissTick((t) => t + 1);
-          playSfx('heartbreak');
-          // Elenme duyurusu: `onlineLives` izleyen effect halleder (optimistic +
-          // sunucu teyidi) — burada ayrıca set etmeye gerek yok.
-        }
+        // RESULT-HOLD aç: sonuç ~2.8sn TAHMİNİ YAPAN tarafta net gösterilir
+        // (sıra görsel olarak geçmez). Ses bu anla senkron. Hold bitince effect
+        // temizler + refresh → gerçek sıra (karşı taraf).
+        const eliminated = !outcome.hit && outcome.lives[side] <= 0;
+        setResultHold({
+          side,
+          kind: outcome.hit ? 'hit' : 'miss',
+          fill:
+            outcome.hit && outcome.rank != null
+              ? { rank: outcome.rank, playerId, value: outcome.value ?? 0 }
+              : undefined,
+          lives: outcome.lives,
+          points: outcome.hit ? (outcome.rank ?? 0) : undefined,
+          eliminated,
+        });
+        playSfx(outcome.hit ? 'win' : 'heartbreak');
         scrollTop();
       });
     },
-    [online, onlineState, pendingGuess, playSfx, scrollTop],
+    [online, onlineState, pendingGuess, resultHold, playSfx, scrollTop],
   );
 
   // ONLINE süre dolumu: sunucu yönetir (lazy) → sadece tazele.
@@ -551,30 +521,53 @@ export default function ListGamePage() {
                   // MASKELİ liste (cevaplar gizli) — açık sıralar filledPlayer'dan.
                   list={onlineMaskedList}
                   pool={session.players}
-                  // Optimistic dahil — sıra anında açılır (refresh beklenmez).
+                  // Hold dahil — sıra anında açılır (refresh beklenmez).
                   filledBy={onlineFilledBy}
                   filledPlayer={onlineFilledPlayer}
                   valueByRank={onlineValueByRank}
                   seconds={LIST_TURN_SECONDS}
-                  timerKey={`online-${onlineState.activeSide}-${Object.keys(onlineState.filledPlayer).length}`}
-                  deadlineMs={onlineDeadlineMs}
-                  onGuess={isMyTurn && !pendingGuess ? onGuessOnline : () => {}}
+                  // Hold sırasında timerKey'i sabit tut (sayaç sıçramasın); hold yokken
+                  // gerçek sıra/dolum. deadlineMs hold'da null → sayaç durur (sonuç süresi).
+                  timerKey={`online-${displayActiveSide}-${onlineFilledPlayer.size}-${resultHold ? 'hold' : 'live'}`}
+                  deadlineMs={resultHold ? null : onlineDeadlineMs}
+                  // Tahmin: yalnız sıram + hold/pending yokken. Aksi halde kilit.
+                  onGuess={isMyTurn && !pendingGuess && !resultHold ? onGuessOnline : () => {}}
                   onTimeout={onTimeoutOnline}
                   hotseat
-                  activeSide={onlineState.activeSide}
-                  // Optimistic can — yanlış tahminde ANINDA azalır (kalp animasyonu senkron).
+                  // GÖRSEL aktif taraf: hold'da tahmini YAPAN tarafta kalır (karşıya taşmaz).
+                  activeSide={displayActiveSide}
+                  // Can — hold'da azalmış (kalp animasyonu senkron), yoksa sunucu.
                   lives={onlineLives}
                   p1Name={onP1Name}
                   p2Name={onP2Name}
-                  missTick={onlineMissTick}
-                  // Sıra bende değilse VEYA tahminim gönderiliyorsa kilit.
-                  locked={!isMyTurn || !!pendingGuess}
+                  poolCols={5}
+                  compactPanel
+                  // SONUÇ ROZETİ (hold süresi) — hit/miss + opsiyonel elenme, tahmini
+                  // yapan tarafta net. Hold bitince kaybolur, sıra karşıya geçer.
+                  resultBadge={
+                    resultHold
+                      ? {
+                          kind: resultHold.kind,
+                          points: resultHold.points,
+                          eliminated: resultHold.eliminated
+                            ? {
+                                you: resultHold.side === 'P1' ? onP1Name : onP2Name,
+                                other: resultHold.side === 'P1' ? onP2Name : onP1Name,
+                              }
+                            : null,
+                        }
+                      : null
+                  }
+                  // Sıra bende değilse / tahmin gönderiliyor / hold sürüyorsa kilit.
+                  locked={!isMyTurn || !!pendingGuess || !!resultHold}
                   waitingLabel={
-                    pendingGuess
-                      ? '✓ Tahminin kontrol ediliyor…'
-                      : !isMyTurn
-                        ? `Rakip tahmin ediyor… (sıra ${onlineState.activeSide === 'P1' ? onP1Name : onP2Name})`
-                        : null
+                    resultHold
+                      ? null // rozet zaten gösteriliyor
+                      : pendingGuess
+                        ? '✓ Tahminin kontrol ediliyor…'
+                        : !isMyTurn
+                          ? `Rakip tahmin ediyor… (sıra ${onlineState.activeSide === 'P1' ? onP1Name : onP2Name})`
+                          : null
                   }
                 />
               </SceneShell>
@@ -600,32 +593,9 @@ export default function ListGamePage() {
           </AnimatePresence>
         )}
 
-        {/* ELENME DUYURUSU (ONLINE, PLAY) — bir taraf 3 canını bitirince her iki
-            tarafa "X elendi · diğeri tek başına devam ediyor" banner'ı. Oyun
-            tamamen bitince (RESULT) effect bunu temizler. */}
-        <AnimatePresence>
-          {isOnline && onlineState?.scene === 'PLAY' && eliminatedSide && (
-            <motion.div
-              initial={{ opacity: 0, y: -20, scale: 0.92 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -20, scale: 0.92 }}
-              transition={{ type: 'spring', stiffness: 280, damping: 22 }}
-              className="pointer-events-none fixed left-1/2 top-24 z-50 -translate-x-1/2"
-            >
-              <div className="glass-panel-strong flex items-center gap-3 rounded-2xl border-2 border-side-red/60 px-6 py-3 shadow-[0_0_30px_-4px_rgba(220,38,38,0.6)]">
-                <span className="text-2xl">💔</span>
-                <div className="flex flex-col">
-                  <span className="text-sm font-black text-side-red">
-                    {(eliminatedSide === 'P1' ? onP1Name : onP2Name)} elendi!
-                  </span>
-                  <span className="text-[11px] font-semibold text-white/65">
-                    {(eliminatedSide === 'P1' ? onP2Name : onP1Name)} tek başına devam ediyor…
-                  </span>
-                </div>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* NOT: Elenme duyurusu artık ListPlayScene'in ResultBadge'inin ALT-ROZETİ
+            (tahmini yapan tarafta, hold süresince) — ayrı üst-banner kaldırıldı
+            (kötü konum + karşı tarafa taşma sorunu, kullanıcı geri bildirimi). */}
 
         {/* ====================== OFFLINE RENDER ====================== */}
         {!isOnline && (

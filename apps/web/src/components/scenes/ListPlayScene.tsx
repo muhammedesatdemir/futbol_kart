@@ -53,6 +53,25 @@ interface ListPlaySceneProps {
    * gösterilir. OFFLINE'da verilmez → `entry.value` (gerçek liste) kullanılır.
    */
   valueByRank?: Record<number, number>;
+  /**
+   * ONLINE (opsiyonel): havuz grid sütun sayısı (geniş ekran). Verilmezse 6
+   * (offline davranışı). Online'da 5 → kartlar üst üste binmez, aralık rahat.
+   */
+  poolCols?: 5 | 6;
+  /** ONLINE (opsiyonel): yan paneli hafif küçült (kartların üstüne binmesin). */
+  compactPanel?: boolean;
+  /**
+   * ONLINE (opsiyonel): tahmin sonucu rozeti — panelin altında, tahmini YAPAN
+   * tarafta gösterilir (sıra geçişi GECİKTİRİLİR → sonuç net görünür, karşı tarafa
+   * taşmaz). `missTick` yerine bunu kullan (online). null → rozet yok.
+   *   kind 'hit' → yeşil "+N puan ✓" · 'miss' → kırmızı "Listede yok −1 can"
+   *   'eliminated' → kırmızı "Elendi · rakip devam ediyor" (miss'in altında).
+   */
+  resultBadge?: {
+    kind: 'hit' | 'miss';
+    points?: number;
+    eliminated?: { you: string; other: string } | null;
+  } | null;
 }
 
 /** P1 = kırmızı, P2 = mavi (belirgin taraf renkleri). */
@@ -124,6 +143,9 @@ export function ListPlayScene({
   locked = false,
   waitingLabel = null,
   valueByRank,
+  poolCols = 6,
+  compactPanel = false,
+  resultBadge = null,
 }: ListPlaySceneProps) {
   const [search, setSearch] = useState('');
 
@@ -183,15 +205,23 @@ export function ListPlayScene({
           animate={{ opacity: 1, x: 0, scale: 1 }}
           transition={{ type: 'spring', stiffness: 260, damping: 22 }}
           className={cn(
-            'glass-panel-strong pointer-events-auto flex flex-col items-center gap-3 rounded-3xl border-2 px-7 py-6',
+            'glass-panel-strong pointer-events-auto flex flex-col items-center rounded-3xl border-2',
+            // compactPanel (online): hafif küçük → kartların üstüne binmez.
+            compactPanel ? 'gap-2 px-4 py-4' : 'gap-3 px-7 py-6',
             sideCls.border,
             sideCls.glow,
           )}
         >
-          <span className="text-xs font-bold uppercase tracking-[0.2em] text-white/55">
+          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-white/55">
             Sıra
           </span>
-          <span className={cn('text-3xl font-black leading-none', sideCls.text)}>
+          <span
+            className={cn(
+              'font-black leading-none',
+              compactPanel ? 'text-xl' : 'text-3xl',
+              sideCls.text,
+            )}
+          >
             {activeName}
           </span>
           <CountdownRing
@@ -199,8 +229,8 @@ export function ListPlayScene({
             deadlineMs={deadlineMs}
             runKey={timerKey}
             onComplete={onTimeout}
-            size={96}
-            stroke={8}
+            size={compactPanel ? 68 : 96}
+            stroke={compactPanel ? 6 : 8}
             color={activeSide === 'P1' ? '#ef4444' : '#3b82f6'}
             urgentColor="#ef4444"
           />
@@ -229,10 +259,16 @@ export function ListPlayScene({
           )}
         </motion.div>
 
-        {/* "Bu listede yok! −1 can" — tahmin eden tarafın yanında, panelin altında.
-            missTick artınca belirir, 3.5sn sonra animasyonla kaybolur (madde 2). */}
+        {/* SONUÇ ROZETİ — tahmin eden tarafın panelinin ALTINDA.
+            ONLINE: `resultBadge` (hit/miss + opsiyonel elendi) — sıra geçişi
+            geciktirildiği için bu rozet TAHMİNİ YAPAN tarafta net görünür, karşıya
+            taşmaz (madde 3/4/5). OFFLINE: eski `missTick`/MissNote (yalnız yanlış). */}
         <AnimatePresence>
-          {missTick > 0 && <MissNote key={missTick} side={activeSide} />}
+          {resultBadge ? (
+            <ResultBadge key="online-badge" side={activeSide} badge={resultBadge} />
+          ) : (
+            missTick > 0 && <MissNote key={missTick} side={activeSide} />
+          )}
         </AnimatePresence>
       </div>
 
@@ -331,7 +367,14 @@ export function ListPlayScene({
             className="rounded-lg border border-white/10 bg-white/5 px-3 py-1.5 text-sm outline-none focus:border-accent-gold/40"
           />
         </div>
-        <div className="grid grid-cols-3 gap-3 sm:grid-cols-5 sm:gap-4 lg:grid-cols-6">
+        <div
+          className={cn(
+            'grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4',
+            // poolCols=5 (online): geniş ekranda 5 sütun + rahat aralık → kartlar
+            // üst üste binmez (boyut aynı). poolCols=6 (offline): eski davranış.
+            poolCols === 5 ? 'lg:grid-cols-5 lg:gap-5' : 'sm:grid-cols-5 lg:grid-cols-6',
+          )}
+        >
           {candidates.map((p) => {
             const already = guessedIds.has(p.id);
             return (
@@ -438,6 +481,73 @@ function Hearts({ side, count }: { side: ListSide; count: number }) {
         );
       })}
     </div>
+  );
+}
+
+/**
+ * ONLINE sonuç rozeti — tahmin eden tarafın panelinin altında. Doğru (yeşil
+ * "+N puan ✓"), yanlış (kırmızı "Listede yok −1 can"), + opsiyonel elenme
+ * ("Elendi · rakip devam"). Sıra geçişi geciktirildiği için (sayfa katmanı)
+ * bu rozet tahmini yapan tarafta NET kalır, karşıya taşmaz (madde 3/4/5).
+ * Görünürken parent (page) hold süresi boyunca tutar; hold bitince AnimatePresence exit.
+ */
+function ResultBadge({
+  side,
+  badge,
+}: {
+  side: ListSide;
+  badge: NonNullable<ListPlaySceneProps['resultBadge']>;
+}) {
+  const hit = badge.kind === 'hit';
+  return (
+    <motion.div
+      initial={{ opacity: 0, x: side === 'P1' ? -24 : 24, scale: 0.9 }}
+      animate={{ opacity: 1, x: 0, scale: 1 }}
+      exit={{ opacity: 0, x: side === 'P1' ? -24 : 24, scale: 0.9 }}
+      transition={{ type: 'spring', stiffness: 300, damping: 24 }}
+      className="flex flex-col items-center gap-2"
+    >
+      {/* Hit/Miss rozeti */}
+      <div
+        className={cn(
+          'glass-panel-strong flex flex-col items-center gap-0.5 rounded-2xl border-2 px-4 py-3 text-center',
+          hit
+            ? 'border-emerald-400/60 shadow-[0_0_22px_rgba(16,185,129,0.45)]'
+            : 'border-side-red/55 shadow-[0_0_22px_rgba(239,68,68,0.4)]',
+        )}
+      >
+        <span className="text-2xl">{hit ? '✅' : '❌'}</span>
+        <span className="text-xs font-black uppercase tracking-wider text-white/85">
+          {hit ? 'Doğru!' : 'Listede yok!'}
+        </span>
+        <span
+          className={cn(
+            'text-sm font-black',
+            hit ? 'text-emerald-300' : 'text-side-red',
+          )}
+        >
+          {hit ? `+${badge.points ?? 0} puan` : '−1 can'}
+        </span>
+      </div>
+
+      {/* Elenme alt-rozeti (yalnız bu hamleyle elendiyse) */}
+      {badge.eliminated && (
+        <motion.div
+          initial={{ opacity: 0, y: -6 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="glass-panel-strong flex flex-col items-center gap-0.5 rounded-2xl border-2 border-side-red/60 px-4 py-2.5 text-center shadow-[0_0_22px_rgba(239,68,68,0.5)]"
+        >
+          <span className="text-xl">💔</span>
+          <span className="text-[11px] font-black uppercase tracking-wider text-side-red">
+            Elendin!
+          </span>
+          <span className="text-[10px] font-semibold text-white/65">
+            {badge.eliminated.other} tek başına devam ediyor…
+          </span>
+        </motion.div>
+      )}
+    </motion.div>
   );
 }
 

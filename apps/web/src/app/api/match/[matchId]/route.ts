@@ -14,6 +14,12 @@ import {
   targetCriterionView,
   type TargetMatchState,
 } from '@/lib/server/targetMatchEngine';
+import {
+  applySquadTimeout,
+  squadSceneDeadlineSeconds,
+  squadCriterionView,
+  type SquadMatchState,
+} from '@/lib/server/squadMatchEngine';
 import { publishMatchEvent } from '@/lib/server/ably';
 
 export const runtime = 'nodejs';
@@ -80,6 +86,9 @@ export async function GET(
   // birebir korunur. Bkz PLAN.md §19 (state opak, GET m.mode ile dallanır).
   if (m.mode === 'hedef') {
     return getTargetMatch(db, m, side, clientVersion);
+  }
+  if (m.mode === 'kadro') {
+    return getSquadMatch(db, m, side, clientVersion);
   }
 
   // SÜRE KONTROLÜ (lazy): yükleme anında süre dolduysa otomatik tamamla.
@@ -286,6 +295,88 @@ async function getTargetMatch(
     // state OPAK döner — client TargetMatchState olarak yorumlar. Maskeleme yok.
     state,
     /** Kriter başlık/birim (client gösterimi; metric sunucuda kalır). */
+    criterion,
+    winnerSide: m.winnerSide,
+    turnDeadline: deadline ? deadline.toISOString() : null,
+  });
+}
+
+/**
+ * "Kadro Kur" maçı için GET — sade kol (getTargetMatch kardeşi). Maskeleme YOK
+ * (kriter + draft pick'leri açık — snake draft doğası). Süre dolumu lazy, versiyon
+ * kısa-devresi VS Düello deseniyle aynı.
+ */
+async function getSquadMatch(
+  db: ReturnType<typeof getDb>,
+  m: typeof matchTable.$inferSelect,
+  side: 'P1' | 'P2',
+  clientVersion: number,
+) {
+  let state = m.state as SquadMatchState;
+  let deadline = m.turnDeadline ? new Date(m.turnDeadline) : null;
+  let currentVersion = m.version;
+
+  let timed: { state: SquadMatchState; changed: boolean };
+  try {
+    timed = await applySquadTimeout(
+      state,
+      deadline ? deadline.getTime() : null,
+      Date.now(),
+    );
+  } catch (err) {
+    console.error('applySquadTimeout hatası (maç çökmesi önlendi):', err);
+    timed = { state, changed: false };
+  }
+
+  if (
+    !timed.changed &&
+    Number.isFinite(clientVersion) &&
+    clientVersion === m.version
+  ) {
+    return NextResponse.json({
+      unchanged: true,
+      version: m.version,
+      turnDeadline: deadline ? deadline.toISOString() : null,
+    });
+  }
+
+  if (timed.changed) {
+    const secs = squadSceneDeadlineSeconds(timed.state);
+    const newDeadline = secs ? new Date(Date.now() + secs * 1000) : null;
+    const updated = await db
+      .update(matchTable)
+      .set({
+        state: timed.state,
+        currentScene: timed.state.scene,
+        turnDeadline: newDeadline,
+        version: m.version + 1,
+        winnerSide: timed.state.scene === 'RESULT' ? timed.state.winner : null,
+        status: timed.state.scene === 'RESULT' ? 'finished' : 'active',
+        updatedAt: new Date(),
+      })
+      .where(and(eq(matchTable.id, m.id), eq(matchTable.version, m.version)))
+      .returning({ id: matchTable.id });
+    if (updated.length > 0) {
+      state = timed.state;
+      deadline = newDeadline;
+      currentVersion = m.version + 1;
+      await publishMatchEvent(m.id, 'state-changed', {
+        scene: state.scene,
+        draftStep: state.draftStep,
+      });
+    }
+  }
+
+  const criterion = await squadCriterionView(state.criterionId);
+
+  return NextResponse.json({
+    matchId: m.id,
+    mode: m.mode,
+    status: m.status,
+    version: currentVersion,
+    yourSide: side,
+    seed: m.seed,
+    state,
     criterion,
     winnerSide: m.winnerSide,
     turnDeadline: deadline ? deadline.toISOString() : null,

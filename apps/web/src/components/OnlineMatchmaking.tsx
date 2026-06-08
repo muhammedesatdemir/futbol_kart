@@ -16,6 +16,7 @@ type Phase = 'checking-auth' | 'searching' | 'found' | 'error';
 const MODE_ROUTES: Record<string, (matchId: string) => string> = {
   'vs-duello': (id) => `/oyna/${id}?online=1`,
   hedef: (id) => `/hedefe-yaklas/${id}?online=1`,
+  kadro: (id) => `/kadro/${id}?online=1`,
 };
 /** Bilinmeyen/eksik mod → VS Düello (geri uyumluluk). */
 const DEFAULT_MODE = 'vs-duello';

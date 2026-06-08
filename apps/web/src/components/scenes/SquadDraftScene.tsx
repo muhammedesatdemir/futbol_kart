@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
@@ -31,6 +31,20 @@ interface SquadDraftSceneProps {
   stepIndex: number;
   /** Süre (sn). */
   seconds: number;
+  /**
+   * ONLINE (opsiyonel): sunucu-otoriteli bitiş anı (epoch ms). Verilirse geri
+   * sayım buna KİLİTLENİR (iki tarafta eş + optimistic seçimde sıçramasız).
+   * OFFLINE'da verilmez → mevcut lokal `seconds` sayımı korunur.
+   */
+  deadlineMs?: number | null;
+  /**
+   * ONLINE (opsiyonel): sıra bu istemcide DEĞİL (veya optimistic gönderiliyor).
+   * Kart/slot seçimi kilitlenir; karta tıklanırsa "sıra sende değil" uyarısı
+   * geçici kırmızı+shake ile güçlenir. OFFLINE'da verilmez (false).
+   */
+  locked?: boolean;
+  /** ONLINE (opsiyonel): joker barının altında SABİT bilgi (örn. "Rakip seçiyor…"). */
+  waitingLabel?: string | null;
   /** Aktif tarafın joker hakkı kaldı mı? */
   jokerAvailable: boolean;
   /** Joker önerisi gösteriliyorsa (kabul/iptal bekliyor). */
@@ -70,6 +84,9 @@ export function SquadDraftScene({
   activeSide,
   stepIndex,
   seconds,
+  deadlineMs = null,
+  locked = false,
+  waitingLabel = null,
   jokerAvailable,
   suggestion,
   onSelect,
@@ -100,6 +117,25 @@ export function SquadDraftScene({
     setPickedSlot(firstEmpty);
   }
   const [search, setSearch] = useState('');
+
+  // ONLINE kilit geri bildirimi (Hedefe deseni): kilitliyken karta/slota tıklanınca
+  // ~2.5sn kırmızı + shake ("sıra sende değil"), sonra normale döner; her tıklamada
+  // yenilenir. denyActive = geçici kırmızı, denyShake = motion key (animasyon tekrar).
+  const [denyActive, setDenyActive] = useState(false);
+  const [denyShake, setDenyShake] = useState(0);
+  const denyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const triggerDeny = () => {
+    setDenyActive(true);
+    setDenyShake((n) => n + 1);
+    if (denyTimerRef.current) clearTimeout(denyTimerRef.current);
+    denyTimerRef.current = setTimeout(() => setDenyActive(false), 2500);
+  };
+  useEffect(() => {
+    if (!locked && denyActive) setDenyActive(false);
+    return () => {
+      if (denyTimerRef.current) clearTimeout(denyTimerRef.current);
+    };
+  }, [locked, denyActive]);
 
   const activeSlotDef =
     formation.slots.find((s) => s.id === pickedSlot) ?? null;
@@ -133,6 +169,7 @@ export function SquadDraftScene({
           </h1>
           <CountdownRing
             seconds={seconds}
+            deadlineMs={deadlineMs}
             runKey={slotKey}
             onComplete={onTimeout}
             size={48}
@@ -173,16 +210,41 @@ export function SquadDraftScene({
       </div>
 
       {/* Joker barı — buton + (?) ipucu (VS Düello deseni) */}
-      <div className="flex items-center justify-center gap-2">
-        <JokerButton
-          available={jokerAvailable}
-          onClick={onUseJoker}
-        />
-        <JokerHelpButton
-          title="Öneri Jokeri"
-          icon={<span className="text-sm">💡</span>}
-          body="Sıradaki mevki için sistem en uygun oyuncuyu önerir — o kritere göre havuzdaki en iyi uygun oyuncu, değeriyle birlikte. Beğenirsen koy, beğenmezsen kendin seçmeye devam et. Maçta 1 kez."
-        />
+      <div className="flex flex-col items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
+          <JokerButton
+            available={jokerAvailable}
+            onClick={onUseJoker}
+          />
+          <JokerHelpButton
+            title="Öneri Jokeri"
+            icon={<span className="text-sm">💡</span>}
+            body="Sıradaki mevki için sistem en uygun oyuncuyu önerir — o kritere göre havuzdaki en iyi uygun oyuncu, değeriyle birlikte. Beğenirsen koy, beğenmezsen kendin seçmeye devam et. Maçta 1 kez."
+          />
+        </div>
+
+        {/* SIRA UYARISI (ONLINE) — kilitliyken joker barının ALTINDA SABİT durur;
+            karta tıklanınca geçici kırmızı + shake (Hedefe deseni). */}
+        {locked && waitingLabel && (
+          <motion.div
+            key={denyShake}
+            animate={
+              denyActive
+                ? { x: [0, -8, 8, -6, 6, -3, 3, 0], scale: [1, 1.06, 1] }
+                : {}
+            }
+            transition={{ duration: 0.45 }}
+            className={cn(
+              'inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-bold transition-colors duration-300',
+              denyActive
+                ? 'border-side-red/70 bg-side-red/20 text-side-red shadow-[0_0_22px_-2px_rgba(220,38,38,0.7)]'
+                : 'border-accent-gold/40 bg-accent-gold/10 text-accent-goldHi',
+            )}
+          >
+            <span aria-hidden>{denyActive ? '🚫' : '⏳'}</span>
+            {denyActive ? 'Sıra sende değil!' : waitingLabel}
+          </motion.div>
+        )}
       </div>
 
       {/* Aktif slot havuzu */}
@@ -198,9 +260,19 @@ export function SquadDraftScene({
             <button
               key={p.id}
               type="button"
-              onClick={() => pickedSlot && onSelect(pickedSlot, p.id)}
-              disabled={!pickedSlot}
-              className="rounded-lg p-1 transition hover:-translate-y-1 disabled:opacity-40"
+              onClick={() => {
+                // Sıra bende değilse (locked): seçme — uyarıyı güçlendir.
+                if (locked) {
+                  triggerDeny();
+                  return;
+                }
+                if (pickedSlot) onSelect(pickedSlot, p.id);
+              }}
+              disabled={!locked && !pickedSlot}
+              className={cn(
+                'rounded-lg p-1 transition hover:-translate-y-1 disabled:opacity-40',
+                locked && 'cursor-not-allowed opacity-60 hover:translate-y-0',
+              )}
             >
               <PlayerCard player={p} className="w-full" />
             </button>

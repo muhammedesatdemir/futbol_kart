@@ -369,23 +369,68 @@ export function ListPlayScene({
   );
 }
 
-/** Can göstergesi — dolu/boş kalpler (büyük). Azalınca son kalp animasyonla söner. */
+/**
+ * Can göstergesi — dolu/boş kalpler (büyük). Bir kalp KIRILINCA "ortadan ikiye
+ * ayrılma" animasyonu: kalp önce şişer + kırmızı sarsılır, sonra iki yarım (◖◗)
+ * yana savrulup düşerken solar — yerinde kırık kalp (🤍) kalır. Sadece YENİ
+ * kaybedilen kalp kırılır (önceki effect ref'iyle tespit) — diğerleri sabit.
+ */
 function Hearts({ side, count }: { side: ListSide; count: number }) {
   const max = 3;
+  // Yeni kırılan kalbin indeksi (count azaldıysa = en sağdaki dolu kalp).
+  const prevCount = useRef(count);
+  const [breakingIdx, setBreakingIdx] = useState<number | null>(null);
+  useEffect(() => {
+    if (count < prevCount.current) {
+      // count, kırılmadan SONRAKİ değer → kırılan kalp index'i = count (0-tabanlı).
+      setBreakingIdx(count);
+      const t = setTimeout(() => setBreakingIdx(null), 700);
+      return () => clearTimeout(t);
+    }
+    prevCount.current = count;
+  }, [count]);
+  // prevCount'u animasyon bitince güncelle (üstteki effect erken dönerse).
+  useEffect(() => {
+    prevCount.current = count;
+  }, [count]);
+
   return (
     <div className="flex items-center gap-2">
       {Array.from({ length: max }).map((_, i) => {
         const filled = i < count;
+        const breaking = breakingIdx === i;
+        if (breaking) {
+          // KIRILMA: iki yarım kalp yana savrulur + düşer + solar; arkada kırık kalp.
+          return (
+            <span key={i} className="relative inline-block text-2xl leading-none">
+              <span className="text-white/15">🤍</span>
+              <motion.span
+                initial={{ x: 0, y: 0, rotate: 0, opacity: 1 }}
+                animate={{ x: -10, y: 14, rotate: -45, opacity: 0 }}
+                transition={{ duration: 0.6, ease: 'easeIn' }}
+                className={cn('absolute inset-0 overflow-hidden', SIDE[side].heart)}
+                style={{ clipPath: 'inset(0 50% 0 0)' }}
+              >
+                ❤
+              </motion.span>
+              <motion.span
+                initial={{ x: 0, y: 0, rotate: 0, opacity: 1 }}
+                animate={{ x: 10, y: 14, rotate: 45, opacity: 0 }}
+                transition={{ duration: 0.6, ease: 'easeIn' }}
+                className={cn('absolute inset-0 overflow-hidden', SIDE[side].heart)}
+                style={{ clipPath: 'inset(0 0 0 50%)' }}
+              >
+                ❤
+              </motion.span>
+            </span>
+          );
+        }
         return (
           <motion.span
             key={i}
             initial={false}
-            animate={
-              filled
-                ? { scale: 1, opacity: 1 }
-                : { scale: [1.3, 0.6], opacity: [1, 0.25] }
-            }
-            transition={{ duration: 0.4 }}
+            animate={filled ? { scale: 1, opacity: 1 } : { scale: 0.85, opacity: 0.4 }}
+            transition={{ duration: 0.3 }}
             className={cn('text-2xl leading-none', filled ? SIDE[side].heart : 'text-white/15')}
           >
             {filled ? '❤' : '🤍'}

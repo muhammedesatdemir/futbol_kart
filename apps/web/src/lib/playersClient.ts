@@ -41,9 +41,15 @@ export async function fetchGameData(): Promise<GameData> {
   if (inFlight) return inFlight;
 
   inFlight = (async () => {
+    // cache: 'default' (force-cache DEĞİL): force-cache players.json'u tarayıcıda
+    // KALICI tutar → dosya rebuild'de değişse bile ESKİ sürüm gelir → kullanıcı
+    // artık var olmayan bir kart id'si seçer (örn. `p_e-colak-2006`) → sunucu
+    // reddeder, maç bozulur. 'default' ile tarayıcı ETag/Last-Modified ile
+    // DOĞRULAR: değişmemişse 304 (anlık, bedava), değişmişse yeni indirir. Böylece
+    // veri güncellemeleri client'a otomatik yansır, bayat-cache bug'ı biter.
     const [playersRes, clubsRes] = await Promise.all([
-      fetch('/data/players.json', { cache: 'force-cache' }),
-      fetch('/data/clubs.json', { cache: 'force-cache' }),
+      fetch('/data/players.json', { cache: 'default' }),
+      fetch('/data/clubs.json', { cache: 'default' }),
     ]);
     if (!playersRes.ok) throw new Error(`Failed to load players: ${playersRes.status}`);
     if (!clubsRes.ok) throw new Error(`Failed to load clubs: ${clubsRes.status}`);

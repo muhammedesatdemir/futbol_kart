@@ -75,12 +75,24 @@ export async function GET(
   // Bu yanıtta dönecek güncel sürüm. Timeout yazımı başarılı olursa artar.
   let currentVersion = m.version;
 
-  const timedOut = await applyTimeout(
-    fullState,
-    flowState,
-    deadline ? deadline.getTime() : null,
-    Date.now(),
-  );
+  // DAYANIKLILIK: applyTimeout (resolveRoundOnServer → resolveCards) bir kart
+  // id'sini bulamazsa (örn. players.json güncellenip eski bir maç state'inde
+  // artık var olmayan bir id kaldıysa) throw eder. Bunu YUTMA: aksi halde her
+  // poll 500 döner → maç ÖLÜR ("Maç yüklenemedi" fırtınası). Hata olursa state'i
+  // değiştirmeden devam et (changed:false) — maç çökmez, en kötü ihtimalle o
+  // timeout uygulanmaz ve oyuncular manuel devam eder / maç sonra terk edilir.
+  let timedOut: { state: SessionState; flowState: FlowState | null; changed: boolean };
+  try {
+    timedOut = await applyTimeout(
+      fullState,
+      flowState,
+      deadline ? deadline.getTime() : null,
+      Date.now(),
+    );
+  } catch (err) {
+    console.error('applyTimeout hatası (maç çökmesi önlendi):', err);
+    timedOut = { state: fullState, flowState, changed: false };
+  }
 
   // VERSİYON KISA-DEVRESİ: timeout bir şey değiştirmedi VE client zaten güncel
   // sürümü görüyorsa, ağır işi (computeQuestionTitle → loadGameData + tarama,

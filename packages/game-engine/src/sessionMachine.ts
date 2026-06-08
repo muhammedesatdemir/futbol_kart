@@ -553,12 +553,17 @@ export function reduceSession(
       const takerKey = event.side === 'P1' ? 'p2Hand' : 'p1Hand';
       // give: aktif tarafın elinden çıkar, rakibe ekle.
       // take: rakibin elinden çıkar, aktif tarafa ekle.
-      const giverHand = state[giverKey]
-        .filter((c) => c !== event.give)
-        .concat(event.take);
-      const takerHand = state[takerKey]
-        .filter((c) => c !== event.take)
-        .concat(event.give);
+      // GÜVENLİK AĞI (dedup): concat ile eklenen kart elde zaten varsa
+      // INTRA-HAND DUPLICATE oluşur → React key={id} çakışması → kart kaybolur.
+      // Sunucu guard'ı (matchEngine.applyTransferJoker, iki yönlü) bunu zaten
+      // engeller; bu Set yeni maçlarda no-op'tur ama bir yol guard'ı atlarsa son
+      // savunma. Offline'da eller ayrık → Set hiç eleman düşürmez (no-op).
+      const giverHand = [
+        ...new Set(state[giverKey].filter((c) => c !== event.give).concat(event.take)),
+      ];
+      const takerHand = [
+        ...new Set(state[takerKey].filter((c) => c !== event.take).concat(event.give)),
+      ];
       return {
         ...state,
         [giverKey]: giverHand,

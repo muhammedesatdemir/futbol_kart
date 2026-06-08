@@ -367,7 +367,15 @@ export function PlayerCard({
   return (
     <motion.div
       ref={ref}
-      variants={cardEnter}
+      // `variants={cardEnter}` KALDIRILDI (kök neden): kart bir variant'a bağlıydı
+      // (hidden: opacity 0 → show: opacity 1), giriş animasyonu için parent'tan
+      // "show" beklerdi. CardRow düz div olunca variant context KALMADI → variant
+      // "yetim" kaldı; ONLINE re-render fırtınasında (Ably/poll/refresh) kart bir
+      // an `hidden` (opacity 0 = GÖRÜNMEZ) çözümlenip kayboluyordu. Bu, TÜM kart
+      // ekranlarını (reveal/el/transfer/kart-seçim) etkiliyordu çünkü PlayerCard
+      // hepsinde ortak. Variant kaldırılınca kart HER ZAMAN görünür; giriş fade'i
+      // (marjinal) gitti ama offline'da görsel fark fark edilmez, online'da kart
+      // kaybı biter. whileHover + 3D tilt + flip animasyonları aynen korunur.
       whileHover={{ y: -6, scale: 1.02 }}
       onPointerMove={onMove}
       onPointerLeave={onLeave}

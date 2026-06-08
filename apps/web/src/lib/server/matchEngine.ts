@@ -115,11 +115,11 @@ export interface ResolvedRound {
  * Online'da el seçimi eşzamanlı; reducer her eli bağımsız set eder (sahne
  * değiştirmez). İki el de geldiğinde çağıran `maybeStartRound`'u kullanır.
  */
-export function applyHandSubmit(
+export async function applyHandSubmit(
   state: SessionState,
   side: 'P1' | 'P2',
   cards: string[],
-): SessionState {
+): Promise<SessionState> {
   // El seçimi yalnızca kart-seçim sahnelerinde geçerli (CARD_PICK_P1/P2).
   if (state.scene !== 'CARD_PICK_P1' && state.scene !== 'CARD_PICK_P2') {
     throw new Error(`El seçilemez: sahne kart-seçim değil (${state.scene}).`);
@@ -132,6 +132,24 @@ export function applyHandSubmit(
     throw new Error(
       `Geçersiz el: ${state.handSize} kart bekleniyor, ${cards.length} geldi.`,
     );
+  }
+  // KART ID DOĞRULAMA (kritik — sunucu otoritesi): client'ın gönderdiği her id
+  // SUNUCUNUN players.json'unda OLMALI. Aksi halde (örn. client'ın tarayıcı
+  // force-cache'indeki ESKİ players.json'dan, rebuild'de id'si değişmiş bir
+  // kartı seçmesi → `p_e-colak-2006` gibi) geçersiz id ele girer, sonra
+  // resolveCards `playersById.get` bulamayıp throw eder → maç ÇÖKER/DONAR.
+  // Burada erkenden 422 ile reddet; client temiz veriyle (cache bust) yeniden
+  // seçsin. Ayrıca duplicate id de reddedilir (el içinde benzersiz olmalı).
+  const { players } = await loadGameData();
+  const validIds = new Set(players.map((p) => p.id));
+  const unique = new Set(cards);
+  if (unique.size !== cards.length) {
+    throw new Error('Geçersiz el: aynı kart birden fazla seçilemez.');
+  }
+  for (const id of cards) {
+    if (!validIds.has(id)) {
+      throw new Error(`Geçersiz kart: ${id} (güncel veride yok).`);
+    }
   }
   return reduceSession(state, { type: 'HAND_SUBMITTED', side, cards });
 }
@@ -440,13 +458,20 @@ export function applyTransferJoker(
   if (!oppPool.includes(take)) {
     throw new Error('Alınacak kart rakipte / transfer-edilebilir değil.');
   }
-  // DUPLICATE-ID KORUMASI (online'a özgü): offline'da iki el daima ayrıktır ama
-  // online'da çapraz-dışlama yoktur → iki oyuncunun elinde AYNI kart id'si
-  // olabilir. `take` zaten kendi elimizdeyse, TRANSFER_EXECUTE'un el'e concat'i
-  // INTRA-HAND DUPLICATE yaratır → el bir kart "küçülür" gibi görünür (7 kart) +
-  // React'te çift `key={id}` → render artefaktı (kayıp kart). Bunu engelle.
+  // DUPLICATE-ID KORUMASI (online'a özgü, İKİ YÖNLÜ): offline'da iki el daima
+  // ayrıktır ama online'da çapraz-dışlama yoktur → iki oyuncunun elinde AYNI
+  // kart id'si olabilir. TRANSFER_EXECUTE el'e concat ile kart ekler; eğer
+  // eklenen kart o elde ZATEN varsa INTRA-HAND DUPLICATE oluşur → React'te çift
+  // `key={id}` → kart render'da KAYBOLUR (bir node düşer); duplike kart oynanınca
+  // ROUND_RESOLVED iki kopyayı birden siler → "1 vs 5" el asimetrisi.
+  //   • take (alınan) zaten KENDİ elimizde/bonusumuzda olmamalı.
+  //   • give (verilen) zaten RAKİP elinde/bonusunda olmamalı (önceki guard bu
+  //     yönü kaçırıyordu — asıl bug buydu).
   if (ownHand.includes(take) || ownBonus.includes(take)) {
     throw new Error('Bu kart zaten elinde — transfer ile alınamaz.');
+  }
+  if (oppHand.includes(give) || oppBonus.includes(give)) {
+    throw new Error('Bu kart rakipte zaten var — transfer ile verilemez.');
   }
 
   // Önce jokeri "açıldı" işaretle (hak yanar — kaos kuralı), sonra swap uygula.

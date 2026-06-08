@@ -97,8 +97,16 @@ export async function POST(
 
   // SÜRE KONTROLÜ (lazy): önceki aşamanın süresi dolduysa otomatik tamamla.
   // Böylece rakip bekletse / sekme kapansa bile maç ilerler.
+  // DAYANIKLILIK: geçersiz kart id'si (players.json güncellenmiş eski maç) varsa
+  // resolveCards throw eder → yutma, aksi halde her hamle 500 → maç ölür.
   const prevDeadline = m.turnDeadline ? new Date(m.turnDeadline).getTime() : null;
-  const timedOut = await applyTimeout(state, flowState, prevDeadline, Date.now());
+  let timedOut: { state: SessionState; flowState: FlowState | null; changed: boolean };
+  try {
+    timedOut = await applyTimeout(state, flowState, prevDeadline, Date.now());
+  } catch (err) {
+    console.error('applyTimeout hatası (move, maç çökmesi önlendi):', err);
+    timedOut = { state, flowState, changed: false };
+  }
   state = timedOut.state;
   flowState = timedOut.flowState;
   let reveal = null;
@@ -116,7 +124,7 @@ export async function POST(
 
   try {
     if (action.type === 'submit-hand') {
-      state = applyHandSubmit(state, side, action.cards);
+      state = await applyHandSubmit(state, side, action.cards);
       pendingLog.push({
         side,
         event: { type: 'HAND_SUBMITTED', side, cards: action.cards },

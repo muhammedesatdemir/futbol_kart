@@ -740,9 +740,17 @@ export default function GameSessionPage() {
         : 'Penaltı';
 
   // Uzatmada P1 seçimi: usedCardIds dışında kalan havuz
-  // P2 seçimi: usedCardIds + p1Hand dışında
+  // P2 seçimi: usedCardIds + p1Hand dışında (OFFLINE — iki insan aynı kartı
+  // seçmesin; hot-seat'te P1 eli görünür).
+  // ONLINE'da p2Excluded'a state.p1Hand'i KATMA: rakip eli maskeli ([]) geldiği
+  // için P2'nin client'ında p1Hand boş → iki taraf FARKLI exclusion seti
+  // hesaplar → "2 vs 3 kart / bazı kartlar yok" asimetrisi. Sunucu zaten
+  // çapraz-exclusion uygulamıyor (eller aynı id içerebilir), online'da bu dışlama
+  // anlamsız + zararlı. Online'da yalnızca usedCardIds dışla (her iki taraf eş).
   const p1Excluded = state.usedCardIds;
-  const p2Excluded = [...state.usedCardIds, ...state.p1Hand];
+  const p2Excluded = isOnline
+    ? state.usedCardIds
+    : [...state.usedCardIds, ...state.p1Hand];
 
   const currentTemplate = state.currentQuestionId
     ? templateById(state.currentQuestionId) ?? null

@@ -685,14 +685,18 @@ const HandDisplay = memo(function HandDisplay({
           {p1Name} seçti — bot düşünüyor
         </div>
         <CardRow className="justify-center !gap-2 sm:!gap-2.5">
-          {hand.map((id) => {
+          {hand.map((id, i) => {
             const p = players.find((pp) => pp.id === id);
             if (!p) return null;
             const isPicked = id === currentP1Card;
             const isBonus = shownBonus.has(id);
             return (
               <div
-                key={id}
+                // key={id-i}: state'te (eski/bozuk maç) duplike id kalsa bile
+                // React node düşürmesin (çift key → kart kaybı). Guard+dedup kök
+                // nedeni çözer; bu son güvenlik kemeri. Index ekli ama el sırası
+                // sabit kaldığı için remount yok.
+                key={`${id}-${i}`}
                 className={cn(
                   'relative transition-all duration-300',
                   isPicked
@@ -729,7 +733,7 @@ const HandDisplay = memo(function HandDisplay({
         </div>
       ) : (
         <CardRow className="cursor-pointer justify-center !gap-2 sm:!gap-2.5">
-          {hand.map((id) => {
+          {hand.map((id, i) => {
             const p = players.find((pp) => pp.id === id);
             if (!p) return null;
             const isBonus = shownBonus.has(id);
@@ -741,7 +745,8 @@ const HandDisplay = memo(function HandDisplay({
             const someoneElsePicked = pickedLocal !== null && !isPickedNow;
             return (
               <div
-                key={id}
+                // key={id-i}: duplike id'de (eski/bozuk maç) node düşmesin.
+                key={`${id}-${i}`}
                 role="button"
                 onClick={() => handlePick(id)}
                 className={cn(
@@ -1251,7 +1256,13 @@ function JokerButton({
   );
 }
 
-function RevealSide({
+// memo: ONLINE re-render fırtınası (Ably/poll/refresh) reveal sırasında parent'ı
+// sürekli yeniden render eder. props (cardId/value/isWinner/players) sabitken
+// RevealSide'ı yeniden render ETME → içindeki 3D flip motion.div'i ortada
+// (rotateY≈180, arka yüz) yakalanıp kartı BOŞ bırakmasın. players referansı
+// modül-cache'li (stabil), cardId reveal boyunca sabit → memo etkili.
+// Offline'da props zaten sabit → no-op (görsel fark yok).
+const RevealSide = memo(function RevealSide({
   side,
   label,
   cardId,
@@ -1286,8 +1297,12 @@ function RevealSide({
         )}
       </div>
 
-      {/* Kart 3D flip + kazanansa flip sonrası punch-scale (sinyal vurgusu) */}
+      {/* Kart 3D flip + kazanansa flip sonrası punch-scale (sinyal vurgusu).
+          key={cardId}: aynı kart için motion node tutarlı kalır; yeni turda
+          (farklı kart) temiz remount. memo + bu key, online re-render'ın flip'i
+          ortada (arka yüz) yakalayıp kartı boş bırakmasını önler. */}
       <motion.div
+        key={cardId}
         initial={{ rotateY: 180, opacity: 0 }}
         animate={
           isWinner
@@ -1344,7 +1359,7 @@ function RevealSide({
       </motion.div>
     </div>
   );
-}
+});
 
 /**
  * Sayısal değerler için count-up, boolean/null için statik.

@@ -35,6 +35,10 @@ import {
   buildInitialSquadState,
   squadSceneDeadlineSeconds,
 } from '@/lib/server/squadMatchEngine';
+import {
+  buildInitialListState,
+  listSceneDeadlineSeconds,
+} from '@/lib/server/listMatchEngine';
 
 /**
  * Online oynanabilen modlar. Her yeni mod buraya eklenir; `matchmaking_queue`
@@ -43,8 +47,9 @@ import {
  *  - 'vs-duello' : VS Düello (kart kapışma) — SessionState
  *  - 'hedef'     : Hedefe Yaklaş — TargetMatchState
  *  - 'kadro'     : Kadro Kur — SquadMatchState
+ *  - 'liste'     : Liste Doldur — ListMatchState (liste sunucuda gizli)
  */
-export const ONLINE_MODES = ['vs-duello', 'hedef', 'kadro'] as const;
+export const ONLINE_MODES = ['vs-duello', 'hedef', 'kadro', 'liste'] as const;
 export type OnlineMode = (typeof ONLINE_MODES)[number];
 
 export interface MatchmakingResult {
@@ -92,6 +97,10 @@ async function buildInitialMatchState(
   if (mode === 'kadro') {
     const state = await buildInitialSquadState(seed, p1Name, p2Name);
     return { state, deadlineSecs: squadSceneDeadlineSeconds(state) };
+  }
+  if (mode === 'liste') {
+    const state = await buildInitialListState(seed, p1Name, p2Name);
+    return { state, deadlineSecs: listSceneDeadlineSeconds(state) };
   }
   // vs-duello (varsayılan, mevcut davranış — değişmedi).
   const state = buildOnlineMatchState(matchId, seed, p1Name, p2Name);

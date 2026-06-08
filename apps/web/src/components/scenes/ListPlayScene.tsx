@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
@@ -35,6 +35,24 @@ interface ListPlaySceneProps {
   p2Name?: string;
   /** Yanlış tahmin damgası (artarsa shake + "listede yok"). */
   missTick?: number;
+  /**
+   * ONLINE (opsiyonel): sunucu-otoriteli bitiş anı (epoch ms). Verilirse sayaç
+   * buna kilitlenir (iki tarafta eş). OFFLINE'da verilmez → lokal `seconds` sayımı.
+   */
+  deadlineMs?: number | null;
+  /**
+   * ONLINE (opsiyonel): sıra bu istemcide DEĞİL. Tahmin kilitlenir; karta
+   * tıklanırsa "sıra sende değil" uyarısı geçici kırmızı+shake. OFFLINE: false.
+   */
+  locked?: boolean;
+  /** ONLINE (opsiyonel): kilitliyken gösterilecek bilgi (örn. "Rakip tahmin ediyor…"). */
+  waitingLabel?: string | null;
+  /**
+   * ONLINE (opsiyonel): açılmış sıraların metrik değeri (rank → value). Online'da
+   * `list` MASKELİDİR (cevaplar gizli, value=0) → açık sıraların değeri buradan
+   * gösterilir. OFFLINE'da verilmez → `entry.value` (gerçek liste) kullanılır.
+   */
+  valueByRank?: Record<number, number>;
 }
 
 /** P1 = kırmızı, P2 = mavi (belirgin taraf renkleri). */
@@ -102,8 +120,30 @@ export function ListPlayScene({
   p1Name = 'Sen',
   p2Name = 'Bot',
   missTick = 0,
+  deadlineMs = null,
+  locked = false,
+  waitingLabel = null,
+  valueByRank,
 }: ListPlaySceneProps) {
   const [search, setSearch] = useState('');
+
+  // ONLINE kilit geri bildirimi (Hedefe/Kadro deseni): kilitliyken karta tıklanınca
+  // ~2.5sn kırmızı + shake ("sıra sende değil"), sonra söner; her tıklamada yenilenir.
+  const [denyActive, setDenyActive] = useState(false);
+  const [denyShake, setDenyShake] = useState(0);
+  const denyTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const triggerDeny = () => {
+    setDenyActive(true);
+    setDenyShake((n) => n + 1);
+    if (denyTimerRef.current) clearTimeout(denyTimerRef.current);
+    denyTimerRef.current = setTimeout(() => setDenyActive(false), 2500);
+  };
+  useEffect(() => {
+    if (!locked && denyActive) setDenyActive(false);
+    return () => {
+      if (denyTimerRef.current) clearTimeout(denyTimerRef.current);
+    };
+  }, [locked, denyActive]);
 
   const playersById = useMemo(() => {
     const m = new Map<string, Player>();
@@ -156,6 +196,7 @@ export function ListPlayScene({
           </span>
           <CountdownRing
             seconds={seconds}
+            deadlineMs={deadlineMs}
             runKey={timerKey}
             onComplete={onTimeout}
             size={96}
@@ -165,6 +206,27 @@ export function ListPlayScene({
           />
           {/* Can — kalpler (dinamik, büyük) */}
           <Hearts side={activeSide} count={activeLives} />
+
+          {/* ONLINE sıra/kilit uyarısı — sıra bende değilken; karta tıklayınca
+              geçici kırmızı+shake (Hedefe/Kadro deseni). */}
+          {locked && waitingLabel && (
+            <motion.div
+              key={denyShake}
+              animate={
+                denyActive ? { x: [0, -6, 6, -4, 4, -2, 2, 0] } : {}
+              }
+              transition={{ duration: 0.45 }}
+              className={cn(
+                'mt-1 inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold transition-colors duration-300',
+                denyActive
+                  ? 'border-side-red/70 bg-side-red/20 text-side-red shadow-[0_0_18px_-2px_rgba(220,38,38,0.7)]'
+                  : 'border-accent-gold/40 bg-accent-gold/10 text-accent-goldHi',
+              )}
+            >
+              <span aria-hidden>{denyActive ? '🚫' : '⏳'}</span>
+              {denyActive ? 'Sıra sende değil!' : waitingLabel}
+            </motion.div>
+          )}
         </motion.div>
 
         {/* "Bu listede yok! −1 can" — tahmin eden tarafın yanında, panelin altında.
@@ -247,7 +309,9 @@ export function ListPlayScene({
 
                 {open && (
                   <span className="shrink-0 rounded-full bg-accent-gold/20 px-2.5 py-0.5 text-sm font-black tabular-nums text-accent-goldHi ring-1 ring-accent-goldHi/40">
-                    {entry.value}
+                    {/* ONLINE'da `entry.value` 0 (maskeli liste) → açık sıranın
+                        gerçek değeri valueByRank'ten gelir; OFFLINE'da entry.value. */}
+                    {valueByRank?.[entry.rank] ?? entry.value}
                   </span>
                 )}
               </div>
@@ -274,11 +338,19 @@ export function ListPlayScene({
               <button
                 key={p.id}
                 type="button"
-                onClick={() => onGuess(p.id)}
-                disabled={already}
+                onClick={() => {
+                  // Sıra bende değilse (locked): tahmin etme — uyarıyı güçlendir.
+                  if (locked) {
+                    triggerDeny();
+                    return;
+                  }
+                  onGuess(p.id);
+                }}
+                disabled={already && !locked}
                 className={cn(
                   'rounded-lg transition hover:-translate-y-1',
                   already && 'pointer-events-none opacity-35',
+                  locked && 'cursor-not-allowed opacity-60 hover:translate-y-0',
                 )}
               >
                 <PlayerCard player={p} className="w-full" />

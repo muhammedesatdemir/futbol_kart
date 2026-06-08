@@ -20,6 +20,13 @@ import {
   squadCriterionView,
   type SquadMatchState,
 } from '@/lib/server/squadMatchEngine';
+import {
+  applyListTimeout,
+  listSceneDeadlineSeconds,
+  listCriterionView,
+  listFullList,
+  type ListMatchState,
+} from '@/lib/server/listMatchEngine';
 import { publishMatchEvent } from '@/lib/server/ably';
 
 export const runtime = 'nodejs';
@@ -89,6 +96,9 @@ export async function GET(
   }
   if (m.mode === 'kadro') {
     return getSquadMatch(db, m, side, clientVersion);
+  }
+  if (m.mode === 'liste') {
+    return getListMatch(db, m, side, clientVersion);
   }
 
   // SÜRE KONTROLÜ (lazy): yükleme anında süre dolduysa otomatik tamamla.
@@ -378,6 +388,101 @@ async function getSquadMatch(
     seed: m.seed,
     state,
     criterion,
+    winnerSide: m.winnerSide,
+    turnDeadline: deadline ? deadline.toISOString() : null,
+  });
+}
+
+/**
+ * "Liste Doldur" maçı için GET — sade kol (getSquadMatch kardeşi).
+ *
+ * 🔒 HİLE KORUMASI: `state` (ListMatchState) listenin kendisini (cevaplar) ZATEN
+ * İÇERMEZ — yalnız criterionId + AÇILMIŞ sıralar (filledBy/filledPlayer/filledValue)
+ * + can + sıra. Yani state'i olduğu gibi dönmek güvenli; F12'den henüz açılmamış
+ * sıraların cevabı görünmez. Süre dolumu lazy (pas), versiyon kısa-devresi aynı.
+ */
+async function getListMatch(
+  db: ReturnType<typeof getDb>,
+  m: typeof matchTable.$inferSelect,
+  side: 'P1' | 'P2',
+  clientVersion: number,
+) {
+  let state = m.state as ListMatchState;
+  let deadline = m.turnDeadline ? new Date(m.turnDeadline) : null;
+  let currentVersion = m.version;
+
+  let timed: { state: ListMatchState; changed: boolean };
+  try {
+    timed = await applyListTimeout(
+      state,
+      deadline ? deadline.getTime() : null,
+      Date.now(),
+    );
+  } catch (err) {
+    console.error('applyListTimeout hatası (maç çökmesi önlendi):', err);
+    timed = { state, changed: false };
+  }
+
+  if (
+    !timed.changed &&
+    Number.isFinite(clientVersion) &&
+    clientVersion === m.version
+  ) {
+    return NextResponse.json({
+      unchanged: true,
+      version: m.version,
+      turnDeadline: deadline ? deadline.toISOString() : null,
+    });
+  }
+
+  if (timed.changed) {
+    const secs = listSceneDeadlineSeconds(timed.state);
+    const newDeadline = secs ? new Date(Date.now() + secs * 1000) : null;
+    const updated = await db
+      .update(matchTable)
+      .set({
+        state: timed.state,
+        currentScene: timed.state.scene,
+        turnDeadline: newDeadline,
+        version: m.version + 1,
+        winnerSide: timed.state.scene === 'RESULT' ? timed.state.winner : null,
+        status: timed.state.scene === 'RESULT' ? 'finished' : 'active',
+        updatedAt: new Date(),
+      })
+      .where(and(eq(matchTable.id, m.id), eq(matchTable.version, m.version)))
+      .returning({ id: matchTable.id });
+    if (updated.length > 0) {
+      state = timed.state;
+      deadline = newDeadline;
+      currentVersion = m.version + 1;
+      await publishMatchEvent(m.id, 'state-changed', {
+        scene: state.scene,
+        activeSide: state.activeSide,
+      });
+    }
+  }
+
+  const criterion = await listCriterionView(state.criterionId);
+
+  // RESULT'ta (oyun BİTTİ) tam listeyi gönder — artık spoiler değil; sonuç ekranı
+  // tüm 1-10 sırayı (açılmamışlar dahil) gösterir. PLAY/REVEAL'da ASLA gönderilmez.
+  let fullList: { rank: number; playerId: string; value: number }[] | null = null;
+  if (state.scene === 'RESULT') {
+    fullList = await listFullList(state.criterionId);
+  }
+
+  return NextResponse.json({
+    matchId: m.id,
+    mode: m.mode,
+    status: m.status,
+    version: currentVersion,
+    yourSide: side,
+    seed: m.seed,
+    // state OPAK döner — liste İÇERMEZ (yalnız criterionId + açılmışlar) → güvenli.
+    state,
+    criterion,
+    // Yalnız RESULT'ta dolu (oyun bitti → cevaplar açılabilir). Aksi halde null.
+    fullList,
     winnerSide: m.winnerSide,
     turnDeadline: deadline ? deadline.toISOString() : null,
   });

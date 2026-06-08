@@ -19,6 +19,26 @@ const MODE_ROUTES: Record<string, (matchId: string) => string> = {
 };
 /** Bilinmeyen/eksik mod → VS Düello (geri uyumluluk). */
 const DEFAULT_MODE = 'vs-duello';
+
+/**
+ * Maç GET yanıtından "oyun içeriği önizlemesi" üretir — kullanıcı maça girmeden
+ * NE oynayacağını görsün. Mod-özel; bilinmeyen/veri yoksa null (önizleme gizli).
+ *  - hedef → "🎯 Hedef 120 · Tek sezon gol (İspanyol)"
+ * Diğer modlar eklendikçe kendi kolunu ekler.
+ */
+function buildPreview(data: {
+  mode?: string;
+  criterion?: { title?: string } | null;
+  state?: { target?: number } | null;
+}): string | null {
+  if (data.mode === 'hedef' && data.criterion?.title) {
+    const target = data.state?.target;
+    return target != null
+      ? `🎯 Hedef ${target} · ${data.criterion.title}`
+      : `🎯 ${data.criterion.title}`;
+  }
+  return null;
+}
 /** Bekleme yoklaması aralığı (ms). */
 const POLL_MS = 2000;
 /** "Rakip bulundu" ekranının gösterim süresi (ms) — sonra maça geçilir. */
@@ -29,6 +49,10 @@ interface FoundInfo {
   p1Name: string;
   p2Name: string;
   yourSide: 'P1' | 'P2';
+  /** Maçın modu (route + içerik etiketi için). */
+  mode: string;
+  /** Oyun içeriği önizlemesi (oyun başlamadan ne oynanacağı). Mod-özel. */
+  preview: string | null;
 }
 
 /**
@@ -73,6 +97,11 @@ export function OnlineMatchmaking({
           p1Name: data.state?.p1Name || 'Oyuncu 1',
           p2Name: data.state?.p2Name || 'Oyuncu 2',
           yourSide: data.yourSide ?? 'P1',
+          mode: data.mode ?? safeMode,
+          // Oyun içeriği önizlemesi: kullanıcı maça girmeden NE oynayacağını görsün.
+          // Hedefe Yaklaş → "🎯 Hedef 120 · Tek sezon gol (İspanyol)". Diğer modlar
+          // eklendikçe kendi özetlerini buraya katabilir (mod-özel).
+          preview: buildPreview(data),
         });
         setPhase('found');
       } catch {
@@ -227,13 +256,26 @@ function MatchFound({ found }: { found: FoundInfo }) {
         />
       </div>
 
+      {/* OYUN İÇERİĞİ ÖNİZLEMESİ — kullanıcı maça girmeden NE oynayacağını görsün
+          (örn. "🎯 Hedef 120 · Tek sezon gol (İspanyol)"). Mod-özel; yoksa gizli. */}
+      {found.preview && (
+        <motion.div
+          initial={{ opacity: 0, y: 8 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.5, type: 'spring', stiffness: 220, damping: 20 }}
+          className="rounded-full border border-accent-gold/40 bg-accent-gold/15 px-5 py-2.5 text-center text-base font-bold tracking-wide text-accent-goldHi shadow-glow-gold"
+        >
+          {found.preview}
+        </motion.div>
+      )}
+
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
-        transition={{ delay: 0.6 }}
+        transition={{ delay: 0.7 }}
         className="text-sm font-semibold text-white/55"
       >
-        Maç başlıyor…
+        {found.preview ? 'Hazır ol — maç başlıyor…' : 'Maç başlıyor…'}
       </motion.p>
     </section>
   );

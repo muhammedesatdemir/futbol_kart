@@ -121,6 +121,19 @@ export default function TargetGamePage() {
   // ONLINE: sunucudan dönen röntgen değeri (overlay'de gösterilir).
   const [onlineXrayValue, setOnlineXrayValue] = useState<number | null>(null);
 
+  // -------- ONLINE optimistic pick --------
+  // Online'da seçim sunucuya POST edilir; state ~1-2sn sonra geri gelir. O ana
+  // kadar slot boş kalırsa kart "bir anda ışınlanıyor" gibi takılma hissi olur.
+  // ÇÖZÜM: tıklama anında seçilen kartı OPTIMISTIC olarak kendi tarafının ilk
+  // boş slotuna yerleştir (anında dolu görünür + havuzdan çıkar). Sunucudan yeni
+  // draftStep gelince (pick işlendi) optimistic temizlenir. `pendingStep` =
+  // optimistic'i koyduğumuz andaki draftStep; sunucu bunu geçince temizle.
+  const [optimisticPick, setOptimisticPick] = useState<{
+    side: 'P1' | 'P2';
+    playerId: string;
+    pendingStep: number;
+  } | null>(null);
+
   // Joker hakları sıfırla (yeni maç / yeniden oyna / geri).
   const resetXray = useCallback(() => {
     setXrayUsed({ P1: false, P2: false });
@@ -264,13 +277,52 @@ export default function TargetGamePage() {
     return Math.max(1, Math.round(ms / 1000));
   }, [isOnline, online.turnDeadline]);
 
-  // Online draft seçim: sunucuya yolla (sıra-tabanlı; sunucu aktif tarafı doğrular).
+  // Online draft seçim: OPTIMISTIC anında slota koy + sunucuya yolla. Sunucu
+  // aktif tarafı + kart geçerliliğini doğrular; reddederse (422) bir sonraki
+  // refresh optimistic'i geri alır (state aynı kalır → optimistic temizlenir).
   const onDraftSelectOnline = useCallback(
     (playerId: string) => {
+      if (!onlineState) return;
+      setOptimisticPick({
+        side: onlineActiveSide,
+        playerId,
+        pendingStep: onlineState.draftStep,
+      });
       void online.draftPick(playerId);
     },
-    [online],
+    [online, onlineState, onlineActiveSide],
   );
+
+  // Sunucu state'i ilerleyince (draftStep değişti) VEYA sahne değişince optimistic
+  // pick'i temizle — gerçek state artık seçimi içeriyor. RESULT'a geçince de temizle.
+  useEffect(() => {
+    if (!optimisticPick || !onlineState) return;
+    if (
+      onlineState.draftStep !== optimisticPick.pendingStep ||
+      onlineState.scene !== 'DRAFT'
+    ) {
+      setOptimisticPick(null);
+    }
+  }, [onlineState, optimisticPick]);
+
+  // Optimistic pick'i sunucu pick dizilerine giydir (TargetDraftScene'e böyle
+  // augment edilmiş diziler geçer → kart anında dolu görünür, sahne değişmez).
+  const optimisticPicks = useMemo((): {
+    p1: TargetPicks;
+    p2: TargetPicks;
+  } => {
+    if (!onlineState) return { p1: emptyPicks(), p2: emptyPicks() };
+    const p1 = [...onlineState.p1Picks];
+    const p2 = [...onlineState.p2Picks];
+    if (optimisticPick) {
+      const arr = optimisticPick.side === 'P1' ? p1 : p2;
+      // Zaten sunucuda yoksa ilk boş slota optimistic koy (çift yerleşme önle).
+      const already = arr.includes(optimisticPick.playerId);
+      const slot = firstEmptySlot(arr);
+      if (!already && slot >= 0) arr[slot] = optimisticPick.playerId;
+    }
+    return { p1, p2 };
+  }, [onlineState, optimisticPick]);
 
   // Online röntgen: jokeri kullan (sunucudan değer al → overlay).
   const onXrayPickOnline = useCallback(
@@ -314,8 +366,8 @@ export default function TargetGamePage() {
   const onXrayAccept = useCallback(() => {
     if (!xrayPlayerId) return;
     if (isOnline) {
-      // Online: röntgenlenen kartı normal draft pick olarak gönder.
-      void online.draftPick(xrayPlayerId);
+      // Online: röntgenlenen kartı normal draft pick olarak gönder (OPTIMISTIC).
+      onDraftSelectOnline(xrayPlayerId);
       setXrayPlayerId(null);
       setOnlineXrayValue(null);
       return;
@@ -331,7 +383,7 @@ export default function TargetGamePage() {
       applyDraftPick(xraySide, xrayPlayerId);
     }
     setXrayPlayerId(null);
-  }, [xrayPlayerId, xraySide, phase, applyDraftPick, isOnline, online]);
+  }, [xrayPlayerId, xraySide, phase, applyDraftPick, isOnline, onDraftSelectOnline]);
 
   const onXrayDismiss = useCallback(() => {
     setXrayPlayerId(null);
@@ -498,15 +550,20 @@ export default function TargetGamePage() {
                   pool={session.players}
                   p1Name={onP1Name}
                   p2Name={onP2Name}
-                  p1Picks={onlineState.p1Picks}
-                  p2Picks={onlineState.p2Picks}
+                  // OPTIMISTIC: seçilen kart sunucu yanıtını beklemeden slotta
+                  // görünür (ışınlanma/takılma hissi yok). Sunucu pick'i işleyince
+                  // (draftStep ilerler) optimistic temizlenir, gerçek state oturur.
+                  p1Picks={optimisticPicks.p1}
+                  p2Picks={optimisticPicks.p2}
                   activeSide={onlineActiveSide}
                   stepIndex={onlineState.draftStep}
                   seconds={onlineDraftSeconds}
-                  // Sıra-tabanlı: yalnız BENİM sıramda seçim/röntgen aktif. Rakip
-                  // sırasındaysa onSelect no-op (sunucu zaten reddederdi); UI'da
-                  // "Rakip seçiyor" hissi için seçim sunucuya gitmez.
-                  onSelect={isMyTurn ? onDraftSelectOnline : () => {}}
+                  // Sıra-tabanlı: yalnız BENİM sıramda + optimistic beklemiyorken
+                  // seçim aktif. Rakip sırasında / optimistic beklerken no-op
+                  // (çift POST önlenir; UI "Rakip seçiyor" / "Gönderiliyor" hissi).
+                  onSelect={
+                    isMyTurn && !optimisticPick ? onDraftSelectOnline : () => {}
+                  }
                   // Süre dolumunu SUNUCU yönetir (lazy timeout). Client onTimeout
                   // tetiklerse sadece tazele — sunucu otomatik pick'i uygular.
                   onTimeout={() => void online.refresh()}
@@ -518,6 +575,11 @@ export default function TargetGamePage() {
                 {!isMyTurn && (
                   <p className="mt-2 text-center text-sm font-semibold text-accent-goldHi">
                     ⏳ Rakip seçiyor… (sıra {onlineActiveSide === 'P1' ? onP1Name : onP2Name})
+                  </p>
+                )}
+                {isMyTurn && optimisticPick && (
+                  <p className="mt-2 text-center text-sm font-semibold text-side-blue">
+                    ✓ Seçimin gönderiliyor…
                   </p>
                 )}
               </SceneShell>

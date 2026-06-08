@@ -62,8 +62,16 @@ export interface TargetMatchState {
   p2Name: string;
 }
 
-/** Reveal-target ekranının (her iki tarafa) gösterim süresi (sn). */
-export const TARGET_REVEAL_SECONDS = 6;
+/**
+ * Reveal-target ekranının (her iki tarafa) gösterim süresi (sn). Deadline
+ * EŞLEŞME ANINDA başlar; ama oyuncular önce ~4sn "Rakip bulundu" ekranını
+ * (OnlineMatchmaking FOUND_SHOW_MS) görüp sonra sayfaya geçer. Bu yüzden REVEAL
+ * süresi o gecikmeyi (≈5sn) + hedef çarkını izleme payını kapsayacak kadar uzun
+ * olmalı — yoksa kullanıcı sayfaya vardığında süre çoktan dolar, lazy timeout
+ * REVEAL'i atlayıp DRAFT'a geçirir (hedef çarkı hiç görünmez). 14sn: ~5sn found
+ * gecikmesi + ~9sn çark izleme. "Başla" butonuyla erken de geçilebilir.
+ */
+export const TARGET_REVEAL_SECONDS = 14;
 /** Online draft adımı süresi (sn) — süre dolunca otomatik pick. */
 export const TARGET_ONLINE_DRAFT_SECONDS = 40;
 

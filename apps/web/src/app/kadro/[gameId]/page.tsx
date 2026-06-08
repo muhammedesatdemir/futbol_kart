@@ -346,11 +346,13 @@ export default function SquadGamePage() {
   const onDismissSuggestionOnline = useCallback(() => setOnlineSuggestion(null), []);
 
   // Online öneri jokeri hakkı (sunucuda; basitçe sıram + henüz kullanmadıysam).
+  // `jokerUsed` eski/yarım state'te eksik olabilir → optional chaining ile güvenli
+  // (eksikse "kullanılmamış" kabul → joker uygun; sunucu zaten tekrar reddeder).
   const onlineJokerAvailable =
     !!onlineState &&
     onlineState.scene === 'DRAFT' &&
     isMyTurn &&
-    !onlineState.jokerUsed[online.yourSide ?? 'P1'];
+    !onlineState.jokerUsed?.[online.yourSide ?? 'P1'];
 
   // Rematch: OFFLINE yeni maç; ONLINE yeni eşleşme.
   const onRematch = useCallback(() => {

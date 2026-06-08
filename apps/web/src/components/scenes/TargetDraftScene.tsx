@@ -1,6 +1,7 @@
 'use client';
 
 import { useMemo, useState } from 'react';
+import { motion } from 'framer-motion';
 import { cn } from '@/lib/cn';
 import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
@@ -44,6 +45,17 @@ interface TargetDraftSceneProps {
    * OFFLINE'da verilmez (false) → davranış değişmez.
    */
   paused?: boolean;
+  /**
+   * ONLINE (opsiyonel): sıra bu istemcide DEĞİL. Kart seçimi kilitlenir; karta
+   * tıklanırsa "sıra sende değil" uyarısı güçlenir (shake + gölge). Joker barının
+   * altında `waitingLabel` sabit gösterilir. OFFLINE'da verilmez (false).
+   */
+  locked?: boolean;
+  /**
+   * ONLINE (opsiyonel): kilitliyken joker barının yanında SABİT gösterilecek
+   * bilgi (örn. "Rakip seçiyor… (sıra X)"). OFFLINE'da verilmez.
+   */
+  waitingLabel?: string | null;
   onSelect: (playerId: string) => void;
   onTimeout: () => void;
   // -------- Röntgen jokeri (aktif tarafın hakkı) --------
@@ -88,6 +100,8 @@ export function TargetDraftScene({
   seconds,
   deadlineMs = null,
   paused = false,
+  locked = false,
+  waitingLabel = null,
   onSelect,
   onTimeout,
   xrayAvailable,
@@ -106,6 +120,10 @@ export function TargetDraftScene({
   const runKey = `${activeSide}-${stepIndex}`;
 
   const [search, setSearch] = useState('');
+  // Kilitliyken (sıra bende değil) karta tıklanırsa uyarıyı GÜÇLENDİR: kısa süre
+  // shake/gölge tetikle (erişimi olmayan kişinin "izin yok" geri bildirimi).
+  const [denyPulse, setDenyPulse] = useState(0);
+  const triggerDeny = () => setDenyPulse((n) => n + 1);
 
   const excluded = useMemo(
     () => draftedTargetIds(p1Picks, p2Picks),
@@ -172,17 +190,43 @@ export function TargetDraftScene({
       </div>
 
       {/* Joker barı (aktif tarafın röntgen hakkı) — buton + (?) ipucu */}
-      <div className="flex items-center justify-center gap-2">
-        <XrayJokerButton
-          available={xrayAvailable}
-          armed={xrayArmed}
-          onClick={onToggleXray}
-        />
-        <JokerHelpButton
-          title="Röntgen Jokeri"
-          icon={<span className="text-sm">🔍</span>}
-          body="Kart seçmeden önce havuzdaki bir oyuncunun o sorudaki gizli değerini açtır. Jokere bas, bir karta dokun: değeri açılır. İstersen kadrona kat, istemezsen vazgeç. Taraf başına maçta 1 kez."
-        />
+      <div className="flex flex-col items-center gap-2">
+        <div className="flex items-center justify-center gap-2">
+          <XrayJokerButton
+            available={xrayAvailable}
+            armed={xrayArmed}
+            onClick={onToggleXray}
+          />
+          <JokerHelpButton
+            title="Röntgen Jokeri"
+            icon={<span className="text-sm">🔍</span>}
+            body="Kart seçmeden önce havuzdaki bir oyuncunun o sorudaki gizli değerini açtır. Jokere bas, bir karta dokun: değeri açılır. İstersen kadrona kat, istemezsen vazgeç. Taraf başına maçta 1 kez."
+          />
+        </div>
+
+        {/* SIRA UYARISI (ONLINE) — kilitliyken joker barının ALTINDA SABİT durur.
+            Karta tıklanınca (denyPulse) shake + gölge ile güçlenir: "sıra sende
+            değil" geri bildirimi (erişimsiz kullanıcının klasik uyarısı gibi). */}
+        {locked && waitingLabel && (
+          <motion.div
+            key={denyPulse}
+            animate={
+              denyPulse > 0
+                ? { x: [0, -8, 8, -6, 6, -3, 3, 0], scale: [1, 1.06, 1] }
+                : {}
+            }
+            transition={{ duration: 0.45 }}
+            className={cn(
+              'inline-flex items-center gap-2 rounded-full border px-4 py-1.5 text-sm font-bold transition',
+              denyPulse > 0
+                ? 'border-side-red/70 bg-side-red/20 text-side-red shadow-[0_0_22px_-2px_rgba(220,38,38,0.7)]'
+                : 'border-accent-gold/40 bg-accent-gold/10 text-accent-goldHi',
+            )}
+          >
+            <span aria-hidden>⏳</span>
+            {waitingLabel}
+          </motion.div>
+        )}
       </div>
 
       {/* Havuz */}
@@ -198,10 +242,19 @@ export function TargetDraftScene({
             <button
               key={p.id}
               type="button"
-              onClick={() => (xrayArmed ? onXrayPick(p.id) : onSelect(p.id))}
+              onClick={() => {
+                // Sıra bende değilse (locked): seçme — uyarıyı güçlendir (shake).
+                if (locked && !xrayArmed) {
+                  triggerDeny();
+                  return;
+                }
+                xrayArmed ? onXrayPick(p.id) : onSelect(p.id);
+              }}
               className={cn(
                 'rounded-lg p-1 transition hover:-translate-y-1',
                 xrayArmed && 'cursor-help hover:bg-side-blue/15 hover:ring-2 hover:ring-side-blue/50',
+                // Kilitliyken kartlar soluk + "izin yok" imleci (tıklama uyarı verir).
+                locked && !xrayArmed && 'cursor-not-allowed opacity-60 hover:translate-y-0',
               )}
             >
               {/* Değer GİZLİ — kör draft. */}

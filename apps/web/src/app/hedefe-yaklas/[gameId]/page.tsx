@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
 import { HomeIcon, ArrowLeftIcon } from '@/components/icons';
 import { SceneShell } from '@/components/scenes/SceneShell';
@@ -132,6 +132,9 @@ export default function TargetGamePage() {
     side: 'P1' | 'P2';
     playerId: string;
     pendingStep: number;
+    /** Seçim anında açılan optimistic yeni-tur deadline'ı (epoch ms). Sayaç buna
+     *  kilitlenir → "1sn sonra süre refreshledi" sıçraması olmaz. */
+    deadline: number;
   } | null>(null);
 
   // Joker hakları sıfırla (yeni maç / yeniden oyna / geri).
@@ -278,6 +281,8 @@ export default function TargetGamePage() {
     () => (online.turnDeadline ? new Date(online.turnDeadline).getTime() : null),
     [online.turnDeadline],
   );
+  // Optimistic seçim sırasında sayacın kilitleneceği optimistic deadline.
+  const optimisticDeadlineMs = optimisticPick?.deadline ?? null;
 
   // Online draft seçim: OPTIMISTIC anında slota koy + sunucuya yolla. Sunucu
   // aktif tarafı + kart geçerliliğini doğrular; reddederse (422) bir sonraki
@@ -289,6 +294,8 @@ export default function TargetGamePage() {
         side: onlineActiveSide,
         playerId,
         pendingStep: onlineState.draftStep,
+        // Optimistic yeni-tur deadline'ı: sayaç anında taze süreyle başlar.
+        deadline: Date.now() + TARGET_DRAFT_SECONDS * 1000,
       });
       void online.draftPick(playerId);
     },
@@ -560,17 +567,28 @@ export default function TargetGamePage() {
                   activeSide={onlineActiveSide}
                   stepIndex={onlineState.draftStep}
                   seconds={TARGET_DRAFT_SECONDS}
-                  // Sayaç sunucu deadline'ına kilitli (lokal sayım değil) → iki
-                  // tarafta eş + optimistic seçimde sıçramasız.
-                  deadlineMs={onlineDeadlineMs}
-                  // Optimistic beklerken (seçtim, sunucu işliyor) sayacı duraklat —
-                  // sıram bitti; sunucu yeni tura geçince taze deadline'la başlar.
-                  paused={!!optimisticPick}
+                  // Sayaç sunucu deadline'ına kilitli. Optimistic seçimde (sunucu
+                  // henüz yeni turu açmadı) deadline'ı YENİ tura OPTIMISTIC kaydır
+                  // (now + tam süre) → sayaç anında yeni tura geçmiş gibi pürüzsüz
+                  // başlar; sunucu gerçek deadline'ı gelince ~aynı değerde olduğu
+                  // için sıçrama/"1sn sonra refresh" hissi gitmiş olur.
+                  deadlineMs={
+                    optimisticPick ? optimisticDeadlineMs : onlineDeadlineMs
+                  }
                   // Sıra-tabanlı: yalnız BENİM sıramda + optimistic beklemiyorken
-                  // seçim aktif. Rakip sırasında / optimistic beklerken no-op
-                  // (çift POST önlenir; UI "Rakip seçiyor" / "Gönderiliyor" hissi).
+                  // seçim aktif. Aksi halde sahne `locked` ile uyarı verir.
                   onSelect={
                     isMyTurn && !optimisticPick ? onDraftSelectOnline : () => {}
+                  }
+                  // Sıra bende değil VEYA optimistic gönderiliyor → kilitli (kart
+                  // tıklaması uyarı verir, seçim gitmez). waitingLabel joker barında.
+                  locked={!isMyTurn || !!optimisticPick}
+                  waitingLabel={
+                    optimisticPick
+                      ? '✓ Seçimin gönderiliyor…'
+                      : !isMyTurn
+                        ? `Rakip seçiyor… (sıra ${onlineActiveSide === 'P1' ? onP1Name : onP2Name})`
+                        : null
                   }
                   // Süre dolumunu SUNUCU yönetir (lazy timeout). Client onTimeout
                   // tetiklerse sadece tazele — sunucu otomatik pick'i uygular.
@@ -580,16 +598,6 @@ export default function TargetGamePage() {
                   onToggleXray={onToggleXray}
                   onXrayPick={onXrayPickOnline}
                 />
-                {!isMyTurn && (
-                  <p className="mt-2 text-center text-sm font-semibold text-accent-goldHi">
-                    ⏳ Rakip seçiyor… (sıra {onlineActiveSide === 'P1' ? onP1Name : onP2Name})
-                  </p>
-                )}
-                {isMyTurn && optimisticPick && (
-                  <p className="mt-2 text-center text-sm font-semibold text-side-blue">
-                    ✓ Seçimin gönderiliyor…
-                  </p>
-                )}
               </SceneShell>
             )}
 
@@ -698,9 +706,12 @@ export default function TargetGamePage() {
         )}
       </main>
 
-      {/* Röntgen jokeri overlay'i — bir kartın gizli değerini açar. */}
+      {/* Röntgen jokeri overlay'i — bir kartın gizli değerini açar.
+          ONLINE: değer sunucudan gelir; overlay'i DEĞER HAZIR OLUNCA aç (yoksa
+          önce "0" görünüp ~1sn sonra düzeliyordu). Değer beklenirken jokere
+          basılan karta küçük "hesaplanıyor" rozeti gösterilir (aşağıda). */}
       <AnimatePresence>
-        {xrayPlayer && (
+        {xrayPlayer && (!isOnline || onlineXrayValue !== null) && (
           <TargetXrayOverlay
             player={xrayPlayer}
             value={
@@ -712,6 +723,27 @@ export default function TargetGamePage() {
             onAccept={onXrayAccept}
             onDismiss={onXrayDismiss}
           />
+        )}
+      </AnimatePresence>
+
+      {/* ONLINE röntgen "hesaplanıyor" göstergesi — değer gelene kadar (overlay
+          henüz açılmadan) kullanıcıya jokerin çalıştığını bildirir (0 yanıp sönmesi
+          yerine net bekleme). Değer gelince yukarıdaki overlay açılır, bu kaybolur. */}
+      <AnimatePresence>
+        {isOnline && xrayPlayer && onlineXrayValue === null && (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm"
+          >
+            <div className="flex flex-col items-center gap-3 rounded-2xl border border-accent-gold/40 bg-zinc-900/90 px-8 py-6 shadow-glow-gold">
+              <span className="text-3xl animate-pulse">🔍</span>
+              <span className="text-sm font-bold text-accent-goldHi">
+                Değer açılıyor…
+              </span>
+            </div>
+          </motion.div>
         )}
       </AnimatePresence>
 

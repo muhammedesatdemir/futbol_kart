@@ -175,15 +175,6 @@ export default function GameSessionPage() {
     if (state.scene === resultScene) {
       const last = state.history[state.history.length - 1];
       const sfx = last && last.winner !== 'tie' ? 'win' : 'tie';
-      // Maçı BU tur bitiriyor mu? → bitiş düdüğünü burada (FINAL'e geçmeden,
-      // son sonuç ekranı görünürken) çal. FINAL ekranı yalnız fanfarı taşır →
-      // düdük + fanfar üst üste binmez. (Engine ROUND_ACK mantığının yansıması:
-      // faz turları bitti VEYA el boşaldı + skor ayrıldı VEYA sudden faz.)
-      const handsEmpty = state.p1Hand.length === 0 || state.p2Hand.length === 0;
-      const phaseRoundsDone = state.roundIndex + 1 >= state.totalRounds;
-      const willGoFinal =
-        (phaseRoundsDone || handsEmpty) &&
-        (state.p1Score !== state.p2Score || state.phase === 'sudden');
       // ONLINE: REVEAL'e girer girmez flip sesi çalıyor; sonuç sesini onun
       // ÜSTÜNE bindirmemek için ~900ms geciktir (flip bitsin, sonra sonuç sesi).
       // Offline'da ROUND_RESULT zaten flip'ten sonra gelir → gecikme gerekmez.
@@ -194,15 +185,35 @@ export default function GameSessionPage() {
       } else {
         playSfx(sfx);
       }
-      if (willGoFinal) {
-        // Sonuç sesinden hemen sonra bitiş düdüğü (maç bitti hissi, son ekrandan önce).
-        timers.push(setTimeout(() => playSfx('whistleEnd'), resultDelay + 650));
+      // Bitiş düdüğü — yalnız OFFLINE'da burada (sonuç ekranında, FINAL'e geçmeden).
+      // Maçı BU tur bitiriyor mu? Engine ROUND_ACK mantığının yansıması: faz turları
+      // bitti VEYA el boşaldı + skor ayrıldı VEYA sudden faz.
+      // ⚠️ ONLINE'da BURADA ÇALMAZ: rakibin eli maskelenip [] gönderildiği için
+      // (route.ts maskOpponentHand) `handsEmpty` online'da HER TUR true olur →
+      // her turun sonunda yanlışlıkla düdük çalardı. Online'da düdük FINAL'e
+      // geçişte çalınır (aşağıda) — maskelemeden etkilenmez.
+      if (!isOnline) {
+        const handsEmpty = state.p1Hand.length === 0 || state.p2Hand.length === 0;
+        const phaseRoundsDone = state.roundIndex + 1 >= state.totalRounds;
+        const willGoFinal =
+          (phaseRoundsDone || handsEmpty) &&
+          (state.p1Score !== state.p2Score || state.phase === 'sudden');
+        if (willGoFinal) {
+          // Sonuç sesinden hemen sonra bitiş düdüğü (son ekrandan önce).
+          timers.push(setTimeout(() => playSfx('whistleEnd'), resultDelay + 650));
+        }
       }
       if (timers.length) return () => timers.forEach(clearTimeout);
     } else if (state.scene === 'FINAL' && prev !== null) {
       // prev === null → ilk mount (rematch sonrası eski state); çalma.
-      // Bitiş düdüğü ARTIK sonuç ekranında çaldı (yukarıda); FINAL yalnız zafer
-      // fanfarını taşır → iki ses üst üste binmez.
+      if (isOnline) {
+        // ONLINE bitiş düdüğü: FINAL'e geçişte (maskeleme handsEmpty'i bozduğu için
+        // sonuç ekranında güvenle hesaplanamaz). Kısa düdük → ~700ms sonra fanfar.
+        playSfx('whistleEnd');
+        const t = setTimeout(() => playSfx('final'), 700);
+        return () => clearTimeout(t);
+      }
+      // OFFLINE: bitiş düdüğü zaten sonuç ekranında çaldı; FINAL yalnız fanfar.
       playSfx('final');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -1420,10 +1431,17 @@ function SubstitutionBoard({
   byBot: boolean;
   onClose: () => void;
 }) {
+  // Otomatik kapanma SAYFA-BAĞIMSIZ olmalı: timer mount'ta BİR kez kurulur ve
+  // sabit 5.2sn sonra kapatır. Eski hata: bağımlılık [onClose] + parent'tan inline
+  // arrow geçildiği için her re-render'da (hızlı kart seçimi, polling, uzatma…)
+  // onClose referansı değişip timer SIFIRLANIYOR, panel hiç kapanmıyordu. onClose'u
+  // ref'te tutup effect'i [] ile kurarak gerçek-zamanlı 5.2sn garantilenir.
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
   useEffect(() => {
-    const t = setTimeout(onClose, 5200);
+    const t = setTimeout(() => onCloseRef.current(), 5200);
     return () => clearTimeout(t);
-  }, [onClose]);
+  }, []);
 
   const jersey = (p: Player | undefined) =>
     p && p.jerseyNumbers.length > 0 ? p.jerseyNumbers[0] : '—';

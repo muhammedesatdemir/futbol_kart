@@ -403,10 +403,36 @@ export default function ListGamePage() {
     [online, onlineState, pendingGuess, resultHold, playSfx, scrollTop],
   );
 
-  // ONLINE süre dolumu: sunucu yönetir (lazy) → sadece tazele.
+  // ONLINE süre dolumu — yanlış tahminle SİMETRİK (kullanıcı isteği): süre bitince
+  // de heartbreak sesi + kalp kırılma animasyonu + "Listede yok / Elendin" rozeti +
+  // kısa bekleme (resultHold) gösterilir, sonra sıra geçer. Eskiden yalnız refresh
+  // edildiği için hiçbir görsel/ses olmadan hızlıca rakibe geçiyordu.
+  //
+  // Sunucu pas'ı LAZY işler (deadline geçince aktif tarafın canı −1, sıra geçer) —
+  // bu KURAL DETERMİNİSTİK olduğundan client, sunucu teyidini beklemeden hold'u
+  // güvenle kurar (can −1). Hold bitince effect (RESULT-HOLD) refresh çağırır →
+  // gerçek sunucu state'i (sıra karşıda) gelir; sunucu aynı sonucu üretir.
   const onTimeoutOnline = useCallback(() => {
-    void online.refresh();
-  }, [online]);
+    if (!onlineState || pendingGuess || resultHold) return; // çift/erken tetik engeli
+    const side = onlineState.activeSide;
+    const curLives = onlineState.lives;
+    const nextLives = { ...curLives, [side]: Math.max(0, curLives[side] - 1) };
+    const other: ListSide = side === 'P1' ? 'P2' : 'P1';
+    const meEliminated = nextLives[side] <= 0;
+    const eliminated: 'first' | 'last' | null = meEliminated
+      ? nextLives[other] <= 0
+        ? 'last'
+        : 'first'
+      : null;
+    setResultHold({
+      side,
+      kind: 'miss',
+      lives: nextLives,
+      eliminated,
+    });
+    playSfx('heartbreak');
+    scrollTop();
+  }, [onlineState, pendingGuess, resultHold, playSfx, scrollTop]);
 
   // Rematch: OFFLINE yeni liste; ONLINE yeni eşleşme.
   const onRematch = useCallback(() => {

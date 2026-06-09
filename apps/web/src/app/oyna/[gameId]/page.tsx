@@ -696,7 +696,50 @@ export default function GameSessionPage() {
     take: string;
     auto: boolean;
     byBot?: boolean;
+    /** Online takas mı? (başlık "Oyuncu Değişikliği" olur — "Bot" DEĞİL). */
+    online?: boolean;
   } | null>(null);
+
+  // ONLINE transfer tabelası — sunucu takası (controller.online.lastTransfer)
+  // gelince aynı SubstitutionBoard'ı göster (offline `transferResult` ile aynı
+  // bileşen). Offline'da bu tabela `onTransferResolve`/bot'ta set ediliyordu;
+  // online'da takas SUNUCUDA olduğu için lastTransfer'den beslenir — eskiden hiç
+  // bağlı değildi → online'da tabela HİÇ görünmüyordu (kullanıcı bildirimi).
+  //
+  // Perspektif: lastTransfer.{give,take} transferi YAPAN tarafın gözünden. byBot,
+  // mevcut render'ın "rakip yaptı" görünümünü (Sana verilen/Senden alınan) verir:
+  //   • ben yaptıysam (side===yourSide) → byBot=false (Alınan/Verilen),
+  //   • rakip yaptıysa → byBot=true (rakibin give'i bana geldi = yeşil/giren).
+  // İşlenen takası ref ile bir kez göster (polling re-render'ında tekrar açma).
+  const lastTransferShownRef = useRef<string | null>(null);
+  const onlineLastTransfer = controller.online?.lastTransfer ?? null;
+  const onlineClearTransfer = controller.online?.clearTransfer;
+  useEffect(() => {
+    if (!onlineLastTransfer) return;
+    const key = `${onlineLastTransfer.side}:${onlineLastTransfer.give}:${onlineLastTransfer.take}`;
+    if (lastTransferShownRef.current === key) return; // zaten gösterildi
+    lastTransferShownRef.current = key;
+    setTransferResult({
+      give: onlineLastTransfer.give,
+      take: onlineLastTransfer.take,
+      auto: false,
+      // Perspektif: rakip yaptıysa "Sana verilen/Senden alınan" (byBot görünümü).
+      byBot: onlineLastTransfer.side !== yourSide,
+      // online=true → başlık "Oyuncu Değişikliği" (rakip BOT değil, gerçek oyuncu).
+      online: true,
+    });
+    // GARANTİLİ KAPANMA (sayfa + kullanıcı bağımsız): rakip tarafında tabela,
+    // SubstitutionBoard'ın iç timer'ına EK olarak burada da bir kez kapatılır.
+    // Neden: online'da `lastTransfer` set edilince effect tekrar tetiklenebilir ve
+    // SubstitutionBoard yeniden mount olup iç timer'ı sıfırlanabilirdi → rakipte
+    // tabela kalıcı kalıyordu (kullanıcı bildirimi). Bu sayfa-seviyesi timer bir
+    // kez kurulur (poll re-render'ından etkilenmez) ve `lastTransfer`'i de temizler.
+    const t = setTimeout(() => {
+      setTransferResult(null);
+      onlineClearTransfer?.();
+    }, 5200);
+    return () => clearTimeout(t);
+  }, [onlineLastTransfer, yourSide, onlineClearTransfer]);
 
   // Transfer sonuçlandırma: kullanıcı seçimleri (give/take null olabilir) →
   // sistem deterministik tamamlar → TRANSFER_EXECUTE. Joker basıldıysa transfer
@@ -1052,6 +1095,9 @@ export default function GameSessionPage() {
       <AnimatePresence>
         {transferResult && (
           <SubstitutionBoard
+            // Stabil key → poll re-render'larında REMOUNT olmaz (iç 5.2sn timer
+            // sıfırlanmaz). give:take değişince (yeni takas) yeni mount olur.
+            key={`${transferResult.give}:${transferResult.take}`}
             // P1 transferi: take=alınan(yeşil), give=verilen(kırmızı).
             // Bot transferi: give=bot'un sana verdiği(yeşil/kazanç), take=bot'un senden aldığı(kırmızı/kayıp).
             inPlayer={session.players.find(
@@ -1066,7 +1112,15 @@ export default function GameSessionPage() {
             )}
             auto={transferResult.auto}
             byBot={transferResult.byBot ?? false}
-            onClose={() => setTransferResult(null)}
+            // Online'da başlık her zaman "Oyuncu Değişikliği" (rakip BOT değil,
+            // gerçek oyuncu). Offline'da prop verilmez → eski davranış (bot/auto).
+            headerText={transferResult.online ? 'Oyuncu Değişikliği' : undefined}
+            onClose={() => {
+              setTransferResult(null);
+              // Online: tabela kapanınca sunucu lastTransfer'ini de temizle
+              // (bir sonraki takas tazece tetiklensin). Offline'da no-op.
+              onlineClearTransfer?.();
+            }}
           />
         )}
       </AnimatePresence>
@@ -1423,12 +1477,16 @@ function SubstitutionBoard({
   inPlayer,
   auto,
   byBot,
+  headerText: headerTextProp,
   onClose,
 }: {
   outPlayer: Player | undefined;
   inPlayer: Player | undefined;
   auto: boolean;
+  /** Perspektif: true → "Sana verilen / Senden alınan" (rakip/bot yaptı). */
   byBot: boolean;
+  /** Başlık metnini override eder (online'da "Oyuncu Değişikliği" — bot DEĞİL). */
+  headerText?: string;
   onClose: () => void;
 }) {
   // Otomatik kapanma SAYFA-BAĞIMSIZ olmalı: timer mount'ta BİR kez kurulur ve
@@ -1446,11 +1504,15 @@ function SubstitutionBoard({
   const jersey = (p: Player | undefined) =>
     p && p.jerseyNumbers.length > 0 ? p.jerseyNumbers[0] : '—';
 
-  const headerText = byBot
-    ? 'Bot Transfer Yaptı'
-    : auto
-      ? 'Süre doldu — Sistem Tamamladı'
-      : 'Oyuncu Değişikliği';
+  // Başlık: çağıran override edebilir (online → "Oyuncu Değişikliği"); aksi halde
+  // offline davranışı (bot/auto/normal). Perspektif etiketleri byBot'tan bağımsız.
+  const headerText =
+    headerTextProp ??
+    (byBot
+      ? 'Bot Transfer Yaptı'
+      : auto
+        ? 'Süre doldu — Sistem Tamamladı'
+        : 'Oyuncu Değişikliği');
   const inLabel = byBot ? 'Sana verilen' : 'Alınan';
   const outLabel = byBot ? 'Senden alınan' : 'Verilen';
 

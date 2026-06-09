@@ -177,7 +177,9 @@ export function useOnlineListMatch(matchId: string | null): OnlineListMatch {
           void refresh();
           return {};
         }
-        if (res.status === 422) {
+        // 422 (iyi huylu geç/geçersiz hamle) + 429 (rate-limit flood koruması) →
+        // throw etme; sunucu otoriter, sessizce tazele. 429'u normal oyuncu görmez.
+        if (res.status === 422 || res.status === 429) {
           void refresh();
           return {};
         }

@@ -185,8 +185,10 @@ export function useOnlineTargetMatch(matchId: string | null): OnlineTargetMatch 
           void refresh();
           return {};
         }
-        if (res.status === 422) {
-          // İyi huylu yarış (sıra geçmiş / geç pick). Throw etme — sessizce tazele.
+        // 422 (iyi huylu yarış: sıra geçmiş / geç pick) + 429 (rate-limit flood
+        // koruması) → throw etme; sunucu otoriter, sessizce tazele. 429'u normal
+        // oyuncu görmez (limitler çok cömert).
+        if (res.status === 422 || res.status === 429) {
           void refresh();
           return {};
         }

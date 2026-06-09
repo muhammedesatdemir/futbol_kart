@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { eq, getDb, match as matchTable } from '@futbol-kart/db';
 import { auth } from '@/lib/auth';
 import { createMatchToken, isAblyEnabled } from '@/lib/server/ably';
+import { enforceRateLimit } from '@/lib/server/rateLimit';
 
 export const runtime = 'nodejs';
 
@@ -26,6 +27,10 @@ export async function GET(
     return NextResponse.json({ error: 'Giriş gerekli.' }, { status: 401 });
   }
   const userId = session.user.id;
+
+  // Flood koruması — token bağlantı kurulurken/yenilenirken çağrılır (seyrek).
+  const limited = enforceRateLimit(`ably-token:${userId}`, 60, 60_000);
+  if (limited) return limited;
 
   if (!isAblyEnabled()) {
     return NextResponse.json({ enabled: false });

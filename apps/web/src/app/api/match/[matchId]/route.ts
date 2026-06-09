@@ -28,6 +28,7 @@ import {
   type ListMatchState,
 } from '@/lib/server/listMatchEngine';
 import { publishMatchEvent } from '@/lib/server/ably';
+import { enforceRateLimit } from '@/lib/server/rateLimit';
 
 export const runtime = 'nodejs';
 
@@ -65,6 +66,11 @@ export async function GET(
     return NextResponse.json({ error: 'Giriş gerekli.' }, { status: 401 });
   }
   const userId = session.user.id;
+
+  // Flood koruması — GET en sık çağrılan uç (polling 1.5-5sn → 60sn'de ~40).
+  // Tavan 240/60sn (saniyede 4) cömert; gerçek poll asla yaklaşmaz, flood'u keser.
+  const limited = enforceRateLimit(`match-get:${userId}`, 240, 60_000);
+  if (limited) return limited;
 
   const db = getDb();
   const rows = await db

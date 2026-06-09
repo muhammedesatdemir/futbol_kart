@@ -6,6 +6,7 @@ import {
   type SessionState,
 } from '@futbol-kart/game-engine';
 import { auth } from '@/lib/auth';
+import { enforceRateLimit } from '@/lib/server/rateLimit';
 
 export const runtime = 'nodejs';
 
@@ -31,6 +32,10 @@ export async function GET(
     return NextResponse.json({ error: 'Giriş gerekli.' }, { status: 401 });
   }
   const userId = session.user.id;
+
+  // Flood koruması — transfer açılışında çağrılır (seyrek). 60sn'de 60 bol.
+  const limited = enforceRateLimit(`transfer-opts:${userId}`, 60, 60_000);
+  if (limited) return limited;
 
   const db = getDb();
   const rows = await db

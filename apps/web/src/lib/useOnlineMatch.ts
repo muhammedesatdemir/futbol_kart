@@ -291,6 +291,14 @@ export function useOnlineMatch(matchId: string | null): OnlineMatch {
           void refresh();
           return {};
         }
+        if (res.status === 429) {
+          // RATE-LIMIT (flood koruması). Normal oyuncu limitlerin çok altında
+          // kaldığı için bunu PRATİKTE görmez; yalnız anormal istek seli 429 alır.
+          // 422 gibi İYİ HUYLU ele al (throw etme → UI çökmesin); sunucu otoriter,
+          // sessizce tazele ve çık.
+          void refresh();
+          return {};
+        }
         if (!res.ok) {
           const data = await res.json().catch(() => ({}));
           throw new Error(data.error ?? 'Hamle reddedildi.');

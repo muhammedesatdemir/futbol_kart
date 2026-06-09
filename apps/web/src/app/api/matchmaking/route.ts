@@ -8,6 +8,7 @@ import {
   ONLINE_MODES,
   type OnlineMode,
 } from '@/lib/server/matchmaking';
+import { enforceRateLimit } from '@/lib/server/rateLimit';
 
 // DB + game-engine (fs) → Node runtime şart.
 export const runtime = 'nodejs';
@@ -25,6 +26,10 @@ export async function POST(req: Request) {
   if (!userId) {
     return NextResponse.json({ error: 'Giriş gerekli.' }, { status: 401 });
   }
+
+  // Flood koruması — eşleşmeye gir/yokla (GET polling 2sn → 60sn'de ~30). 90 bol.
+  const limited = enforceRateLimit(`matchmaking:${userId}`, 90, 60_000);
+  if (limited) return limited;
 
   let body: unknown;
   try {
@@ -54,6 +59,11 @@ export async function GET(req: Request) {
   if (!userId) {
     return NextResponse.json({ error: 'Giriş gerekli.' }, { status: 401 });
   }
+
+  // Flood koruması — POST ile aynı kovayı paylaşır (kullanıcının matchmaking trafiği).
+  const limited = enforceRateLimit(`matchmaking:${userId}`, 90, 60_000);
+  if (limited) return limited;
+
   const modeParam = new URL(req.url).searchParams.get('mode');
   const mode = ONLINE_MODES.includes(modeParam as OnlineMode)
     ? (modeParam as OnlineMode)

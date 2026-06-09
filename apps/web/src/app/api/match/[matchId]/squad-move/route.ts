@@ -12,6 +12,7 @@ import {
   type SquadMatchState,
 } from '@/lib/server/squadMatchEngine';
 import { publishMatchEvent } from '@/lib/server/ably';
+import { enforceRateLimit } from '@/lib/server/rateLimit';
 
 export const runtime = 'nodejs';
 
@@ -37,6 +38,10 @@ export async function POST(
     return NextResponse.json({ error: 'Giriş gerekli.' }, { status: 401 });
   }
   const userId = session.user.id;
+
+  // Flood koruması (hamle ucu) — bkz. move/route.ts.
+  const limited = enforceRateLimit(`move:${userId}`, 120, 60_000);
+  if (limited) return limited;
 
   let body: unknown;
   try {

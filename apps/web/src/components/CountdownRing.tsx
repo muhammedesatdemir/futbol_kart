@@ -2,6 +2,10 @@
 
 import { useEffect, useRef, useState } from 'react';
 import { cn } from '@/lib/cn';
+import { useSfx } from '@/lib/useSfx';
+
+/** Son kaç saniyede aciliyet tik sesi çalsın (her yeni tam saniyede bir). */
+const TICK_FROM_SECONDS = 5;
 
 interface CountdownRingProps {
   /** Toplam süre (saniye). */
@@ -58,7 +62,10 @@ export function CountdownRing({
 }: CountdownRingProps) {
   // remaining: 0..1 oranı (1 = tam süre). Akıcı animasyon için kesirli.
   const [ratio, setRatio] = useState(1);
+  const playSfx = useSfx();
   const completedRef = useRef(false);
+  // En son tik sesi çalınan tam saniye — saniyede bir çalmak için (her frame değil).
+  const lastTickSecRef = useRef<number | null>(null);
   // onComplete'i ref'te tut — effect bağımlılığına girip RAF'ı resetlemesin.
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
@@ -67,6 +74,7 @@ export function CountdownRing({
 
   useEffect(() => {
     completedRef.current = false;
+    lastTickSecRef.current = null;
     setRatio(1);
 
     const reduce =
@@ -142,6 +150,19 @@ export function CountdownRing({
     // runKey/deadline değişince yeniden başlar; seconds sabit varsayılır.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runKey, seconds, deadlineMs]);
+
+  // Aciliyet tik sesi — son TICK_FROM_SECONDS saniyede, her YENİ tam saniyede
+  // BİR kez. ratio her frame değişir ama tik yalnız tam saniye düştüğünde çalar
+  // (lastTickSecRef ile aynı saniyede tekrar çalmaz). Bitince (sn=0) çalmaz —
+  // o anı onComplete + kendi sesi (düdük vb.) karşılar.
+  useEffect(() => {
+    if (paused || completedRef.current) return;
+    const sec = Math.max(0, Math.ceil(ratio * seconds));
+    if (sec >= 1 && sec <= TICK_FROM_SECONDS && lastTickSecRef.current !== sec) {
+      lastTickSecRef.current = sec;
+      playSfx('tick');
+    }
+  }, [ratio, seconds, paused, playSfx]);
 
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;

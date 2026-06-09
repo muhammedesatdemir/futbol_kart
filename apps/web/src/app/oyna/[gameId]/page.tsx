@@ -147,6 +147,18 @@ export default function GameSessionPage() {
     const prev = prevSceneRef.current;
     prevSceneRef.current = state.scene;
     if (prev === state.scene) return; // değişim yok
+    // Maç başı hakem düdüğü — yalnız bir kez: ilk turun başladığı an
+    // (bonus/kart seçimi bitip gerçek oyun başlarken). roundIndex===0 + phase
+    // 'main' ile uzatma/penaltı başlarını ve sonraki turları dışlarız. prev!==null
+    // → rematch sonrası eski state ile ilk mount'ta çalmaz.
+    if (
+      state.scene === 'ROUND_INTRO' &&
+      state.roundIndex === 0 &&
+      state.phase === 'main' &&
+      prev !== null
+    ) {
+      playSfx('whistleStart');
+    }
     // Sonuç sesi: offline ROUND_RESULT'ta, ONLINE ise ROUND_REVEAL'de (online'da
     // ROUND_RESULT sahnesi oluşmaz; reveal = sonuç). İki yolu da kapsa.
     const resultScene = isOnline ? 'ROUND_REVEAL' : 'ROUND_RESULT';
@@ -163,7 +175,11 @@ export default function GameSessionPage() {
       playSfx(sfx);
     } else if (state.scene === 'FINAL' && prev !== null) {
       // prev === null → ilk mount (muhtemelen rematch sonrası eski state); çalma.
-      playSfx('final');
+      // Maç sonu ritüeli: önce kısa bitiş düdüğü, ~700ms sonra zafer fanfarı
+      // (üst üste binmesin, gerçek maç bitiş hissi).
+      playSfx('whistleEnd');
+      const t = setTimeout(() => playSfx('final'), 700);
+      return () => clearTimeout(t);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.scene]);
@@ -620,13 +636,19 @@ export default function GameSessionPage() {
   );
 
   const onJokerMultiplier = useCallback(
-    (side: 'P1' | 'P2') => dispatch({ type: 'JOKER_MULTIPLIER', side }),
-    [dispatch],
+    (side: 'P1' | 'P2') => {
+      playSfx('joker'); // power-up aktivasyon sesi
+      dispatch({ type: 'JOKER_MULTIPLIER', side });
+    },
+    [dispatch, playSfx],
   );
 
   const onJokerReveal = useCallback(
-    (side: 'P1' | 'P2') => dispatch({ type: 'JOKER_REVEAL', side }),
-    [dispatch],
+    (side: 'P1' | 'P2') => {
+      playSfx('joker'); // power-up aktivasyon sesi
+      dispatch({ type: 'JOKER_REVEAL', side });
+    },
+    [dispatch, playSfx],
   );
 
   // Transfer sonuçlandığında gösterilecek "oyuncu değişikliği tabelası" bilgisi.
@@ -692,8 +714,9 @@ export default function GameSessionPage() {
     const side = transferOfferSide ?? 'P1';
     transferHandledRef.current.add(`${state.phase}-${state.roundIndex}:${side}`);
     setTransferOfferSide(null);
+    playSfx('joker'); // power-up aktivasyon sesi (transfer jokeri açılıyor)
     dispatch({ type: 'JOKER_TRANSFER_OPEN', side });
-  }, [dispatch, transferOfferSide, state.phase, state.roundIndex]);
+  }, [dispatch, transferOfferSide, state.phase, state.roundIndex, playSfx]);
 
   // Transfer teklifi: "Geç" → bu tarafın teklifini kapat, hak korunur. Kapı
   // effect'i sıradaki insan tarafına geçer (hot-seat'te P1 geçince P2'ye sorar).

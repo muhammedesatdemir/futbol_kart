@@ -21,6 +21,11 @@ export function ListRevealScene({ criterion, onDone }: ListRevealSceneProps) {
   const reduced = useReducedMotion();
   const playSfx = useSfx();
 
+  // Maç başı hakem düdüğü — kriter açılışı sahnesi görünür görünmez (bir kez).
+  useEffect(() => {
+    playSfx('whistleStart');
+  }, [playSfx]);
+
   useEffect(() => {
     if (!reduced) {
       const t = setTimeout(() => playSfx('win'), 350);

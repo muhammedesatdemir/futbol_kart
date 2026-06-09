@@ -16,6 +16,7 @@ import { SquadResultScene } from '@/components/scenes/SquadResultScene';
 import { SoundToggle } from '@/components/SoundToggle';
 import { UserMenu } from '@/components/UserMenu';
 import { NameModal } from '@/components/NameModal';
+import { useSfx } from '@/lib/useSfx';
 import { useGameSession } from '@/lib/GameSessionProvider';
 import { useProfileStore } from '@/lib/profileStore';
 import { createPRNG } from '@futbol-kart/game-engine';
@@ -81,6 +82,7 @@ export default function SquadGamePage() {
     return prng.shuffle(squadCriteria).slice(0, 12);
   }, [squadCriteria, params.gameId, roundSeed]);
 
+  const playSfx = useSfx();
   const [phase, setPhase] = useState<Phase>('opponent');
   const [opponent, setOpponent] = useState<Opponent>('vs-bot');
   const [criterion, setCriterion] = useState<SquadCriterion>(CRITERION_TALLEST);
@@ -150,14 +152,16 @@ export default function SquadGamePage() {
     const c = criterionById(criterionId);
     if (c) setCriterion(c);
     setShuffleSeed(Math.floor(Math.random() * 1e9));
+    playSfx('whistleStart'); // maç başı — kriter belli, oyun başlıyor
     setPhase('build');
-  }, []);
+  }, [playSfx]);
 
   const onRandomCriterion = useCallback(() => {
     setCriterion(squadCriteria[Math.floor(Math.random() * squadCriteria.length)]!);
     setShuffleSeed(Math.floor(Math.random() * 1e9));
+    playSfx('whistleStart'); // maç başı — kriter belli, oyun başlıyor
     setPhase('build');
-  }, [squadCriteria]);
+  }, [squadCriteria, playSfx]);
 
   const onAssign = useCallback((slotId: string, playerId: string | null) => {
     setP1Assignment((prev) => {
@@ -227,8 +231,9 @@ export default function SquadGamePage() {
     if (sug) {
       setSuggestion(sug);
       setDraftJokerUsed((u) => ({ ...u, [draftActiveSide]: true }));
+      playSfx('joker'); // öneri jokeri power-up sesi
     }
-  }, [draftJokerUsed, draftActiveSide, params.gameId, draftStep, p1Assignment, p2Assignment, formation, criterion, session.players]);
+  }, [draftJokerUsed, draftActiveSide, params.gameId, draftStep, p1Assignment, p2Assignment, formation, criterion, session.players, playSfx]);
 
   const onAcceptSuggestionOffline = useCallback(() => {
     if (!suggestion) return;
@@ -332,10 +337,11 @@ export default function SquadGamePage() {
 
   // Online öneri jokeri: sunucudan slot+oyuncu önerisi al → overlay.
   const onUseJokerOnline = useCallback(() => {
+    playSfx('joker'); // öneri jokeri power-up sesi
     void online.useJoker().then((sug) => {
       if (sug) setOnlineSuggestion(sug);
     });
-  }, [online]);
+  }, [online, playSfx]);
 
   const onAcceptSuggestionOnline = useCallback(() => {
     if (!onlineSuggestion) return;
@@ -661,6 +667,13 @@ function SquadCriterionReveal({
   title: string;
   onDone: () => void;
 }) {
+  const playSfx = useSfx();
+
+  // Maç başı hakem düdüğü — kriter açılışı sahnesi görünür görünmez (online).
+  useEffect(() => {
+    playSfx('whistleStart');
+  }, [playSfx]);
+
   useEffect(() => {
     const t = setTimeout(onDone, 5000);
     return () => clearTimeout(t);

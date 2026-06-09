@@ -4,6 +4,7 @@ import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { motion } from 'framer-motion';
 import { useSession } from '@/lib/authClient';
+import { useSfx } from '@/lib/useSfx';
 import { BallLoader } from '@/components/BallLoader';
 
 type Phase = 'checking-auth' | 'searching' | 'found' | 'error';
@@ -198,6 +199,13 @@ export function OnlineMatchmaking({
  * üzerinde ad/mail. "SEN" rozeti kendi tarafında. VS ortada. 3.5sn sonra maça geçer.
  */
 function MatchFound({ found }: { found: FoundInfo }) {
+  const playSfx = useSfx();
+
+  // "Rakip bulundu" anı — ekran görünür görünmez bir kez (VS girişini taçlandırır).
+  useEffect(() => {
+    playSfx('matchFound');
+  }, [playSfx]);
+
   return (
     <section className="flex min-h-[70vh] flex-col items-center justify-center gap-10">
       <motion.h2

@@ -69,8 +69,13 @@ export function ListResultScene({
   useEffect(() => {
     if (!done) return;
     if (winner !== 'tie') {
-      const t = setTimeout(() => playSfx('final'), 250);
-      return () => clearTimeout(t);
+      // Maç sonu ritüeli: kısa bitiş düdüğü → ~600ms sonra zafer fanfarı.
+      const tW = setTimeout(() => playSfx('whistleEnd'), 250);
+      const tF = setTimeout(() => playSfx('final'), 850);
+      return () => {
+        clearTimeout(tW);
+        clearTimeout(tF);
+      };
     }
   }, [done, winner, playSfx]);
 

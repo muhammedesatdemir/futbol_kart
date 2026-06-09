@@ -27,6 +27,12 @@ export function TargetRevealScene({ target, criterion, onDone }: TargetRevealSce
   const [settled, setSettled] = useState(reduced ?? false);
   const tickRef = useRef<NodeJS.Timeout | null>(null);
 
+  // Maç başı hakem düdüğü — hedef çarkı sahnesi görünür görünmez (bir kez),
+  // çark dönmeye başlamadan oyunun başladığını ilan eder.
+  useEffect(() => {
+    playSfx('whistleStart');
+  }, [playSfx]);
+
   // Çark animasyonu: tik aralığı giderek artar (yavaşlama), son tik hedefe oturur.
   useEffect(() => {
     if (reduced) {

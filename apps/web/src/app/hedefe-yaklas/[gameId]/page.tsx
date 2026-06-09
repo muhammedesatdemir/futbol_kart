@@ -17,6 +17,7 @@ import { TargetXrayOverlay } from '@/components/scenes/TargetXrayOverlay';
 import { SoundToggle } from '@/components/SoundToggle';
 import { UserMenu } from '@/components/UserMenu';
 import { NameModal } from '@/components/NameModal';
+import { useSfx } from '@/lib/useSfx';
 import { useGameSession } from '@/lib/GameSessionProvider';
 import { useProfileStore } from '@/lib/profileStore';
 import { createPRNG } from '@futbol-kart/game-engine';
@@ -90,6 +91,7 @@ export default function TargetGamePage() {
     [session.players],
   );
 
+  const playSfx = useSfx();
   const [phase, setPhase] = useState<Phase>('opponent');
   const [opponent, setOpponent] = useState<Opponent>('vs-bot');
   const [target, setTarget] = useState<number>(70);
@@ -338,9 +340,10 @@ export default function TargetGamePage() {
     (playerId: string) => {
       setXrayPlayerId(playerId);
       setXrayArmed(false);
+      playSfx('joker'); // röntgen jokeri power-up sesi
       void online.useXray(playerId).then((v) => setOnlineXrayValue(v));
     },
-    [online],
+    [online, playSfx],
   );
 
   // ---- Röntgen jokeri (OFFLINE) ----
@@ -367,8 +370,9 @@ export default function TargetGamePage() {
       setXraySide(xraySideNow);
       setXrayArmed(false);
       setXrayUsed((u) => ({ ...u, [xraySideNow]: true }));
+      playSfx('joker'); // röntgen jokeri power-up sesi
     },
-    [xraySideNow],
+    [xraySideNow, playSfx],
   );
 
   // Overlay "Kadroya kat".

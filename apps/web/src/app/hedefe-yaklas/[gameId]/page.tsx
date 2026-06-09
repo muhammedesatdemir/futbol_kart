@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
@@ -270,6 +270,28 @@ export default function TargetGamePage() {
   // ONLINE türev değerler (sunucu state'inden) — render'da kullanılır.
   // ============================================================================
   const onlineState = online.state;
+
+  // ── Maç başı / sonu hakem düdüğü — maçta YALNIZ BİRER kez (ref'le garanti) ──
+  // Başlangıç: hedef çarkı (reveal) ekranı ilk göründüğünde.
+  // Bitiş: son seçimle result fazına geçişte (sonuç ekranı GÖRÜNMEDEN).
+  // Draft adımları / süre dolumu gibi anlarda ASLA çalmaz.
+  const whistleStartedRef = useRef(false);
+  const whistleEndedRef = useRef(false);
+  const activeTargetScene = isOnline ? onlineState?.scene : phase;
+  useEffect(() => {
+    const isReveal =
+      activeTargetScene === (isOnline ? 'REVEAL_TARGET' : 'reveal-target');
+    const isResult = activeTargetScene === (isOnline ? 'RESULT' : 'result');
+    if (isReveal && !whistleStartedRef.current) {
+      whistleStartedRef.current = true;
+      playSfx('whistleStart');
+    }
+    if (isResult && !whistleEndedRef.current) {
+      whistleEndedRef.current = true;
+      playSfx('whistleEnd');
+    }
+  }, [activeTargetScene, isOnline, playSfx]);
+
   const onlineActiveSide: 'P1' | 'P2' =
     onlineState && onlineState.scene === 'DRAFT'
       ? (onlineState.draftOrder[onlineState.draftStep] ?? 'P1')

@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { AnimatePresence, motion } from 'framer-motion';
 import Link from 'next/link';
@@ -152,16 +152,14 @@ export default function SquadGamePage() {
     const c = criterionById(criterionId);
     if (c) setCriterion(c);
     setShuffleSeed(Math.floor(Math.random() * 1e9));
-    playSfx('whistleStart'); // maç başı — kriter belli, oyun başlıyor
     setPhase('build');
-  }, [playSfx]);
+  }, []);
 
   const onRandomCriterion = useCallback(() => {
     setCriterion(squadCriteria[Math.floor(Math.random() * squadCriteria.length)]!);
     setShuffleSeed(Math.floor(Math.random() * 1e9));
-    playSfx('whistleStart'); // maç başı — kriter belli, oyun başlıyor
     setPhase('build');
-  }, [squadCriteria, playSfx]);
+  }, [squadCriteria]);
 
   const onAssign = useCallback((slotId: string, playerId: string | null) => {
     setP1Assignment((prev) => {
@@ -271,6 +269,29 @@ export default function SquadGamePage() {
   // ONLINE türev değerler + handler'lar
   // ============================================================================
   const onlineState = online.state;
+
+  // ── Maç başı / sonu hakem düdüğü — maçta YALNIZ BİRER kez (ref'le garanti) ──
+  // Başlangıç: OFFLINE kriter seçilip kadro kurmaya geçince (build); ONLINE kriter
+  // reveal ekranında. Bitiş: son slot dolup result fazına geçişte (sonuç ekranı
+  // GÖRÜNMEDEN). Draft adımları / süre dolumu gibi anlarda ASLA çalmaz.
+  const whistleStartedRef = useRef(false);
+  const whistleEndedRef = useRef(false);
+  const activeSquadScene = isOnline ? onlineState?.scene : phase;
+  useEffect(() => {
+    const isStart = isOnline
+      ? activeSquadScene === 'CRITERION_REVEAL'
+      : activeSquadScene === 'build';
+    const isResult = activeSquadScene === (isOnline ? 'RESULT' : 'result');
+    if (isStart && !whistleStartedRef.current) {
+      whistleStartedRef.current = true;
+      playSfx('whistleStart');
+    }
+    if (isResult && !whistleEndedRef.current) {
+      whistleEndedRef.current = true;
+      playSfx('whistleEnd');
+    }
+  }, [activeSquadScene, isOnline, playSfx]);
+
   // Online'da kriteri sunucu criterionId'sinden client havuzunda yeniden çöz
   // (sahneler metric'li SquadCriterion bekler).
   const onlineCriterion: SquadCriterion | null = useMemo(() => {
@@ -667,13 +688,8 @@ function SquadCriterionReveal({
   title: string;
   onDone: () => void;
 }) {
-  const playSfx = useSfx();
-
-  // Maç başı hakem düdüğü — kriter açılışı sahnesi görünür görünmez (online).
-  useEffect(() => {
-    playSfx('whistleStart');
-  }, [playSfx]);
-
+  // NOT: Maç başı hakem düdüğü artık burada DEĞİL — ana sayfanın faz-geçiş
+  // mantığında (kriter ekranına ilk girişte, maçta bir kez) çalınır.
   useEffect(() => {
     const t = setTimeout(onDone, 5000);
     return () => clearTimeout(t);

@@ -143,20 +143,30 @@ export default function GameSessionPage() {
   // 'FINAL' state'iyle açılırken) sesin tekrar çalmasını engelle: ses yalnızca
   // önceki sahne farklıyken, gerçek bir geçişte çalar.
   const prevSceneRef = useRef<typeof state.scene | null>(null);
+  // Maç başı düdüğü maçta yalnız bir kez çalsın diye (ilk ROUND_PLAY anı).
+  const whistleStartedRef = useRef(false);
   useEffect(() => {
     const prev = prevSceneRef.current;
     prevSceneRef.current = state.scene;
     if (prev === state.scene) return; // değişim yok
-    // Maç başı hakem düdüğü — yalnız bir kez: ilk turun başladığı an
-    // (bonus/kart seçimi bitip gerçek oyun başlarken). roundIndex===0 + phase
-    // 'main' ile uzatma/penaltı başlarını ve sonraki turları dışlarız. prev!==null
-    // → rematch sonrası eski state ile ilk mount'ta çalmaz.
+    // Maç başı hakem düdüğü — "ilk soruya geçiş" anı: ilk kez ROUND_PLAY'e
+    // girildiğinde (roundIndex 0 + ana faz). Neden ROUND_INTRO değil:
+    //  • OFFLINE: ROUND_INTRO iki kez oluşur (kart seçimi biter bitmez bonus
+    //    ÖNCESİ bir kez, bonus onayından sonra bir kez daha) → düdük çift çalardı.
+    //    ROUND_PLAY ise yalnız bonus bitip soru seçilince gelir → tek kez, maça
+    //    girişte. (Kullanıcı isteği: sadece maça geçerken.)
+    //  • ONLINE: sunucu ROUND_INTRO'yu client'a HİÇ göndermez (otomatik soru
+    //    seçip doğrudan ROUND_PLAY'e geçer) → ROUND_INTRO'ya bağlı düdük online'da
+    //    HİÇ çalmazdı. ROUND_PLAY iki modda da görülür. whistleStartedRef ile
+    //    sonraki turlarda (ROUND_PLAY tekrar gelir) çalmaz.
     if (
-      state.scene === 'ROUND_INTRO' &&
+      state.scene === 'ROUND_PLAY' &&
       state.roundIndex === 0 &&
       state.phase === 'main' &&
-      prev !== null
+      prev !== null &&
+      !whistleStartedRef.current
     ) {
+      whistleStartedRef.current = true;
       playSfx('whistleStart');
     }
     // Sonuç sesi: offline ROUND_RESULT'ta, ONLINE ise ROUND_REVEAL'de (online'da
@@ -165,21 +175,35 @@ export default function GameSessionPage() {
     if (state.scene === resultScene) {
       const last = state.history[state.history.length - 1];
       const sfx = last && last.winner !== 'tie' ? 'win' : 'tie';
+      // Maçı BU tur bitiriyor mu? → bitiş düdüğünü burada (FINAL'e geçmeden,
+      // son sonuç ekranı görünürken) çal. FINAL ekranı yalnız fanfarı taşır →
+      // düdük + fanfar üst üste binmez. (Engine ROUND_ACK mantığının yansıması:
+      // faz turları bitti VEYA el boşaldı + skor ayrıldı VEYA sudden faz.)
+      const handsEmpty = state.p1Hand.length === 0 || state.p2Hand.length === 0;
+      const phaseRoundsDone = state.roundIndex + 1 >= state.totalRounds;
+      const willGoFinal =
+        (phaseRoundsDone || handsEmpty) &&
+        (state.p1Score !== state.p2Score || state.phase === 'sudden');
       // ONLINE: REVEAL'e girer girmez flip sesi çalıyor; sonuç sesini onun
       // ÜSTÜNE bindirmemek için ~900ms geciktir (flip bitsin, sonra sonuç sesi).
       // Offline'da ROUND_RESULT zaten flip'ten sonra gelir → gecikme gerekmez.
-      if (isOnline) {
-        const t = setTimeout(() => playSfx(sfx), 900);
-        return () => clearTimeout(t);
+      const resultDelay = isOnline ? 900 : 0;
+      const timers: ReturnType<typeof setTimeout>[] = [];
+      if (resultDelay > 0) {
+        timers.push(setTimeout(() => playSfx(sfx), resultDelay));
+      } else {
+        playSfx(sfx);
       }
-      playSfx(sfx);
+      if (willGoFinal) {
+        // Sonuç sesinden hemen sonra bitiş düdüğü (maç bitti hissi, son ekrandan önce).
+        timers.push(setTimeout(() => playSfx('whistleEnd'), resultDelay + 650));
+      }
+      if (timers.length) return () => timers.forEach(clearTimeout);
     } else if (state.scene === 'FINAL' && prev !== null) {
-      // prev === null → ilk mount (muhtemelen rematch sonrası eski state); çalma.
-      // Maç sonu ritüeli: önce kısa bitiş düdüğü, ~700ms sonra zafer fanfarı
-      // (üst üste binmesin, gerçek maç bitiş hissi).
-      playSfx('whistleEnd');
-      const t = setTimeout(() => playSfx('final'), 700);
-      return () => clearTimeout(t);
+      // prev === null → ilk mount (rematch sonrası eski state); çalma.
+      // Bitiş düdüğü ARTIK sonuç ekranında çaldı (yukarıda); FINAL yalnız zafer
+      // fanfarını taşır → iki ses üst üste binmez.
+      playSfx('final');
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [state.scene]);

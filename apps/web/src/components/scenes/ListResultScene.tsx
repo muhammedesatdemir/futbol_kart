@@ -69,13 +69,11 @@ export function ListResultScene({
   useEffect(() => {
     if (!done) return;
     if (winner !== 'tie') {
-      // Maç sonu ritüeli: kısa bitiş düdüğü → ~600ms sonra zafer fanfarı.
-      const tW = setTimeout(() => playSfx('whistleEnd'), 250);
-      const tF = setTimeout(() => playSfx('final'), 850);
-      return () => {
-        clearTimeout(tW);
-        clearTimeout(tF);
-      };
+      // Zafer fanfarı (kartlar açıldıktan sonra). NOT: Bitiş düdüğü burada DEĞİL —
+      // o, sayfanın "result fazına geçiş" anında (son seçim yapılınca, bu ekrana
+      // gelmeden) çalınır.
+      const t = setTimeout(() => playSfx('final'), 250);
+      return () => clearTimeout(t);
     }
   }, [done, winner, playSfx]);
 

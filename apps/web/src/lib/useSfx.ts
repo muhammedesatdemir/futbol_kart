@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useRef } from 'react';
+import { useEffect, useMemo, useRef } from 'react';
 import { useSoundStore } from '@/lib/soundStore';
 
 /** Ses olayları → dosya adı (public/sfx/<name>.mp3). */
@@ -44,6 +44,19 @@ const SFX_VOLUME: Record<SfxName, number> = {
 };
 
 /**
+ * `playSfx` çağrılabilir fonksiyon + iki ek metot:
+ *  - `playSfx(name)` → sesi bir kez baştan çalar (tek atış).
+ *  - `playSfx.loop(name)` → sesi DÖNGÜLÜ başlatır (zaten çalıyorsa dokunmaz) —
+ *    geri sayım tik-tak'ı gibi sürekli sesler için. `stop` ile kesilir.
+ *  - `playSfx.stop(name)` → o sesi durdurur ve başa sarar (loop veya tek atış).
+ */
+export interface SfxPlayer {
+  (name: SfxName): void;
+  loop: (name: SfxName) => void;
+  stop: (name: SfxName) => void;
+}
+
+/**
  * Hafif SFX çalıcı — native HTMLAudioElement, bağımlılık yok.
  *
  * - Ses store'da KAPALIYsa hiçbir şey çalmaz (ve preload etmez).
@@ -51,7 +64,7 @@ const SFX_VOLUME: Record<SfxName, number> = {
  * - Asset eksikse (henüz üretilmediyse) sessizce yutulur — oyun akışı bozulmaz.
  * - Çalma kullanıcı etkileşimi sonrası tetiklendiği için autoplay kısıtına takılmaz.
  */
-export function useSfx() {
+export function useSfx(): SfxPlayer {
   const enabled = useSoundStore((s) => s.enabled);
   const poolRef = useRef<Partial<Record<SfxName, HTMLAudioElement>>>({});
 
@@ -69,10 +82,9 @@ export function useSfx() {
     });
   }, [enabled]);
 
-  return useCallback(
-    (name: SfxName) => {
-      if (!useSoundStore.getState().enabled) return;
-      if (typeof window === 'undefined') return;
+  return useMemo<SfxPlayer>(() => {
+    const ensure = (name: SfxName): HTMLAudioElement | null => {
+      if (typeof window === 'undefined') return null;
       const pool = poolRef.current;
       let audio = pool[name];
       if (!audio) {
@@ -80,7 +92,15 @@ export function useSfx() {
         audio.volume = SFX_VOLUME[name];
         pool[name] = audio;
       }
+      return audio;
+    };
+
+    const play = ((name: SfxName) => {
+      if (!useSoundStore.getState().enabled) return;
+      const audio = ensure(name);
+      if (!audio) return;
       try {
+        audio.loop = false;
         audio.currentTime = 0;
         void audio.play().catch(() => {
           /* asset yok / autoplay reddi — sessizce yut */
@@ -88,7 +108,38 @@ export function useSfx() {
       } catch {
         /* no-op */
       }
-    },
-    [],
-  );
+    }) as SfxPlayer;
+
+    // Döngülü başlat — sürekli sesler (tik-tak). Zaten çalıyorsa baştan sarmaz.
+    play.loop = (name: SfxName) => {
+      if (!useSoundStore.getState().enabled) return;
+      const audio = ensure(name);
+      if (!audio) return;
+      if (audio.loop && !audio.paused) return; // zaten döngüde
+      try {
+        audio.loop = true;
+        audio.currentTime = 0;
+        void audio.play().catch(() => {
+          /* asset yok / autoplay reddi — sessizce yut */
+        });
+      } catch {
+        /* no-op */
+      }
+    };
+
+    // Durdur + başa sar (loop veya tek atış fark etmez).
+    play.stop = (name: SfxName) => {
+      const audio = poolRef.current[name];
+      if (!audio) return;
+      try {
+        audio.pause();
+        audio.loop = false;
+        audio.currentTime = 0;
+      } catch {
+        /* no-op */
+      }
+    };
+
+    return play;
+  }, []);
 }

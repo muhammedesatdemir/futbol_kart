@@ -64,8 +64,6 @@ export function CountdownRing({
   const [ratio, setRatio] = useState(1);
   const playSfx = useSfx();
   const completedRef = useRef(false);
-  // En son tik sesi çalınan tam saniye — saniyede bir çalmak için (her frame değil).
-  const lastTickSecRef = useRef<number | null>(null);
   // onComplete'i ref'te tut — effect bağımlılığına girip RAF'ı resetlemesin.
   const onCompleteRef = useRef(onComplete);
   onCompleteRef.current = onComplete;
@@ -74,7 +72,6 @@ export function CountdownRing({
 
   useEffect(() => {
     completedRef.current = false;
-    lastTickSecRef.current = null;
     setRatio(1);
 
     const reduce =
@@ -90,6 +87,7 @@ export function CountdownRing({
     const finish = () => {
       if (completedRef.current) return;
       completedRef.current = true;
+      playSfx.stop('tick'); // süre doldu → tik-tak anında kesilsin
       setRatio(0);
       onCompleteRef.current();
     };
@@ -151,18 +149,27 @@ export function CountdownRing({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [runKey, seconds, deadlineMs]);
 
-  // Aciliyet tik sesi — son TICK_FROM_SECONDS saniyede, her YENİ tam saniyede
-  // BİR kez. ratio her frame değişir ama tik yalnız tam saniye düştüğünde çalar
-  // (lastTickSecRef ile aynı saniyede tekrar çalmaz). Bitince (sn=0) çalmaz —
-  // o anı onComplete + kendi sesi (düdük vb.) karşılar.
+  // Aciliyet tik-tak sesi — SÜREKLI ses (loop). Son TICK_FROM_SECONDS saniyeye
+  // girince BİR kez başlatılır; aşağıdaki üç durumda ANINDA durur:
+  //   • kullanıcı seçimini yapıp sayaç sahneden kalkınca (unmount → cleanup),
+  //   • süre dolunca (completedRef),
+  //   • sayaç duraklatılınca (paused).
+  // Böylece tik, kullanıcı seçtikten veya süre bittikten sonra DEVAM ETMEZ.
   useEffect(() => {
-    if (paused || completedRef.current) return;
-    const sec = Math.max(0, Math.ceil(ratio * seconds));
-    if (sec >= 1 && sec <= TICK_FROM_SECONDS && lastTickSecRef.current !== sec) {
-      lastTickSecRef.current = sec;
-      playSfx('tick');
+    const sec = ratio * seconds;
+    const inWindow =
+      !paused && !completedRef.current && sec > 0 && sec <= TICK_FROM_SECONDS;
+    if (inWindow) {
+      playSfx.loop('tick');
+    } else {
+      playSfx.stop('tick');
     }
   }, [ratio, seconds, paused, playSfx]);
+
+  // Sayaç sahneden kalkınca (kullanıcı seçti / sahne değişti) tik kesilsin.
+  useEffect(() => {
+    return () => playSfx.stop('tick');
+  }, [playSfx]);
 
   const radius = (size - stroke) / 2;
   const circumference = 2 * Math.PI * radius;

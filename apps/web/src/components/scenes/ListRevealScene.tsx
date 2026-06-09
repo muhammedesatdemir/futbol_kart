@@ -21,11 +21,9 @@ export function ListRevealScene({ criterion, onDone }: ListRevealSceneProps) {
   const reduced = useReducedMotion();
   const playSfx = useSfx();
 
-  // Maç başı hakem düdüğü — kriter açılışı sahnesi görünür görünmez (bir kez).
-  useEffect(() => {
-    playSfx('whistleStart');
-  }, [playSfx]);
-
+  // NOT: Maç başı hakem düdüğü artık burada DEĞİL — sayfanın faz-geçiş mantığında
+  // (reveal fazına ilk girişte, maçta bir kez) çalınır. Bu sahne yalnız "kriter
+  // açılışı" parıltı sesini (win) çalar.
   useEffect(() => {
     if (!reduced) {
       const t = setTimeout(() => playSfx('win'), 350);

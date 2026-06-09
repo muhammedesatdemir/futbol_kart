@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
@@ -265,6 +265,26 @@ export default function ListGamePage() {
   // ONLINE türev değerler + handler'lar
   // ============================================================================
   const onlineState = online.state;
+
+  // ── Maç başı / sonu hakem düdüğü — maçta YALNIZ BİRER kez (ref'le garanti) ──
+  // Başlangıç: kriter/liste ekranı (reveal) ilk göründüğünde.
+  // Bitiş: son seçimle result fazına geçişte (sonuç ekranı GÖRÜNMEDEN).
+  // Tur arası / tahmin / süre dolumu gibi anlarda ASLA çalmaz.
+  const whistleStartedRef = useRef(false);
+  const whistleEndedRef = useRef(false);
+  const activeListScene = isOnline ? onlineState?.scene : phase;
+  useEffect(() => {
+    const isReveal = activeListScene === (isOnline ? 'REVEAL_LIST' : 'reveal-list');
+    const isResult = activeListScene === (isOnline ? 'RESULT' : 'result');
+    if (isReveal && !whistleStartedRef.current) {
+      whistleStartedRef.current = true;
+      playSfx('whistleStart');
+    }
+    if (isResult && !whistleEndedRef.current) {
+      whistleEndedRef.current = true;
+      playSfx('whistleEnd');
+    }
+  }, [activeListScene, isOnline, playSfx]);
 
   // RESULT-HOLD süresi dolunca temizle → gerçek sunucu state (karşı taraf) görünür.
   useEffect(() => {

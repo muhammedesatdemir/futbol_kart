@@ -413,7 +413,7 @@ export default function ListGamePage() {
   // güvenle kurar (can −1). Hold bitince effect (RESULT-HOLD) refresh çağırır →
   // gerçek sunucu state'i (sıra karşıda) gelir; sunucu aynı sonucu üretir.
   const onTimeoutOnline = useCallback(() => {
-    if (!onlineState || pendingGuess || resultHold) return; // çift/erken tetik engeli
+    if (!onlineState || pendingGuess) return;
     const side = onlineState.activeSide;
     const curLives = onlineState.lives;
     const nextLives = { ...curLives, [side]: Math.max(0, curLives[side] - 1) };
@@ -424,15 +424,22 @@ export default function ListGamePage() {
         ? 'last'
         : 'first'
       : null;
-    setResultHold({
-      side,
-      kind: 'miss',
-      lives: nextLives,
-      eliminated,
+    // ÇİFT TETİK KORUMASI: CountdownRing.onComplete, deadlineMs/runKey değişiminde
+    // effect yeniden kurulup completedRef sıfırlandığında AYNI süre-dolumu için
+    // 2. kez çağrılabiliyordu → heartbreak sesi + kalp animasyonu İKİ KEZ. Closure'daki
+    // `resultHold` stale olabildiği için functional-update ile kontrol et: zaten bir
+    // hold varsa HİÇBİR ŞEY yapma (ses de çalma) → tek seferlik garanti.
+    let isFirst = false;
+    setResultHold((prev) => {
+      if (prev) return prev; // zaten gösteriliyor → yok say
+      isFirst = true;
+      return { side, kind: 'miss', lives: nextLives, eliminated };
     });
-    playSfx('heartbreak');
-    scrollTop();
-  }, [onlineState, pendingGuess, resultHold, playSfx, scrollTop]);
+    if (isFirst) {
+      playSfx('heartbreak');
+      scrollTop();
+    }
+  }, [onlineState, pendingGuess, playSfx, scrollTop]);
 
   // Rematch: OFFLINE yeni liste; ONLINE yeni eşleşme.
   const onRematch = useCallback(() => {
@@ -692,6 +699,7 @@ export default function ListGamePage() {
                   p1Name={opponent === 'hotseat' ? p1Name || 'Oyuncu 1' : 'Sen'}
                   p2Name={opponent === 'hotseat' ? p2Name || 'Oyuncu 2' : 'Bot'}
                   missTick={missTick}
+                  poolCols={5}
                 />
               </SceneShell>
             )}

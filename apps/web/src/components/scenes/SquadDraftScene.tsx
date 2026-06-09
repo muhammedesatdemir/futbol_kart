@@ -255,7 +255,7 @@ export function SquadDraftScene({
           </h2>
           <SearchInput value={search} onChange={setSearch} />
         </div>
-        <div className="grid grid-cols-3 gap-2 sm:grid-cols-6 sm:gap-2.5">
+        <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-5 lg:gap-5">
           {candidates.map((p) => (
             <button
               key={p.id}

@@ -41,12 +41,26 @@ export function OpponentSelectScene({
       </header>
 
       <div className={cn('grid gap-4', onOnline ? 'sm:grid-cols-3' : 'sm:grid-cols-2')}>
+        {/* Online eşleşme — İLK sıra (öne çıkarılır; kullanıcı isteği, sadece sıra/
+            vurgu değişti, mekanik aynı). */}
+        {onOnline && (
+          <OpponentCard
+            emoji="🌐"
+            icon={<PlayIcon size={28} />}
+            title="Online Eşleşme"
+            body="Gerçek bir rakiple eşleş; sunucu-otoriteli, canlı."
+            delay={0}
+            ready
+            onClick={onOnline}
+            accent
+          />
+        )}
         <OpponentCard
           emoji="👥"
           icon={<CardsIcon size={28} />}
           title="Arkadaşına Karşı"
           body="İki oyuncu aynı ekranda sırayla oynar."
-          delay={0}
+          delay={onOnline ? 0.08 : 0}
           ready={available.hotseat}
           onClick={available.hotseat ? () => onPick('hotseat') : undefined}
         />
@@ -55,23 +69,11 @@ export function OpponentSelectScene({
           icon={<SwordsIcon size={28} />}
           title="Bota Karşı"
           body="Tek başına oyna; bot rakip kadroyu kurar."
-          delay={0.08}
+          delay={onOnline ? 0.16 : 0.08}
           ready={available.vsBot}
           onClick={available.vsBot ? () => onPick('vs-bot') : undefined}
           accent={!onOnline}
         />
-        {onOnline && (
-          <OpponentCard
-            emoji="🌐"
-            icon={<PlayIcon size={28} />}
-            title="Online Eşleşme"
-            body="Gerçek bir rakiple eşleş; sunucu-otoriteli, canlı."
-            delay={0.16}
-            ready
-            onClick={onOnline}
-            accent
-          />
-        )}
       </div>
     </section>
   );

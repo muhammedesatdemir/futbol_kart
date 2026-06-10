@@ -4,12 +4,11 @@ import { useMemo, useState } from 'react';
 import { useTranslations } from 'next-intl';
 import { motion, AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
-import type { GameMode, Player, PlayerSide } from '@futbol-kart/shared-types';
+import type { Player, PlayerSide } from '@futbol-kart/shared-types';
 import { HomeIcon, PlayIcon, TrophyIcon } from '@/components/icons';
-import { ShareMatchButton } from '@/components/ShareMatchButton';
 import { CountUp } from '@/components/CountUp';
 import { Confetti } from '@/components/Confetti';
-import type { RoundLog, SessionState } from '@futbol-kart/game-engine';
+import type { RoundLog } from '@futbol-kart/game-engine';
 import { templateById } from '@futbol-kart/question-templates';
 import { cn } from '@/lib/cn';
 
@@ -22,8 +21,6 @@ interface FinalSceneProps {
   history: RoundLog[];
   players: Player[];
   onRematch: () => void;
-  mode: GameMode;
-  snapshot: SessionState;
 }
 
 /**
@@ -44,8 +41,6 @@ export function FinalScene({
   history,
   players,
   onRematch,
-  mode,
-  snapshot,
 }: FinalSceneProps) {
   const t = useTranslations('final');
   const [detailsOpen, setDetailsOpen] = useState(false);
@@ -201,17 +196,6 @@ export function FinalScene({
             {t('home')}
           </Link>
         </div>
-
-        <ShareMatchButton
-          mode={mode}
-          p1Name={p1Name}
-          p2Name={p2Name}
-          p1Score={p1Score}
-          p2Score={p2Score}
-          winnerSide={winnerSide}
-          totalRounds={snapshot.totalRounds}
-          snapshot={snapshot}
-        />
 
         <button
           type="button"

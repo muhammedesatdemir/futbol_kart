@@ -1370,8 +1370,6 @@ export default function GameSessionPage() {
               history={state.history}
               players={session.players}
               onRematch={onRematch}
-              mode={state.mode}
-              snapshot={state}
             />
           </SceneShell>
         )}

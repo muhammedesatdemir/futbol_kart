@@ -6,8 +6,15 @@ import { motion } from 'framer-motion';
 import { useSession } from '@/lib/authClient';
 import { useSfx } from '@/lib/useSfx';
 import { BallLoader } from '@/components/BallLoader';
+import { cn } from '@/lib/cn';
 
-type Phase = 'checking-auth' | 'searching' | 'found' | 'error';
+type Phase =
+  | 'checking-auth'
+  | 'searching'
+  | 'inviting' // davet eden: link paylaşıldı, arkadaş bekleniyor
+  | 'found'
+  | 'invite-expired' // davete katılan: davet yok/süresi dolmuş
+  | 'error';
 
 /**
  * Online oynanabilen modlar + her birinin eşleşince gidilecek oyun route'u.
@@ -35,20 +42,35 @@ interface FoundInfo {
 }
 
 /**
+ * Davet bağlamı (opsiyonel). Yoksa RASTGELE eşleşme (mevcut davranış).
+ *  - role 'create': davet eden — kuyruğa kodla girer, link + bekleme ekranı.
+ *  - role 'join':   arkadaş — linke tıkladı, aynı kodla katılır.
+ */
+export interface InviteContext {
+  role: 'create' | 'join';
+  code: string;
+}
+
+/**
  * Online eşleşme akışı.
- *  1. Giriş yoksa /giris'e (online yalnızca girişliye).
- *  2. Kuyruğa gir, eşleşene kadar bekle + yokla.
- *  3. EŞLEŞİNCE: "Rakip bulundu" ekranını (iki oyuncu kartı, P1 sol / P2 sağ,
- *     üzerinde ad/mail) ~3.5sn göster, SONRA maça geç. Böylece ani sayfa
- *     yığılması olmaz; kullanıcı kiminle eşleştiğini görür.
+ *  1. Giriş yoksa /giris'e (online yalnızca girişliye) — davet linkinden gelene
+ *     returnTo ile geri dönülür.
+ *  2. Kuyruğa gir (rastgele VEYA davet koduyla), eşleşene kadar bekle + yokla.
+ *  3. EŞLEŞİNCE: "Rakip bulundu" ekranını ~4sn göster, SONRA maça geç.
+ *
+ * `invite` verilirse özel davet akışı: davet eden link paylaşır + bekler,
+ * arkadaşı aynı kodla katılınca SADECE o ikisi eşleşir.
  */
 export function OnlineMatchmaking({
   onCancel,
   mode = DEFAULT_MODE,
+  invite,
 }: {
   onCancel: () => void;
   /** Hangi modda eşleşilecek (vs-duello | hedef | …). Varsayılan vs-duello. */
   mode?: string;
+  /** Özel davet bağlamı. Yoksa rastgele eşleşme. */
+  invite?: InviteContext;
 }) {
   const router = useRouter();
   const { data: sessionData, isPending } = useSession();
@@ -112,16 +134,31 @@ export function OnlineMatchmaking({
     let cancelled = false;
     (async () => {
       try {
+        // Davet bağlamına göre body: create (davet aç) | join (katıl) | rastgele.
+        const body: Record<string, unknown> = { mode: safeMode };
+        if (invite) {
+          body.action = invite.role;
+          body.inviteCode = invite.code;
+        }
         const res = await fetch('/api/matchmaking', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ mode: safeMode }),
+          body: JSON.stringify(body),
         });
         if (!res.ok) throw new Error('Eşleşme başlatılamadı.');
         const data = await res.json();
         if (cancelled) return;
         if (data.matched && data.matchId) {
           void onMatched(data.matchId);
+          return;
+        }
+        // Eşleşme henüz yok:
+        if (invite?.role === 'create') {
+          // Davet eden: link göster + arkadaş gelene kadar bekle (polling).
+          setPhase('inviting');
+        } else if (invite?.role === 'join') {
+          // Katılan ama davet bulunamadı → süresi dolmuş / iptal / yanlış kod.
+          setPhase('invite-expired');
         } else {
           setPhase('searching');
         }
@@ -135,11 +172,13 @@ export function OnlineMatchmaking({
     return () => {
       cancelled = true;
     };
-  }, [isPending, sessionData, router, onMatched]);
+  }, [isPending, sessionData, router, onMatched, invite, safeMode]);
 
-  // 2) Bekleme: kısa aralıklarla yokla (rakip bizi kapmış olabilir).
+  // 2) Bekleme: kısa aralıklarla yokla (rakip bizi kapmış / arkadaş davete
+  //    katılmış olabilir). Hem rastgele (searching) hem davet eden (inviting)
+  //    için aynı yoklama — ikisi de "bana maç kuruldu mu?" diye bakar.
   useEffect(() => {
-    if (phase !== 'searching') return;
+    if (phase !== 'searching' && phase !== 'inviting') return;
     pollRef.current = setInterval(async () => {
       try {
         // MOD-ÖZEL yokla: yalnız bu modda aktif maça yönlen (başka moddaki eski
@@ -187,6 +226,33 @@ export function OnlineMatchmaking({
     return <MatchFound found={found} />;
   }
 
+  if (phase === 'invite-expired') {
+    return (
+      <section className="flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
+        <h2 className="text-2xl font-black text-accent-goldHi">
+          Davet bulunamadı
+        </h2>
+        <p className="max-w-sm text-sm text-white/65">
+          Bu davetin süresi dolmuş ya da iptal edilmiş olabilir. Arkadaşından
+          yeni bir davet linki iste — ya da rastgele bir rakiple oyna.
+        </p>
+        <button type="button" onClick={handleCancel} className="btn-ghost">
+          Geri dön
+        </button>
+      </section>
+    );
+  }
+
+  if (phase === 'inviting' && invite) {
+    return (
+      <InvitingScreen
+        code={invite.code}
+        mode={safeMode}
+        onCancel={handleCancel}
+      />
+    );
+  }
+
   return (
     <section className="flex min-h-[60vh] flex-col items-center justify-center gap-8 text-center">
       <BallLoader
@@ -194,7 +260,115 @@ export function OnlineMatchmaking({
         label="Rakip aranıyor…"
         sub="Seninle eşleşecek bir oyuncu bekleniyor. Bu birkaç saniye sürebilir."
       />
-      <button type="button" onClick={handleCancel} className="btn-ghost">
+      <div className="flex flex-col items-center gap-3">
+        {/* Davet eden, rastgele aramayı bırakıp belirli bir arkadaşı çağırabilir.
+            Kuyruktan çıkar + davet-aç moduna geç. */}
+        <button
+          type="button"
+          onClick={async () => {
+            try {
+              await fetch('/api/matchmaking', { method: 'DELETE' });
+            } catch {
+              // sessizce geç
+            }
+            router.push(
+              `/online?mode=${encodeURIComponent(safeMode)}&invite=create`,
+            );
+          }}
+          className="text-sm font-semibold text-accent-goldHi transition hover:underline"
+        >
+          ya da bir arkadaşını davet et →
+        </button>
+        <button type="button" onClick={handleCancel} className="btn-ghost">
+          Vazgeç
+        </button>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Davet eden bekleme ekranı: paylaşılabilir link + kopyala/paylaş + "arkadaşın
+ * bekleniyor". Arkadaş katılınca üst component polling'de maçı görüp geçiş yapar.
+ */
+function InvitingScreen({
+  code,
+  mode,
+  onCancel,
+}: {
+  code: string;
+  mode: string;
+  onCancel: () => void;
+}) {
+  const [copied, setCopied] = useState(false);
+
+  const link =
+    typeof window !== 'undefined'
+      ? `${window.location.origin}/davet/${code}?mode=${encodeURIComponent(mode)}`
+      : '';
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(link);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      // clipboard yoksa kullanıcı input'tan elle seçer
+    }
+  };
+
+  const share = async () => {
+    // Web Share API (mobil) — yoksa kopyalamaya düş.
+    if (typeof navigator !== 'undefined' && navigator.share) {
+      try {
+        await navigator.share({
+          title: 'DerbyGoal — birlikte oynayalım',
+          text: 'Beni DerbyGoal maçına davet ediyorsun! Linke tıkla:',
+          url: link,
+        });
+        return;
+      } catch {
+        // kullanıcı paylaşımı iptal etti / desteklenmiyor → kopyalamaya düş
+      }
+    }
+    void copy();
+  };
+
+  return (
+    <section className="flex min-h-[60vh] flex-col items-center justify-center gap-7 text-center">
+      <div className="flex flex-col items-center gap-3">
+        <BallLoader size={56} label="Arkadaşın bekleniyor…" />
+        <p className="max-w-sm text-sm text-white/65">
+          Aşağıdaki linki arkadaşına gönder. Linke tıklayıp giriş yapınca
+          otomatik olarak eşleşeceksiniz.
+        </p>
+      </div>
+
+      <div className="flex w-full max-w-md flex-col items-center gap-3">
+        <input
+          readOnly
+          value={link}
+          onClick={(e) => (e.target as HTMLInputElement).select()}
+          className={cn(
+            'w-full rounded-full border border-white/15 bg-black/30 px-4 py-2.5',
+            'text-center text-xs text-white/85 outline-none focus:border-accent-gold/60',
+          )}
+        />
+        <div className="flex flex-wrap items-center justify-center gap-2">
+          <button type="button" onClick={share} className="btn-primary">
+            Paylaş
+          </button>
+          <button type="button" onClick={copy} className="btn-ghost min-w-[120px]">
+            {copied ? 'Kopyalandı ✓' : 'Linki kopyala'}
+          </button>
+        </div>
+      </div>
+
+      <p className="text-xs text-white/40">
+        Davet ~15 dakika geçerli. Kullanılmazsa otomatik kapanır.
+      </p>
+
+      <button type="button" onClick={onCancel} className="btn-ghost">
         Vazgeç
       </button>
     </section>

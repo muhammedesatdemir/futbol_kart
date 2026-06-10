@@ -15,6 +15,10 @@ import {
   desc,
   eq,
   getDb,
+  gte,
+  isNotNull,
+  isNull,
+  lte,
   match as matchTable,
   matchmakingQueue,
   ne,
@@ -60,6 +64,13 @@ export interface MatchmakingResult {
   /** Eşleşme beklemedeyse: kuyrukta olduğunu bildirir. */
   queued?: boolean;
 }
+
+/**
+ * Özel davet kuyruğu kaydı kaç dakika sonra "bayat" sayılır. Davet linki bu
+ * süre içinde kullanılmazsa eşleşmeye dahil edilmez ve temizlenir. Kullanıcı
+ * isteği: ~10-15dk sonra pasife çek (fazladan istek/zombi kayıt önlenir).
+ */
+const INVITE_TTL_MS = 15 * 60 * 1000;
 
 /**
  * Online maç için başlangıç state. İki gerçek oyuncu, mod = 'online'.
@@ -152,6 +163,9 @@ export async function joinMatchmaking(
             and(
               eq(matchmakingQueue.mode, mode),
               ne(matchmakingQueue.userId, userId),
+              // Yalnız HERKESE AÇIK bekleyenler (davet kodlu kayıtlar rastgele
+              // eşleşmeye katılmaz — onlar sadece kendi kodlarıyla eşleşir).
+              isNull(matchmakingQueue.inviteCode),
             ),
           )
           .orderBy(asc(matchmakingQueue.enqueuedAt))
@@ -161,53 +175,8 @@ export async function joinMatchmaking(
     .returning({ userId: matchmakingQueue.userId });
 
   if (claimed.length > 0) {
-    const opponentId = claimed[0]!.userId;
-    // 4) Maç oluştur. p1 = kapılan bekleyen (önce gelen), p2 = yeni katılan.
-    const matchId = nanoid();
-    const seed = `${matchId}-${mode}`;
-    const [p1Name, p2Name] = await Promise.all([
-      displayNameOf(db, opponentId),
-      displayNameOf(db, userId),
-    ]);
-    // Mod-özel başlangıç state (vs-duello → SessionState, hedef → TargetMatchState).
-    const { state, deadlineSecs } = await buildInitialMatchState(
-      mode,
-      matchId,
-      seed,
-      p1Name,
-      p2Name,
-    );
-
-    // Süre EŞLEŞME ANINDA başlar (iki tarafta eş). İlk sahnenin süre limiti.
-    const turnDeadline = deadlineSecs
-      ? new Date(Date.now() + deadlineSecs * 1000)
-      : null;
-
-    await db.insert(matchTable).values({
-      id: matchId,
-      mode,
-      seed,
-      status: 'active',
-      p1UserId: opponentId,
-      p2UserId: userId,
-      currentScene: (state as { scene: string }).scene,
-      state,
-      turnDeadline,
-    });
-
-    // GÜVENLİK AĞI: maç kurulduğunda HER İKİ oyuncuyu da kuyruktan temizle.
-    // Claim edilen zaten silindi; ama eşzamanlı bir self-enqueue (kullanıcı
-    // maça girerken POST'u araya girip kendini kuyruğa yazmış olabilir) kalıntı
-    // bırakabilir → "hem maçta hem kuyrukta" tutarsızlığı. Bunu siler.
-    await db
-      .delete(matchmakingQueue)
-      .where(
-        or(
-          eq(matchmakingQueue.userId, opponentId),
-          eq(matchmakingQueue.userId, userId),
-        ),
-      );
-
+    // 4) Rakip kapıldı → maç oluştur (p1 = önce gelen bekleyen, p2 = yeni katılan).
+    const matchId = await createMatchBetween(db, claimed[0]!.userId, userId, mode);
     return { matched: true, matchId };
   }
 
@@ -217,16 +186,200 @@ export async function joinMatchmaking(
     .values({ userId, mode })
     .onConflictDoUpdate({
       target: matchmakingQueue.userId,
-      set: { mode, enqueuedAt: new Date() },
+      set: { mode, enqueuedAt: new Date(), inviteCode: null },
     });
 
   return { matched: false, queued: true };
+}
+
+/**
+ * İki oyuncu arasında maç kurar (mod-özel state + deadline + kuyruk temizliği).
+ * Hem rastgele eşleşme (`joinMatchmaking`) hem özel davet (`joinInvite`)
+ * tarafından kullanılır → maç-kurma mantığı tek yerde.
+ *
+ * p1 = `firstUserId` (önce gelen / davet eden), p2 = `secondUserId` (sonra katılan).
+ * GÜVENLİK AĞI: maç kurulunca HER İKİ oyuncuyu da kuyruktan temizler (claim
+ * edilen zaten silinmiş olabilir; self-enqueue kalıntısı varsa o da gider).
+ */
+async function createMatchBetween(
+  db: ReturnType<typeof getDb>,
+  firstUserId: string,
+  secondUserId: string,
+  mode: OnlineMode,
+): Promise<string> {
+  const matchId = nanoid();
+  const seed = `${matchId}-${mode}`;
+  const [p1Name, p2Name] = await Promise.all([
+    displayNameOf(db, firstUserId),
+    displayNameOf(db, secondUserId),
+  ]);
+  const { state, deadlineSecs } = await buildInitialMatchState(
+    mode,
+    matchId,
+    seed,
+    p1Name,
+    p2Name,
+  );
+  const turnDeadline = deadlineSecs
+    ? new Date(Date.now() + deadlineSecs * 1000)
+    : null;
+
+  await db.insert(matchTable).values({
+    id: matchId,
+    mode,
+    seed,
+    status: 'active',
+    p1UserId: firstUserId,
+    p2UserId: secondUserId,
+    currentScene: (state as { scene: string }).scene,
+    state,
+    turnDeadline,
+  });
+
+  await db
+    .delete(matchmakingQueue)
+    .where(
+      or(
+        eq(matchmakingQueue.userId, firstUserId),
+        eq(matchmakingQueue.userId, secondUserId),
+      ),
+    );
+
+  return matchId;
 }
 
 /** Kullanıcıyı kuyruktan çıkar (vazgeçti / sayfadan ayrıldı). */
 export async function leaveMatchmaking(userId: string): Promise<void> {
   const db = getDb();
   await db.delete(matchmakingQueue).where(eq(matchmakingQueue.userId, userId));
+}
+
+/* ============================================================================
+ * ÖZEL DAVET (arkadaşını davet et) — rastgele eşleşmenin yanında ikinci yol.
+ *
+ * Akış:
+ *   1. Davet eden `createInvite` → bir kod üretilir, kuyruğa `invite_code` ile
+ *      girer (HERKESE AÇIK rastgele claim onu görmez: isNull(inviteCode) filtresi).
+ *      Davet eden linki paylaşır + bekleme ekranında polling yapar.
+ *   2. Arkadaş linke tıklar → (giriş yoksa returnTo ile /giris) → `joinInvite`
+ *      AYNI kodla → atomik claim YALNIZ bu kodla bekleyeni kapar → maç kurulur.
+ *   3. Davet eden polling'de kendi aktif maçını görür (findActiveMatchFor) → maça.
+ *
+ * Davet eden, rastgele akışın aksine, beklerken kendini kuyruktan SİLMEZ (yoksa
+ * arkadaşı hiç kapacak kayıt bulamaz). Bayat davetler INVITE_TTL_MS ile elenir.
+ * ========================================================================= */
+
+/** Rastgele, URL-güvenli davet kodu (tahmin edilmesi zor — 10 karakter). */
+export function generateInviteCode(): string {
+  return nanoid(10);
+}
+
+/**
+ * Davet eden kuyruğa özel KODLA girer (kendini eşleşmeye AÇMADAN — rastgele
+ * claim isNull(inviteCode) ile onu atlar). Zaten bu modda aktif maçı varsa ona
+ * yönlendirir (tek aktif maç kuralı).
+ */
+export async function createInvite(
+  userId: string,
+  mode: OnlineMode,
+  inviteCode: string,
+): Promise<MatchmakingResult> {
+  const db = getDb();
+
+  const existingMatch = await findActiveMatchFor(userId, mode);
+  if (existingMatch) {
+    return { matched: true, matchId: existingMatch };
+  }
+
+  // Kuyruğa davet koduyla gir (upsert — tekrar çağrılırsa kodu/saati tazeler).
+  await db
+    .insert(matchmakingQueue)
+    .values({ userId, mode, inviteCode })
+    .onConflictDoUpdate({
+      target: matchmakingQueue.userId,
+      set: { mode, inviteCode, enqueuedAt: new Date() },
+    });
+
+  return { matched: false, queued: true };
+}
+
+/**
+ * Arkadaş davet linkine tıklayıp katılır. AYNI `inviteCode` ile bekleyen daveti
+ * ATOMİK claim eder → maç kurulur. Kendiyle eşleşme (ne userId) + bayat davet
+ * (TTL) korumalı. Davet bulunamazsa (süre dolmuş / iptal / yanlış kod) matched:
+ * false döner → sayfa "davet geçersiz/süresi dolmuş" gösterir.
+ */
+export async function joinInvite(
+  userId: string,
+  mode: OnlineMode,
+  inviteCode: string,
+): Promise<MatchmakingResult> {
+  const db = getDb();
+
+  // Zaten bu modda aktif maçı varsa ona git (davet eden de katılan da olabilir;
+  // ör. davet eden linki kendi açarsa kendi maçına yönlenir).
+  const existingMatch = await findActiveMatchFor(userId, mode);
+  if (existingMatch) {
+    return { matched: true, matchId: existingMatch };
+  }
+
+  // Bayat olmayan eşik (TTL içinde kalan davetler geçerli).
+  const freshAfter = new Date(Date.now() - INVITE_TTL_MS);
+
+  // Önce kendi kuyruk kaydımı temizle (bayat/çift kayıt önlemi — davet edenin
+  // kendi kodu hariç; ama katılan farklı kullanıcı olduğundan bu güvenli).
+  await db.delete(matchmakingQueue).where(eq(matchmakingQueue.userId, userId));
+
+  // ATOMİK: bu KODLA bekleyen daveti (kendim değil + TTL içinde) tek işlemle kap.
+  const claimed = await db
+    .delete(matchmakingQueue)
+    .where(
+      eq(
+        matchmakingQueue.userId,
+        db
+          .select({ id: matchmakingQueue.userId })
+          .from(matchmakingQueue)
+          .where(
+            and(
+              eq(matchmakingQueue.inviteCode, inviteCode),
+              eq(matchmakingQueue.mode, mode),
+              ne(matchmakingQueue.userId, userId),
+              gte(matchmakingQueue.enqueuedAt, freshAfter),
+            ),
+          )
+          .orderBy(asc(matchmakingQueue.enqueuedAt))
+          .limit(1),
+      ),
+    )
+    .returning({ userId: matchmakingQueue.userId });
+
+  if (claimed.length > 0) {
+    // Davet eden = p1 (önce gelen), katılan = p2.
+    const matchId = await createMatchBetween(db, claimed[0]!.userId, userId, mode);
+    return { matched: true, matchId };
+  }
+
+  // Davet bulunamadı: süresi dolmuş / iptal edilmiş / yanlış kod / davet eden
+  // henüz kuyruğa girmemiş olabilir. matched:false → sayfa uygun mesaj gösterir.
+  return { matched: false, queued: false };
+}
+
+/**
+ * Bayat davet kayıtlarını temizle (TTL aşımı). Çağrıldığında yan etki olarak
+ * eski davetleri siler — davet polling/katılma akışlarında ara sıra çağrılır.
+ * Rastgele kuyruk (inviteCode null) ETKİLENMEZ.
+ */
+export async function pruneStaleInvites(): Promise<void> {
+  const db = getDb();
+  const staleBefore = new Date(Date.now() - INVITE_TTL_MS);
+  await db
+    .delete(matchmakingQueue)
+    .where(
+      and(
+        isNotNull(matchmakingQueue.inviteCode), // sadece davet kayıtları
+        lte(matchmakingQueue.enqueuedAt, staleBefore), // TTL aşmış
+      ),
+    );
 }
 
 /**

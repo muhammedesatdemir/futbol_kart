@@ -5,6 +5,9 @@ import {
   joinMatchmaking,
   leaveMatchmaking,
   findActiveMatchFor,
+  createInvite,
+  joinInvite,
+  pruneStaleInvites,
   ONLINE_MODES,
   type OnlineMode,
 } from '@/lib/server/matchmaking';
@@ -42,6 +45,29 @@ export async function POST(req: Request) {
     return NextResponse.json({ error: 'Geçersiz mod.' }, { status: 400 });
   }
 
+  // ÖZEL DAVET mi, rastgele mi? Body'de action + inviteCode varsa davet yolu.
+  const action = parseAction(body);
+  const inviteCode = parseInviteCode(body);
+
+  if (action === 'create') {
+    if (!inviteCode) {
+      return NextResponse.json({ error: 'Davet kodu eksik.' }, { status: 400 });
+    }
+    // Yeni davet açarken bayat davetleri ara sıra temizle (ucuz, yan etki).
+    void pruneStaleInvites().catch(() => {});
+    const result = await createInvite(userId, mode, inviteCode);
+    return NextResponse.json(result);
+  }
+
+  if (action === 'join') {
+    if (!inviteCode) {
+      return NextResponse.json({ error: 'Davet kodu eksik.' }, { status: 400 });
+    }
+    const result = await joinInvite(userId, mode, inviteCode);
+    return NextResponse.json(result);
+  }
+
+  // Varsayılan: rastgele eşleşme (mevcut davranış — değişmedi).
   const result = await joinMatchmaking(userId, mode);
   return NextResponse.json(result);
 }
@@ -96,4 +122,22 @@ function parseMode(body: unknown): OnlineMode | null {
   if (!body || typeof body !== 'object') return null;
   const m = (body as Record<string, unknown>).mode;
   return ONLINE_MODES.includes(m as OnlineMode) ? (m as OnlineMode) : null;
+}
+
+/** Davet aksiyonu: 'create' (davet aç) | 'join' (davete katıl) | null (rastgele). */
+function parseAction(body: unknown): 'create' | 'join' | null {
+  if (!body || typeof body !== 'object') return null;
+  const a = (body as Record<string, unknown>).action;
+  return a === 'create' || a === 'join' ? a : null;
+}
+
+/** Davet kodu — yalnız makul uzunlukta alfanümerik/URL-güvenli kabul edilir. */
+function parseInviteCode(body: unknown): string | null {
+  if (!body || typeof body !== 'object') return null;
+  const c = (body as Record<string, unknown>).inviteCode;
+  if (typeof c !== 'string') return null;
+  const trimmed = c.trim();
+  if (trimmed.length < 4 || trimmed.length > 32) return null;
+  if (!/^[A-Za-z0-9_-]+$/.test(trimmed)) return null;
+  return trimmed;
 }

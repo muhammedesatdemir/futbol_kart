@@ -244,12 +244,21 @@ export const matchmakingQueue = pgTable(
     mode: text('mode').notNull(),
     /** Eşleştirme için (MVP'de user_rating'den okunur veya sabit 1000). */
     rating: integer('rating').notNull().default(1000),
+    /**
+     * ÖZEL DAVET kodu. null → herkese açık rastgele kuyruk (mevcut davranış).
+     * Doluysa → yalnızca AYNI kodla giren iki kullanıcı eşleşir (arkadaşını
+     * davet et). Davet eden bir kod üretir, kuyruğa bu kodla girer; arkadaşı
+     * linke tıklayıp aynı kodla girince atomik claim YALNIZ bu iki kişiyi
+     * eşleştirir. Bkz matchmaking.ts (inviteCode filtreli claim).
+     */
+    inviteCode: text('invite_code'),
     enqueuedAt: timestamp('enqueued_at', { withTimezone: true })
       .notNull()
       .defaultNow(),
   },
   (t) => ({
     modeIdx: index('matchmaking_queue_mode_idx').on(t.mode),
+    inviteIdx: index('matchmaking_queue_invite_idx').on(t.inviteCode),
   }),
 );
 

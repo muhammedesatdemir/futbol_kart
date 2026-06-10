@@ -15,6 +15,13 @@
       "when": 1780776462518,
       "tag": "0001_violet_obadiah_stane",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1781120642515,
+      "tag": "0002_tidy_swordsman",
+      "breakpoints": true
     }
   ]
 }

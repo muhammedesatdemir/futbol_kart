@@ -24,7 +24,7 @@ function DavetInner() {
   return (
     <OnlineMatchmaking
       mode={mode}
-      invite={{ role: 'join', code }}
+      joinCode={code}
       onCancel={() => router.push('/')}
     />
   );

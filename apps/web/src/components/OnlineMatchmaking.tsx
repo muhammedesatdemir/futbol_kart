@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { nanoid } from 'nanoid';
 import { motion } from 'framer-motion';
 import { useSession } from '@/lib/authClient';
 import { useSfx } from '@/lib/useSfx';
@@ -10,6 +11,7 @@ import { cn } from '@/lib/cn';
 
 type Phase =
   | 'checking-auth'
+  | 'choose' // online'a girince: rastgele mi, arkadaş davet mi?
   | 'searching'
   | 'inviting' // davet eden: link paylaşıldı, arkadaş bekleniyor
   | 'found'
@@ -42,41 +44,37 @@ interface FoundInfo {
 }
 
 /**
- * Davet bağlamı (opsiyonel). Yoksa RASTGELE eşleşme (mevcut davranış).
- *  - role 'create': davet eden — kuyruğa kodla girer, link + bekleme ekranı.
- *  - role 'join':   arkadaş — linke tıkladı, aynı kodla katılır.
- */
-export interface InviteContext {
-  role: 'create' | 'join';
-  code: string;
-}
-
-/**
- * Online eşleşme akışı.
- *  1. Giriş yoksa /giris'e (online yalnızca girişliye) — davet linkinden gelene
- *     returnTo ile geri dönülür.
- *  2. Kuyruğa gir (rastgele VEYA davet koduyla), eşleşene kadar bekle + yokla.
- *  3. EŞLEŞİNCE: "Rakip bulundu" ekranını ~4sn göster, SONRA maça geç.
+ * Online eşleşme akışı. İKİ giriş şekli:
  *
- * `invite` verilirse özel davet akışı: davet eden link paylaşır + bekler,
- * arkadaşı aynı kodla katılınca SADECE o ikisi eşleşir.
+ *  A) Normal (mod seçiminden): `joinCode` YOK. Giriş kontrolünden sonra SEÇİM
+ *     ekranı (`choose`) gösterilir — rastgele rakip mi, arkadaş davet mi?
+ *       • Rastgele → kuyruğa gir, eşleşene kadar bekle + yokla.
+ *       • Davet et → component bir kod üretir, `inviting` ekranı (link + bekleme).
+ *
+ *  B) Davet linkinden (`/davet/<kod>`): `joinCode` DOLU gelir. Seçim atlanır,
+ *     doğrudan o kodla davete KATILMA denenir (giriş yoksa returnTo ile /giris).
+ *
+ * EŞLEŞİNCE: "Rakip bulundu" ekranı ~4sn → maça geç (mod-özel route).
  */
 export function OnlineMatchmaking({
   onCancel,
   mode = DEFAULT_MODE,
-  invite,
+  joinCode,
 }: {
   onCancel: () => void;
   /** Hangi modda eşleşilecek (vs-duello | hedef | …). Varsayılan vs-duello. */
   mode?: string;
-  /** Özel davet bağlamı. Yoksa rastgele eşleşme. */
-  invite?: InviteContext;
+  /** Davet linkinden gelindiyse (/davet/<kod>) o kod. Verilirse direkt katılma. */
+  joinCode?: string;
 }) {
   const router = useRouter();
   const { data: sessionData, isPending } = useSession();
   const [phase, setPhase] = useState<Phase>('checking-auth');
   const [error, setError] = useState<string | null>(null);
   const [found, setFound] = useState<FoundInfo | null>(null);
+  // Davet eden "Arkadaşını davet et" seçince üretilen kod (component-içi → URL
+  // navigasyonu/remount derdi yok). joinCode (linkten gelen) bundan ayrı.
+  const [myInviteCode, setMyInviteCode] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const handledRef = useRef(false); // eşleşme bir kez işlensin
 
@@ -117,13 +115,56 @@ export function OnlineMatchmaking({
     return () => clearTimeout(t);
   }, [phase, found, router, routeFor]);
 
-  // 1) Giriş kontrolü → kuyruğa gir.
+  // Rastgele eşleşmeyi başlat (kullanıcı "Rastgele rakip" seçti).
+  const startRandom = useCallback(async () => {
+    setPhase('searching');
+    try {
+      const res = await fetch('/api/matchmaking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: safeMode }),
+      });
+      if (!res.ok) throw new Error('Eşleşme başlatılamadı.');
+      const data = await res.json();
+      if (data.matched && data.matchId) {
+        void onMatched(data.matchId);
+      }
+      // matched değilse zaten 'searching' fazında → polling devralır.
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Bir hata oluştu.');
+      setPhase('error');
+    }
+  }, [safeMode, onMatched]);
+
+  // Davet aç (kullanıcı "Arkadaşını davet et" seçti): kod üret + kuyruğa kodla gir.
+  const startInvite = useCallback(async () => {
+    const code = generateClientInviteCode();
+    setMyInviteCode(code);
+    setPhase('inviting');
+    try {
+      const res = await fetch('/api/matchmaking', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ mode: safeMode, action: 'create', inviteCode: code }),
+      });
+      if (!res.ok) throw new Error('Davet oluşturulamadı.');
+      const data = await res.json();
+      if (data.matched && data.matchId) {
+        void onMatched(data.matchId);
+      }
+      // matched değilse 'inviting' fazında → link gösterilir, polling devralır.
+    } catch (e) {
+      setError(e instanceof Error ? e.message : 'Bir hata oluştu.');
+      setPhase('error');
+    }
+  }, [safeMode, onMatched]);
+
+  // 1) Giriş kontrolü → seçim ekranı (normal) VEYA davete katılma (link).
   useEffect(() => {
     if (isPending) return;
     if (!sessionData?.user) {
       // Giriş/kayıt sonrası kullanıcı buraya geri dönsün: bulunduğu sayfayı
-      // (mod seçimi + ?mode=…) returnTo ile taşı. Giriş sayfası başarıyla
-      // bitince returnTo'ya gider, OnlineMatchmaking yeniden mount olur.
+      // (mod seçimi + ?mode=… veya /davet/<kod>) returnTo ile taşı.
       const here =
         typeof window !== 'undefined'
           ? window.location.pathname + window.location.search
@@ -131,48 +172,45 @@ export function OnlineMatchmaking({
       router.push(`/giris?returnTo=${encodeURIComponent(here)}`);
       return;
     }
-    let cancelled = false;
-    (async () => {
-      try {
-        // Davet bağlamına göre body: create (davet aç) | join (katıl) | rastgele.
-        const body: Record<string, unknown> = { mode: safeMode };
-        if (invite) {
-          body.action = invite.role;
-          body.inviteCode = invite.code;
+
+    // Davet linkinden gelindiyse: seçim YOK, doğrudan o kodla katılmayı dene.
+    if (joinCode) {
+      let cancelled = false;
+      (async () => {
+        try {
+          const res = await fetch('/api/matchmaking', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              mode: safeMode,
+              action: 'join',
+              inviteCode: joinCode,
+            }),
+          });
+          if (!res.ok) throw new Error('Davete katılınamadı.');
+          const data = await res.json();
+          if (cancelled) return;
+          if (data.matched && data.matchId) {
+            void onMatched(data.matchId);
+          } else {
+            // Davet yok/süresi dolmuş/yanlış kod.
+            setPhase('invite-expired');
+          }
+        } catch (e) {
+          if (!cancelled) {
+            setError(e instanceof Error ? e.message : 'Bir hata oluştu.');
+            setPhase('error');
+          }
         }
-        const res = await fetch('/api/matchmaking', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify(body),
-        });
-        if (!res.ok) throw new Error('Eşleşme başlatılamadı.');
-        const data = await res.json();
-        if (cancelled) return;
-        if (data.matched && data.matchId) {
-          void onMatched(data.matchId);
-          return;
-        }
-        // Eşleşme henüz yok:
-        if (invite?.role === 'create') {
-          // Davet eden: link göster + arkadaş gelene kadar bekle (polling).
-          setPhase('inviting');
-        } else if (invite?.role === 'join') {
-          // Katılan ama davet bulunamadı → süresi dolmuş / iptal / yanlış kod.
-          setPhase('invite-expired');
-        } else {
-          setPhase('searching');
-        }
-      } catch (e) {
-        if (!cancelled) {
-          setError(e instanceof Error ? e.message : 'Bir hata oluştu.');
-          setPhase('error');
-        }
-      }
-    })();
-    return () => {
-      cancelled = true;
-    };
-  }, [isPending, sessionData, router, onMatched, invite, safeMode]);
+      })();
+      return () => {
+        cancelled = true;
+      };
+    }
+
+    // Normal giriş: kullanıcıya seçim sun (rastgele / davet).
+    setPhase('choose');
+  }, [isPending, sessionData, router, onMatched, joinCode, safeMode]);
 
   // 2) Bekleme: kısa aralıklarla yokla (rakip bizi kapmış / arkadaş davete
   //    katılmış olabilir). Hem rastgele (searching) hem davet eden (inviting)
@@ -243,16 +281,28 @@ export function OnlineMatchmaking({
     );
   }
 
-  if (phase === 'inviting' && invite) {
+  // Seçim ekranı: rastgele rakip mi, arkadaş davet mi?
+  if (phase === 'choose') {
+    return (
+      <ChooseScreen
+        onRandom={startRandom}
+        onInvite={startInvite}
+        onCancel={onCancel}
+      />
+    );
+  }
+
+  if (phase === 'inviting' && myInviteCode) {
     return (
       <InvitingScreen
-        code={invite.code}
+        code={myInviteCode}
         mode={safeMode}
         onCancel={handleCancel}
       />
     );
   }
 
+  // searching (ve diğer yükleme anları)
   return (
     <section className="flex min-h-[60vh] flex-col items-center justify-center gap-8 text-center">
       <BallLoader
@@ -260,31 +310,98 @@ export function OnlineMatchmaking({
         label="Rakip aranıyor…"
         sub="Seninle eşleşecek bir oyuncu bekleniyor. Bu birkaç saniye sürebilir."
       />
-      <div className="flex flex-col items-center gap-3">
-        {/* Davet eden, rastgele aramayı bırakıp belirli bir arkadaşı çağırabilir.
-            Kuyruktan çıkar + davet-aç moduna geç. */}
-        <button
-          type="button"
-          onClick={async () => {
-            try {
-              await fetch('/api/matchmaking', { method: 'DELETE' });
-            } catch {
-              // sessizce geç
-            }
-            router.push(
-              `/online?mode=${encodeURIComponent(safeMode)}&invite=create`,
-            );
-          }}
-          className="text-sm font-semibold text-accent-goldHi transition hover:underline"
-        >
-          ya da bir arkadaşını davet et →
-        </button>
-        <button type="button" onClick={handleCancel} className="btn-ghost">
-          Vazgeç
-        </button>
-      </div>
+      <button type="button" onClick={handleCancel} className="btn-ghost">
+        Vazgeç
+      </button>
     </section>
   );
+}
+
+/**
+ * Online'a girince ilk ekran: iki büyük seçim kartı.
+ *  - Rastgele rakip: kuyruğa girer, kim çıkarsa onunla eşleşir.
+ *  - Arkadaşını davet et: paylaşılabilir link üretir, sadece o arkadaşla eşleşir.
+ */
+function ChooseScreen({
+  onRandom,
+  onInvite,
+  onCancel,
+}: {
+  onRandom: () => void;
+  onInvite: () => void;
+  onCancel: () => void;
+}) {
+  return (
+    <section className="flex min-h-[70vh] flex-col items-center justify-center gap-8 text-center">
+      <motion.h2
+        initial={{ opacity: 0, y: -8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="text-2xl font-black text-white sm:text-3xl"
+      >
+        Nasıl oynamak istersin?
+      </motion.h2>
+
+      <div className="grid w-full max-w-md grid-cols-1 gap-4 sm:grid-cols-2">
+        <ChoiceCard
+          emoji="🎲"
+          title="Rastgele rakip"
+          sub="Çevrimiçi birini bul, hemen eşleş"
+          onClick={onRandom}
+          delay={0.05}
+        />
+        <ChoiceCard
+          emoji="🔗"
+          title="Arkadaşını davet et"
+          sub="Link gönder, birlikte oynayın"
+          onClick={onInvite}
+          delay={0.12}
+        />
+      </div>
+
+      <button type="button" onClick={onCancel} className="btn-ghost">
+        Geri dön
+      </button>
+    </section>
+  );
+}
+
+function ChoiceCard({
+  emoji,
+  title,
+  sub,
+  onClick,
+  delay,
+}: {
+  emoji: string;
+  title: string;
+  sub: string;
+  onClick: () => void;
+  delay: number;
+}) {
+  return (
+    <motion.button
+      type="button"
+      onClick={onClick}
+      initial={{ opacity: 0, y: 12, scale: 0.96 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay, type: 'spring', stiffness: 260, damping: 22 }}
+      whileHover={{ y: -4, scale: 1.02 }}
+      whileTap={{ scale: 0.98 }}
+      className={cn(
+        'glass-panel-strong flex flex-col items-center gap-2 rounded-2xl p-6',
+        'border border-white/10 transition hover:border-accent-gold/50',
+      )}
+    >
+      <span className="text-4xl">{emoji}</span>
+      <span className="text-base font-black text-white">{title}</span>
+      <span className="text-xs text-white/55">{sub}</span>
+    </motion.button>
+  );
+}
+
+/** Client tarafı davet kodu (URL-güvenli, 10 karakter). Sunucu kodu doğrular. */
+function generateClientInviteCode(): string {
+  return nanoid(10);
 }
 
 /**
@@ -335,34 +452,55 @@ function InvitingScreen({
   };
 
   return (
-    <section className="flex min-h-[60vh] flex-col items-center justify-center gap-7 text-center">
+    <section className="flex min-h-[60vh] flex-col items-center justify-center gap-6 text-center">
       <div className="flex flex-col items-center gap-3">
-        <BallLoader size={56} label="Arkadaşın bekleniyor…" />
+        <BallLoader size={52} label="Arkadaşın bekleniyor…" />
         <p className="max-w-sm text-sm text-white/65">
           Aşağıdaki linki arkadaşına gönder. Linke tıklayıp giriş yapınca
           otomatik olarak eşleşeceksiniz.
         </p>
       </div>
 
-      <div className="flex w-full max-w-md flex-col items-center gap-3">
-        <input
-          readOnly
-          value={link}
-          onClick={(e) => (e.target as HTMLInputElement).select()}
-          className={cn(
-            'w-full rounded-full border border-white/15 bg-black/30 px-4 py-2.5',
-            'text-center text-xs text-white/85 outline-none focus:border-accent-gold/60',
-          )}
-        />
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          <button type="button" onClick={share} className="btn-primary">
-            Paylaş
-          </button>
-          <button type="button" onClick={copy} className="btn-ghost min-w-[120px]">
-            {copied ? 'Kopyalandı ✓' : 'Linki kopyala'}
+      {/* Link kutusu — belirgin bir panel: link + yanında kopyala butonu. */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        className="glass-panel-strong w-full max-w-md rounded-2xl p-4"
+      >
+        <span className="mb-2 block text-[11px] font-semibold uppercase tracking-[0.18em] text-white/45">
+          Davet linkin
+        </span>
+        <div className="flex items-center gap-2">
+          <input
+            readOnly
+            value={link}
+            onClick={(e) => (e.target as HTMLInputElement).select()}
+            className={cn(
+              'flex-1 rounded-xl border border-white/10 bg-black/40 px-3 py-2.5',
+              'text-xs text-white/90 outline-none focus:border-accent-gold/60',
+            )}
+          />
+          <button
+            type="button"
+            onClick={copy}
+            className={cn(
+              'shrink-0 rounded-xl px-4 py-2.5 text-xs font-bold transition',
+              copied
+                ? 'bg-emerald-500/25 text-emerald-300 ring-1 ring-emerald-400/40'
+                : 'bg-accent-gold/20 text-accent-goldHi ring-1 ring-accent-gold/40 hover:bg-accent-gold/30',
+            )}
+          >
+            {copied ? 'Kopyalandı ✓' : 'Kopyala'}
           </button>
         </div>
-      </div>
+        <button
+          type="button"
+          onClick={share}
+          className="btn-primary mt-3 w-full justify-center"
+        >
+          Paylaş
+        </button>
+      </motion.div>
 
       <p className="text-xs text-white/40">
         Davet ~15 dakika geçerli. Kullanılmazsa otomatik kapanır.

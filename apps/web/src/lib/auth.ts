@@ -1,20 +1,24 @@
 /**
  * Better-Auth server config.
  *
- * İki giriş yolu:
- *   1. Google OAuth ("Google ile devam et" — tek tık, ana yol).
- *   2. E-posta magic-link (yedek — link gelir, tıklayınca session açılır).
- * Şifre yok.
+ * Giriş yolları (öncelik sırası):
+ *   1. E-posta + şifre (ANA yol — kayıt: mail+kullanıcı adı+şifre, oto-giriş).
+ *   2. Google OAuth ("Google ile devam et" — env varsa aktif).
+ *   3. E-posta magic-link (yedek — link gelir, tıklayınca session açılır).
  *
- * Email gönderici: Resend (free tier 3000/ay).
+ * Mail trafiği (Resend, free tier 3000/ay):
+ *   - Şifre sıfırlama linki ("şifremi unuttum").
+ *   - Magic-link (yedek giriş yolu kullanılırsa).
+ *   - Kayıt doğrulaması GÖNDERİLMEZ (requireEmailVerification: false → oto-giriş).
+ *   Yani normal kayıt/giriş HİÇ mail atmaz; limit pratikte yalnız reset ile harcanır.
  *
  * Gerekli env vars:
  *   - DATABASE_URL          Neon connection string
  *   - BETTER_AUTH_SECRET    32+ karakter rastgele string
  *   - BETTER_AUTH_URL       https://yourdomain.com (prod) veya http://localhost:3000 (dev)
- *   - RESEND_API_KEY        Resend dashboard'dan (magic-link için)
+ *   - RESEND_API_KEY        Resend dashboard'dan (şifre sıfırlama + magic-link için)
  *   - EMAIL_FROM            "DerbyGoal <noreply@derbygoal.com>" (Resend'de doğrulanmış domain)
- * Opsiyonel (Google girişi için — yoksa yalnızca magic-link aktif olur):
+ * Opsiyonel (Google girişi için — yoksa yalnızca e-posta/şifre + magic-link aktif olur):
  *   - GOOGLE_CLIENT_ID      Google Cloud Console → OAuth 2.0 Client ID
  *   - GOOGLE_CLIENT_SECRET  aynı yerden
  *   Yönlendirme URI'si: {BETTER_AUTH_URL}/api/auth/callback/google
@@ -49,19 +53,52 @@ async function sendMagicLinkEmail(email: string, url: string) {
     from: emailFrom,
     to: email,
     subject: 'DerbyGoal — giriş linkin',
-    html: magicLinkEmailTemplate(url),
+    html: actionEmailTemplate({
+      intro: 'Aşağıdaki butona tıklayarak giriş yapabilirsin. Link 15 dakika geçerli.',
+      buttonLabel: 'Giriş yap',
+      url,
+    }),
   });
 }
 
-function magicLinkEmailTemplate(url: string): string {
+async function sendResetPasswordEmail(email: string, url: string) {
+  // Resend yoksa dev'de konsola yaz — linki tarayıcıya yapıştırarak test edilir.
+  if (!resend) {
+    console.log(
+      `\n[auth] Resend yapılandırılmamış. Şifre sıfırlama linki manuel:\n  to: ${email}\n  url: ${url}\n`,
+    );
+    return;
+  }
+  await resend.emails.send({
+    from: emailFrom,
+    to: email,
+    subject: 'DerbyGoal — şifre sıfırlama',
+    html: actionEmailTemplate({
+      intro:
+        'Şifreni sıfırlamak için aşağıdaki butona tıkla. Link 1 saat geçerli. Bu isteği sen yapmadıysan görmezden gel.',
+      buttonLabel: 'Şifremi sıfırla',
+      url,
+    }),
+  });
+}
+
+function actionEmailTemplate({
+  intro,
+  buttonLabel,
+  url,
+}: {
+  intro: string;
+  buttonLabel: string;
+  url: string;
+}): string {
   return `
     <div style="font-family: system-ui, -apple-system, sans-serif; max-width: 480px; margin: 40px auto; padding: 24px; background: #0a2614; color: #f7f7f7; border-radius: 16px;">
       <h1 style="color: #ffd76b; font-size: 22px; margin: 0 0 8px;">DerbyGoal</h1>
       <p style="color: rgba(255,255,255,0.65); margin: 0 0 24px;">
-        Aşağıdaki butona tıklayarak giriş yapabilirsin. Link 15 dakika geçerli.
+        ${intro}
       </p>
       <a href="${url}" style="display: inline-block; background: linear-gradient(180deg, #ffd76b, #f0c14b); color: #1f1500; padding: 12px 24px; border-radius: 999px; text-decoration: none; font-weight: 700;">
-        Giriş yap
+        ${buttonLabel}
       </a>
       <p style="color: rgba(255,255,255,0.4); font-size: 12px; margin: 24px 0 0;">
         Bu maili sen istemediysen yok say.
@@ -82,8 +119,23 @@ export const auth = betterAuth({
       verification: schema.verification,
     },
   }),
+  // E-posta + şifre ANA giriş yolu. Kayıtta doğrulama maili GÖNDERİLMEZ
+  // (requireEmailVerification: false) → kayıt anında oto-giriş açılır.
+  // Şifremi-unuttum akışı sendResetPassword ile Resend üzerinden mail atar.
   emailAndPassword: {
-    enabled: false,
+    enabled: true,
+    requireEmailVerification: false,
+    minPasswordLength: 6,
+    sendResetPassword: async ({ user, url }) => {
+      await sendResetPasswordEmail(user.email, url);
+    },
+    resetPasswordTokenExpiresIn: 60 * 60, // 1 saat
+  },
+  // Oturum cookie'si uzun ömürlü: bir kez giren bir daha şifre sormadan döner.
+  // updateAge ile her kullanımda süre tazelenir (kayan pencere).
+  session: {
+    expiresIn: 60 * 60 * 24 * 60, // 60 gün
+    updateAge: 60 * 60 * 24, // günde bir tazele
   },
   socialProviders: googleEnabled
     ? {

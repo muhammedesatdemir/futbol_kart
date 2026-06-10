@@ -99,7 +99,14 @@ export function OnlineMatchmaking({
   useEffect(() => {
     if (isPending) return;
     if (!sessionData?.user) {
-      router.push('/giris');
+      // Giriş/kayıt sonrası kullanıcı buraya geri dönsün: bulunduğu sayfayı
+      // (mod seçimi + ?mode=…) returnTo ile taşı. Giriş sayfası başarıyla
+      // bitince returnTo'ya gider, OnlineMatchmaking yeniden mount olur.
+      const here =
+        typeof window !== 'undefined'
+          ? window.location.pathname + window.location.search
+          : '/online';
+      router.push(`/giris?returnTo=${encodeURIComponent(here)}`);
       return;
     }
     let cancelled = false;

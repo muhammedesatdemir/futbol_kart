@@ -88,7 +88,11 @@ export async function POST(
   }
 
   let state = m.state as ListMatchState;
-  let seq = await nextMoveSeq(db, matchId);
+  // seq'i DB'den OKUMUYORUZ: bu hamlenin sahiplendiği sürümden (m.version + 1)
+  // türetiyoruz. Optimistic lock her başarılı hamleye benzersiz sürüm verdiği
+  // için seq bloğu da benzersiz + monoton artan kalır (replay/reconnect sırası
+  // korunur), fazladan round-trip olmadan. 16'lık blok: bir hamlede ~1 event.
+  const seqBase = (m.version + 1) * 16;
 
   // SÜRE KONTROLÜ (lazy): önceki sahnenin süresi dolduysa otomatik ilerlet (pas).
   const prevDeadline = m.turnDeadline ? new Date(m.turnDeadline).getTime() : null;
@@ -155,11 +159,18 @@ export async function POST(
     return NextResponse.json({ error: 'conflict', retry: true }, { status: 409 });
   }
 
-  for (const entry of pendingLog) {
+  // TEK batch INSERT (eskiden her event ayrı round-trip'ti). audit kritik değil.
+  if (pendingLog.length > 0) {
     try {
-      await db
-        .insert(matchMove)
-        .values({ id: nanoid(), matchId, seq: seq++, side: entry.side, event: entry.event });
+      await db.insert(matchMove).values(
+        pendingLog.map((entry, i) => ({
+          id: nanoid(),
+          matchId,
+          seq: seqBase + i,
+          side: entry.side,
+          event: entry.event,
+        })),
+      );
     } catch {
       // audit kritik değil
     }
@@ -204,14 +215,3 @@ function parseAction(body: unknown): Action | null {
   return null;
 }
 
-async function nextMoveSeq(
-  db: ReturnType<typeof getDb>,
-  matchId: string,
-): Promise<number> {
-  const existing = await db
-    .select({ seq: matchMove.seq })
-    .from(matchMove)
-    .where(eq(matchMove.matchId, matchId));
-  if (!existing.length) return 0;
-  return Math.max(...existing.map((r) => r.seq)) + 1;
-}

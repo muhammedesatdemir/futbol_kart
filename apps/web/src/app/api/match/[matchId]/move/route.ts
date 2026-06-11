@@ -99,7 +99,13 @@ export async function POST(
 
   let state = m.state as SessionState;
   let flowState = (m.flowState as FlowState | null) ?? null;
-  let seq = await nextMoveSeq(db, matchId);
+  // seq'i DB'den OKUMUYORUZ (eski nextMoveSeq her hamlede tüm match_move'u
+  // tarıyordu → fazladan round-trip + maç uzadıkça yavaşlama). Bunun yerine
+  // bu hamlenin sahiplendiği sürümden (m.version + 1) türetiyoruz: optimistic
+  // lock sayesinde her başarılı hamle BENZERSİZ bir sürüm alır, dolayısıyla
+  // seq bloğu da benzersiz + monoton artan kalır (replay/reconnect sırası
+  // korunur). 16'lık blok: bir hamlede en çok ~3 audit event olur, taşmaz.
+  const seqBase = (m.version + 1) * 16;
 
   // SÜRE KONTROLÜ (lazy): önceki aşamanın süresi dolduysa otomatik tamamla.
   // Böylece rakip bekletse / sekme kapansa bile maç ilerler.
@@ -245,10 +251,20 @@ export async function POST(
   }
 
   // UPDATE başarılı → şimdi audit log'ları yaz (seq çakışması olmaz çünkü bu
-  // sürümü biz aldık). Hata olursa yut (audit kritik değil, state kaynak-doğru).
-  for (const entry of pendingLog) {
+  // sürümü biz aldık). TEK batch INSERT: eskiden her event ayrı round-trip'ti;
+  // artık hepsi tek sorguda. Hata olursa yut (audit kritik değil, state
+  // kaynak-doğru). seq = seqBase + i → blok içinde sıralı, bloklar arası benzersiz.
+  if (pendingLog.length > 0) {
     try {
-      await logMove(db, matchId, seq++, entry.side, entry.event);
+      await db.insert(matchMove).values(
+        pendingLog.map((entry, i) => ({
+          id: nanoid(),
+          matchId,
+          seq: seqBase + i,
+          side: entry.side,
+          event: entry.event,
+        })),
+      );
     } catch {
       // audit yazımı başarısız — state zaten yazıldı, yut
     }
@@ -345,27 +361,4 @@ function parseAction(body: unknown): Action | null {
     return { type: 'play-card', cardId: b.cardId };
   }
   return null;
-}
-
-async function logMove(
-  db: ReturnType<typeof getDb>,
-  matchId: string,
-  seq: number,
-  side: 'P1' | 'P2',
-  event: Record<string, unknown>,
-): Promise<void> {
-  await db.insert(matchMove).values({ id: nanoid(), matchId, seq, side, event });
-}
-
-/** Bu maç için bir sonraki sıra numarası (audit log idempotency). */
-async function nextMoveSeq(
-  db: ReturnType<typeof getDb>,
-  matchId: string,
-): Promise<number> {
-  const existing = await db
-    .select({ seq: matchMove.seq })
-    .from(matchMove)
-    .where(eq(matchMove.matchId, matchId));
-  if (!existing.length) return 0;
-  return Math.max(...existing.map((r) => r.seq)) + 1;
 }

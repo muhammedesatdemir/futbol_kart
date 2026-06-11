@@ -8,6 +8,7 @@ import { PlayerCard } from '@/components/PlayerCard';
 import { CountdownRing } from '@/components/CountdownRing';
 import { XrayJokerButton } from '@/components/scenes/TargetXrayOverlay';
 import { JokerHelpButton } from '@/components/JokerHelpButton';
+import { normalize } from '@/lib/playerFilters';
 import {
   SLOT_COUNT,
   type TargetCriterion,
@@ -148,12 +149,12 @@ export function TargetDraftScene({
 
   // Havuz: metrik verisi olan + kullanılmamış + arama. RASTGELE sıra (kör).
   const candidates = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = normalize(search);
     const base = pool
       .filter((p) => criterion.metric(p) !== null)
       .filter((p) => !criterion.poolFilter || criterion.poolFilter(p))
       .filter((p) => !excluded.has(p.id))
-      .filter((p) => (q ? p.displayName.toLowerCase().includes(q) : true));
+      .filter((p) => (q ? normalize(p.displayName).includes(q) : true));
     return shuffled(base, stepIndex * 7919 + 13).slice(0, 50);
   }, [pool, criterion, excluded, search, stepIndex]);
 

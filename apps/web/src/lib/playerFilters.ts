@@ -36,8 +36,17 @@ export const EMPTY_CRITERIA: FilterCriteria = {
   era: null,
 };
 
-/** Türkçe karakterleri normalize et + lowercase. */
-function normalize(s: string): string {
+/**
+ * Türkçe + uluslararası karakterleri normalize et + lowercase.
+ *
+ * Aksanları (á→a, é→e, í→i, ñ→n, ç→c…) ve Türkçe'ye özel harfleri soyar ki
+ * "Ángel Di María" → "angel di maria" olarak aransın. Hem oyuncu verisi hem de
+ * arama terimi bu fonksiyondan geçirilmelidir.
+ *
+ * Tüm modların arama kutuları (Liste, Kadro, Hedef…) buraya bağlanmalı —
+ * ham `.toLowerCase().includes()` kullanılmamalı.
+ */
+export function normalize(s: string): string {
   return s
     .toLowerCase()
     .normalize('NFD')

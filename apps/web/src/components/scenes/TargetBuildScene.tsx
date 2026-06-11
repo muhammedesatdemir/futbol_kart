@@ -9,6 +9,7 @@ import { XrayJokerButton } from '@/components/scenes/TargetXrayOverlay';
 import { JokerHelpButton } from '@/components/JokerHelpButton';
 import { cn } from '@/lib/cn';
 import { SLOT_COUNT, type TargetCriterion, type TargetPicks } from '@/lib/targetMode';
+import { normalize } from '@/lib/playerFilters';
 
 interface TargetBuildSceneProps {
   criterion: TargetCriterion;
@@ -93,12 +94,12 @@ export function TargetBuildScene({
   // Aday havuz: metrik verisi olan + havuz kısıtı + rakipte kullanılmamış +
   // arama. SIRALAMA YOK — deterministik karıştırma (kör seçim).
   const candidates = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = normalize(search);
     const base = pool
       .filter((p) => criterion.metric(p) !== null)
       .filter((p) => !criterion.poolFilter || criterion.poolFilter(p))
       .filter((p) => !excludeIds.has(p.id))
-      .filter((p) => (q ? p.displayName.toLowerCase().includes(q) : true));
+      .filter((p) => (q ? normalize(p.displayName).includes(q) : true));
     return shuffled(base, shuffleSeed).slice(0, 60);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [pool, criterion, excludeIds, search, shuffleSeed]);

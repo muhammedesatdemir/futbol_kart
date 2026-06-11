@@ -6,6 +6,7 @@ import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
 import { CountdownRing } from '@/components/CountdownRing';
 import { cn } from '@/lib/cn';
+import { normalize } from '@/lib/playerFilters';
 import {
   type ListCriterion,
   type ListEntry,
@@ -187,11 +188,11 @@ export function ListPlayScene({
   const guessedIds = useMemo(() => new Set(filledPlayer.values()), [filledPlayer]);
 
   const candidates = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = normalize(search);
     const base = pool
       .filter((p) => criterion.metric(p) !== null)
       .filter((p) => !criterion.poolFilter || criterion.poolFilter(p))
-      .filter((p) => (q ? p.displayName.toLowerCase().includes(q) : true));
+      .filter((p) => (q ? normalize(p.displayName).includes(q) : true));
     return shuffled(base, 7919).slice(0, 48);
   }, [pool, criterion, search]);
 

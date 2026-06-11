@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
 import { cn } from '@/lib/cn';
+import { normalize } from '@/lib/playerFilters';
 import {
   type Formation,
   type SquadAssignment,
@@ -76,14 +77,14 @@ export function SquadBuildScene({
   // havuz kısıtı + başka slota atanmamış + rakipte kullanılmamış.
   // SIRALAMA YOK — deterministik karıştırma (slot'a göre seed kaydırılır).
   const candidates = useMemo(() => {
-    const q = search.trim().toLowerCase();
+    const q = normalize(search);
     const base = pool
       .filter((p) => p.position === activeSlotDef.position)
       .filter((p) => criterion.metric(p) !== null)
       .filter((p) => !criterion.poolFilter || criterion.poolFilter(p))
       .filter((p) => !excludeIds.has(p.id))
       .filter((p) => !usedHere.has(p.id) || assignment[activeSlot] === p.id)
-      .filter((p) => (q ? p.displayName.toLowerCase().includes(q) : true));
+      .filter((p) => (q ? normalize(p.displayName).includes(q) : true));
     // Slot id'sini seed'e kat ki her mevki farklı karışsın.
     const slotSeed = shuffleSeed + activeSlotDef.id.length * 2654435761;
     return shuffled(base, slotSeed).slice(0, 60);

@@ -7,6 +7,7 @@ import { PlayerCard } from '@/components/PlayerCard';
 import { CountdownRing } from '@/components/CountdownRing';
 import { JokerHelpButton } from '@/components/JokerHelpButton';
 import { cn } from '@/lib/cn';
+import { normalize } from '@/lib/playerFilters';
 import {
   type Formation,
   type SquadAssignment,
@@ -149,9 +150,9 @@ export function SquadDraftScene({
   const candidates = useMemo(() => {
     if (!activeSlotDef) return [];
     const base = candidatesForSlot(activeSlotDef, criterion, pool, excluded);
-    const q = search.trim().toLowerCase();
+    const q = normalize(search);
     const filtered = q
-      ? base.filter((p) => p.displayName.toLowerCase().includes(q))
+      ? base.filter((p) => normalize(p.displayName).includes(q))
       : base;
     return shuffled(filtered, stepIndex * 7919 + activeSlotDef.id.length).slice(0, 50);
   }, [activeSlotDef, criterion, pool, excluded, search, stepIndex]);

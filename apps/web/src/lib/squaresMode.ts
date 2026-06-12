@@ -318,20 +318,25 @@ function buildPairWeights(
   return weights;
 }
 
+/** İki hücre arası Manhattan (ızgara) uzaklığı. */
+function cellDistance(a: number, b: number, size: number): number {
+  return (
+    Math.abs(Math.floor(a / size) - Math.floor(b / size)) +
+    Math.abs((a % size) - (b % size))
+  );
+}
+
 /**
- * AÇGÖZLÜ AKILLI YERLEŞTİRME — kulüpleri ızgaraya, BİRBİRİYLE ÇOK ORTAK OYUNCUSU
- * olanları bitişik (komşu) gelecek şekilde diz. Böylece bir oyuncunun kulüpleri
- * ızgarada kümelenir → uzun bitişik zincir mümkün olur.
+ * AKILLI YERLEŞTİRME — iki hedefi birlikte sağlar:
+ *   1. NİŞ DAĞITIMI (kullanıcı isteği): "diğer" (elit-olmayan) kulüpler İLK ve
+ *      DAĞITILARAK yerleştirilir — her biri mevcut nişlerden UZAK + nişe komşu
+ *      OLMAYAN hücrelere. Böylece niş takımlar yan yana/alt-alta YIĞILMAZ
+ *      (zorluk patlamaz). Önce yerleştirmek "köşeye kaçma" sorununu çözer
+ *      (eski hata: nişler sona kalınca boş köşelere sıkışıyordu).
+ *   2. ELİT KÜMELENMESİ: kalan hücrelere elitler, BİRBİRİYLE ÇOK ORTAK OYUNCUSU
+ *      olanları komşu gelecek şekilde (pairWeight) → uzun bitişik zincir mümkün.
  *
- * NİŞ-YIĞILMA ÖNLEMİ (kullanıcı isteği): elit kulüpler ÖNCE yerleştirilir; sonra
- * "diğer" (elit-olmayan) kulüpler, KOMŞUSUNDA başka diğer-kulüp olan hücrelere
- * CEZA verilerek dağıtılır → iki niş takım yan yana/alt-alta yığılmaz, aralarına
- * elit serpiştirilir (zorluk aşırı artmaz).
- *
- * Yöntem (deterministik, seed'li):
- *   - Elit kulüpleri sırayla: dolu komşularıyla en yüksek pairWeight'i veren hücreye.
- *   - Diğer kulüpleri sırayla: pairWeight ÖDÜLÜ + "diğer-komşu" CEZASI ile skorla.
- *   - İlk kulüp rastgele hücreye.
+ * Deterministik (seed'li PRNG).
  */
 function placeAdjacent(
   clubs: PoolClub[],
@@ -344,40 +349,74 @@ function placeAdjacent(
   const pw = (a: string, b: string): number =>
     pairWeight.get(a < b ? `${a}|${b}` : `${b}|${a}`) ?? 0;
 
-  // Elit önce (kümelenme omurgası), diğer sonra (serpiştirilir). Her grup kendi
-  // içinde shuffle → çeşitlilik. Tek liste, ama elitler başta.
   const elites = prng.shuffle(clubs.filter((c) => ELITE_CLUB_IDS.has(c.id)));
   const others = prng.shuffle(clubs.filter((c) => !ELITE_CLUB_IDS.has(c.id)));
-  const order = [...elites, ...others];
 
-  // "diğer" komşu cezası — bir diğer-kulüp, komşusunda kaç diğer-kulüp varsa o
-  // kadar ceza (pairWeight ödülünden düşülür). Yığılmayı dağıtır.
-  const OTHER_NEIGHBOR_PENALTY = 6;
-
-  // İlk kulüp: rastgele hücre.
-  grid[Math.floor(prng.next() * CELL_COUNT)] = order[0]!;
-
-  for (let k = 1; k < order.length; k++) {
-    const club = order[k]!;
-    const clubIsOther = !ELITE_CLUB_IDS.has(club.id);
+  // ── 1) NİŞLERİ ÖNCE DAĞIT ──────────────────────────────────────────────────
+  // İlk nişi rastgele hücreye; sonraki her nişi, YERLEŞTİRİLMİŞ nişlere komşu
+  // OLMAYAN ve onlara EN UZAK boş hücreye koy (maksimum dağılım).
+  const nicheCells: number[] = [];
+  if (others.length > 0) {
+    const first = Math.floor(prng.next() * CELL_COUNT);
+    grid[first] = others[0]!;
+    nicheCells.push(first);
+  }
+  for (let k = 1; k < others.length; k++) {
     let bestCells: number[] = [];
-    let bestScore = -Infinity;
+    let bestDist = -1;
     for (let i = 0; i < CELL_COUNT; i++) {
       if (grid[i] !== null) continue;
-      let score = 0;
-      for (const nb of neighbors(i, size)) {
+      // Nişe komşu hücreleri ele (yan yana gelmesin).
+      const touchesNiche = neighbors(i, size).some((nb) => {
         const occ = grid[nb];
-        if (!occ) continue;
-        score += pw(club.id, occ.id); // ortak oyuncu ödülü
-        // NİŞ-YIĞILMA CEZASI: diğer-kulüp, diğer-kulübe komşu olmasın.
-        if (clubIsOther && !ELITE_CLUB_IDS.has(occ.id)) {
-          score -= OTHER_NEIGHBOR_PENALTY;
+        return occ && !ELITE_CLUB_IDS.has(occ.id);
+      });
+      if (touchesNiche) continue;
+      // Mevcut nişlere en YAKIN olanın uzaklığı (bunu maksimize et = en uzak).
+      let minD = Infinity;
+      for (const nc of nicheCells) minD = Math.min(minD, cellDistance(i, nc, size));
+      if (minD > bestDist) {
+        bestDist = minD;
+        bestCells = [i];
+      } else if (minD === bestDist) {
+        bestCells.push(i);
+      }
+    }
+    // Komşusuz uygun hücre kalmadıysa (sıkışık), komşuluk şartını gevşet: en uzak boş.
+    if (bestCells.length === 0) {
+      for (let i = 0; i < CELL_COUNT; i++) {
+        if (grid[i] !== null) continue;
+        let minD = Infinity;
+        for (const nc of nicheCells) minD = Math.min(minD, cellDistance(i, nc, size));
+        if (minD > bestDist) {
+          bestDist = minD;
+          bestCells = [i];
+        } else if (minD === bestDist) {
+          bestCells.push(i);
         }
       }
-      if (score > bestScore) {
-        bestScore = score;
+    }
+    const cell = bestCells[Math.floor(prng.next() * bestCells.length)]!;
+    grid[cell] = others[k]!;
+    nicheCells.push(cell);
+  }
+
+  // ── 2) ELİTLERİ KALAN HÜCRELERE AKILLICA DİZ ───────────────────────────────
+  // Dolu komşularıyla en yüksek pairWeight'i veren hücreye (zincir kümelenmesi).
+  for (const club of elites) {
+    let bestCells: number[] = [];
+    let bestW = -1;
+    for (let i = 0; i < CELL_COUNT; i++) {
+      if (grid[i] !== null) continue;
+      let w = 0;
+      for (const nb of neighbors(i, size)) {
+        const occ = grid[nb];
+        if (occ && ELITE_CLUB_IDS.has(occ.id)) w += pw(club.id, occ.id);
+      }
+      if (w > bestW) {
+        bestW = w;
         bestCells = [i];
-      } else if (score === bestScore) {
+      } else if (w === bestW) {
         bestCells.push(i);
       }
     }

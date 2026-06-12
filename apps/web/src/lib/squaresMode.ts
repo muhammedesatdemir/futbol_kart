@@ -59,6 +59,22 @@ const ELITE_CLUB_IDS = new Set<string>([
   'tm_405', // Aston Villa
 ]);
 
+/**
+ * KÜÇÜK-LİG / NİŞ kulüpler — havuzdan ÇIKARILIR (ne elit ne diğer katmanda).
+ * Tek-temsilli küçük ligler (Yunanistan/Belçika/İskoçya/Monaco) + Hollanda'nın
+ * niş kulüpleri. Bunların oyuncuları çok yer değiştirse de kullanıcı tanımaz →
+ * "ölü kare" olur. Eleyerek 5-büyük-lig + tanınan kulüp ağırlığı artar.
+ * (Ajax/Benfica/Porto/Sporting elit/tanınan olduğu için BURADA DEĞİL.)
+ */
+const EXCLUDED_CLUB_IDS = new Set<string>([
+  'tm_162', // Monaco (tek temsil — Ligue: Fransa'da zaten 9 kulüp var)
+  'tm_683', // Olympiacos (Yunanistan, tek temsil)
+  'tm_58', // RSC Anderlecht (Belçika, tek temsil)
+  'tm_371', // Celtic (İskoçya, tek temsil)
+  'tm_234', // Feyenoord (Hollanda niş)
+  'tm_383', // PSV (Hollanda niş)
+]);
+
 /** 25 kareden kaçı elit kulüp olsun (hedef — havuz yetmezse esner). */
 const TARGET_ELITE = 15;
 /**
@@ -245,15 +261,21 @@ function pickWithCap(
  *      → Türk/orta kulüp yığılmaz; tanınan ama niş kulüpler (Genoa, Betis…).
  *   3. Eksik kalırsa (küçük havuz) tavansız doldur.
  */
-function buildOneGrid(pool: PoolClub[], prng: PRNG): SquaresGrid {
-  const elitePool = prng.shuffle(pool.filter((c) => ELITE_CLUB_IDS.has(c.id)));
-  const otherPool = prng.shuffle(pool.filter((c) => !ELITE_CLUB_IDS.has(c.id)));
+function buildOneGrid(
+  pool: PoolClub[],
+  prng: PRNG,
+  pairWeight: Map<string, number>,
+): SquaresGrid {
+  // Küçük-lig/niş kulüpleri tamamen ÇIKAR (havuz filtresi).
+  const usable = pool.filter((c) => !EXCLUDED_CLUB_IDS.has(c.id));
+  const elitePool = prng.shuffle(usable.filter((c) => ELITE_CLUB_IDS.has(c.id)));
+  const otherPool = prng.shuffle(usable.filter((c) => !ELITE_CLUB_IDS.has(c.id)));
 
   const chosen: PoolClub[] = [];
   const chosenIds = new Set<string>();
   const perCountry = new Map<string, number>();
 
-  // 1) Elit katman — gevşek tavan.
+  // 1) Elit katman — gevşek tavan (5 büyük ligden bol kulüp gelebilir).
   pickWithCap(elitePool, TARGET_ELITE, MAX_PER_COUNTRY_ELITE, chosen, chosenIds, perCountry);
   // 2) Diğer katman — sıkı tavan, kalan kareleri doldur.
   pickWithCap(otherPool, CELL_COUNT - chosen.length, MAX_PER_COUNTRY_OTHER, chosen, chosenIds, perCountry);
@@ -263,9 +285,9 @@ function buildOneGrid(pool: PoolClub[], prng: PRNG): SquaresGrid {
     pickWithCap(otherPool, CELL_COUNT, Infinity, chosen, chosenIds, perCountry);
   }
 
-  // Hücre yerleşimini KARIŞTIR (elitler ızgaranın başına yığılmasın — bitişiklik
-  // ve görsel denge için elit/niş serpiştirilsin).
-  const placed = prng.shuffle(chosen.slice(0, CELL_COUNT));
+  // AKILLI YERLEŞTİRME: rastgele değil — ortak oyuncusu çok olan kulüpleri yan
+  // yana koy → uzun bitişik zincirler mümkün olur ("hep 2'li" sorununu çözer).
+  const placed = placeAdjacent(chosen.slice(0, CELL_COUNT), prng, pairWeight);
 
   return {
     size: GRID_SIZE,
@@ -277,6 +299,88 @@ function buildOneGrid(pool: PoolClub[], prng: PRNG): SquaresGrid {
       capturedBy: null,
     })),
   };
+}
+
+/**
+ * Kulüp-çifti ortak-oyuncu ağırlıkları: havuzdaki her kulüp ÇİFTİ için, kaç
+ * oyuncu İKİSİNDE de oynamış? Akıllı yerleştirme bunu kullanır (çok ortaklı
+ * kulüpler yan yana). Anahtar: `idA|idB` (id'ler sıralı). Tek geçiş, ucuz.
+ */
+function buildPairWeights(
+  pool: PoolClub[],
+  players: Player[],
+): Map<string, number> {
+  const poolIds = new Set(pool.map((c) => c.id));
+  const weights = new Map<string, number>();
+  for (const p of players) {
+    // Oyuncunun HAVUZDAKİ benzersiz kulüpleri (sıralı — kararlı anahtar).
+    const ids = [...new Set(p.clubs.map((s) => s.clubId))]
+      .filter((id) => poolIds.has(id))
+      .sort();
+    for (let i = 0; i < ids.length; i++) {
+      for (let j = i + 1; j < ids.length; j++) {
+        const key = `${ids[i]}|${ids[j]}`;
+        weights.set(key, (weights.get(key) ?? 0) + 1);
+      }
+    }
+  }
+  return weights;
+}
+
+/**
+ * AÇGÖZLÜ AKILLI YERLEŞTİRME — kulüpleri ızgaraya, BİRBİRİYLE ÇOK ORTAK OYUNCUSU
+ * olanları bitişik (komşu) gelecek şekilde diz. Böylece bir oyuncunun kulüpleri
+ * ızgarada kümelenir → uzun bitişik zincir (4-5'li) mümkün olur.
+ *
+ * Yöntem (deterministik, seed'li):
+ *   - İlk kulübü rastgele bir hücreye koy.
+ *   - Sırayla: boş hücrelerden, ŞİMDİYE DEK YERLEŞTİRİLMİŞ komşularıyla en yüksek
+ *     toplam `pairWeight`'i (ortak oyuncu sayısı) veren (kulüp, hücre) çiftini seç.
+ *   - Bağ yoksa (ilk kulüpler) rastgele hücre.
+ */
+function placeAdjacent(
+  clubs: PoolClub[],
+  prng: PRNG,
+  pairWeight: Map<string, number>,
+): PoolClub[] {
+  const size = GRID_SIZE;
+  const grid: (PoolClub | null)[] = new Array(CELL_COUNT).fill(null);
+  const order = prng.shuffle(clubs); // hangi sırayla yerleştireceğimiz (çeşitlilik)
+
+  const pw = (a: string, b: string): number =>
+    pairWeight.get(a < b ? `${a}|${b}` : `${b}|${a}`) ?? 0;
+
+  // İlk kulüp: rastgele hücre.
+  const firstCell = Math.floor(prng.next() * CELL_COUNT);
+  grid[firstCell] = order[0]!;
+
+  for (let k = 1; k < order.length; k++) {
+    const club = order[k]!;
+    // Boş hücreler arasında, dolu komşularıyla en yüksek ağırlığı verenleri bul.
+    let bestCells: number[] = [];
+    let bestW = -1;
+    for (let i = 0; i < CELL_COUNT; i++) {
+      if (grid[i] !== null) continue;
+      let w = 0;
+      for (const nb of neighbors(i, size)) {
+        const occ = grid[nb];
+        if (occ) w += pw(club.id, occ.id);
+      }
+      if (w > bestW) {
+        bestW = w;
+        bestCells = [i];
+      } else if (w === bestW) {
+        bestCells.push(i);
+      }
+    }
+    // Eşit ağırlıklılar arasından seed'li rastgele seç (çeşitlilik + determinizm).
+    const cell = bestCells[Math.floor(prng.next() * bestCells.length)]!;
+    grid[cell] = club;
+  }
+
+  // Tüm hücreler dolu (clubs.length === CELL_COUNT varsayımı). Güvenlik: boş
+  // kalan olursa kalan kulüplerle doldur (clubs < 25 olmamalı ama garanti).
+  return grid.map((c, i) => c ?? clubs[i] ?? clubs[0]!);
 }
 
 /**
@@ -292,12 +396,15 @@ export function generateGrid(
   pool: PoolClub[],
   players: Player[],
 ): SquaresGrid {
+  // Kulüp-çifti ortak-oyuncu ağırlıkları (akıllı yerleştirme için) — bir kez.
+  const pairWeight = buildPairWeights(pool, players);
+
   let bestGrid: SquaresGrid | null = null;
   let bestScore = -1;
 
   for (let attempt = 0; attempt < MAX_GEN_ATTEMPTS; attempt++) {
     const prng = createPRNG(`squares:${seed}:grid:${attempt}`);
-    const grid = buildOneGrid(pool, prng);
+    const grid = buildOneGrid(pool, prng, pairWeight);
     const { solvers, bestChain } = evaluateGrid(grid, players);
     grid.bestPossibleChain = bestChain;
 

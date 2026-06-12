@@ -2,7 +2,7 @@
   "name": "futbol-kart",
   "version": "0.1.0",
   "private": true,
-  "description": "Futbolcu karti oyunu - dijital surum (MVP)",
+  "description": "DerbyGoal - 6 oyun modlu dijital futbol kart & tahmin oyunu (derbygoal.com)",
   "scripts": {
     "dev": "pnpm --filter @futbol-kart/web dev",
     "build": "pnpm --filter @futbol-kart/web build",

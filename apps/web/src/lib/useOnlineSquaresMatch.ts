@@ -5,6 +5,7 @@ import * as Ably from 'ably';
 import type {
   SquaresMatchState,
   SquaresGuessOutcome,
+  SquaresSuggestResult,
 } from '@/lib/server/squaresMatchEngine';
 
 /**
@@ -25,6 +26,8 @@ export interface OnlineSquaresMatch {
   ackReveal: () => Promise<void>;
   /** Sırası gelen taraf bir futbolcu tahmin eder. Sonuç (hit/cells/gained) döner. */
   guess: (playerId: string) => Promise<SquaresGuessOutcome | null>;
+  /** Öneri jokeri — önerilen playerId döner (yalnız isteyene). 1×/taraf. */
+  useSuggest: () => Promise<SquaresSuggestResult | null>;
   turnDeadline: string | null;
   refresh: () => Promise<void>;
 }
@@ -191,6 +194,11 @@ export function useOnlineSquaresMatch(matchId: string | null): OnlineSquaresMatc
     [sendMove],
   );
 
+  const useSuggest = useCallback(async (): Promise<SquaresSuggestResult | null> => {
+    const data = await sendMove({ action: 'use-suggest' });
+    return (data.suggestion ?? null) as SquaresSuggestResult | null;
+  }, [sendMove]);
+
   return {
     state,
     yourSide,
@@ -199,6 +207,7 @@ export function useOnlineSquaresMatch(matchId: string | null): OnlineSquaresMatc
     error,
     ackReveal,
     guess,
+    useSuggest,
     turnDeadline,
     refresh,
   };

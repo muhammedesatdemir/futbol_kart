@@ -26,6 +26,7 @@ import {
   decideWinner,
   playerClubIds,
   largestAdjacentGroup,
+  suggestGuess,
   SQUARES_LIVES,
   type SquaresGrid as GridData,
   type SquaresSide,
@@ -50,6 +51,8 @@ export interface SquaresMatchState {
   scene: 'REVEAL' | 'PLAY' | 'RESULT';
   /** Sonuç (RESULT'ta). */
   winner: SquaresSide | 'tie' | null;
+  /** Öneri jokeri kullanıldı mı (taraf başına 1×). */
+  jokerUsed: { P1: boolean; P2: boolean };
   /** İsimler. */
   p1Name: string;
   p2Name: string;
@@ -102,6 +105,7 @@ export async function buildInitialSquaresState(
     activeSide: 'P1',
     scene: 'REVEAL',
     winner: null,
+    jokerUsed: { P1: false, P2: false },
     p1Name,
     p2Name,
   };
@@ -188,6 +192,46 @@ export async function applySquaresGuess(
   let next: SquaresMatchState = { ...state, lives };
   next = advanceTurn(next, side);
   return { nextState: next, outcome: { hit: false, lives: next.lives } };
+}
+
+/** Öneri jokeri sonucu — YALNIZCA isteyene döner (kişisel, state'e yazılmaz). */
+export interface SquaresSuggestResult {
+  playerId: string;
+}
+
+/**
+ * Öneri jokeri (online) — aktif tarafa 1×. Büyük grup açan iyi bir futbolcu
+ * önerir (offline `suggestGuess`, üst dilim). Önerilen playerId YALNIZCA isteyene
+ * döner; state'te yalnız `jokerUsed[side]` işaretlenir. Kabul = ayrı `guess`.
+ */
+export async function applySquaresSuggest(
+  state: SquaresMatchState,
+  side: SquaresSide,
+): Promise<{ nextState: SquaresMatchState; suggestion: SquaresSuggestResult | null }> {
+  if (state.scene !== 'PLAY') {
+    throw new Error(`Öneri kullanılamaz: sahne PLAY değil (${state.scene}).`);
+  }
+  if (state.jokerUsed[side]) {
+    throw new Error('Öneri jokerini bu maçta zaten kullandın.');
+  }
+  if (state.activeSide !== side) {
+    throw new Error('Öneri yalnızca kendi sıranda kullanılabilir.');
+  }
+  const { players } = await loadGameData();
+  // Deterministik öneri (kapatılan kare sayısı bazlı sözde-rastgele).
+  const captured = state.grid.cells.filter((c) => c.capturedBy !== null).length;
+  let s = (captured + 1) * 2654435761;
+  const rng = () => {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return (s % 1_000_000) / 1_000_000;
+  };
+  const sug = suggestGuess(state.grid, players, rng);
+
+  const nextState: SquaresMatchState = {
+    ...state,
+    jokerUsed: { ...state.jokerUsed, [side]: true },
+  };
+  return { nextState, suggestion: sug ? { playerId: sug.player.id } : null };
 }
 
 /**

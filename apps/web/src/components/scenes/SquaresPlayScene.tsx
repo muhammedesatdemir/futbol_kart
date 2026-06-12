@@ -77,6 +77,12 @@ interface SquaresPlaySceneProps {
   waitingLabel?: string | null;
   /** ONLINE (opsiyonel): sayacı gizle (result-hold). */
   hideTimer?: boolean;
+  /** ÖNERİ JOKERİ (1×/taraf). Aktif tarafın jokeri kullanılmış mı? */
+  jokerUsed?: boolean;
+  /** Joker'e basıldı — sayfa öneri hesaplar. Verilmezse joker barı gizli. */
+  onSuggest?: () => void;
+  /** Önerilen oyuncu id'si — havuzda parlatılır + rozet. null → öneri yok. */
+  suggestedId?: string | null;
 }
 
 /**
@@ -105,6 +111,9 @@ export function SquaresPlayScene({
   locked = false,
   waitingLabel = null,
   hideTimer = false,
+  jokerUsed = false,
+  onSuggest,
+  suggestedId = null,
 }: SquaresPlaySceneProps) {
   const [search, setSearch] = useState('');
 
@@ -161,10 +170,16 @@ export function SquaresPlayScene({
       const eligible = filtered.filter((p) =>
         p.clubs.some((s) => gridClubIds.has(s.clubId)),
       );
-      return shuffled(eligible, vitrineSeed).slice(0, 48);
+      let list = shuffled(eligible, vitrineSeed).slice(0, 48);
+      // ÖNERİ JOKERİ: önerilen oyuncu vitrinde olmayabilir → başa zorla ekle.
+      if (suggestedId) {
+        const sug = pool.find((p) => p.id === suggestedId);
+        if (sug) list = [sug, ...list.filter((p) => p.id !== suggestedId)];
+      }
+      return list;
     }
     return filtered.slice(0, 48);
-  }, [pool, search, gridClubIds, vitrineSeed]);
+  }, [pool, search, gridClubIds, vitrineSeed, suggestedId]);
 
   const activeName = activeSide === 'P1' ? p1Name : p2Name;
   const sideCls = SIDE[activeSide];
@@ -216,6 +231,26 @@ export function SquaresPlayScene({
             />
           )}
           <Hearts side={activeSide} count={activeLives} />
+
+          {/* ÖNERİ JOKERİ (1×/taraf) — basınca iyi bir futbolcu önerir + parlatır. */}
+          {onSuggest && (
+            <button
+              type="button"
+              disabled={jokerUsed || locked}
+              onClick={onSuggest}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition',
+                jokerUsed
+                  ? 'cursor-not-allowed border-white/10 bg-white/5 text-white/35'
+                  : 'border-accent-gold/50 bg-accent-gold/15 text-accent-goldHi hover:bg-accent-gold/25',
+                locked && 'cursor-not-allowed opacity-50',
+              )}
+              title="Bu turda iyi bir futbolcu öner (maçta 1 kez)"
+            >
+              <span aria-hidden>💡</span>
+              {jokerUsed ? 'Öneri kullanıldı' : 'Öneri jokeri'}
+            </button>
+          )}
 
           {locked && waitingLabel && (
             <motion.div
@@ -279,25 +314,35 @@ export function SquaresPlayScene({
           />
         </div>
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-5 lg:gap-5">
-          {candidates.map((p) => (
-            <button
-              key={p.id}
-              type="button"
-              onClick={() => {
-                if (locked) {
-                  triggerDeny();
-                  return;
-                }
-                onGuess(p.id);
-              }}
-              className={cn(
-                'rounded-lg transition hover:-translate-y-1',
-                locked && 'cursor-not-allowed opacity-60 hover:translate-y-0',
-              )}
-            >
-              <PlayerCard player={p} className="w-full" />
-            </button>
-          ))}
+          {candidates.map((p) => {
+            const isSuggested = suggestedId === p.id;
+            return (
+              <button
+                key={p.id}
+                type="button"
+                onClick={() => {
+                  if (locked) {
+                    triggerDeny();
+                    return;
+                  }
+                  onGuess(p.id);
+                }}
+                className={cn(
+                  'relative rounded-lg transition hover:-translate-y-1',
+                  locked && 'cursor-not-allowed opacity-60 hover:translate-y-0',
+                  isSuggested &&
+                    'rounded-xl ring-2 ring-accent-gold shadow-[0_0_22px_rgba(240,193,75,0.55)]',
+                )}
+              >
+                {isSuggested && (
+                  <span className="absolute -top-2 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent-gold px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-black shadow">
+                    💡 Önerilen
+                  </span>
+                )}
+                <PlayerCard player={p} className="w-full" />
+              </button>
+            );
+          })}
           {candidates.length === 0 && (
             <p className="col-span-full py-6 text-center text-sm text-white/45">
               {search

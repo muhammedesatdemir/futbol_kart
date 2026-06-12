@@ -29,6 +29,7 @@ import {
   emptyCount,
   decideWinner,
   botPickGuess,
+  suggestGuess,
   SQUARES_LIVES,
   type SquaresGrid as GridData,
   type SquaresSide,
@@ -101,6 +102,9 @@ export default function SquaresGamePage() {
   const [turnKey, setTurnKey] = useState(0);
   const [missTick, setMissTick] = useState(0);
   const [highlight, setHighlight] = useState<{ cells: number[]; side: SquaresSide } | null>(null);
+  // Öneri jokeri (offline): taraf başına 1×.
+  const [jokerUsed, setJokerUsed] = useState<{ P1: boolean; P2: boolean }>({ P1: false, P2: false });
+  const [suggestedId, setSuggestedId] = useState<string | null>(null);
 
   // Hot-seat isimleri
   const profileP1 = useProfileStore((s) => s.p1Name);
@@ -123,6 +127,8 @@ export default function SquaresGamePage() {
     setTurnKey(0);
     setMissTick(0);
     setHighlight(null);
+    setJokerUsed({ P1: false, P2: false });
+    setSuggestedId(null);
     setRoundSeed(Math.random().toString(36).slice(2));
   }, []);
 
@@ -198,11 +204,25 @@ export default function SquaresGamePage() {
       const { grid: ng, lives: nlv } = applyGuess(grid, side, playerId);
       setGrid(ng);
       setLives(nlv);
+      setSuggestedId(null); // tahmin yapıldı → öneri vurgusu kalkar
       passTurn(ng, nlv, side);
       scrollTop();
     },
     [grid, activeSide, applyGuess, passTurn, scrollTop],
   );
+
+  // ── ÖNERİ JOKERİ (offline) — aktif tarafa 1×. İyi bir futbolcu önerir + parlatır. ──
+  const onSuggestOffline = useCallback(() => {
+    if (phase !== 'play' || !grid) return;
+    const side = activeSide;
+    if (jokerUsed[side]) return;
+    const prng = createPRNG(`${params.gameId}:suggest:${side}:${turnKey}`);
+    const sug = suggestGuess(grid, session.players, () => prng.next());
+    if (sug) {
+      setSuggestedId(sug.player.id);
+      setJokerUsed((prev) => ({ ...prev, [side]: true }));
+    }
+  }, [phase, grid, activeSide, jokerUsed, params.gameId, turnKey, session.players]);
 
   const onTimeout = useCallback(() => {
     if (!grid) return;
@@ -302,6 +322,8 @@ export default function SquaresGamePage() {
     cells: number[];
     miss: boolean;
   } | null>(null);
+  // Online öneri jokeri: önerilen playerId (köprü useSuggest dönüşü, client-local).
+  const [onlineSuggestedId, setOnlineSuggestedId] = useState<string | null>(null);
   // Hold süresi dolunca temizle → gerçek sunucu state (sıra karşıda) görünür.
   useEffect(() => {
     if (!hold) return;
@@ -320,6 +342,7 @@ export default function SquaresGamePage() {
       if (!onlineState || pendingGuess || hold) return;
       const side = onlineState.activeSide;
       setPendingGuess(playerId);
+      setOnlineSuggestedId(null); // tahmin yapıldı → öneri vurgusu kalkar
       void online.guess(playerId).then((outcome) => {
         setPendingGuess(null);
         if (!outcome) {
@@ -343,6 +366,16 @@ export default function SquaresGamePage() {
     if (!onlineState || pendingGuess || hold) return;
     void online.refresh();
   }, [online, onlineState, pendingGuess, hold]);
+
+  // ── ÖNERİ JOKERİ (online) — köprü useSuggest çağırır, dönen playerId'yi parlatır. ──
+  const onSuggestOnline = useCallback(() => {
+    if (!onlineState || pendingGuess || hold) return;
+    if (!isMyTurn || onlineState.jokerUsed[onlineState.activeSide]) return;
+    void online.useSuggest().then((sug) => {
+      if (sug) setOnlineSuggestedId(sug.playerId);
+      void online.refresh(); // jokerUsed sunucuda işaretlendi → state tazele
+    });
+  }, [online, onlineState, isMyTurn, pendingGuess, hold]);
 
   // ── Ortak (online/offline) rematch + geri ──
   const onRematch = useCallback(() => {
@@ -504,6 +537,9 @@ export default function SquaresGamePage() {
                           ? `Rakip oynuyor… (sıra ${onlineState.activeSide === 'P1' ? displayP1 : displayP2})`
                           : null
                   }
+                  jokerUsed={onlineState.jokerUsed[onlineState.activeSide]}
+                  onSuggest={isMyTurn && !pendingGuess && !hold ? onSuggestOnline : undefined}
+                  suggestedId={onlineSuggestedId}
                 />
               </SceneShell>
             )}
@@ -565,6 +601,9 @@ export default function SquaresGamePage() {
                   waitingLabel={
                     opponent === 'vs-bot' && activeSide === 'P2' ? 'Bot oynuyor…' : null
                   }
+                  jokerUsed={jokerUsed[activeSide]}
+                  onSuggest={onSuggestOffline}
+                  suggestedId={suggestedId}
                 />
               </SceneShell>
             )}

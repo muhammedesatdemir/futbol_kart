@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth';
 import {
   acknowledgeChainReveal,
   applyChainGuess,
+  applyChainSuggest,
   applyChainTimeout,
   chainSceneDeadlineSeconds,
   type ChainMatchState,
@@ -100,6 +101,9 @@ export async function POST(
 
   let outcome: import('@/lib/server/chainMatchEngine').ChainGuessOutcome | null =
     null;
+  // Öneri jokeri sonucu — YALNIZCA isteyene döner (kişisel).
+  let suggestion: import('@/lib/server/chainMatchEngine').ChainSuggestResult | null =
+    null;
 
   const prevStep = (m.state as ChainMatchState).step;
   const pendingLog: Array<{ side: 'P1' | 'P2'; event: Record<string, unknown> }> =
@@ -108,6 +112,11 @@ export async function POST(
   try {
     if (action.type === 'ack-reveal') {
       state = acknowledgeChainReveal(state);
+    } else if (action.type === 'use-suggest') {
+      const r = await applyChainSuggest(state, side);
+      state = r.nextState;
+      suggestion = r.suggestion;
+      // Öneri puanı/durumu değiştirmez, audit log gereksiz (kişisel ipucu).
     } else {
       const r = await applyChainGuess(state, side, action.playerId);
       state = r.nextState;
@@ -177,6 +186,8 @@ export async function POST(
     step: state.step,
     turnDeadline: newDeadline ? newDeadline.toISOString() : null,
     outcome,
+    // Öneri yalnız isteyene (kişisel ipucu) — rakibe gitmez.
+    suggestion,
   });
 }
 
@@ -189,12 +200,14 @@ function computeDeadline(state: ChainMatchState, keep: number | null): Date | nu
 
 type Action =
   | { type: 'ack-reveal' }
+  | { type: 'use-suggest' }
   | { type: 'guess'; playerId: string };
 
 function parseAction(body: unknown): Action | null {
   if (!body || typeof body !== 'object') return null;
   const b = body as Record<string, unknown>;
   if (b.action === 'ack-reveal') return { type: 'ack-reveal' };
+  if (b.action === 'use-suggest') return { type: 'use-suggest' };
   if (b.action === 'guess') {
     if (typeof b.playerId !== 'string' || !b.playerId) return null;
     return { type: 'guess', playerId: b.playerId };

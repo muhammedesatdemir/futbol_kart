@@ -27,6 +27,7 @@ import {
   decideWinner,
   chainSnakeOrder,
   botPick,
+  suggestPick,
   CHAIN_TOTAL_STEPS,
   type ChainClub,
   type ChainPick,
@@ -90,6 +91,9 @@ export default function ChainGamePage() {
   const [p2Picks, setP2Picks] = useState<ChainPick[]>([]);
   const [missTick, setMissTick] = useState(0);
   const [highlight, setHighlight] = useState<{ clubIds: string[]; side: ChainSide } | null>(null);
+  // Öneri jokeri (offline): taraf başına 1×. suggestedId aktif öneri (tıklanınca temizlenir).
+  const [jokerUsed, setJokerUsed] = useState<{ P1: boolean; P2: boolean }>({ P1: false, P2: false });
+  const [suggestedId, setSuggestedId] = useState<string | null>(null);
 
   const profileP1 = useProfileStore((s) => s.p1Name);
   const profileP2 = useProfileStore((s) => s.p2Name);
@@ -106,6 +110,8 @@ export default function ChainGamePage() {
     setP2Picks([]);
     setMissTick(0);
     setHighlight(null);
+    setJokerUsed({ P1: false, P2: false });
+    setSuggestedId(null);
     setRoundSeed(Math.random().toString(36).slice(2));
   }, []);
 
@@ -148,6 +154,7 @@ export default function ChainGamePage() {
         setHighlight(null);
         playSfx('heartbreak');
       }
+      setSuggestedId(null); // pick yapıldı → öneri vurgusu kalkar
       setStep((s) => {
         const next = s + 1;
         if (next >= CHAIN_TOTAL_STEPS) setPhase('result');
@@ -165,6 +172,20 @@ export default function ChainGamePage() {
     },
     [phase, activeSide, applyPick],
   );
+
+  // ── ÖNERİ JOKERİ (offline) — aktif tarafa 1×. İyi bir futbolcu önerir + parlatır. ──
+  const onSuggestOffline = useCallback(() => {
+    if (phase !== 'play' || !clubs) return;
+    const side = activeSide;
+    if (jokerUsed[side]) return;
+    const used = new Set([...p1Picks, ...p2Picks].map((p) => p.playerId));
+    const prng = createPRNG(`${params.gameId}:suggest:${side}:${step}`);
+    const sug = suggestPick(clubIds, session.players, used, () => prng.next());
+    if (sug) {
+      setSuggestedId(sug.player.id);
+      setJokerUsed((prev) => ({ ...prev, [side]: true }));
+    }
+  }, [phase, clubs, activeSide, jokerUsed, p1Picks, p2Picks, params.gameId, step, clubIds, session.players]);
 
   const onTimeout = useCallback(() => {
     if (phase !== 'play') return;
@@ -246,6 +267,8 @@ export default function ChainGamePage() {
   // ONLINE pick akışı: pendingGuess + sonuç-gösterme penceresi (hold).
   const [pendingGuess, setPendingGuess] = useState<string | null>(null);
   const [hold, setHold] = useState<{ side: ChainSide; clubIds: string[]; miss: boolean } | null>(null);
+  // Online öneri jokeri: önerilen playerId (köprü useSuggest dönüşü, client-local).
+  const [onlineSuggestedId, setOnlineSuggestedId] = useState<string | null>(null);
   useEffect(() => {
     if (!hold) return;
     const t = setTimeout(() => {
@@ -263,6 +286,7 @@ export default function ChainGamePage() {
       if (!onlineState || pendingGuess || hold) return;
       const side = onlineActiveSide;
       setPendingGuess(playerId);
+      setOnlineSuggestedId(null); // pick yapıldı → öneri vurgusu kalkar
       void online.guess(playerId).then((outcome) => {
         setPendingGuess(null);
         if (!outcome) {
@@ -276,6 +300,16 @@ export default function ChainGamePage() {
     },
     [online, onlineState, onlineActiveSide, pendingGuess, hold, playSfx, scrollTop],
   );
+
+  // ── ÖNERİ JOKERİ (online) — köprü useSuggest çağırır, dönen playerId'yi parlatır. ──
+  const onSuggestOnline = useCallback(() => {
+    if (!onlineState || pendingGuess || hold) return;
+    if (!isMyTurn || onlineState.jokerUsed[onlineActiveSide]) return;
+    void online.useSuggest().then((sug) => {
+      if (sug) setOnlineSuggestedId(sug.playerId);
+      void online.refresh(); // jokerUsed sunucuda işaretlendi → state tazele
+    });
+  }, [online, onlineState, isMyTurn, onlineActiveSide, pendingGuess, hold]);
 
   const onTimeoutOnline = useCallback(() => {
     if (!onlineState || pendingGuess || hold) return;
@@ -420,6 +454,9 @@ export default function ChainGamePage() {
                   highlightSide={hold?.side ?? null}
                   hideTimer={!!hold}
                   locked={!isMyTurn || !!pendingGuess || !!hold}
+                  jokerUsed={onlineState.jokerUsed[onlineActiveSide]}
+                  onSuggest={isMyTurn && !pendingGuess && !hold ? onSuggestOnline : undefined}
+                  suggestedId={onlineSuggestedId}
                   waitingLabel={
                     pendingGuess
                       ? '✓ Kontrol ediliyor…'
@@ -491,6 +528,9 @@ export default function ChainGamePage() {
                   highlightSide={highlight?.side ?? null}
                   locked={locked}
                   waitingLabel={locked ? 'Bot oynuyor…' : null}
+                  jokerUsed={jokerUsed[activeSide]}
+                  onSuggest={onSuggestOffline}
+                  suggestedId={suggestedId}
                 />
               </SceneShell>
             )}

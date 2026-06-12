@@ -599,3 +599,36 @@ export function botPickGuess(
     result: { hit: true, cells: choice.cells, gained: choice.size },
   };
 }
+
+/**
+ * Öneri jokeri: matriste BÜYÜK bitişik grup açan, ÜST DİLİMDEN (en iyi ~%15) bir
+ * futbolcu önerir — mutlak en iyiyi DEĞİL (oyunu bitirmesin, yardımcı olsun).
+ * Kadro `suggestForDraft` ile aynı denge. `largestAdjacentGroup` kapalı kareleri
+ * zaten atlar → ayrı exclude gerekmez.
+ *
+ * @returns önerilen oyuncu + kapatacağı grup, ya da null (uygun hamle yok).
+ */
+export function suggestGuess(
+  grid: SquaresGrid,
+  pool: Player[],
+  rng: () => number,
+): { player: Player; cells: number[]; gained: number } | null {
+  const candidates: Array<{ player: Player; size: number; cells: number[] }> = [];
+  for (const p of pool) {
+    const group = largestAdjacentGroup(grid, playerClubIds(p));
+    // En az 2'lik grup öner (1'lik öneri değersiz); yoksa 1'e düş.
+    if (group.length >= 2) candidates.push({ player: p, size: group.length, cells: group });
+  }
+  if (candidates.length === 0) {
+    for (const p of pool) {
+      const group = largestAdjacentGroup(grid, playerClubIds(p));
+      if (group.length >= 1) candidates.push({ player: p, size: group.length, cells: group });
+    }
+  }
+  if (candidates.length === 0) return null;
+
+  candidates.sort((a, b) => b.size - a.size);
+  const topK = Math.min(4, Math.max(1, Math.ceil(candidates.length * 0.15)));
+  const choice = candidates[Math.floor(rng() * topK)]!;
+  return { player: choice.player, cells: choice.cells, gained: choice.size };
+}

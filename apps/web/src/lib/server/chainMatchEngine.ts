@@ -21,6 +21,7 @@ import {
   matchedClubs,
   decideWinner,
   chainSnakeOrder,
+  suggestPick,
   CHAIN_TOTAL_STEPS,
   type ChainClub,
   type ChainPick,
@@ -46,6 +47,8 @@ export interface ChainMatchState {
   /** Sunucu-otoriteli sahne. */
   scene: 'REVEAL' | 'PLAY' | 'RESULT';
   winner: ChainSide | 'tie' | null;
+  /** Öneri jokeri kullanıldı mı (taraf başına 1×). */
+  jokerUsed: { P1: boolean; P2: boolean };
   p1Name: string;
   p2Name: string;
 }
@@ -97,6 +100,7 @@ export async function buildInitialChainState(
     p2Picks: [],
     scene: 'REVEAL',
     winner: null,
+    jokerUsed: { P1: false, P2: false },
     p1Name,
     p2Name,
   };
@@ -165,6 +169,48 @@ export async function applyChainGuess(
   const pick: ChainPick = { playerId, matchedClubIds: matched };
   const nextState = advance(state, side, pick);
   return { nextState, outcome: { matchedClubIds: matched, gained: matched.length } };
+}
+
+/** Öneri jokeri sonucu — YALNIZCA isteyene döner (kişisel, state'e yazılmaz). */
+export interface ChainSuggestResult {
+  playerId: string;
+}
+
+/**
+ * Öneri jokeri (online) — aktif tarafa 1×. İyi bir futbolcu önerir (offline
+ * `suggestPick`, üst dilim). Önerilen playerId YALNIZCA isteyene döner; state'te
+ * yalnız `jokerUsed[side]` işaretlenir (öneri içeriği rakibe sızmaz). Öneriyi
+ * kabul = ayrı bir `guess` (client kararı). Kadro öneri jokeriyle aynı desen.
+ */
+export async function applyChainSuggest(
+  state: ChainMatchState,
+  side: ChainSide,
+): Promise<{ nextState: ChainMatchState; suggestion: ChainSuggestResult | null }> {
+  if (state.scene !== 'PLAY') {
+    throw new Error(`Öneri kullanılamaz: sahne PLAY değil (${state.scene}).`);
+  }
+  if (state.jokerUsed[side]) {
+    throw new Error('Öneri jokerini bu maçta zaten kullandın.');
+  }
+  if (state.order[state.step] !== side) {
+    throw new Error('Öneri yalnızca kendi sıranda kullanılabilir.');
+  }
+  const { players } = await loadGameData();
+  const clubIds = new Set(state.clubs.map((c) => c.id));
+  const used = new Set([...state.p1Picks, ...state.p2Picks].map((p) => p.playerId));
+  // Deterministik öneri (adım bazlı sözde-rastgele — Kadro deseni).
+  let s = state.step * 2654435761;
+  const rng = () => {
+    s = (s * 1103515245 + 12345) & 0x7fffffff;
+    return (s % 1_000_000) / 1_000_000;
+  };
+  const sug = suggestPick(clubIds, players, used, rng);
+
+  const nextState: ChainMatchState = {
+    ...state,
+    jokerUsed: { ...state.jokerUsed, [side]: true },
+  };
+  return { nextState, suggestion: sug ? { playerId: sug.player.id } : null };
 }
 
 /**

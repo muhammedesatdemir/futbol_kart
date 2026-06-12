@@ -63,6 +63,12 @@ interface ChainPlaySceneProps {
   locked?: boolean;
   waitingLabel?: string | null;
   hideTimer?: boolean;
+  /** ÖNERİ JOKERİ (1×/taraf). Aktif tarafın jokeri kullanılmış mı? */
+  jokerUsed?: boolean;
+  /** Joker'e basıldı — sayfa öneri hesaplar. Verilmezse joker barı gizli. */
+  onSuggest?: () => void;
+  /** Önerilen oyuncu id'si (joker sonrası) — havuzda parlatılır + rozet. null → öneri yok. */
+  suggestedId?: string | null;
 }
 
 /**
@@ -89,6 +95,9 @@ export function ChainPlayScene({
   locked = false,
   waitingLabel = null,
   hideTimer = false,
+  jokerUsed = false,
+  onSuggest,
+  suggestedId = null,
 }: ChainPlaySceneProps) {
   const [search, setSearch] = useState('');
 
@@ -135,10 +144,16 @@ export function ChainPlayScene({
       const eligible = filtered.filter(
         (p) => !usedIds.has(p.id) && matchedClubs(p, clubIds).length >= 1,
       );
-      return shuffled(eligible, vitrineSeed).slice(0, 48);
+      let list = shuffled(eligible, vitrineSeed).slice(0, 48);
+      // ÖNERİ JOKERİ: önerilen oyuncu vitrinde olmayabilir → başa zorla ekle.
+      if (suggestedId) {
+        const sug = pool.find((p) => p.id === suggestedId);
+        if (sug) list = [sug, ...list.filter((p) => p.id !== suggestedId)];
+      }
+      return list;
     }
     return filtered.slice(0, 48);
-  }, [pool, search, clubIds, usedIds, vitrineSeed]);
+  }, [pool, search, clubIds, usedIds, vitrineSeed, suggestedId]);
 
   // Kulüp başına tutan taraf noktaları (grid gösterimi).
   const hitsByClub = useMemo(() => {
@@ -197,6 +212,26 @@ export function ChainPlayScene({
           <span className="rounded-full bg-white/10 px-3 py-1 text-xs font-bold text-white/75">
             {activePicksLeft} hak kaldı
           </span>
+
+          {/* ÖNERİ JOKERİ (1×/taraf) — basınca iyi bir futbolcu önerir + parlatır. */}
+          {onSuggest && (
+            <button
+              type="button"
+              disabled={jokerUsed || locked}
+              onClick={onSuggest}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold transition',
+                jokerUsed
+                  ? 'cursor-not-allowed border-white/10 bg-white/5 text-white/35'
+                  : 'border-accent-gold/50 bg-accent-gold/15 text-accent-goldHi hover:bg-accent-gold/25',
+                locked && 'cursor-not-allowed opacity-50',
+              )}
+              title="Bu turda iyi bir futbolcu öner (maçta 1 kez)"
+            >
+              <span aria-hidden>💡</span>
+              {jokerUsed ? 'Öneri kullanıldı' : 'Öneri jokeri'}
+            </button>
+          )}
 
           {locked && waitingLabel && (
             <motion.div
@@ -261,6 +296,7 @@ export function ChainPlayScene({
         <div className="grid grid-cols-3 gap-3 sm:grid-cols-4 sm:gap-4 lg:grid-cols-5 lg:gap-5">
           {candidates.map((p) => {
             const already = usedIds.has(p.id);
+            const isSuggested = suggestedId === p.id;
             return (
               <button
                 key={p.id}
@@ -274,11 +310,19 @@ export function ChainPlayScene({
                 }}
                 disabled={already && !locked}
                 className={cn(
-                  'rounded-lg transition hover:-translate-y-1',
+                  'relative rounded-lg transition hover:-translate-y-1',
                   already && 'pointer-events-none opacity-35',
                   locked && 'cursor-not-allowed opacity-60 hover:translate-y-0',
+                  // ÖNERİLEN: altın halka + hafif parıltı → göze çarpar.
+                  isSuggested &&
+                    'rounded-xl ring-2 ring-accent-gold shadow-[0_0_22px_rgba(240,193,75,0.55)]',
                 )}
               >
+                {isSuggested && (
+                  <span className="absolute -top-2 left-1/2 z-20 -translate-x-1/2 whitespace-nowrap rounded-full bg-accent-gold px-2 py-0.5 text-[9px] font-black uppercase tracking-wider text-black shadow">
+                    💡 Önerilen
+                  </span>
+                )}
                 <PlayerCard player={p} className="w-full" />
               </button>
             );

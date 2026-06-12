@@ -5,6 +5,7 @@ import * as Ably from 'ably';
 import type {
   ChainMatchState,
   ChainGuessOutcome,
+  ChainSuggestResult,
 } from '@/lib/server/chainMatchEngine';
 
 /**
@@ -22,6 +23,8 @@ export interface OnlineChainMatch {
   error: string | null;
   ackReveal: () => Promise<void>;
   guess: (playerId: string) => Promise<ChainGuessOutcome | null>;
+  /** Öneri jokeri — önerilen playerId döner (yalnız isteyene). 1×/taraf. */
+  useSuggest: () => Promise<ChainSuggestResult | null>;
   turnDeadline: string | null;
   refresh: () => Promise<void>;
 }
@@ -188,6 +191,11 @@ export function useOnlineChainMatch(matchId: string | null): OnlineChainMatch {
     [sendMove],
   );
 
+  const useSuggest = useCallback(async (): Promise<ChainSuggestResult | null> => {
+    const data = await sendMove({ action: 'use-suggest' });
+    return (data.suggestion ?? null) as ChainSuggestResult | null;
+  }, [sendMove]);
+
   return {
     state,
     yourSide,
@@ -196,6 +204,7 @@ export function useOnlineChainMatch(matchId: string | null): OnlineChainMatch {
     error,
     ackReveal,
     guess,
+    useSuggest,
     turnDeadline,
     refresh,
   };

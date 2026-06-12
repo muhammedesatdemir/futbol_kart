@@ -43,6 +43,9 @@ data-pipeline/cache
 # (orijinalleri yerel diskte sakla, git'e gönderme)
 
 PLAN.md
+ONLINE-YOL-HARITASI.md
+KARELERI-KAP-PLAN.md
+VERI.md
 
 # claude / cursor / aider gibi AI tool meta dosyaları
 .claude

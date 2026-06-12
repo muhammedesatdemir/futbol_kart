@@ -253,3 +253,43 @@ export function botPick(
   const choice = candidates[Math.min(idx, candidates.length - 1)]!;
   return { player: choice.player, matched: choice.matched };
 }
+
+// ===========================================================================
+// Öneri jokeri — "iyi bir futbolcu öner" (Kadro suggestForDraft felsefesi)
+// ===========================================================================
+
+/**
+ * Öneri jokeri: ekrandaki 7 kulüpten ÇOK tutan, ÜST DİLİMDEN (en iyi ~%15) bir
+ * futbolcu önerir — mutlak en iyiyi DEĞİL (oyunu bitirmesin, yardımcı olsun).
+ * Kadro `suggestForDraft` ile aynı denge. `excludeIds` zaten girilmiş oyuncular.
+ *
+ * @returns önerilen oyuncu + tuttuğu kulüpler, ya da null (uygun aday yok).
+ */
+export function suggestPick(
+  clubIds: Set<string>,
+  pool: Player[],
+  excludeIds: Set<string>,
+  rng: () => number,
+): { player: Player; matched: string[] } | null {
+  const candidates: Array<{ player: Player; matched: string[]; n: number }> = [];
+  for (const p of pool) {
+    if (excludeIds.has(p.id)) continue;
+    const m = matchedClubs(p, clubIds);
+    if (m.length >= 2) candidates.push({ player: p, matched: m, n: m.length });
+  }
+  // En az 2 kulüp tutan yoksa, 1 tutanlara düş (yine de bir öneri verelim).
+  if (candidates.length === 0) {
+    for (const p of pool) {
+      if (excludeIds.has(p.id)) continue;
+      const m = matchedClubs(p, clubIds);
+      if (m.length >= 1) candidates.push({ player: p, matched: m, n: m.length });
+    }
+  }
+  if (candidates.length === 0) return null;
+
+  candidates.sort((a, b) => b.n - a.n);
+  // ÜST DİLİM: en iyi 1..4 aday içinden rastgele (mükemmel değil, iyi).
+  const topK = Math.min(4, Math.max(1, Math.ceil(candidates.length * 0.15)));
+  const choice = candidates[Math.floor(rng() * topK)]!;
+  return { player: choice.player, matched: choice.matched };
+}

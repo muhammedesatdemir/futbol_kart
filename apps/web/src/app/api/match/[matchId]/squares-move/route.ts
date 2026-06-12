@@ -6,6 +6,7 @@ import { auth } from '@/lib/auth';
 import {
   acknowledgeSquaresReveal,
   applySquaresGuess,
+  applySquaresSuggest,
   applySquaresTimeout,
   squaresSceneDeadlineSeconds,
   type SquaresMatchState,
@@ -102,6 +103,9 @@ export async function POST(
   // Tahmin sonucu — isteği yapan oyuncuya döner (matris açık, sızıntı yok).
   let outcome: import('@/lib/server/squaresMatchEngine').SquaresGuessOutcome | null =
     null;
+  // Öneri jokeri sonucu — YALNIZCA isteyene döner (kişisel).
+  let suggestion: import('@/lib/server/squaresMatchEngine').SquaresSuggestResult | null =
+    null;
 
   const prevActive = (m.state as SquaresMatchState).activeSide;
   const prevCaptured = (m.state as SquaresMatchState).grid.cells.filter(
@@ -113,6 +117,10 @@ export async function POST(
   try {
     if (action.type === 'ack-reveal') {
       state = acknowledgeSquaresReveal(state);
+    } else if (action.type === 'use-suggest') {
+      const r = await applySquaresSuggest(state, side);
+      state = r.nextState;
+      suggestion = r.suggestion;
     } else {
       // guess
       const r = await applySquaresGuess(state, side, action.playerId);
@@ -186,12 +194,13 @@ export async function POST(
     captured: nowCaptured,
   });
 
-  // Client'a güvenli yanıt — outcome (hit/cells/gained/lives).
+  // Client'a güvenli yanıt — outcome (hit/cells/gained/lives) + öneri (kişisel).
   return NextResponse.json({
     scene: state.scene,
     activeSide: state.activeSide,
     turnDeadline: newDeadline ? newDeadline.toISOString() : null,
     outcome,
+    suggestion,
   });
 }
 
@@ -204,12 +213,14 @@ function computeDeadline(state: SquaresMatchState, keep: number | null): Date | 
 
 type Action =
   | { type: 'ack-reveal' }
+  | { type: 'use-suggest' }
   | { type: 'guess'; playerId: string };
 
 function parseAction(body: unknown): Action | null {
   if (!body || typeof body !== 'object') return null;
   const b = body as Record<string, unknown>;
   if (b.action === 'ack-reveal') return { type: 'ack-reveal' };
+  if (b.action === 'use-suggest') return { type: 'use-suggest' };
   if (b.action === 'guess') {
     if (typeof b.playerId !== 'string' || !b.playerId) return null;
     return { type: 'guess', playerId: b.playerId };

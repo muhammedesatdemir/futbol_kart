@@ -29,6 +29,23 @@ const SIDE = {
   },
 } as const;
 
+/** Deterministik karıştırma (seed → aynı sıra). ListPlayScene shuffled ile aynı. */
+function shuffled<T>(arr: T[], seed: number): T[] {
+  const out = [...arr];
+  let s = seed >>> 0;
+  const rand = () => {
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  for (let i = out.length - 1; i > 0; i--) {
+    const j = Math.floor(rand() * (i + 1));
+    [out[i], out[j]] = [out[j]!, out[i]!];
+  }
+  return out;
+}
+
 interface SquaresPlaySceneProps {
   grid: GridData;
   pool: Player[];
@@ -108,35 +125,43 @@ export function SquaresPlayScene({
     };
   }, [locked, denyActive]);
 
-  // Matristeki kulüp id'leri — havuzu, matriste oynamış oyunculara önceliklendir
-  // (ama hepsini göster: kullanıcı istediğini arayabilsin).
+  // Matristeki kulüp id'leri.
   const gridClubIds = useMemo(
     () => new Set(grid.cells.map((c) => c.clubId)),
     [grid.cells],
   );
+
+  // Vitrin karıştırma tohumu — timerKey'den türetilir: HER TAHMİN/SIRA değişiminde
+  // değişir (tur tur farklı vitrin) ama bir tur içinde STABİL (her render'da
+  // yeniden karışmaz → kart yerleri zıplamaz). Deterministik (string → sayı hash).
+  const vitrineSeed = useMemo(() => {
+    const s = String(timerKey);
+    let h = 2166136261;
+    for (let i = 0; i < s.length; i++) {
+      h ^= s.charCodeAt(i);
+      h = Math.imul(h, 16777619);
+    }
+    return h >>> 0;
+  }, [timerKey]);
 
   const candidates = useMemo(() => {
     const q = normalize(search);
     const filtered = pool.filter((p) =>
       q ? normalize(p.displayName).includes(q) : true,
     );
-    // Aranınca: eşleşenler. Aranmadan: matriste en çok kulübü olanları öne al
-    // (oynanabilir adaylar) → boş aramada anlamlı vitrin.
+    // Aranınca: eşleşenler. Aranmadan (vitrin): matriste EN AZ 1 kulübü olan
+    // oyuncuları göster (herkes en az 1 kare açabilir → akıcılık), AMA RASTGELE
+    // sırada. KRİTİK: "en çok kare açanı en üste" sıralamak EXPLOIT'tir — oyunu
+    // çözen biri sürekli en üst kartı seçip emek harcamadan kazanır. Rastgele
+    // sırada üst sıra turdan tura 1/2/5 kare açabilir → değişkenlik, sömürü yok.
     if (!q) {
-      const scored = filtered
-        .map((p) => ({
-          p,
-          hits: p.clubs.reduce(
-            (n, s) => n + (gridClubIds.has(s.clubId) ? 1 : 0),
-            0,
-          ),
-        }))
-        .filter((x) => x.hits > 0)
-        .sort((a, b) => b.hits - a.hits);
-      return scored.slice(0, 48).map((x) => x.p);
+      const eligible = filtered.filter((p) =>
+        p.clubs.some((s) => gridClubIds.has(s.clubId)),
+      );
+      return shuffled(eligible, vitrineSeed).slice(0, 48);
     }
     return filtered.slice(0, 48);
-  }, [pool, search, gridClubIds]);
+  }, [pool, search, gridClubIds, vitrineSeed]);
 
   const activeName = activeSide === 'P1' ? p1Name : p2Name;
   const sideCls = SIDE[activeSide];

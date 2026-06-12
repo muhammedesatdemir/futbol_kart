@@ -86,7 +86,9 @@ export function GameModeSelectScene({ onPick }: GameModeSelectSceneProps) {
         </p>
       </header>
 
-      <div className="grid gap-4 sm:grid-cols-2">
+      {/* 6 mod: geniş ekranda 3×2 (lg:3 sütun) → tek ekrana sığar, scroll biter.
+          Orta ekran 2 sütun, mobil 1 sütun (3 sütun dar olurdu). */}
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {MODES.map((m, i) => (
           <ModeCard
             key={m.id}

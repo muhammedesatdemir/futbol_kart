@@ -29,57 +29,48 @@ export const SQUARES_LIVES = 3;
  * güçlü/niş kulüplerden → "~%60 elit + %40 normal-iyi" dengesi (kullanıcı kararı).
  */
 const ELITE_CLUB_IDS = new Set<string>([
-  'tm_418', // Real Madrid
-  'tm_131', // Barcelona
-  'tm_27', // Bayern Munich
+  'tm_5', // AC Milan
+  'tm_46', // Inter
+  'tm_506', // Juventus
+  'tm_6195', // Napoli
+  'tm_12', // Roma
+  'tm_36', // Fenerbahçe
+  'tm_141', // Galatasaray
+  'tm_114', // Besiktas
+  'tm_148', // Tottenham
+  'tm_11', // Arsenal
   'tm_281', // Man City
   'tm_31', // Liverpool
   'tm_985', // Man Utd
-  'tm_583', // PSG
-  'tm_506', // Juventus
   'tm_631', // Chelsea
-  'tm_11', // Arsenal
-  'tm_5', // AC Milan
-  'tm_46', // Inter
-  'tm_13', // Atlético
-  'tm_148', // Tottenham
+  'tm_27', // Bayern Munich
   'tm_16', // Dortmund
-  'tm_6195', // Napoli
+  'tm_15', // Leverkusen
+  'tm_33', // FC Schalke 04
+  'tm_244', // Marseille
+  'tm_583', // PSG
+  'tm_1041', // Lyon
+  'tm_131', // Barcelona
+  'tm_418', // Real Madrid
+  'tm_13', // Atlético
+  'tm_368', // Sevilla FC
   'tm_610', // Ajax
   'tm_294', // Benfica
   'tm_720', // Porto
-  'tm_12', // Roma
-  'tm_398', // Lazio
-  'tm_368', // Sevilla FC
-  'tm_244', // Marseille
-  'tm_1049', // Valencia
-  'tm_800', // Atalanta
-  'tm_15', // Leverkusen
-  'tm_762', // Newcastle
-  'tm_405', // Aston Villa
 ]);
 
 /**
- * KÜÇÜK-LİG / NİŞ kulüpler — havuzdan ÇIKARILIR (ne elit ne diğer katmanda).
- * Tek-temsilli küçük ligler (Yunanistan/Belçika/İskoçya/Monaco) + Hollanda'nın
- * niş kulüpleri. Bunların oyuncuları çok yer değiştirse de kullanıcı tanımaz →
- * "ölü kare" olur. Eleyerek 5-büyük-lig + tanınan kulüp ağırlığı artar.
- * (Ajax/Benfica/Porto/Sporting elit/tanınan olduğu için BURADA DEĞİL.)
+ * Çıkarılan kulüp YOK — kullanıcı kararı: elit dışındaki TÜM kulüpler "diğer"
+ * kategoride (PSV/Feyenoord/Olympiacos/Anderlecht/Celtic/Monaco dahil). Bu set
+ * boş; ileride kulüp çıkarmak istenirse buraya id eklenir.
  */
-const EXCLUDED_CLUB_IDS = new Set<string>([
-  'tm_162', // Monaco (tek temsil — Ligue: Fransa'da zaten 9 kulüp var)
-  'tm_683', // Olympiacos (Yunanistan, tek temsil)
-  'tm_58', // RSC Anderlecht (Belçika, tek temsil)
-  'tm_371', // Celtic (İskoçya, tek temsil)
-  'tm_234', // Feyenoord (Hollanda niş)
-  'tm_383', // PSV (Hollanda niş)
-]);
+const EXCLUDED_CLUB_IDS = new Set<string>([]);
 
-/** 25 kareden kaçı elit kulüp olsun (hedef — havuz yetmezse esner). */
-const TARGET_ELITE = 15;
+/** 25 kareden kaçı ELİT kulüp olsun (kullanıcı kararı: 19 elit + 6 diğer). */
+const TARGET_ELITE = 19;
 /**
- * Ülke tavanı — KATMAN bazlı. Elit kulüplerde gevşek (Real+Barça+Atléti+Sevilla+
- * Valencia hep gelebilsin), niş kulüplerde sıkı (Türk/orta kulüp yığılmasın).
+ * Ülke tavanı — KATMAN bazlı. Elit kulüplerde gevşek (5 büyük ligden bol elit
+ * gelebilsin), diğer kulüplerde SIKI (niş/Türk kulüp yığılmasın → zorluk patlamaz).
  */
 const MAX_PER_COUNTRY_ELITE = 6;
 const MAX_PER_COUNTRY_OTHER = 2;
@@ -330,13 +321,17 @@ function buildPairWeights(
 /**
  * AÇGÖZLÜ AKILLI YERLEŞTİRME — kulüpleri ızgaraya, BİRBİRİYLE ÇOK ORTAK OYUNCUSU
  * olanları bitişik (komşu) gelecek şekilde diz. Böylece bir oyuncunun kulüpleri
- * ızgarada kümelenir → uzun bitişik zincir (4-5'li) mümkün olur.
+ * ızgarada kümelenir → uzun bitişik zincir mümkün olur.
+ *
+ * NİŞ-YIĞILMA ÖNLEMİ (kullanıcı isteği): elit kulüpler ÖNCE yerleştirilir; sonra
+ * "diğer" (elit-olmayan) kulüpler, KOMŞUSUNDA başka diğer-kulüp olan hücrelere
+ * CEZA verilerek dağıtılır → iki niş takım yan yana/alt-alta yığılmaz, aralarına
+ * elit serpiştirilir (zorluk aşırı artmaz).
  *
  * Yöntem (deterministik, seed'li):
- *   - İlk kulübü rastgele bir hücreye koy.
- *   - Sırayla: boş hücrelerden, ŞİMDİYE DEK YERLEŞTİRİLMİŞ komşularıyla en yüksek
- *     toplam `pairWeight`'i (ortak oyuncu sayısı) veren (kulüp, hücre) çiftini seç.
- *   - Bağ yoksa (ilk kulüpler) rastgele hücre.
+ *   - Elit kulüpleri sırayla: dolu komşularıyla en yüksek pairWeight'i veren hücreye.
+ *   - Diğer kulüpleri sırayla: pairWeight ÖDÜLÜ + "diğer-komşu" CEZASI ile skorla.
+ *   - İlk kulüp rastgele hücreye.
  */
 function placeAdjacent(
   clubs: PoolClub[],
@@ -345,41 +340,52 @@ function placeAdjacent(
 ): PoolClub[] {
   const size = GRID_SIZE;
   const grid: (PoolClub | null)[] = new Array(CELL_COUNT).fill(null);
-  const order = prng.shuffle(clubs); // hangi sırayla yerleştireceğimiz (çeşitlilik)
 
   const pw = (a: string, b: string): number =>
     pairWeight.get(a < b ? `${a}|${b}` : `${b}|${a}`) ?? 0;
 
+  // Elit önce (kümelenme omurgası), diğer sonra (serpiştirilir). Her grup kendi
+  // içinde shuffle → çeşitlilik. Tek liste, ama elitler başta.
+  const elites = prng.shuffle(clubs.filter((c) => ELITE_CLUB_IDS.has(c.id)));
+  const others = prng.shuffle(clubs.filter((c) => !ELITE_CLUB_IDS.has(c.id)));
+  const order = [...elites, ...others];
+
+  // "diğer" komşu cezası — bir diğer-kulüp, komşusunda kaç diğer-kulüp varsa o
+  // kadar ceza (pairWeight ödülünden düşülür). Yığılmayı dağıtır.
+  const OTHER_NEIGHBOR_PENALTY = 6;
+
   // İlk kulüp: rastgele hücre.
-  const firstCell = Math.floor(prng.next() * CELL_COUNT);
-  grid[firstCell] = order[0]!;
+  grid[Math.floor(prng.next() * CELL_COUNT)] = order[0]!;
 
   for (let k = 1; k < order.length; k++) {
     const club = order[k]!;
-    // Boş hücreler arasında, dolu komşularıyla en yüksek ağırlığı verenleri bul.
+    const clubIsOther = !ELITE_CLUB_IDS.has(club.id);
     let bestCells: number[] = [];
-    let bestW = -1;
+    let bestScore = -Infinity;
     for (let i = 0; i < CELL_COUNT; i++) {
       if (grid[i] !== null) continue;
-      let w = 0;
+      let score = 0;
       for (const nb of neighbors(i, size)) {
         const occ = grid[nb];
-        if (occ) w += pw(club.id, occ.id);
+        if (!occ) continue;
+        score += pw(club.id, occ.id); // ortak oyuncu ödülü
+        // NİŞ-YIĞILMA CEZASI: diğer-kulüp, diğer-kulübe komşu olmasın.
+        if (clubIsOther && !ELITE_CLUB_IDS.has(occ.id)) {
+          score -= OTHER_NEIGHBOR_PENALTY;
+        }
       }
-      if (w > bestW) {
-        bestW = w;
+      if (score > bestScore) {
+        bestScore = score;
         bestCells = [i];
-      } else if (w === bestW) {
+      } else if (score === bestScore) {
         bestCells.push(i);
       }
     }
-    // Eşit ağırlıklılar arasından seed'li rastgele seç (çeşitlilik + determinizm).
     const cell = bestCells[Math.floor(prng.next() * bestCells.length)]!;
     grid[cell] = club;
   }
 
-  // Tüm hücreler dolu (clubs.length === CELL_COUNT varsayımı). Güvenlik: boş
-  // kalan olursa kalan kulüplerle doldur (clubs < 25 olmamalı ama garanti).
+  // Güvenlik: boş kalan olursa kalan kulüplerle doldur (clubs<25 olmamalı).
   return grid.map((c, i) => c ?? clubs[i] ?? clubs[0]!);
 }
 

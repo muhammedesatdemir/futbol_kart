@@ -26,7 +26,6 @@ import {
   decideWinner,
   chainSnakeOrder,
   botPick,
-  CHAIN_PICKS_PER_SIDE,
   CHAIN_TOTAL_STEPS,
   type ChainClub,
   type ChainPick,
@@ -211,6 +210,15 @@ export default function ChainGamePage() {
     },
     [setProfileNames],
   );
+
+  // Maç BAŞLAMA düdüğü — reveal sahnesi ilk göründüğünde BİR KEZ (bitiş düdüğü yok).
+  const whistleStartedRef = useRef(false);
+  useEffect(() => {
+    if (phase === 'reveal' && !whistleStartedRef.current) {
+      whistleStartedRef.current = true;
+      playSfx('whistleStart');
+    }
+  }, [phase, playSfx]);
 
   const winner = useMemo(
     () => (phase === 'result' ? decideWinner(p1Picks, p2Picks) : 'tie'),

@@ -238,6 +238,10 @@ export default function GameSessionPage() {
         router.push(`/liste-doldur/${params.gameId}`);
         return;
       }
+      if (mode === 'kareler') {
+        router.push(`/kareleri-kap/${params.gameId}`);
+        return;
+      }
       setPickedMode('vs');
     },
     [router, params.gameId],

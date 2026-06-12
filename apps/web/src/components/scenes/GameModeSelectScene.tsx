@@ -5,7 +5,7 @@ import { cn } from '@/lib/cn';
 import { SwordsIcon, CardsIcon, TrophyIcon, QuestionIcon } from '@/components/icons';
 
 /** Oynanabilir oyun modu kimliği (rakip türünden FARKLI — bu oyunun türü). */
-export type PlayableMode = 'vs' | 'squad' | 'target' | 'list';
+export type PlayableMode = 'vs' | 'squad' | 'target' | 'list' | 'kareler';
 
 interface GameModeSelectSceneProps {
   onPick: (mode: PlayableMode) => void;
@@ -53,6 +53,14 @@ const MODES: ModeDef[] = [
     body: 'Sıralı bir top-10 listesini tahmin et: "En çok milli maç". Alt sıralar daha değerli.',
     ready: true,
   },
+  {
+    id: 'kareler',
+    emoji: '🟦',
+    icon: <CardsIcon size={26} />,
+    title: 'Kareleri Kap',
+    body: '5×5 kulüp matrisinde futbolcu adı yaz; bitişik kulüplerini zincirle. En çok kare kapatan kazanır.',
+    ready: true,
+  },
 ];
 
 export function GameModeSelectScene({ onPick }: GameModeSelectSceneProps) {
@@ -78,7 +86,11 @@ export function GameModeSelectScene({ onPick }: GameModeSelectSceneProps) {
             delay={i * 0.06}
             onClick={
               m.ready &&
-              (m.id === 'vs' || m.id === 'squad' || m.id === 'target' || m.id === 'list')
+              (m.id === 'vs' ||
+                m.id === 'squad' ||
+                m.id === 'target' ||
+                m.id === 'list' ||
+                m.id === 'kareler')
                 ? () => onPick(m.id as PlayableMode)
                 : undefined
             }

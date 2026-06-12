@@ -28,6 +28,7 @@ const MODE_ROUTES: Record<string, (matchId: string) => string> = {
   hedef: (id) => `/hedefe-yaklas/${id}?online=1`,
   kadro: (id) => `/kadro/${id}?online=1`,
   liste: (id) => `/liste-doldur/${id}?online=1`,
+  kareler: (id) => `/kareleri-kap/${id}?online=1`,
 };
 /** Bilinmeyen/eksik mod → VS Düello (geri uyumluluk). */
 const DEFAULT_MODE = 'vs-duello';

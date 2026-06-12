@@ -1,7 +1,7 @@
 'use client';
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { useParams, useRouter } from 'next/navigation';
+import { useParams, useRouter, useSearchParams } from 'next/navigation';
 import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { HomeIcon, ArrowLeftIcon } from '@/components/icons';
@@ -20,6 +20,7 @@ import { useProfileStore } from '@/lib/profileStore';
 import { useSfx } from '@/lib/useSfx';
 import { createPRNG } from '@futbol-kart/game-engine';
 import { fetchClubPool } from '@/lib/clubPoolClient';
+import { useOnlineSquaresMatch } from '@/lib/useOnlineSquaresMatch';
 import {
   generateGrid,
   evaluateGuess,
@@ -28,7 +29,6 @@ import {
   emptyCount,
   decideWinner,
   botPickGuess,
-  playerClubIds,
   SQUARES_LIVES,
   type SquaresGrid as GridData,
   type SquaresSide,
@@ -39,49 +39,59 @@ type Phase = 'opponent' | 'reveal' | 'play' | 'result';
 
 /** Tahmin süresi (sn). Liste Doldur LIST_TURN_SECONDS=35 ile aynı ton. */
 const SQUARES_TURN_SECONDS = 35;
-/** Bota karşı: tek oyuncunun (P1) toplam can'ı; bitince bot kalanı tamamlar. */
+/** Online sonuç-gösterme penceresi (ms) — tahmin sonucu net görünür, sıra hemen taşmaz. */
+const HOLD_MS = 2400;
 
 /**
  * "Kareleri Kap" — 5×5 kulüp matrisi; futbolcu adı yaz, bitişik kulüplerinden
  * en büyük grup kapanır. En çok kare kapatan kazanır. Bota karşı + arkadaşa
- * karşı (hot-seat, snake sıra). ONLINE sonra eklenecek (yapı hazır).
+ * karşı (hot-seat) + ONLINE (sunucu-otoriteli, sıra-tabanlı, gerçek rakip).
  *
  * Mevcut modlara dokunulmaz — Liste Doldur deseninin uyarlaması (yeni dosyalar).
+ * Matris AÇIK (maskeleme yok) → online entegrasyonu Liste'den daha sade.
  */
 export default function SquaresGamePage() {
   const params = useParams<{ gameId: string }>();
   const router = useRouter();
+  const searchParams = useSearchParams();
   const session = useGameSession();
   const playSfx = useSfx();
 
-  // Kulüp havuzu (clubPool.json) — bu moda özel, provider'a dokunmadan yüklenir.
+  // ── ONLINE TESPİTİ ──
+  const isOnline = searchParams.get('online') === '1';
+  const matchId = isOnline ? params.gameId : null;
+  const online = useOnlineSquaresMatch(matchId);
+
+  // Kulüp havuzu (clubPool.json) — yalnız OFFLINE matris üretimi için (online'da
+  // matris sunucudan gelir). Provider'a dokunmadan yüklenir.
   const [pool, setPool] = useState<PoolClub[] | null>(null);
   useEffect(() => {
+    if (isOnline) {
+      setPool([]); // online'da gerekmez; loader guard'ı geçsin
+      return;
+    }
     fetchClubPool()
       .then(setPool)
       .catch(() => setPool([]));
-  }, []);
+  }, [isOnline]);
 
   const [roundSeed, setRoundSeed] = useState(() =>
     Math.random().toString(36).slice(2),
   );
 
-  // Matris — havuz + oyuncular hazır olunca kürasyonlu üret (deterministik seed).
+  // OFFLINE matris — havuz + oyuncular hazır olunca kürasyonlu üret.
   const grid0: GridData | null = useMemo(() => {
+    if (isOnline) return null;
     if (!pool || pool.length === 0 || !session.ready || session.players.length === 0) {
       return null;
     }
-    return generateGrid(
-      `${params.gameId}:${roundSeed}`,
-      pool,
-      session.players,
-    );
-  }, [pool, session.ready, session.players, params.gameId, roundSeed]);
+    return generateGrid(`${params.gameId}:${roundSeed}`, pool, session.players);
+  }, [isOnline, pool, session.ready, session.players, params.gameId, roundSeed]);
 
   const [phase, setPhase] = useState<Phase>('opponent');
   const [opponent, setOpponent] = useState<Opponent>('vs-bot');
 
-  // Oyun state'i — mutasyonsuz grid (kapatma yeni grid üretir).
+  // OFFLINE oyun state'i — mutasyonsuz grid.
   const [grid, setGrid] = useState<GridData | null>(null);
   const [activeSide, setActiveSide] = useState<SquaresSide>('P1');
   const [lives, setLives] = useState<{ P1: number; P2: number }>({
@@ -120,7 +130,6 @@ export default function SquaresGamePage() {
     (opp: Opponent) => {
       setOpponent(opp);
       resetRound();
-      // grid0 yeni roundSeed'le üretilecek; reveal'da grid'i state'e al.
       setPhase('reveal');
     },
     [resetRound],
@@ -130,7 +139,6 @@ export default function SquaresGamePage() {
     router.push('/online?mode=kareler');
   }, [router]);
 
-  // Reveal → play: matrisi state'e kopyala (oyun bu kopyada oynanır).
   const onRevealed = useCallback(() => {
     if (grid0) setGrid(grid0);
     setPhase('play');
@@ -142,21 +150,18 @@ export default function SquaresGamePage() {
     }
   }, []);
 
-  // Bitiş kontrolü: matris dolu VEYA iki tarafın canı bitti → result.
   const checkEnd = useCallback((g: GridData, lv: { P1: number; P2: number }): boolean => {
     if (emptyCount(g) === 0) return true;
     if (lv.P1 <= 0 && lv.P2 <= 0) return true;
     return false;
   }, []);
 
-  // Sıra geç (snake-benzeri basit dönüşüm; canı olan karşı tarafa).
   const passTurn = useCallback(
     (g: GridData, lv: { P1: number; P2: number }, justActed: SquaresSide) => {
       if (checkEnd(g, lv)) {
         setPhase('result');
         return;
       }
-      // Bota karşı: P1 oynadıysa bot (P2) hemen oynar; bot oynadıysa P1'e döner.
       const other: SquaresSide = justActed === 'P1' ? 'P2' : 'P1';
       const nextSide = lv[other] > 0 ? other : justActed;
       setActiveSide(nextSide);
@@ -165,7 +170,6 @@ export default function SquaresGamePage() {
     [checkEnd],
   );
 
-  // Bir tahmini uygula (hem insan hem bot kullanır).
   const applyGuess = useCallback(
     (g: GridData, side: SquaresSide, playerId: string): { grid: GridData; lives: { P1: number; P2: number } } => {
       const player = session.players.find((p) => p.id === playerId);
@@ -178,7 +182,6 @@ export default function SquaresGamePage() {
         playSfx('win');
         return { grid: ng, lives: lv };
       }
-      // Yanlış: can −1.
       setMissTick((t) => t + 1);
       setHighlight(null);
       playSfx('heartbreak');
@@ -188,7 +191,6 @@ export default function SquaresGamePage() {
     [session.players, lives, playSfx],
   );
 
-  // İNSAN tahmini (P1 her zaman; hot-seat'te aktif taraf).
   const onGuess = useCallback(
     (playerId: string) => {
       if (!grid) return;
@@ -214,10 +216,10 @@ export default function SquaresGamePage() {
     scrollTop();
   }, [grid, activeSide, lives, passTurn, scrollTop, playSfx]);
 
-  // BOT hamlesi (bota karşı): aktif taraf P2 olunca otomatik oyna (kısa gecikme).
+  // BOT hamlesi (bota karşı)
   const botActingRef = useRef(false);
   useEffect(() => {
-    if (phase !== 'play' || opponent !== 'vs-bot' || activeSide !== 'P2' || !grid) {
+    if (isOnline || phase !== 'play' || opponent !== 'vs-bot' || activeSide !== 'P2' || !grid) {
       return;
     }
     if (botActingRef.current) return;
@@ -231,7 +233,6 @@ export default function SquaresGamePage() {
         setLives(nlv);
         passTurn(ng, nlv, 'P2');
       } else {
-        // Bot uygun hamle bulamadı → pas (can −1).
         const nlv = { ...lives, P2: Math.max(0, lives.P2 - 1) };
         setLives(nlv);
         passTurn(grid, nlv, 'P2');
@@ -242,9 +243,8 @@ export default function SquaresGamePage() {
       clearTimeout(t);
       botActingRef.current = false;
     };
-    // applyGuess/passTurn closure'ları turnKey ile yenilenir; turnKey yeterli.
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [phase, opponent, activeSide, turnKey, grid]);
+  }, [isOnline, phase, opponent, activeSide, turnKey, grid]);
 
   const onNamesSubmit = useCallback(
     (n1: string, n2: string) => {
@@ -260,13 +260,106 @@ export default function SquaresGamePage() {
     [phase, grid],
   );
 
+  // ============================================================================
+  // ONLINE türev değerler + handler'lar
+  // ============================================================================
+  const onlineState = online.state;
+  const onlineGrid = onlineState?.grid ?? null;
+  const onlineScores = useMemo(
+    () =>
+      onlineGrid
+        ? { P1: sideScore(onlineGrid, 'P1'), P2: sideScore(onlineGrid, 'P2') }
+        : { P1: 0, P2: 0 },
+    [onlineGrid],
+  );
+  const onlineDeadlineMs = useMemo(
+    () => (online.turnDeadline ? new Date(online.turnDeadline).getTime() : null),
+    [online.turnDeadline],
+  );
+  const isMyTurn = isOnline ? online.yourSide === onlineState?.activeSide : true;
+
+  // Maç başı/sonu düdüğü (birer kez)
+  const whistleStartedRef = useRef(false);
+  const whistleEndedRef = useRef(false);
+  const activeScene = isOnline ? onlineState?.scene : phase;
+  useEffect(() => {
+    const isReveal = activeScene === (isOnline ? 'REVEAL' : 'reveal');
+    const isResult = activeScene === (isOnline ? 'RESULT' : 'result');
+    if (isReveal && !whistleStartedRef.current) {
+      whistleStartedRef.current = true;
+      playSfx('whistleStart');
+    }
+    if (isResult && !whistleEndedRef.current) {
+      whistleEndedRef.current = true;
+      playSfx('whistleEnd');
+    }
+  }, [activeScene, isOnline, playSfx]);
+
+  // ONLINE tahmin akışı: pendingGuess + sonuç-gösterme penceresi (hold).
+  const [pendingGuess, setPendingGuess] = useState<string | null>(null);
+  const [hold, setHold] = useState<{
+    side: SquaresSide;
+    cells: number[];
+    miss: boolean;
+  } | null>(null);
+  // Hold süresi dolunca temizle → gerçek sunucu state (sıra karşıda) görünür.
+  useEffect(() => {
+    if (!hold) return;
+    const t = setTimeout(() => {
+      setHold(null);
+      void online.refresh();
+    }, HOLD_MS);
+    return () => clearTimeout(t);
+  }, [hold, online]);
+  useEffect(() => {
+    if (onlineState?.scene === 'RESULT' && hold) setHold(null);
+  }, [onlineState?.scene, hold]);
+
+  const onGuessOnline = useCallback(
+    (playerId: string) => {
+      if (!onlineState || pendingGuess || hold) return;
+      const side = onlineState.activeSide;
+      setPendingGuess(playerId);
+      void online.guess(playerId).then((outcome) => {
+        setPendingGuess(null);
+        if (!outcome) {
+          void online.refresh();
+          return;
+        }
+        setHold({
+          side,
+          cells: outcome.cells ?? [],
+          miss: !outcome.hit,
+        });
+        playSfx(outcome.hit ? 'win' : 'heartbreak');
+        scrollTop();
+      });
+    },
+    [online, onlineState, pendingGuess, hold, playSfx, scrollTop],
+  );
+
+  const onTimeoutOnline = useCallback(() => {
+    // Sunucu pas'ı lazy işler (deadline geçince). Client sadece tazeler.
+    if (!onlineState || pendingGuess || hold) return;
+    void online.refresh();
+  }, [online, onlineState, pendingGuess, hold]);
+
+  // ── Ortak (online/offline) rematch + geri ──
   const onRematch = useCallback(() => {
+    if (isOnline) {
+      router.push('/online?mode=kareler');
+      return;
+    }
     resetRound();
     setGrid(null);
     setPhase('reveal');
-  }, [resetRound]);
+  }, [isOnline, router, resetRound]);
 
   const onBack = useCallback(() => {
+    if (isOnline) {
+      router.push('/');
+      return;
+    }
     if (phase === 'opponent') {
       router.push(`/oyna/${params.gameId}`);
     } else {
@@ -274,9 +367,16 @@ export default function SquaresGamePage() {
       setGrid(null);
       setPhase('opponent');
     }
-  }, [phase, router, params.gameId, resetRound]);
+  }, [isOnline, phase, router, params.gameId, resetRound]);
 
-  const bgKey =
+  // Arka plan
+  const onlineBg =
+    onlineState?.scene === 'REVEAL'
+      ? 'handoff'
+      : onlineState?.scene === 'PLAY'
+        ? 'pick'
+        : 'final';
+  const offlineBg =
     phase === 'opponent'
       ? 'mode'
       : phase === 'reveal'
@@ -284,12 +384,41 @@ export default function SquaresGamePage() {
         : phase === 'play'
           ? 'pick'
           : 'final';
+  const bgKey = isOnline ? onlineBg : offlineBg;
 
   const nameModalOpen =
-    opponent === 'hotseat' && phase !== 'opponent' && p1Name === '';
+    !isOnline && opponent === 'hotseat' && phase !== 'opponent' && p1Name === '';
 
-  // Veri yüklenirken loader.
-  if (!session.ready || pool === null) {
+  // ── ONLINE LOADING / ERROR GUARD ──
+  if (isOnline) {
+    if (online.error) {
+      return (
+        <>
+          <SceneBackground bgKey="mode" />
+          <main className="relative z-10 mx-auto flex min-h-screen max-w-md flex-col items-center justify-center gap-6 px-5 text-center">
+            <h2 className="text-2xl font-black text-side-red">Maç hatası</h2>
+            <p className="text-sm text-white/65">{online.error}</p>
+            <button type="button" onClick={() => router.push('/')} className="btn-ghost">
+              Ana sayfa
+            </button>
+          </main>
+        </>
+      );
+    }
+    if (online.loading || !onlineState || !session.ready) {
+      return (
+        <>
+          <SceneBackground bgKey="handoff" />
+          <main className="relative z-10 mx-auto flex min-h-screen flex-col items-center justify-center px-5">
+            <BallLoader size={64} label="Maç yükleniyor…" />
+          </main>
+        </>
+      );
+    }
+  }
+
+  // OFFLINE veri yükleme loader.
+  if (!isOnline && (!session.ready || pool === null)) {
     return (
       <>
         <SceneBackground bgKey="mode" />
@@ -300,8 +429,16 @@ export default function SquaresGamePage() {
     );
   }
 
-  const displayP1 = opponent === 'hotseat' ? p1Name || 'Oyuncu 1' : 'Sen';
-  const displayP2 = opponent === 'hotseat' ? p2Name || 'Oyuncu 2' : 'Bot';
+  const displayP1 = isOnline
+    ? (onlineState?.p1Name ?? 'Oyuncu 1')
+    : opponent === 'hotseat'
+      ? p1Name || 'Oyuncu 1'
+      : 'Sen';
+  const displayP2 = isOnline
+    ? (onlineState?.p2Name ?? 'Oyuncu 2')
+    : opponent === 'hotseat'
+      ? p2Name || 'Oyuncu 2'
+      : 'Bot';
 
   return (
     <>
@@ -320,73 +457,132 @@ export default function SquaresGamePage() {
           <div className="flex items-center gap-2">
             <span className="rounded-full border border-accent-gold/40 bg-accent-gold/15 px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-accent-goldHi">
               Kareleri Kap ·{' '}
-              {opponent === 'hotseat' ? 'Arkadaşa karşı' : 'Bota karşı'}
+              {isOnline ? '🌐 Online' : opponent === 'hotseat' ? 'Arkadaşa karşı' : 'Bota karşı'}
             </span>
             <SoundToggle />
             <UserMenu />
           </div>
         </header>
 
-        <AnimatePresence mode="wait">
-          {phase === 'opponent' && (
-            <SceneShell sceneKey="squares-opponent" key="squares-opponent">
-              <OpponentSelectScene
-                modeName="Kareleri Kap"
-                available={{ hotseat: true, vsBot: true }}
-                onPick={onPickOpponent}
-                onOnline={onOnline}
-              />
-            </SceneShell>
-          )}
+        {/* ====================== ONLINE RENDER ====================== */}
+        {isOnline && onlineState && onlineGrid && (
+          <AnimatePresence mode="wait">
+            {onlineState.scene === 'REVEAL' && (
+              <SceneShell sceneKey="squares-online-reveal" key="squares-online-reveal">
+                <SquaresRevealScene grid={onlineGrid} onDone={online.ackReveal} />
+              </SceneShell>
+            )}
 
-          {phase === 'reveal' && grid0 && !nameModalOpen && (
-            <SceneShell sceneKey="squares-reveal" key="squares-reveal">
-              <SquaresRevealScene grid={grid0} onDone={onRevealed} />
-            </SceneShell>
-          )}
+            {onlineState.scene === 'PLAY' && (
+              <SceneShell sceneKey="squares-online-play" key="squares-online-play">
+                <SquaresPlayScene
+                  grid={onlineGrid}
+                  pool={session.players}
+                  seconds={SQUARES_TURN_SECONDS}
+                  timerKey={`online-${onlineState.activeSide}-${onlineScores.P1 + onlineScores.P2}-${hold ? 'hold' : 'live'}`}
+                  deadlineMs={hold ? null : onlineDeadlineMs}
+                  onGuess={isMyTurn && !pendingGuess && !hold ? onGuessOnline : () => {}}
+                  onTimeout={onTimeoutOnline}
+                  hotseat
+                  activeSide={hold?.side ?? onlineState.activeSide}
+                  lives={onlineState.lives}
+                  scores={onlineScores}
+                  p1Name={displayP1}
+                  p2Name={displayP2}
+                  highlightCells={hold?.cells ?? []}
+                  highlightSide={hold?.side ?? null}
+                  hideTimer={!!hold}
+                  locked={!isMyTurn || !!pendingGuess || !!hold}
+                  waitingLabel={
+                    pendingGuess
+                      ? '✓ Tahminin kontrol ediliyor…'
+                      : hold
+                        ? hold.miss
+                          ? 'Uygun grup yok…'
+                          : 'Kareler kapandı!'
+                        : !isMyTurn
+                          ? `Rakip oynuyor… (sıra ${onlineState.activeSide === 'P1' ? displayP1 : displayP2})`
+                          : null
+                  }
+                />
+              </SceneShell>
+            )}
 
-          {phase === 'play' && grid && !nameModalOpen && (
-            <SceneShell sceneKey="squares-play" key="squares-play">
-              <SquaresPlayScene
-                grid={grid}
-                pool={session.players}
-                seconds={SQUARES_TURN_SECONDS}
-                timerKey={`turn-${turnKey}`}
-                onGuess={onGuess}
-                onTimeout={onTimeout}
-                hotseat={opponent === 'hotseat'}
-                activeSide={activeSide}
-                lives={lives}
-                scores={scores}
-                p1Name={displayP1}
-                p2Name={displayP2}
-                missTick={missTick}
-                highlightCells={highlight?.cells ?? []}
-                highlightSide={highlight?.side ?? null}
-                // Bota karşı: bot sırasında (P2) tahmin kilitli (insan bekler).
-                locked={opponent === 'vs-bot' && activeSide === 'P2'}
-                waitingLabel={
-                  opponent === 'vs-bot' && activeSide === 'P2'
-                    ? 'Bot oynuyor…'
-                    : null
-                }
-              />
-            </SceneShell>
-          )}
+            {onlineState.scene === 'RESULT' && (
+              <SceneShell sceneKey="squares-online-result" key="squares-online-result">
+                <SquaresResultScene
+                  grid={onlineGrid}
+                  scores={onlineScores}
+                  winner={onlineState.winner ?? 'tie'}
+                  p1Name={displayP1}
+                  p2Name={displayP2}
+                  onRematch={onRematch}
+                />
+              </SceneShell>
+            )}
+          </AnimatePresence>
+        )}
 
-          {phase === 'result' && grid && (
-            <SceneShell sceneKey="squares-result" key="squares-result">
-              <SquaresResultScene
-                grid={grid}
-                scores={scores}
-                winner={winner}
-                p1Name={displayP1}
-                p2Name={displayP2}
-                onRematch={onRematch}
-              />
-            </SceneShell>
-          )}
-        </AnimatePresence>
+        {/* ====================== OFFLINE RENDER ====================== */}
+        {!isOnline && (
+          <AnimatePresence mode="wait">
+            {phase === 'opponent' && (
+              <SceneShell sceneKey="squares-opponent" key="squares-opponent">
+                <OpponentSelectScene
+                  modeName="Kareleri Kap"
+                  available={{ hotseat: true, vsBot: true }}
+                  onPick={onPickOpponent}
+                  onOnline={onOnline}
+                />
+              </SceneShell>
+            )}
+
+            {phase === 'reveal' && grid0 && !nameModalOpen && (
+              <SceneShell sceneKey="squares-reveal" key="squares-reveal">
+                <SquaresRevealScene grid={grid0} onDone={onRevealed} />
+              </SceneShell>
+            )}
+
+            {phase === 'play' && grid && !nameModalOpen && (
+              <SceneShell sceneKey="squares-play" key="squares-play">
+                <SquaresPlayScene
+                  grid={grid}
+                  pool={session.players}
+                  seconds={SQUARES_TURN_SECONDS}
+                  timerKey={`turn-${turnKey}`}
+                  onGuess={onGuess}
+                  onTimeout={onTimeout}
+                  hotseat={opponent === 'hotseat'}
+                  activeSide={activeSide}
+                  lives={lives}
+                  scores={scores}
+                  p1Name={displayP1}
+                  p2Name={displayP2}
+                  missTick={missTick}
+                  highlightCells={highlight?.cells ?? []}
+                  highlightSide={highlight?.side ?? null}
+                  locked={opponent === 'vs-bot' && activeSide === 'P2'}
+                  waitingLabel={
+                    opponent === 'vs-bot' && activeSide === 'P2' ? 'Bot oynuyor…' : null
+                  }
+                />
+              </SceneShell>
+            )}
+
+            {phase === 'result' && grid && (
+              <SceneShell sceneKey="squares-result" key="squares-result">
+                <SquaresResultScene
+                  grid={grid}
+                  scores={scores}
+                  winner={winner}
+                  p1Name={displayP1}
+                  p2Name={displayP2}
+                  onRematch={onRematch}
+                />
+              </SceneShell>
+            )}
+          </AnimatePresence>
+        )}
       </main>
 
       <NameModal

@@ -1,8 +1,10 @@
 'use client';
 
+import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { cn } from '@/lib/cn';
 import { Confetti } from '@/components/Confetti';
+import { useSfx } from '@/lib/useSfx';
 import { SquaresGrid } from './SquaresGrid';
 import {
   type SquaresGrid as GridData,
@@ -36,10 +38,20 @@ export function SquaresResultScene({
   p2Name = 'Bot',
   onRematch,
 }: SquaresResultSceneProps) {
+  const playSfx = useSfx();
   const winnerName =
     winner === 'tie' ? null : winner === 'P1' ? p1Name : p2Name;
   const total = scores.P1 + scores.P2;
   const p1Pct = total > 0 ? (scores.P1 / total) * 100 : 50;
+
+  // Zafer fanfarı — sonuç ekranı görününce (kazanan varsa). Bitiş düdüğü sayfada
+  // ("result fazına geçiş" anında) çalınır; fanfar burada, düdükten hemen sonra
+  // (ListResultScene deseni). Beraberlikte fanfar yok (sakin).
+  useEffect(() => {
+    if (winner === 'tie') return;
+    const t = setTimeout(() => playSfx('final'), 300);
+    return () => clearTimeout(t);
+  }, [winner, playSfx]);
 
   return (
     <section className="flex flex-col items-center gap-6 py-4 text-center">

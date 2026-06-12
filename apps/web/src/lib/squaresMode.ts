@@ -23,8 +23,50 @@ export const CELL_COUNT = GRID_SIZE * GRID_SIZE;
 /** Taraf başına can (yanlış/pas can götürür). listMode LIST_LIVES ile aynı felsefe. */
 export const SQUARES_LIVES = 3;
 
-/** Matris üretiminde ülke başına en fazla kaç kulüp (Türk-ağırlık dengesi). */
-const MAX_PER_COUNTRY = 3;
+/**
+ * ELİT (kalburüstü) kulüpler — TM id ile (isim değil → ad değişse de bozulmaz).
+ * Matrise BİLİNİRLİK getirir: her tur ~15'i buradan seçilir, geri kalan ~10
+ * güçlü/niş kulüplerden → "~%60 elit + %40 normal-iyi" dengesi (kullanıcı kararı).
+ */
+const ELITE_CLUB_IDS = new Set<string>([
+  'tm_418', // Real Madrid
+  'tm_131', // Barcelona
+  'tm_27', // Bayern Munich
+  'tm_281', // Man City
+  'tm_31', // Liverpool
+  'tm_985', // Man Utd
+  'tm_583', // PSG
+  'tm_506', // Juventus
+  'tm_631', // Chelsea
+  'tm_11', // Arsenal
+  'tm_5', // AC Milan
+  'tm_46', // Inter
+  'tm_13', // Atlético
+  'tm_148', // Tottenham
+  'tm_16', // Dortmund
+  'tm_6195', // Napoli
+  'tm_610', // Ajax
+  'tm_294', // Benfica
+  'tm_720', // Porto
+  'tm_12', // Roma
+  'tm_398', // Lazio
+  'tm_368', // Sevilla FC
+  'tm_244', // Marseille
+  'tm_1049', // Valencia
+  'tm_800', // Atalanta
+  'tm_15', // Leverkusen
+  'tm_762', // Newcastle
+  'tm_405', // Aston Villa
+]);
+
+/** 25 kareden kaçı elit kulüp olsun (hedef — havuz yetmezse esner). */
+const TARGET_ELITE = 15;
+/**
+ * Ülke tavanı — KATMAN bazlı. Elit kulüplerde gevşek (Real+Barça+Atléti+Sevilla+
+ * Valencia hep gelebilsin), niş kulüplerde sıkı (Türk/orta kulüp yığılmasın).
+ */
+const MAX_PER_COUNTRY_ELITE = 6;
+const MAX_PER_COUNTRY_OTHER = 2;
 /** Üretilen matrisin "iyi" sayılması için gereken en az zincir uzunluğu. */
 const MIN_BEST_CHAIN = 4;
 /** "Çözülebilirlik" için: en az bu kadar oyuncu ≥MIN_DECENT_CHAIN zincir kurabilmeli. */
@@ -168,40 +210,73 @@ function evaluateGrid(
 }
 
 /**
- * Havuzdan ülke-tavanlı 25 kulüp seç + ızgaraya yerleştir (seed'li tek deneme).
- * Ülke tavanı (MAX_PER_COUNTRY) Türk-kulüp ağırlığını dengeler.
+ * Bir kulüp listesinden ülke-tavanlı seçim yap (chosen'a EKLE). Zaten seçilmiş
+ * id'leri ve ülke sayaçlarını paylaşır (katmanlar arası tutarlı tavan).
  */
-function buildOneGrid(pool: PoolClub[], prng: PRNG): SquaresGrid {
-  const shuffled = prng.shuffle(pool);
-  const chosen: PoolClub[] = [];
-  const perCountry = new Map<string, number>();
-  for (const club of shuffled) {
-    if (chosen.length >= CELL_COUNT) break;
+function pickWithCap(
+  source: PoolClub[],
+  limit: number,
+  maxPerCountry: number,
+  chosen: PoolClub[],
+  chosenIds: Set<string>,
+  perCountry: Map<string, number>,
+): void {
+  let added = 0;
+  for (const club of source) {
+    if (added >= limit || chosen.length >= CELL_COUNT) break;
+    if (chosenIds.has(club.id)) continue;
     const n = perCountry.get(club.country) ?? 0;
-    if (n >= MAX_PER_COUNTRY) continue;
+    if (n >= maxPerCountry) continue;
     perCountry.set(club.country, n + 1);
     chosen.push(club);
+    chosenIds.add(club.id);
+    added++;
   }
-  // Tavan yüzünden 25'e ulaşamazsak (küçük havuz), kalanları tavansız doldur.
+}
+
+/**
+ * Havuzdan KATMANLI 25 kulüp seç + ızgaraya yerleştir (seed'li tek deneme).
+ *
+ * Strateji (kullanıcı kararı — bilinirlik + çeşitlilik):
+ *   1. ELİT katman: ~TARGET_ELITE kulüp, elit havuzundan, GEVŞEK ülke tavanı.
+ *      → Real/Barça/Bayern/Liverpool gibi kalburüstüler hep gelir; her tur
+ *        FARKLI elit kombinasyonu (shuffle) → çeşitlilik korunur.
+ *   2. DİĞER katman: kalan ~10 kare, niş/güçlü havuzundan, SIKI ülke tavanı.
+ *      → Türk/orta kulüp yığılmaz; tanınan ama niş kulüpler (Genoa, Betis…).
+ *   3. Eksik kalırsa (küçük havuz) tavansız doldur.
+ */
+function buildOneGrid(pool: PoolClub[], prng: PRNG): SquaresGrid {
+  const elitePool = prng.shuffle(pool.filter((c) => ELITE_CLUB_IDS.has(c.id)));
+  const otherPool = prng.shuffle(pool.filter((c) => !ELITE_CLUB_IDS.has(c.id)));
+
+  const chosen: PoolClub[] = [];
+  const chosenIds = new Set<string>();
+  const perCountry = new Map<string, number>();
+
+  // 1) Elit katman — gevşek tavan.
+  pickWithCap(elitePool, TARGET_ELITE, MAX_PER_COUNTRY_ELITE, chosen, chosenIds, perCountry);
+  // 2) Diğer katman — sıkı tavan, kalan kareleri doldur.
+  pickWithCap(otherPool, CELL_COUNT - chosen.length, MAX_PER_COUNTRY_OTHER, chosen, chosenIds, perCountry);
+  // 3) Hâlâ eksikse (tavanlar tıkadı) → önce kalan elit, sonra diğer, tavansız.
   if (chosen.length < CELL_COUNT) {
-    const chosenIds = new Set(chosen.map((c) => c.id));
-    for (const club of shuffled) {
-      if (chosen.length >= CELL_COUNT) break;
-      if (!chosenIds.has(club.id)) chosen.push(club);
-    }
+    pickWithCap(elitePool, CELL_COUNT, Infinity, chosen, chosenIds, perCountry);
+    pickWithCap(otherPool, CELL_COUNT, Infinity, chosen, chosenIds, perCountry);
   }
-  // Izgaraya yerleştir (zaten karışık sırada).
-  const grid: SquaresGrid = {
+
+  // Hücre yerleşimini KARIŞTIR (elitler ızgaranın başına yığılmasın — bitişiklik
+  // ve görsel denge için elit/niş serpiştirilsin).
+  const placed = prng.shuffle(chosen.slice(0, CELL_COUNT));
+
+  return {
     size: GRID_SIZE,
     bestPossibleChain: 0,
-    cells: chosen.slice(0, CELL_COUNT).map((c) => ({
+    cells: placed.map((c) => ({
       clubId: c.id,
       clubName: c.name,
       crestUrl: c.crestUrl,
       capturedBy: null,
     })),
   };
-  return grid;
 }
 
 /**

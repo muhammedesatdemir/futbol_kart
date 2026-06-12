@@ -23,19 +23,64 @@ export const CHAIN_PICKS_PER_SIDE = 5;
 /** Toplam draft adımı (iki taraf × 5). */
 export const CHAIN_TOTAL_STEPS = CHAIN_PICKS_PER_SIDE * 2;
 
-/** ELİT kulüpler (squaresMode ile AYNI liste — tek kaynak olması için kopya). */
-const ELITE_CLUB_IDS = new Set<string>([
-  'tm_5', 'tm_46', 'tm_506', 'tm_6195', 'tm_12', // İtalya elit
-  'tm_36', 'tm_141', 'tm_114', // Türk elit
-  'tm_148', 'tm_11', 'tm_281', 'tm_31', 'tm_985', 'tm_631', // İngiltere elit
-  'tm_27', 'tm_16', 'tm_15', 'tm_33', // Almanya elit
-  'tm_244', 'tm_583', 'tm_1041', // Fransa elit
-  'tm_131', 'tm_418', 'tm_13', 'tm_368', // İspanya elit
-  'tm_610', 'tm_294', 'tm_720', // Ajax/Benfica/Porto
-]);
+/**
+ * KÜRASYON KATEGORİLERİ (kullanıcı kararı — çeşitlilik dengesi).
+ *
+ * 7 kulüp = 3 (top-elit) + 3 (diğer-elit) + 1 (Türk). Her kategoriden KATEGORİ
+ * İÇİ TAM RASTGELE seçim → eski greedy bias'ı (Milan/Barça hep gelir) kırılır,
+ * 28 elit arasında adil dağılım + her oyunda 1 Türk kulübü.
+ */
 
-/** 7 kulüp seçilirken tek ülkeden en fazla kaç (lig kümelenmesini önler). */
-const MAX_PER_COUNTRY = 3;
+/** TOP-10 elit (en bilinen/çok-bağlantılı) — 7 kulüpten 3'ü buradan rastgele. */
+const TOP_ELITE_IDS = [
+  'tm_5', // AC Milan
+  'tm_131', // Barcelona
+  'tm_506', // Juventus
+  'tm_631', // Chelsea
+  'tm_46', // Inter
+  'tm_244', // Marseille
+  'tm_418', // Real Madrid
+  'tm_1041', // Lyon
+  'tm_583', // PSG
+  'tm_13', // Atlético
+];
+
+/** DİĞER elit (Türk hariç kalan elitler) — 7 kulüpten 3'ü buradan rastgele. */
+const OTHER_ELITE_IDS = [
+  'tm_368', // Sevilla FC
+  'tm_610', // Ajax
+  'tm_294', // Benfica
+  'tm_6195', // Napoli
+  'tm_12', // Roma
+  'tm_985', // Man Utd
+  'tm_16', // Dortmund
+  'tm_720', // Porto
+  'tm_33', // FC Schalke 04
+  'tm_11', // Arsenal
+  'tm_281', // Man City
+  'tm_148', // Tottenham
+  'tm_31', // Liverpool
+  'tm_15', // Leverkusen
+  'tm_27', // Bayern Munich
+];
+
+/** TÜRK büyük üçlü — Türk slotu geldiğinde %70 bu kategori (içinde eşit rastgele). */
+const TURKISH_BIG_IDS = [
+  'tm_36', // Fenerbahçe
+  'tm_141', // Galatasaray
+  'tm_114', // Besiktas
+];
+
+/** TÜRK küçükler — Türk slotu geldiğinde %30 bu kategori (içinde eşit rastgele). */
+const TURKISH_SMALL_IDS = [
+  'tm_449', // Trabzonspor
+  'tm_6890', // Basaksehir
+  'tm_2293', // Konyaspor
+  'tm_589', // Antalyaspor
+];
+
+/** Türk slotunda büyük-üçlü gelme olasılığı (kalanı küçükler). */
+const TURKISH_BIG_PROB = 0.7;
 
 export type ChainSide = 'P1' | 'P2';
 
@@ -61,31 +106,6 @@ export interface ChainPick {
   matchedClubIds: string[];
 }
 
-// ===========================================================================
-// Kulüp-çifti ortak-oyuncu ağırlıkları (kürasyon için) + keşişim
-// ===========================================================================
-
-/** Kulüp çiftleri arası ortak oyuncu sayısı (kürasyon greedy'si kullanır). */
-function buildPairWeights(
-  pool: PoolClub[],
-  players: Player[],
-): Map<string, number> {
-  const poolIds = new Set(pool.map((c) => c.id));
-  const weights = new Map<string, number>();
-  for (const p of players) {
-    const ids = [...new Set(p.clubs.map((s) => s.clubId))]
-      .filter((id) => poolIds.has(id))
-      .sort();
-    for (let i = 0; i < ids.length; i++) {
-      for (let j = i + 1; j < ids.length; j++) {
-        const key = `${ids[i]}|${ids[j]}`;
-        weights.set(key, (weights.get(key) ?? 0) + 1);
-      }
-    }
-  }
-  return weights;
-}
-
 /** Bir futbolcunun ekrandaki 7 kulüpten oynadıklarının id listesi (keşişim). */
 export function matchedClubs(player: Player, clubIds: Set<string>): string[] {
   const out = new Set<string>();
@@ -96,71 +116,67 @@ export function matchedClubs(player: Player, clubIds: Set<string>): string[] {
 }
 
 // ===========================================================================
-// ÇOK-LİGLİ KÜRASYON — modun kalbi (çözülebilir + çok-ligli 7 kulüp)
+// KATEGORİK KÜRASYON — modun kalbi (adil dağılım + Türk garantisi)
 // ===========================================================================
 
+/** Bir id listesinden N tanesini KATEGORİ İÇİ tam rastgele seç (tekrarsız). */
+function pickRandomIds(ids: string[], n: number, prng: PRNG): string[] {
+  return prng.shuffle(ids).slice(0, n);
+}
+
 /**
- * 7 kulüp seç: birbiriyle BOL ortak oyuncusu olan (çözülebilirlik) ama tek lige
- * sıkışmayan (ülke tavanı → 3-4 ülke). Greedy: elit bir tohumdan başla, sırayla
- * seçilenlere TOPLAM ortak-oyuncu ağırlığı en yüksek kulübü ekle (hafif jitter
- * ile çeşitlilik). Aynı seed → aynı 7 kulüp (online'da iki oyuncu aynısını görür).
+ * 7 kulüp seç (kullanıcı kararı — kategorik adil dağılım):
+ *   • 3 kulüp ← TOP_ELITE (10) tam rastgele
+ *   • 3 kulüp ← OTHER_ELITE (15) tam rastgele
+ *   • 1 kulüp ← TÜRK: %TURKISH_BIG_PROB büyük-üçlü (3, eşit rastgele),
+ *                     kalan olasılıkla küçükler (4, eşit rastgele)
+ *
+ * Greedy/pairWeight YOK → eski bias (Milan/Barça hep gelir) kırıldı; her oyunda
+ * 1 Türk kulübü garanti. Aynı seed → aynı 7 kulüp (online adaleti).
+ * Havuzda olmayan/eksik id güvenle atlanır (byId map).
  */
 export function curateClubs(
   seed: string,
   pool: PoolClub[],
-  players: Player[],
+  _players: Player[],
 ): ChainClub[] {
-  const pairWeight = buildPairWeights(pool, players);
-  const pw = (a: string, b: string): number =>
-    pairWeight.get(a < b ? `${a}|${b}` : `${b}|${a}`) ?? 0;
-
   const prng = createPRNG(`chain:${seed}:clubs`);
-  const elitePool = prng.shuffle(pool.filter((c) => ELITE_CLUB_IDS.has(c.id)));
+  const byId = new Map(pool.map((c) => [c.id, c]));
+  const exists = (id: string) => byId.has(id);
 
-  // Tohum: rastgele bir elit kulüp.
-  const chosen: PoolClub[] = [elitePool[0]!];
-  const chosenIds = new Set<string>([chosen[0]!.id]);
-  const perCountry = new Map<string, number>([[chosen[0]!.country, 1]]);
+  const chosenIds: string[] = [
+    ...pickRandomIds(TOP_ELITE_IDS.filter(exists), 3, prng),
+    ...pickRandomIds(OTHER_ELITE_IDS.filter(exists), 3, prng),
+  ];
 
-  while (chosen.length < CHAIN_CLUB_COUNT) {
-    let best: PoolClub | null = null;
-    let bestScore = -1;
-    for (const c of pool) {
-      if (chosenIds.has(c.id)) continue;
-      if ((perCountry.get(c.country) ?? 0) >= MAX_PER_COUNTRY) continue;
-      let w = 0;
-      for (const ch of chosen) w += pw(c.id, ch.id);
-      // Jitter (×0.8–1.2): eşit-güçlü adaylar arasında çeşitlilik, determinizm korunur.
-      const score = w * (0.8 + prng.next() * 0.4);
-      if (score > bestScore) {
-        bestScore = score;
-        best = c;
-      }
+  // Türk slotu — kategori seç (%70 büyük / %30 küçük), sonra içinden 1 rastgele.
+  const turkishBig = TURKISH_BIG_IDS.filter(exists);
+  const turkishSmall = TURKISH_SMALL_IDS.filter(exists);
+  const useBig = prng.next() < TURKISH_BIG_PROB && turkishBig.length > 0;
+  const turkPool = useBig ? turkishBig : turkishSmall.length > 0 ? turkishSmall : turkishBig;
+  const turkId = pickRandomIds(turkPool, 1, prng)[0];
+  if (turkId) chosenIds.push(turkId);
+
+  // Güvenlik: bir şekilde 7'ye ulaşılamadıysa (eksik kategori) elitlerden tamamla.
+  if (chosenIds.length < CHAIN_CLUB_COUNT) {
+    const fill = prng.shuffle(
+      [...TOP_ELITE_IDS, ...OTHER_ELITE_IDS].filter(
+        (id) => exists(id) && !chosenIds.includes(id),
+      ),
+    );
+    for (const id of fill) {
+      if (chosenIds.length >= CHAIN_CLUB_COUNT) break;
+      chosenIds.push(id);
     }
-    // Ülke tavanı tüm adayları tıkadıysa → tavansız en iyi (havuz küçükse güvenlik).
-    if (!best) {
-      for (const c of pool) {
-        if (chosenIds.has(c.id)) continue;
-        let w = 0;
-        for (const ch of chosen) w += pw(c.id, ch.id);
-        if (w > bestScore) {
-          bestScore = w;
-          best = c;
-        }
-      }
-    }
-    if (!best) break;
-    chosen.push(best);
-    chosenIds.add(best.id);
-    perCountry.set(best.country, (perCountry.get(best.country) ?? 0) + 1);
   }
 
-  // Ekran sırasını karıştır (tohum hep başta görünmesin) → 4+3 düzene serpilir.
-  return prng.shuffle(chosen).map((c) => ({
-    id: c.id,
-    name: c.name,
-    crestUrl: c.crestUrl,
-  }));
+  // Ekran sırasını karıştır (kategori sırası belli olmasın) → 4+3 düzene serpilir.
+  return prng
+    .shuffle(chosenIds.slice(0, CHAIN_CLUB_COUNT))
+    .map((id) => {
+      const c = byId.get(id)!;
+      return { id: c.id, name: c.name, crestUrl: c.crestUrl };
+    });
 }
 
 // ===========================================================================
@@ -237,5 +253,3 @@ export function botPick(
   const choice = candidates[Math.min(idx, candidates.length - 1)]!;
   return { player: choice.player, matched: choice.matched };
 }
-
-export { ELITE_CLUB_IDS };

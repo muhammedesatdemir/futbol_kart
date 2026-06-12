@@ -47,6 +47,10 @@ import {
   buildInitialSquaresState,
   squaresSceneDeadlineSeconds,
 } from '@/lib/server/squaresMatchEngine';
+import {
+  buildInitialChainState,
+  chainSceneDeadlineSeconds,
+} from '@/lib/server/chainMatchEngine';
 
 /**
  * Online oynanabilen modlar. Her yeni mod buraya eklenir; `matchmaking_queue`
@@ -57,8 +61,9 @@ import {
  *  - 'kadro'     : Kadro Kur — SquadMatchState
  *  - 'liste'     : Liste Doldur — ListMatchState (liste sunucuda gizli)
  *  - 'kareler'   : Kareleri Kap — SquaresMatchState (matris açık)
+ *  - 'zincir'    : Zincir Kur — ChainMatchState (7 kulüp açık)
  */
-export const ONLINE_MODES = ['vs-duello', 'hedef', 'kadro', 'liste', 'kareler'] as const;
+export const ONLINE_MODES = ['vs-duello', 'hedef', 'kadro', 'liste', 'kareler', 'zincir'] as const;
 export type OnlineMode = (typeof ONLINE_MODES)[number];
 
 export interface MatchmakingResult {
@@ -121,6 +126,10 @@ async function buildInitialMatchState(
   if (mode === 'kareler') {
     const state = await buildInitialSquaresState(seed, p1Name, p2Name);
     return { state, deadlineSecs: squaresSceneDeadlineSeconds(state) };
+  }
+  if (mode === 'zincir') {
+    const state = await buildInitialChainState(seed, p1Name, p2Name);
+    return { state, deadlineSecs: chainSceneDeadlineSeconds(state) };
   }
   // vs-duello (varsayılan, mevcut davranış — değişmedi).
   const state = buildOnlineMatchState(matchId, seed, p1Name, p2Name);

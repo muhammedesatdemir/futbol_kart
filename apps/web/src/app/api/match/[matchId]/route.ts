@@ -32,6 +32,11 @@ import {
   squaresSceneDeadlineSeconds,
   type SquaresMatchState,
 } from '@/lib/server/squaresMatchEngine';
+import {
+  applyChainTimeout,
+  chainSceneDeadlineSeconds,
+  type ChainMatchState,
+} from '@/lib/server/chainMatchEngine';
 import { publishMatchEvent } from '@/lib/server/ably';
 import { enforceRateLimit } from '@/lib/server/rateLimit';
 
@@ -113,6 +118,9 @@ export async function GET(
   }
   if (m.mode === 'kareler') {
     return getSquaresMatch(db, m, side, clientVersion);
+  }
+  if (m.mode === 'zincir') {
+    return getChainMatch(db, m, side, clientVersion);
   }
 
   // SÜRE KONTROLÜ (lazy): yükleme anında süre dolduysa otomatik tamamla.
@@ -577,6 +585,86 @@ async function getSquaresMatch(
     yourSide: side,
     seed: m.seed,
     // state OPAK döner — matris açık (maskeleme yok).
+    state,
+    winnerSide: m.winnerSide,
+    turnDeadline: deadline ? deadline.toISOString() : null,
+  });
+}
+
+/**
+ * "Zincir Kur" maçı için GET — sade kol (getSquaresMatch kardeşi). MASKELEME YOK:
+ * 7 kulüp + pick'ler AÇIK (kulüpler ekranda görünür). Süre dolumu lazy (0-puanlık
+ * pas), versiyon kısa-devresi aynı.
+ */
+async function getChainMatch(
+  db: ReturnType<typeof getDb>,
+  m: typeof matchTable.$inferSelect,
+  side: 'P1' | 'P2',
+  clientVersion: number,
+) {
+  let state = m.state as ChainMatchState;
+  let deadline = m.turnDeadline ? new Date(m.turnDeadline) : null;
+  let currentVersion = m.version;
+
+  let timed: { state: ChainMatchState; changed: boolean };
+  try {
+    timed = await applyChainTimeout(
+      state,
+      deadline ? deadline.getTime() : null,
+      Date.now(),
+    );
+  } catch (err) {
+    console.error('applyChainTimeout hatası (maç çökmesi önlendi):', err);
+    timed = { state, changed: false };
+  }
+
+  if (
+    !timed.changed &&
+    Number.isFinite(clientVersion) &&
+    clientVersion === m.version
+  ) {
+    return NextResponse.json({
+      unchanged: true,
+      version: m.version,
+      turnDeadline: deadline ? deadline.toISOString() : null,
+    });
+  }
+
+  if (timed.changed) {
+    const secs = chainSceneDeadlineSeconds(timed.state);
+    const newDeadline = secs ? new Date(Date.now() + secs * 1000) : null;
+    const updated = await db
+      .update(matchTable)
+      .set({
+        state: timed.state,
+        currentScene: timed.state.scene,
+        turnDeadline: newDeadline,
+        version: m.version + 1,
+        winnerSide: timed.state.scene === 'RESULT' ? timed.state.winner : null,
+        status: timed.state.scene === 'RESULT' ? 'finished' : 'active',
+        updatedAt: new Date(),
+      })
+      .where(and(eq(matchTable.id, m.id), eq(matchTable.version, m.version)))
+      .returning({ id: matchTable.id });
+    if (updated.length > 0) {
+      state = timed.state;
+      deadline = newDeadline;
+      currentVersion = m.version + 1;
+      await publishMatchEvent(m.id, 'state-changed', {
+        scene: state.scene,
+        step: state.step,
+      });
+    }
+  }
+
+  return NextResponse.json({
+    matchId: m.id,
+    mode: m.mode,
+    status: m.status,
+    version: currentVersion,
+    yourSide: side,
+    seed: m.seed,
+    // state OPAK döner — 7 kulüp + pick'ler açık (maskeleme yok).
     state,
     winnerSide: m.winnerSide,
     turnDeadline: deadline ? deadline.toISOString() : null,

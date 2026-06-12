@@ -1,6 +1,6 @@
 # DerbyGoal
 
-> **DerbyGoal** — 8.912 futbolculuk veri üzerinde **4 oyun modu** sunan, hot-seat · bota karşı **ve online (VS Düello)** oynanan dijital futbol kart & tahmin oyunu.
+> **DerbyGoal** — 8.912 futbolculuk veri üzerinde **6 oyun modu** sunan, hot-seat · bota karşı **ve online (altı modun da)** oynanan dijital futbol kart & tahmin oyunu.
 
 **Marka kimliği:**
 | | Değer |
@@ -13,14 +13,16 @@
 
 > Repo dizini/iç paket adları (`@futbol-kart/*`) şimdilik teknik olarak `futbol-kart` kalıyor; marka geçişi kademeli (kullanıcıya görünen isimler önce). Konsept ve kararlar: [PLAN.md §2](PLAN.md).
 
-Oyuncu ana sayfada bir **oyun modu** seçer; her mod aynı oyuncu havuzunu kullanır, kendi sahne akışına sahiptir ve **bota karşı** + **arkadaşa karşı (hot-seat)** oynanır. **Dört mod da ayrıca online** (gerçek rakiple, sunucu-otoriteli) oynanabilir — bkz. [🌐 Online Mod](#-online-mod--vs-düello-gerçek-zamanlı-multiplayer). Dört mod:
+Oyuncu ana sayfada bir **oyun modu** seçer; her mod aynı oyuncu havuzunu kullanır, kendi sahne akışına sahiptir ve **bota karşı** + **arkadaşa karşı (hot-seat)** oynanır. **Altı mod da ayrıca online** (gerçek rakiple, sunucu-otoriteli) oynanabilir — bkz. [🌐 Online Mod](#-online-mod--vs-düello-gerçek-zamanlı-multiplayer). Altı mod:
 
 - **⚔️ VS Düello** — *(ana / olgun mod · bota + arkadaşa + **online**)* İki oyuncu kör seçimle **8'er kart** seçer, moderatör **106 şablondan** rastgele bir soru sorar (forma no toplamı, ekvatora yakınlık, kariyer golü, "yaşı 30'a yakın" gibi parametrik sorular), birer kart sürülür, kazanan turu alır. **7 tur**, eşitlikte uzatma (4 kart × 3 tur) → penaltı (1 kart). Değerler eşitse tur **berabere** (keyfî puan yok). Maç başı **3 zorunlu kategori** (+2 puan taktik katmanı) + **3 joker** (Çarpan ×2/÷2 · İstatistiği Gör · Transfer Hamlesi). Tüm adımlar **geri sayım süreli**, süre dolarsa sistem akıllıca tamamlar. **Online'da** aynı akış gerçek rakiple, **sunucu-otoriteli** (doğru cevap reveal'a kadar client'a sızmaz) + **Ably hibrit push** ile gerçek zamanlı oynanır.
 - **⚽ Kadro Kur** — *(bota + arkadaşa + **online**)* Bir kritere göre (en uzun / en golcü / en değerli / en kupalı …) **4-3-3 formasyonu** doldur, seçilen istatistiğin toplamını rakiple kapıştır. Bota karşı kör seçim; arkadaşa karşı **snake draft** (A-B-B-A) + öneri jokeri. **Online'da** sıra-tabanlı snake draft gerçek rakiple, **sunucu-otoriteli** (kriter sunucuda deterministik seçilir, slot-bazlı pozisyon doğrulaması, öneri jokeri) + **Ably hibrit push**.
 - **🎯 Hedefe Yaklaş** — *(bota + arkadaşa + **online**)* **5 oyuncu** seç; seçilen metriğin (örn. Dünya Kupası maçı) toplamı bir **hedefe** en yakın olan kazanır (sadece-uzaklık; üstü serbest). Oyunvari "hedef çarkı" + **Röntgen jokeri** (1×/taraf — havuzdaki bir kartın gizli değerini açar). Bota karşı (±10 sapmalı bot) + arkadaşa karşı snake draft. **Online'da** sıra-tabanlı snake draft gerçek rakiple, **sunucu-otoriteli** (kriter+hedef sunucuda deterministik seçilir, rakip seçimi anlık görünür) + **Ably hibrit push**; optimistic seçim (kart anında yerleşir) + sunucu-deadline'lı senkron sayaç.
 - **📋 Liste Doldur** — *(bota + arkadaşa + **online**)* Sıralı bir **top-10 listesini** (örn. "En çok milli maç") havuzdan isim tahmin ederek doldur; doğru tahmin gerçek sırasına oturur + sıra puanı (10. sıra = 10 puan; alt sıralar daha değerli). Her tarafa **3 can** (yanlış/pas can götürür), iki tarafın canı bitince sonuç. Bota karşı + arkadaşa karşı (sırayla). **Online'da** ortak liste sıra-tabanlı, **sunucu-otoriteli** + **liste sunucuda GİZLİ** (top-10 cevaplar client'a gönderilmez — F12 korumalı, gerçek hile koruması); açılan sıralar + tahmin sonucu anlık gelir, sonuç ekranında tam liste açılır.
+- **🟦 Kareleri Kap** — *(bota + arkadaşa + **online**)* **5×5 kulüp matrisi**; bir futbolcu adı yaz, o futbolcunun **bitişik (4-yön: ↑↓←→)** kulüplerinden en büyük grup senin rengine kapanır = o kadar kare puanı. Kapanan kare kilitlenir (çalma yok — v2 fikri). Her tarafa **3 can**, iki tarafın canı bitince veya matris dolunca **en çok kare kapatan kazanır**. Matris **kürasyonlu** üretilir (19 elit + 6 diğer, niş takım yan yana yığılmaz, akıllı yerleştirmeyle 4-6'lık zincirler mümkün). **Öneri jokeri** (1×/taraf — büyük grup açan iyi bir futbolcu önerir). **Online'da** sıra-tabanlı, **sunucu-otoriteli** (bitişik grup BFS sunucuda hesaplanır) + **Ably hibrit push**; matris açık (maskeleme yok).
+- **🔗 Zincir Kur** — *(bota + arkadaşa + **online**)* **7 kulüp** gösterilir (4 üst + 3 alt, bitişiklik YOK); her oyuncu sırayla (snake A-B-B-A-A-B-B-A-A-B) **5'er futbolcu** girer, futbolcu bu 7 kulüpten **kaçında oynadıysa o kadar puan** (keşişim). En çok puan kazanır. 7 kulüp **kategorik kürasyon** ile seçilir: 3 top-elit + 3 diğer-elit + **1 garanti Türk kulübü** (%70 büyük üçlü FB/GS/BJK · %30 TS/Başakşehir/Konyaspor/Antalyaspor). **Öneri jokeri** (1×/taraf). **Online'da** sıra-tabanlı snake, **sunucu-otoriteli** (keşişim sunucuda) + **Ably hibrit push**; 7 kulüp açık (maskeleme yok).
 
-> **Durum (mod olgunluğu):** Dört mod da **içerik olarak canlıya hazır.** VS Düello 106 şablon; **Liste Doldur 235**, **Hedefe Yaklaş 205**, **Kadro Kur 151** kriter (toplam **697** — kriter ÜRETİCİSİ ile alan×filtre kombinasyonundan türetilir, `criteriaCatalog.ts`). Her oyun OTURUMU rastgele farklı kriter seçer (`roundSeed`). **Dört modun da online'ı çalışıyor** (sunucu-otoriteli + Ably; Liste Doldur'da liste sunucuda gizli = hile koruması). Geriye kalan: rating/Elo hesabı (şema hazır) + kulüp-bazlı yeni modlar (bkz. [VERI.md](VERI.md)).
+> **Durum (mod olgunluğu):** Altı mod da **içerik olarak canlıya hazır.** VS Düello 106 şablon; **Liste Doldur 235**, **Hedefe Yaklaş 205**, **Kadro Kur 151** kriter (kriter ÜRETİCİSİ ile alan×filtre kombinasyonundan türetilir, `criteriaCatalog.ts`); **Kareleri Kap** + **Zincir Kur** kulüp-bazlı (kürasyonlu rastgele → her oyun benzersiz, devasa varyasyon uzayı). Her oyun OTURUMU rastgele farklı kriter/matris/kulüp seçer (`roundSeed`). **Altı modun da online'ı çalışıyor** (sunucu-otoriteli + Ably; Liste Doldur'da liste sunucuda gizli = hile koruması). Geriye kalan: rating/Elo hesabı (şema hazır) + kalan kulüp-bazlı modlar (İki Takım Ortak / Kariyer Yolu / 4'lü Kıyas / İmposter — bkz. [VERI.md](VERI.md) + [PLAN.md §14-16](PLAN.md)).
 
 ---
 
@@ -28,11 +30,12 @@ Oyuncu ana sayfada bir **oyun modu** seçer; her mod aynı oyuncu havuzunu kulla
 
 | Metrik | Değer |
 |---|---|
-| **Oyun modu** | 4 (VS Düello · Kadro Kur · Hedefe Yaklaş · Liste Doldur) — her biri bota + arkadaşa karşı |
+| **Oyun modu** | 6 (VS Düello · Kadro Kur · Hedefe Yaklaş · Liste Doldur · Kareleri Kap · Zincir Kur) — her biri bota + arkadaşa + **online** |
 | **Oyuncu** | 8,912 (Pelé'den Lamine Yamal'a, 107 yıllık tarih) |
 | **Kulüp** | 6,240 (47 manuel + 6,193 TM) |
 | **VS soru şablonu** | 106 baz şablon (14 parametrik → ~740 benzersiz soru varyasyonu) |
 | **Mod kriter sayıları** | Liste 235 · Hedef 205 · Kadro 151 (toplam 591, üreticiyle türetilir — `criteriaCatalog.ts`) |
+| **Kulüp-bazlı modlar** | Kareleri Kap (5×5 kürasyonlu matris) · Zincir Kur (7 kulüp, kategorik kürasyon + garanti Türk kulübü) — kürasyonlu rastgele, her oyun benzersiz |
 | **Hedefe Yaklaş kriteri** | 1 canlı (Dünya Kupası maçı) — yapı çoklu metriğe hazır |
 | **Liste Doldur listesi** | 1 canlı (En çok milli maç) — yapı çoklu listeye hazır |
 | **Türk oyuncu** | 727 (Süper Lig kulüpleri + Anadolu kulüpleri + manuel efsaneler) |
@@ -46,18 +49,20 @@ Detaylı veri raporu: [data-pipeline/FINAL_REPORT.md](data-pipeline/FINAL_REPORT
 
 ## Durum
 
-**Aktif geliştirme — 4 mod içerik olarak canlıya hazır + DÖRT MODUN DA ONLINE'I oynanabilir.** **VS Düello** tam olgun (106 şablon + 3 joker + 3 zorunlu kategori bonusu + geri sayım süreleri); **Kadro Kur (151 kriter)**, **Hedefe Yaklaş (205 kriter)**, **Liste Doldur (235 kriter)** modları zengin içerikle canlı — toplam **591 kriter**, kriter ÜRETİCİSİ ([`criteriaCatalog.ts`](apps/web/src/lib/criteriaCatalog.ts)) ile alan×filtre (pozisyon/aktiflik/milliyet) kombinasyonundan türetilir; her oyun OTURUMU `roundSeed` ile farklı kriter seçer (sağlıksız kombinasyonlar `prune*`/`resolveTargetBands` ile elenir). **Dört modun da online multiplayer'ı çalışıyor** (sunucu-otoriteli motor + Ably hibrit push + Neon Postgres; bkz. [🌐 Online Mod](#-online-mod--vs-düello-gerçek-zamanlı-multiplayer)). Mod-agnostik altyapı (atomik matchmaking, optimistic-lock, versiyon-GET, süre-dolumu) + mod-özel sunucu motoru + client köprüsü deseniyle her mod online'a taşındı; Liste Doldur'da **liste sunucuda gizli** (spoiler/hile koruması). Veri katmanı doğrulandı, atmosfer cilası tamam. **Backend bağlı:** Neon Postgres (Frankfurt), migration'lar uygulandı, Better-Auth (e-posta magic-link) + Ably realtime aktif — online maçlar uçtan uca test edildi. **Kulüp-bazlı gelecek modların (Çinko / Rastgele 7 / İki Takım Eşleşmesi) veri katmanı çekildi** (2026-06-05: kulüp logoları + `clubPool.json` + `clubPairs.json`) — bkz. [VERI.md](VERI.md); kalan iş kod tarafında.
+**Aktif geliştirme — 6 mod içerik olarak canlıya hazır + ALTI MODUN DA ONLINE'I oynanabilir.** **VS Düello** tam olgun (106 şablon + 3 joker + 3 zorunlu kategori bonusu + geri sayım süreleri); **Kadro Kur (151 kriter)**, **Hedefe Yaklaş (205 kriter)**, **Liste Doldur (235 kriter)** modları zengin içerikle canlı — kriter ÜRETİCİSİ ([`criteriaCatalog.ts`](apps/web/src/lib/criteriaCatalog.ts)) ile alan×filtre (pozisyon/aktiflik/milliyet) kombinasyonundan türetilir; her oyun OTURUMU `roundSeed` ile farklı kriter seçer (sağlıksız kombinasyonlar `prune*`/`resolveTargetBands` ile elenir). **Kareleri Kap** (5×5 bitişik-kulüp matrisi) + **Zincir Kur** (7-kulüp keşişim) ise **kulüp-bazlı** kürasyonlu modlar — `clubPool.json` + `players[].clubs[]`'tan kürasyonlu rastgele üretilir (her oyun benzersiz, devasa varyasyon), her ikisinde **öneri jokeri** (1×/taraf). **Altı modun da online multiplayer'ı çalışıyor** (sunucu-otoriteli motor + Ably hibrit push + Neon Postgres; bkz. [🌐 Online Mod](#-online-mod--vs-düello-gerçek-zamanlı-multiplayer)). Mod-agnostik altyapı (atomik matchmaking, optimistic-lock, versiyon-GET, süre-dolumu) + mod-özel sunucu motoru + client köprüsü deseniyle her mod online'a taşındı; Liste Doldur'da **liste sunucuda gizli** (spoiler/hile koruması), Kareleri Kap/Zincir'de puanlama (bitişik grup BFS / keşişim) sunucuda hesaplanır (hile koruması). Veri katmanı doğrulandı, atmosfer cilası tamam. **Backend bağlı:** Neon Postgres (Frankfurt), migration'lar uygulandı, Better-Auth (e-posta magic-link + verified domain) + Ably realtime aktif — online maçlar uçtan uca test edildi. **Canlı:** Vercel'de `derbygoal.com` (Frankfurt fonksiyon bölgesi). **Kalan kulüp-bazlı modlar** (İki Takım Ortak — veri hazır `clubPairs.json` 1308 çift / Kariyer Yolu / 4'lü Kıyas / İmposter) — bkz. [VERI.md](VERI.md) + [PLAN.md §14-16](PLAN.md).
 
 ### Tamamlananlar
 
-#### 🎮 Oyun modları (4 mod — ortak omurga)
+#### 🎮 Oyun modları (6 mod — ortak omurga)
 
-Her mod ana sayfadaki **oyun-modu seçimiyle** (`GameModeSelectScene`) açılır, kendi route'una sahiptir (`/oyna` · `/kadro` · `/hedefe-yaklas` · `/liste-doldur`), ve **paylaşılan omurgayı** kullanır: rakip seçimi (`OpponentSelectScene` — bota/arkadaşa karşı), faz-bilinçli geri navigasyon, sahne arka planları (`SceneBackground` bgKey override), geri sayım (`CountdownRing`), snake draft mantığı, sıralı reveal + konfeti + ses (`useSfx`/`Confetti`), isim modalı (`NameModal`). Her modun **saf mantık katmanı** ayrıdır (test edilebilir, DOM'suz): `squadMode.ts` / `targetMode.ts` / `listMode.ts`.
+Her mod ana sayfadaki **oyun-modu seçimiyle** (`GameModeSelectScene`) açılır, kendi route'una sahiptir (`/oyna` · `/kadro` · `/hedefe-yaklas` · `/liste-doldur` · `/kareleri-kap` · `/zincir`), ve **paylaşılan omurgayı** kullanır: rakip seçimi (`OpponentSelectScene` — bota/arkadaşa karşı), faz-bilinçli geri navigasyon, sahne arka planları (`SceneBackground` bgKey override), geri sayım (`CountdownRing`), snake draft mantığı, sıralı reveal + konfeti + ses (`useSfx`/`Confetti`), isim modalı (`NameModal`). Her modun **saf mantık katmanı** ayrıdır (test edilebilir, DOM'suz): `squadMode.ts` / `targetMode.ts` / `listMode.ts` / `squaresMode.ts` / `chainMode.ts`.
 
 - ✅ **VS Düello** — Projenin **olgun ana modu** (aşağıdaki "Oyun motoru & UI" + jokerler + bonuslar). 106 şablon, 7 tur, uzatma/penaltı.
 - ✅ **Kadro Kur** *(151 kriter canlı)* — 4-3-3 formasyonunu pozisyon-bazlı doldur, seçilen kriterin (uzun/kısa/yaşlı/genç/golcü/asistçi/değerli/kupalı/UCL/lig golü/ödül… × aktiflik/8 milliyet filtreleri — **151 sağlıklı kriter**, üreticiyle) toplamını kapıştır. Bota karşı seçim ekranı her oyun rastgele 12'lik vitrin gösterir. Bota karşı kör seçim (değer gizli, bot zayıflatılmış greedy); arkadaşa karşı **snake draft** (40sn/seçim, çakışma engeli) + **öneri jokeri** (maçta 1×). Build'de seçilen kartların rozeti gizli (yüz net); sonuç ekranında iki saha yan yana sıralı reveal + **her oyuncunun altında kriter katkısı** + toplam count-up.
 - ✅ **Hedefe Yaklaş** *(205 kriter canlı)* — 5 oyuncuyla bir **hedefe (oyunvari "hedef çarkı")** yaklaş; toplamı hedefe en yakın olan kazanır (**sadece-uzaklık**, üstü serbest). **205 kriter** (gol/asist/milli/UCL/lig golü/boy/kupa… × pozisyon/aktiflik/milliyet); her kriterin hedef bandı, o filtrelenmiş havuzdan **dinamik** hesaplanır (`resolveTargetBands`) — küçük havuzlarda da ulaşılabilir. Bota karşı **±10 sapmalı bot** (kasıtlı hata — yenilebilir); arkadaşa karşı snake draft. **Röntgen jokeri** (1×/taraf, her iki modda): havuzdan bir kartın gizli değerini aç → "Kadroya kat / Vazgeç". Sonuç: 3-bölgeli (sol toplam | hedef | sağ toplam), kart başına istatistik.
 - ✅ **Liste Doldur** *(235 kriter canlı)* — Sıralı **top-10 listesini** (235 kriterden biri rastgele: "En çok gol (Brezilyalı)", "En çok ŞL maçı (forvet)"… `players.json`'dan runtime türetilir, foto garantili) havuzdan **isim tahmin ederek** doldur; doğru tahmin gerçek sırasına oturur + **sıra puanı** (10. sıra 10p — alt sıralar daha değerli). Her tarafa **3 can** (yanlış/pas can götürür, kalp animasyonu); iki tarafın canı bitince sonuç. **Dinamik sıra/süre/can paneli** (aktif taraf P1 ise solda kırmızı, P2 ise sağda mavi). Sonuç: tam liste açık, kim açtı renkli, kimsenin bilemediği amber. Bota karşı (P1 3 can, bitince bot tamamlar) + arkadaşa karşı.
+- ✅ **Kareleri Kap** *(kulüp-bazlı, `squaresMode.ts`)* — **5×5 kulüp matrisi**; futbolcu adı yaz, o futbolcunun **bitişik (4-yön)** kulüplerinden en büyük grup senin rengine kapanır (grup boyutu = puan). Kapanan kare kilitlenir (çalma yok — v2 fikri). Her tarafa **3 can**; iki tarafın canı bitince / matris dolunca **en çok kare kapatan kazanır**. Matris **kürasyonlu**: 19 elit + 6 diğer (TM id ile sabit elit listesi), niş takım yan yana yığılmaz (Manhattan-uzaklıklı dağıtım), **akıllı yerleştirme** (çok ortak oyunculu kulüpler komşu → 4-6'lık zincirler mümkün), rejection sampling ile çözülebilirlik garantisi. Vitrin maç boyu sabit + rastgele sıralı (exploit yok). **Öneri jokeri** (1×/taraf, üst dilimden iyi futbolcu önerir + parlatır). Sonuç: nihai matris renkli döküm + skor barı + fanfar.
+- ✅ **Zincir Kur** *(kulüp-bazlı, `chainMode.ts`)* — **7 kulüp** (4 üst + 3 alt, bitişiklik YOK); snake sırası **A-B-B-A-A-B-B-A-A-B** (5+5 dengeli) ile her oyuncu **5'er futbolcu** girer, futbolcu bu 7 kulüpten **kaçında oynadıysa o kadar puan** (keşişim). 7 kulüp **kategorik kürasyon**: 3 top-elit + 3 diğer-elit + **1 garanti Türk kulübü** (%70 büyük üçlü FB/GS/BJK eşit · %30 TS/Başakşehir/Konyaspor/Antalyaspor eşit) → eski "hep aynı kulüpler" bias'ı kırıldı, her oyunda bir Türk kulübü. Kutu-içi anlık boyama (tutulan kulüpler taraf rengiyle, sağ-üst nokta köşesi dinamik korunur). **Öneri jokeri** (1×/taraf). Sonuç: iki taraf pick dökümü (kim ne girdi, kaç puan) + skor barı + fanfar.
 
 #### Oyun motoru & UI (VS Düello)
 - ✅ **Oyun motoru** — Saf TypeScript, event-sourced reducer, seedable PRNG. Hot-seat + vs-bot.
@@ -81,11 +86,11 @@ Her mod ana sayfadaki **oyun-modu seçimiyle** (`GameModeSelectScene`) açılır
 - ✅ **Backend iskeleti** — Drizzle ORM + Neon Postgres + Better-Auth (magic-link) + Resend mail. API routes (`POST /api/games`, `GET /api/games/[shareId]`). Paylaşılabilir maç sayfası (`/mac/[shareId]`). **Online mod için genişletildi:** `match` / `match_move` / `matchmaking_queue` / `user_rating` tabloları + tam realtime API katmanı (bkz. [🌐 Online Mod](#-online-mod--vs-düello-gerçek-zamanlı-multiplayer)).
 - ✅ **Performans** — Görseller WebP (-%88 boyut), kritik sahnelerin preload'u, sayfa geçişleri 200ms. Web bundle `/oyna/[gameId]` ≈ 34 kB (3 joker + transfer sahnesi + 4 geri sayım dahil).
 
-#### 🌐 Online Mod — gerçek zamanlı multiplayer (dört mod)
+#### 🌐 Online Mod — gerçek zamanlı multiplayer (altı mod)
 
 VS Düello'nun **online sürümü canlı ve uçtan uca test edildi**: iki gerçek oyuncu eşleşir, aynı maçı **sunucu-otoriteli** oynar (offline ile birebir akış — el seçimi, 3 zorunlu kategori, 3 joker, faz zinciri, süre). Aynı `/oyna/[matchId]?online=1` sayfası `useGameController` köprüsüyle hem offline hem online'ı sunar — sahneler/sesler/efektler değişmeden çalışır.
 
-**Dört modun da online'ı çalışıyor** — aynı mod-agnostik altyapının (eşleştirme, Ably, optimistic-lock, versiyon-GET, süre-dolumu) üzerine her mod yalnızca kendi sunucu motoru + client köprüsü + sayfa dalını ekledi (aşağıda "Diğer modlara yayma"). VS Düello/Hedefe/Kadro draft-tabanlı; **Liste Doldur** ise liste sunucuda gizli tutularak (hile koruması) eklendi.
+**Altı modun da online'ı çalışıyor** — aynı mod-agnostik altyapının (eşleştirme, Ably, optimistic-lock, versiyon-GET, süre-dolumu) üzerine her mod yalnızca kendi sunucu motoru + client köprüsü + sayfa dalını ekledi (aşağıda "Diğer modlara yayma"). VS Düello/Hedefe/Kadro/Zincir draft-veya-sıra-tabanlı; **Liste Doldur** liste sunucuda gizli (hile koruması); **Kareleri Kap/Zincir** ise kulüp-bazlı, puanlama sunucuda (bitişik grup BFS / keşişim) + öneri jokeri sunucu-otoriteli (öneri yalnız isteyene döner, rakibe sızmaz).
 
 - ✅ **Sunucu-otoriteli motor** ([`lib/server/matchEngine.ts`](apps/web/src/lib/server/matchEngine.ts)) — Oyun motoru (`packages/game-engine/`) sunucuda çalışır: el doğrulama, **deterministik soru seçimi** (FlowState serileştirme — PRNG durumu DB'de), kart çözümü, jokerler, bonus, faz geçişi, süre dolumu. **Doğru cevap reveal'a kadar client'a HİÇ gönderilmez** (hile koruması). İstatistik-Gör jokeri yalnızca kendi elinin değerlerini döndürür; rakip eli `match` GET'inde **maskelenir** (kart id'leri gizli).
 - ✅ **Eşleştirme — atomik** ([`lib/server/matchmaking.ts`](apps/web/src/lib/server/matchmaking.ts)) — Kuyruk + FIFO eşleştirme. Rakip kuyruktan **`DELETE ... RETURNING` ile atomik** çıkarılır → iki eşzamanlı istek aynı rakibi kapamaz (çift maç imkansız). Tek-aktif-maç kuralı (`findActiveMatchFor`, en yeni active'e yönlendirir). Maç kurulunca her iki oyuncu da kuyruktan temizlenir.
@@ -108,7 +113,11 @@ VS Düello'nun **online sürümü canlı ve uçtan uca test edildi**: iki gerçe
 
 - ✅ **Liste Doldur** (en zor — spoiler korumalı) — [`lib/server/listMatchEngine.ts`](apps/web/src/lib/server/listMatchEngine.ts) (**liste SUNUCUDA GİZLİ**: state yalnız `criterionId` + açılmış sıralar tutar, top-10 cevaplar client'a ASLA gitmez; `evaluateGuess` sunucuda; can sistemi 3×/taraf; asimetrik sıra-tabanlı tahmin; süre dolunca pas) + [`api/match/[matchId]/list-move`](apps/web/src/app/api/match/[matchId]/list-move/route.ts) + [`useOnlineListMatch.ts`](apps/web/src/lib/useOnlineListMatch.ts) + [`liste-doldur/[gameId]`](apps/web/src/app/liste-doldur/[gameId]/page.tsx) `?online=1` dalı. GET yalnız açılmış sıraları döner; tam liste yalnız RESULT'ta (oyun bitince). `ListPlayScene` maskeli listeyle beslenir (sahne değişmedi).
 
-> Tam plan, fazlar ve kararlar: [ONLINE-YOL-HARITASI.md](ONLINE-YOL-HARITASI.md) + [PLAN.md §19](PLAN.md). **Dört modun da online'ı tamam.** Kalan: rating/Elo + kulüp-bazlı yeni modlar.
+- ✅ **Kareleri Kap** (kulüp-bazlı) — [`lib/server/squaresMatchEngine.ts`](apps/web/src/lib/server/squaresMatchEngine.ts) (matris seed'den deterministik kürate edilir = adalet; **bitişik grup BFS SUNUCUDA** hesaplanır → client manipüle edemez; can sistemi 3×/taraf; sıra-tabanlı; süre dolunca pas) + [`api/match/[matchId]/squares-move`](apps/web/src/app/api/match/[matchId]/squares-move/route.ts) + [`useOnlineSquaresMatch.ts`](apps/web/src/lib/useOnlineSquaresMatch.ts) + [`kareleri-kap/[gameId]`](apps/web/src/app/kareleri-kap/[gameId]/page.tsx) `?online=1` dalı. Sunucu clubPool'u fs'ten okur (`loadGameData` clubPool içermez). Matris açık → maskeleme yok; **öneri jokeri** sunucuda (önerilen oyuncu yalnız isteyene döner, state'e yazılmaz = rakibe sızmaz).
+
+- ✅ **Zincir Kur** (kulüp-bazlı) — [`lib/server/chainMatchEngine.ts`](apps/web/src/lib/server/chainMatchEngine.ts) (7 kulüp seed'den kategorik kürate edilir; **keşişim SUNUCUDA** hesaplanır; snake A-B-B-A-A-B-B-A-A-B; süre dolunca 0-puanlık pas) + [`api/match/[matchId]/chain-move`](apps/web/src/app/api/match/[matchId]/chain-move/route.ts) + [`useOnlineChainMatch.ts`](apps/web/src/lib/useOnlineChainMatch.ts) + [`zincir/[gameId]`](apps/web/src/app/zincir/[gameId]/page.tsx) `?online=1` dalı. 7 kulüp açık → maskeleme yok; **öneri jokeri** sunucuda (yalnız isteyene). `ONLINE_MODES`'a `'kareler'` + `'zincir'` eklendi (mod-özel kuyruk).
+
+> Tam plan, fazlar ve kararlar: [ONLINE-YOL-HARITASI.md](ONLINE-YOL-HARITASI.md) + [PLAN.md §19](PLAN.md). **Altı modun da online'ı tamam.** Kalan: rating/Elo + kalan kulüp-bazlı modlar (İki Takım Ortak / Kariyer Yolu / 4'lü Kıyas / İmposter).
 
 #### Veri pipeline'ı
 - ✅ **TM JSON API mimarisi** — Transfermarkt'ın resmi (açık) JSON API'leri (`tmapi-alpha/players`, `tmapi-alpha/clubs`, `ceapi/performance-game`) kullanılarak ~34,000 HTTP isteği ile 8,912 oyuncuya ait detaylı veri çekildi.
@@ -122,10 +131,10 @@ VS Düello'nun **online sürümü canlı ve uçtan uca test edildi**: iki gerçe
 
 ### Tamamlanmamış
 
-- ⏳ **Vercel deploy** — kod hazır, henüz publish edilmedi.
-- ⏳ **Domain bağlama** — bir alan adı satın alınıp bağlanacak.
+- ✅ **Vercel deploy** — `derbygoal.com` canlı (Frankfurt `fra1` fonksiyon bölgesi → DB'ye yakın, düşük gecikme).
+- ✅ **Domain bağlama** — `derbygoal.com` bağlı (www → non-www yönlendirme, SSL). Resend e-posta domain'i verified.
 - ⏳ **Gerçek oyuncu fotoğrafları** — %87 TM portresi mevcut, kalan oyuncularda monogram fallback.
-- 🟡 **Online multiplayer** — **Dört modun da ONLINE'ı CANLI** (VS Düello · Hedefe Yaklaş · Kadro Kur · Liste Doldur; sunucu-otoriteli + Ably hibrit push; bkz. [🌐 Online Mod](#-online-mod--vs-düello-gerçek-zamanlı-multiplayer)). Kalan: rating/Elo hesabı (şema hazır), Google OAuth env (kod hazır), kopma/reconnect kenar durumları.
+- 🟡 **Online multiplayer** — **Altı modun da ONLINE'ı CANLI** (VS Düello · Hedefe Yaklaş · Kadro Kur · Liste Doldur · Kareleri Kap · Zincir Kur; sunucu-otoriteli + Ably hibrit push; bkz. [🌐 Online Mod](#-online-mod--vs-düello-gerçek-zamanlı-multiplayer)). Kalan: rating/Elo hesabı (şema hazır), Google OAuth env (kod hazır), kopma/reconnect kenar durumları.
 - ⏳ **Lisans / KVKK metni** — yayın öncesi.
 - ⏳ **Eksik veri kapsama iyileştirmesi** — boy %86, ayak %82 (eski oyuncular). Wikipedia infobox veya manuel `corrections.csv` ile genişletilebilir.
 
@@ -160,12 +169,14 @@ futbol-kart/
 │       │   ├── app/                      App Router (page, layout, api)
 │       │   │   ├── oyna/[gameId]/        VS Düello + oyun-modu seçim kapısı (?online=1 → online mod)
 │       │   │   ├── online/              Online eşleşme bekleme ekranı (matchmaking)
-│       │   │   ├── kadro/[gameId]/       Mod 1 — Kadro Kur route'u
-│       │   │   ├── hedefe-yaklas/[gameId]/  Mod 2 — Hedefe Yaklaş route'u
-│       │   │   ├── liste-doldur/[gameId]/   Mod 3 — Liste Doldur route'u
+│       │   │   ├── kadro/[gameId]/       Kadro Kur route'u
+│       │   │   ├── hedefe-yaklas/[gameId]/  Hedefe Yaklaş route'u
+│       │   │   ├── liste-doldur/[gameId]/   Liste Doldur route'u
+│       │   │   ├── kareleri-kap/[gameId]/   Kareleri Kap route'u (5×5 matris)
+│       │   │   ├── zincir/[gameId]/         Zincir Kur route'u (7 kulüp)
 │       │   │   └── api/
 │       │   │       ├── matchmaking/             Kuyruğa gir/çık + eşleşme (atomik)
-│       │   │       └── match/[matchId]/         GET (versiyon-tabanlı) · move (action) · ably-token · transfer-options
+│       │   │       └── match/[matchId]/         GET (versiyon-tabanlı) · move · {squad,target,list,squares,chain}-move · ably-token · transfer-options
 │       │   ├── components/
 │       │   │   ├── PlayerCard.tsx        FIFA UT kart (boyut: default/sm/md/reveal/squad; hideBadges, hideName)
 │       │   │   ├── PlayerSearchBar.tsx   ⌘K odaklı arama
@@ -176,17 +187,21 @@ futbol-kart/
 │       │   │   ├── JokerInfoCard.tsx     Ana sayfa "Jokerler" tanıtım kartı
 │       │   │   └── scenes/               sahne komponentleri:
 │       │   │       │                       VS: BonusAssignScene, TransferScene, RoundScene …
-│       │   │       ├── GameModeSelectScene.tsx   Ana oyun-modu seçimi (4 mod)
+│       │   │       ├── GameModeSelectScene.tsx   Ana oyun-modu seçimi (6 mod)
 │       │   │       ├── OpponentSelectScene.tsx   Paylaşılan rakip seçimi (bota/arkadaşa)
 │       │   │       ├── Squad*Scene.tsx           Kadro Kur (CriterionSelect/Build/Draft/Result)
 │       │   │       ├── Target*Scene.tsx          Hedefe Yaklaş (Reveal/Build/Draft/Result) + TargetXrayOverlay
-│       │   │       └── List*Scene.tsx            Liste Doldur (Reveal/Play/Result)
+│       │   │       ├── List*Scene.tsx            Liste Doldur (Reveal/Play/Result)
+│       │   │       ├── Squares*Scene.tsx         Kareleri Kap (Grid/Reveal/Play/Result) + öneri jokeri
+│       │   │       └── Chain*Scene.tsx           Zincir Kur (ClubsGrid/Reveal/Play/Result) + öneri jokeri
 │       │   └── lib/
 │       │       ├── server/               ONLINE sunucu katmanı:
-│       │       │   ├── matchEngine.ts    Sunucu-otoriteli motor (doğrula/çöz/maskele)
-│       │       │   ├── matchmaking.ts    Atomik eşleştirme (DELETE...RETURNING)
+│       │       │   ├── matchEngine.ts    VS Düello sunucu-otoriteli motor (doğrula/çöz/maskele)
+│       │       │   ├── {target,squad,list,squares,chain}MatchEngine.ts  Mod-özel sunucu motorları
+│       │       │   ├── matchmaking.ts    Atomik eşleştirme (DELETE...RETURNING) — ONLINE_MODES: 6 mod
 │       │       │   └── ably.ts           Realtime publish + token üretimi
 │       │       ├── useOnlineMatch.ts     ONLINE client köprüsü (Ably + poll + versiyon-GET + optimistic)
+│       │       ├── useOnline{Target,Squad,List,Squares,Chain}Match.ts  Mod-özel client köprüleri
 │       │       ├── useGameController.ts  Online/offline tek arayüz (dispatch yönlendirme)
 │       │       ├── GameSessionProvider.tsx  Oyuncu verisi lazy yükleyici (25MB, client-side)
 │       │       ├── playerFilters.ts      Saf filtre/curate/arama fonksiyonları
@@ -195,8 +210,11 @@ futbol-kart/
 │       │       ├── sessionMachine.ts     VS event-sourced state machine (BONUS_ASSIGN + ROUND_TRANSFER + joker state)
 │       │       ├── criteriaCatalog.ts    Ortak kriter üreticisi (17 alan × filtre → Liste/Hedef/Kadro)
 │       │       ├── squadMode.ts          Kadro Kur (151 kriter üretici, formasyon, snake draft, öneri/bot)
-│       │       ├── targetMode.ts         Mod 2 saf mantığı (hedef çarkı, sadece-uzaklık, ±10 bot drift, snake)
-│       │       ├── listMode.ts           Mod 3 saf mantığı (top-10 türet, tahmin/puan, can, bot known-ranks)
+│       │       ├── targetMode.ts         Hedefe Yaklaş saf mantığı (hedef çarkı, sadece-uzaklık, ±10 bot drift, snake)
+│       │       ├── listMode.ts           Liste Doldur saf mantığı (top-10 türet, tahmin/puan, can, bot known-ranks)
+│       │       ├── squaresMode.ts        Kareleri Kap saf mantığı (kürasyonlu 5×5 matris, BFS bitişik grup, akıllı yerleştirme, öneri/bot)
+│       │       ├── chainMode.ts          Zincir Kur saf mantığı (kategorik 7-kulüp kürasyon + garanti Türk, keşişim, snake, öneri/bot)
+│       │       ├── clubPoolClient.ts     clubPool.json client yükleyici (Kareleri Kap/Zincir)
 │       │       ├── gameConstants.ts      Tüm modların tur/kart/süre/can sabitleri
 │       │       ├── jokers.ts             VS joker saf mantığı (çarpan/reveal/transfer havuzu + bot kararı)
 │       │       ├── bonusConditions.ts    Bonus koşul (predicate) kütüphanesi
@@ -611,6 +629,17 @@ kriter. Toplam **591 kriter** (3 mod).
 - **İleride (ek veri):** `cache/lists.json`'daki 6 all-time gol kralı listesi (isimle eşleştirme +
   `public/data/lists.json` çıktısı); Ballon d'Or yıl-bazlı arşivi ayrı parser (TODO).
 
+#### ✅ Mod 5/6 — Kareleri Kap + Zincir Kur (kulüp-bazlı, kürasyonlu)
+> Kriter-tabanlı değil; `clubPool.json` + `players[].clubs[]`'tan **kürasyonlu rastgele** üretilir.
+- **Kareleri Kap:** 5×5 matris, 19 elit + 6 diğer kürasyon (TM-id sabit elit, niş yığılma önlemi,
+  akıllı yerleştirme → 4-6'lık bitişik zincirler, rejection sampling ile çözülebilirlik). Bitişik grup
+  BFS sunucuda (hile koruması). `squaresMode.ts`.
+- **Zincir Kur:** 7 kulüp = 3 top-elit + 3 diğer-elit + **1 garanti Türk** (%70 büyük üçlü · %30
+  küçükler) → her oyun benzersiz + Türk kulübü garanti. Keşişim sunucuda. Snake A-B-B-A-A-B-B-A-A-B.
+  `chainMode.ts`.
+- Her ikisinde **öneri jokeri** (1×/taraf, üst dilimden iyi futbolcu önerir; online'da öneri yalnız
+  isteyene döner — rakibe sızmaz). Devasa varyasyon uzayı (çeşitlilik 100+ oyunda ölçüldü).
+
 #### 🟡 Genel — modları besleyen ortak iyileştirmeler
 - **Soru/kriter sağlık denetimi:** Yeni modlar için VS'teki `audit:templates` benzeri bir
   "kriter sağlık" kontrolü (havuz alt sınırı, dağılım, oynanabilirlik) eklenebilir.
@@ -658,11 +687,14 @@ küçük bir **manuel sabit-veri tablosu** ile ileride eklenebilir:
 
 ---
 
-## 🆕 Aday Yeni Modlar (analiz edildi · henüz implement edilmedi)
+## 🆕 Aday Yeni Modlar (analiz edildi)
 
-> Mevcut 4 mod dışında, sosyal medya formatlarından feyz alınan **3 aday mod** mevcut veri seti
-> üzerinde analiz edildi. Aşağısı bu analizin özeti; tam karar günlüğü ve veri ölçümleri
-> [PLAN.md §14](PLAN.md)'te. Hiçbiri henüz kodlanmadı — bu bir yol haritası, durum bildirimi değil.
+> Sosyal medya formatlarından feyz alınan aday modlar mevcut veri seti üzerinde analiz edildi.
+> **GÜNCEL DURUM:** Kulüp-bazlı modlardan **"Futbol Çinko" → Kareleri Kap** (5×5 bitişik matris)
+> ve **"Rastgele 7" → Zincir Kur** (7 kulüp keşişim) **IMPLEMENT EDİLDİ ve CANLI** (offline + online +
+> öneri jokeri). Geriye kalan adaylar: **İki Takım Ortak** (veri hazır — `clubPairs.json` 1308 çift) ·
+> **Kariyer Yolu** · **4'lü Kıyas** · **İmposter** (realtime altyapı gerektirir, en son). Aşağısı tüm
+> adayların analiz özeti; tam karar günlüğü ve veri ölçümleri [PLAN.md §14-16](PLAN.md)'te.
 
 ### 🔑 Ortak temel — "Kalburüstü (marquee)" oyuncu filtresi
 

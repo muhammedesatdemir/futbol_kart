@@ -83,13 +83,13 @@ const TARGET_ELITE = 15;
  */
 const MAX_PER_COUNTRY_ELITE = 6;
 const MAX_PER_COUNTRY_OTHER = 2;
-/** Üretilen matrisin "iyi" sayılması için gereken en az zincir uzunluğu. */
-const MIN_BEST_CHAIN = 4;
+/** "Yeterince iyi" eşiği — bu uzunlukta bir zincir mümkün olunca erken kabul. */
+const GOOD_ENOUGH_CHAIN = 6;
 /** "Çözülebilirlik" için: en az bu kadar oyuncu ≥MIN_DECENT_CHAIN zincir kurabilmeli. */
-const MIN_SOLVERS = 12;
+const MIN_SOLVERS = 14;
 const MIN_DECENT_CHAIN = 3;
-/** Rejection sampling üst sınırı — bu kadar denemede iyi matris bulunamazsa en iyisini döndür. */
-const MAX_GEN_ATTEMPTS = 60;
+/** Rejection sampling üst sınırı — daha çok deneme → en iyi yerleşimi seçme şansı. */
+const MAX_GEN_ATTEMPTS = 120;
 
 export type SquaresSide = 'P1' | 'P2';
 
@@ -408,19 +408,21 @@ export function generateGrid(
     const { solvers, bestChain } = evaluateGrid(grid, players);
     grid.bestPossibleChain = bestChain;
 
-    // "İyi" eşiği: yeterli oyuncu çözebiliyor + en az MIN_BEST_CHAIN uzunlukta
-    // bir zincir mümkün. İlk uyan matrisi hemen kullan (deterministik, hızlı).
-    if (solvers >= MIN_SOLVERS && bestChain >= MIN_BEST_CHAIN) {
-      return grid;
-    }
-    // Skor = öncelik bestChain, sonra solvers (en iyiyi sakla — fallback).
+    // Skor: önce en uzun zincir (asıl kalite — uzun zincir = "vay be" anı),
+    // sonra solver sayısı (oynanabilirlik). En iyiyi sakla.
     const score = bestChain * 1000 + solvers;
     if (score > bestScore) {
       bestScore = score;
       bestGrid = grid;
     }
+
+    // ERKEN KABUL: yeterince güçlü bir matris (uzun zincir + bol solver) bulunca
+    // dur — daha fazla denemeye gerek yok (deterministik: aynı seed → aynı sonuç).
+    if (bestChain >= GOOD_ENOUGH_CHAIN && solvers >= MIN_SOLVERS) {
+      return grid;
+    }
   }
-  // Hiçbir deneme eşiği geçmedi → en iyi adayı döndür (yine de oynanabilir).
+  // Eşiğe ulaşılamadı → TÜM denemeler arasından en iyi yerleşimi döndür.
   return bestGrid!;
 }
 

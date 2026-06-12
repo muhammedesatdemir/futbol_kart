@@ -78,6 +78,11 @@ export function OnlineMatchmaking({
   const [myInviteCode, setMyInviteCode] = useState<string | null>(null);
   const pollRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const handledRef = useRef(false); // eşleşme bir kez işlensin
+  // Giriş kontrolü + ilk faz kararı YALNIZ BİR KEZ verilsin. Better-Auth periyodik
+  // session refresh'i `sessionData` referansını tazeleyince giriş-kontrolü effect'i
+  // yeniden çalışıp phase'i 'choose'a SIFIRLIYORDU → kullanıcı 'searching'/'inviting'
+  // iken seçim ekranına geri atılıyor, polling duruyor, eşleşmeyi kaçırıyordu (bug).
+  const initDoneRef = useRef(false);
 
   // Geçersiz mod gelirse VS Düello'ya düş (route haritasında yoksa).
   const safeMode = MODE_ROUTES[mode] ? mode : DEFAULT_MODE;
@@ -161,8 +166,11 @@ export function OnlineMatchmaking({
   }, [safeMode, onMatched]);
 
   // 1) Giriş kontrolü → seçim ekranı (normal) VEYA davete katılma (link).
+  //    YALNIZ BİR KEZ çalışır (initDoneRef): sonraki session-refresh'ler phase'i
+  //    sıfırlamasın (yoksa searching/inviting iken choose'a düşer — bkz. initDoneRef).
   useEffect(() => {
     if (isPending) return;
+    if (initDoneRef.current) return;
     if (!sessionData?.user) {
       // Giriş/kayıt sonrası kullanıcı buraya geri dönsün: bulunduğu sayfayı
       // (mod seçimi + ?mode=… veya /davet/<kod>) returnTo ile taşı.
@@ -173,6 +181,9 @@ export function OnlineMatchmaking({
       router.push(`/giris?returnTo=${encodeURIComponent(here)}`);
       return;
     }
+
+    // Buradan sonrası (davet katılımı / choose) yalnız bir kez kararlaştırılır.
+    initDoneRef.current = true;
 
     // Davet linkinden gelindiyse: seçim YOK, doğrudan o kodla katılmayı dene.
     if (joinCode) {

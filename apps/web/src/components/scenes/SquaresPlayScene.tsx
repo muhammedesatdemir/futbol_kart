@@ -131,18 +131,21 @@ export function SquaresPlayScene({
     [grid.cells],
   );
 
-  // Vitrin karıştırma tohumu — timerKey'den türetilir: HER TAHMİN/SIRA değişiminde
-  // değişir (tur tur farklı vitrin) ama bir tur içinde STABİL (her render'da
-  // yeniden karışmaz → kart yerleri zıplamaz). Deterministik (string → sayı hash).
+  // Vitrin karıştırma tohumu — MATRİSTEN türetilir (matrisin kulüp dizisi).
+  // Böylece vitrin MAÇ BOYU SABİT kalır (her turda yeniden karışmaz → takılma/
+  // kayma hissi olmaz), ama HER OYUNDA FARKLIDIR (matris her oyunda farklı).
+  // Exploit koruması: sıra rastgele olduğu için "en iyi kart hep üstte" yok —
+  // bunun için her turda değişmesi GEREKMEZ, bir kez rastgele dizilmesi yeter.
   const vitrineSeed = useMemo(() => {
-    const s = String(timerKey);
     let h = 2166136261;
-    for (let i = 0; i < s.length; i++) {
-      h ^= s.charCodeAt(i);
-      h = Math.imul(h, 16777619);
+    for (const cell of grid.cells) {
+      for (let i = 0; i < cell.clubId.length; i++) {
+        h ^= cell.clubId.charCodeAt(i);
+        h = Math.imul(h, 16777619);
+      }
     }
     return h >>> 0;
-  }, [timerKey]);
+  }, [grid.cells]);
 
   const candidates = useMemo(() => {
     const q = normalize(search);

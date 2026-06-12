@@ -242,6 +242,10 @@ export default function GameSessionPage() {
         router.push(`/kareleri-kap/${params.gameId}`);
         return;
       }
+      if (mode === 'zincir') {
+        router.push(`/zincir/${params.gameId}`);
+        return;
+      }
       setPickedMode('vs');
     },
     [router, params.gameId],

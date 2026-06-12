@@ -5,7 +5,7 @@ import { cn } from '@/lib/cn';
 import { SwordsIcon, CardsIcon, TrophyIcon, QuestionIcon } from '@/components/icons';
 
 /** Oynanabilir oyun modu kimliği (rakip türünden FARKLI — bu oyunun türü). */
-export type PlayableMode = 'vs' | 'squad' | 'target' | 'list' | 'kareler';
+export type PlayableMode = 'vs' | 'squad' | 'target' | 'list' | 'kareler' | 'zincir';
 
 interface GameModeSelectSceneProps {
   onPick: (mode: PlayableMode) => void;
@@ -61,6 +61,14 @@ const MODES: ModeDef[] = [
     body: '5×5 kulüp matrisinde futbolcu adı yaz; bitişik kulüplerini zincirle. En çok kare kapatan kazanır.',
     ready: true,
   },
+  {
+    id: 'zincir',
+    emoji: '🔗',
+    icon: <CardsIcon size={26} />,
+    title: 'Zincir Kur',
+    body: '7 kulüp gösterilir; futbolcu seç, kaçında oynadıysa o kadar puan. Her oyuncu 5 futbolcu girer.',
+    ready: true,
+  },
 ];
 
 export function GameModeSelectScene({ onPick }: GameModeSelectSceneProps) {
@@ -90,7 +98,8 @@ export function GameModeSelectScene({ onPick }: GameModeSelectSceneProps) {
                 m.id === 'squad' ||
                 m.id === 'target' ||
                 m.id === 'list' ||
-                m.id === 'kareler')
+                m.id === 'kareler' ||
+                m.id === 'zincir')
                 ? () => onPick(m.id as PlayableMode)
                 : undefined
             }

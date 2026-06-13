@@ -31,6 +31,7 @@ import {
   type CareerClue,
   type ClubInfo,
   type CareerSide,
+  type CareerPools,
 } from '@/lib/careerMode';
 
 /** Bir tarafın bu turdaki ilerlemesi (asimetrik kademe). */
@@ -118,9 +119,23 @@ async function loadClubInfo(): Promise<Map<string, ClubInfo>> {
   );
 }
 
+// Kürate edilmiş kariyer havuzu (careerPools.json) — kullanıcı ayıklaması.
+let cachedPools: CareerPools | null = null;
+async function loadCareerPools(): Promise<CareerPools | null> {
+  if (cachedPools) return cachedPools;
+  try {
+    const path = join(process.cwd(), 'public', 'data', 'careerPools.json');
+    const raw = JSON.parse(await readFile(path, 'utf8')) as CareerPools;
+    cachedPools = raw;
+    return cachedPools;
+  } catch {
+    return null; // dosya yoksa curateCareers fallback'e düşer
+  }
+}
+
 /**
- * Online başlangıç state — 3 kariyer SEED'den DETERMİNİSTİK kürate edilir.
- * İlk kariyerin açılış ekranıyla başlar.
+ * Online başlangıç state — 3 kariyer SEED'den DETERMİNİSTİK kürate edilir
+ * (careerPools.json ağırlığıyla: 2 high + 1 low). İlk kariyerin açılışıyla başlar.
  */
 export async function buildInitialCareerState(
   seed: string,
@@ -129,7 +144,8 @@ export async function buildInitialCareerState(
 ): Promise<CareerMatchState> {
   const { players } = await loadGameData();
   const clubsById = await loadClubInfo();
-  const careers = curateCareers(seed, players, clubsById);
+  const pools = await loadCareerPools();
+  const careers = curateCareers(seed, players, clubsById, pools);
 
   return {
     kind: 'kariyer',

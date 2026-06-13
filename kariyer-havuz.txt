@@ -1,0 +1,1135 @@
+KARİYER YOLU — F HAVUZU (1132 oyuncu) — tanınırlık sırasıyla (üst=en bilinen)
+format: # | İsim | Milliyet | milliMaç | piyasaDeğeri(M€)
+
+1 | Lionel Messi | Argentina | 198 cap | 180M
+2 | Cristiano Ronaldo | Portugal | 226 cap | 120M
+3 | Neymar | Brazil | 128 cap | 180M
+4 | Luka Modrić | Croatia | 196 cap | 55M
+5 | Robert Lewandowski | Poland | 165 cap | 90M
+6 | Kylian Mbappé | France | 96 cap | 200M
+7 | Eden Hazard | Belgium | 126 cap | 150M
+8 | Sadio Mané | Senegal | 124 cap | 150M
+9 | Kevin De Bruyne | Belgium | 117 cap | 150M
+10 | Mohamed Salah | Egypt | 113 cap | 150M
+11 | Harry Kane | England | 112 cap | 150M
+12 | Alexis Sánchez | Chile | 168 cap | 70M
+13 | Sergio Ramos | Spain | 180 cap | 50M
+14 | Christian Eriksen | Denmark | 149 cap | 100M
+15 | Luis Suárez | Uruguay | 143 cap | 90M
+16 | Gianluigi Buffon | Italy | 176 cap | 35M
+17 | Heung-min Son | Korea, South | 143 cap | 90M
+18 | Ángel Di María | Argentina | 145 cap | 65M
+19 | Romelu Lukaku | Belgium | 124 cap | 100M
+20 | Diego Godín | Uruguay | 161 cap | 40M
+21 | Andrés Guardado | Mexico | 182 cap | 12M
+22 | Erling Haaland | Norway | 49 cap | 200M
+23 | Arturo Vidal | Chile | 147 cap | 45M
+24 | Ivan Perišić | Croatia | 152 cap | 45M
+25 | Edinson Cavani | Uruguay | 136 cap | 60M
+26 | Granit Xhaka | Switzerland | 144 cap | 50M
+27 | Edin Dzeko | Bosnia-Herzegovina | 148 cap | 32M
+28 | Toni Kroos | Germany | 114 cap | 80M
+29 | Philippe Coutinho | Brazil | 68 cap | 150M
+30 | Hugo Lloris | France | 145 cap | 30M
+31 | Gareth Bale | Wales | 111 cap | 90M
+32 | Axel Witsel | Belgium | 136 cap | 40M
+33 | Ivan Rakitic | Croatia | 106 cap | 70M
+34 | Marek Hamsik | Slovakia | 138 cap | 40M
+35 | Javier Mascherano | Argentina | 147 cap | 30M
+36 | David Silva | Spain | 125 cap | 50M
+37 | Miralem Pjanić | Bosnia-Herzegovina | 115 cap | 70M
+38 | Thierry Henry | France | 123 cap | 50M
+39 | Jude Bellingham | England | 46 cap | 180M
+40 | Pepe | Portugal | 141 cap | 30M
+41 | Gary Medel | Chile | 161 cap | 13M
+42 | Robbie Keane | Ireland | 146 cap | 21M
+43 | Dani Alves | Brazil | 126 cap | 36M
+44 | Thibaut Courtois | Belgium | 107 cap | 75M
+45 | Zlatan Ibrahimović | Sweden | 122 cap | 46M
+46 | Wesley Sneijder | Netherlands | 134 cap | 45M
+47 | Olivier Giroud | France | 137 cap | 27M
+48 | Sergio Agüero | Argentina | 101 cap | 80M
+49 | David Alaba | Austria | 112 cap | 65M
+50 | Miroslav Klose | Germany | 137 cap | 30M
+51 | Nicolás Otamendi | Argentina | 130 cap | 35M
+52 | Raúl Jiménez | Mexico | 125 cap | 50M
+53 | Paul Pogba | France | 91 cap | 100M
+54 | Riyad Mahrez | Algeria | 113 cap | 60M
+55 | Ronaldinho | Brazil | 97 cap | 80M
+56 | Roberto Carlos | Brazil | 127 cap | 30M
+57 | Leonardo Bonucci | Italy | 121 cap | 45M
+58 | Marquinhos | Brazil | 104 cap | 75M
+59 | Toby Alderweireld | Belgium | 127 cap | 40M
+60 | Kalidou Koulibaly | Senegal | 102 cap | 75M
+61 | Cesc Fàbregas | Spain | 110 cap | 55M
+62 | Lothar Matthäus | Germany | 150 cap | 0M
+63 | Bruno Fernandes | Portugal | 87 cap | 90M
+64 | Marko Arnautovic | Austria | 132 cap | 35M
+65 | Karim Benzema | France | 97 cap | 60M
+66 | Fernando Torres | Spain | 110 cap | 50M
+67 | Claudio Bravo | Chile | 150 cap | 15M
+68 | Ricardo Rodríguez | Switzerland | 136 cap | 28M
+69 | Petr Cech | Czech Republic | 124 cap | 29M
+70 | Bastian Schweinsteiger | Germany | 121 cap | 40M
+71 | Landon Donovan | United States | 157 cap | 4M
+72 | Andriy Shevchenko | Ukraine | 111 cap | 51M
+73 | Mauricio Isla | Chile | 144 cap | 14M
+74 | Rodri | Spain | 61 cap | 130M
+75 | Fernando Muslera | Uruguay | 134 cap | 18M
+76 | Thiago Silva | Brazil | 113 cap | 40M
+77 | Luís Figo | Portugal | 127 cap | 22M
+78 | Lukas Podolski | Germany | 130 cap | 23M
+79 | Samuel Eto'o | Cameroon | 114 cap | 42M
+80 | Fabio Cannavaro | Italy | 136 cap | 15M
+81 | Joel Campbell | Costa Rica | 150 cap | 8M
+82 | Radamel Falcao | Colombia | 105 cap | 60M
+83 | Yuto Nagatomo | Japan | 144 cap | 14M
+84 | Alexander Isak | Sweden | 56 cap | 140M
+85 | David Beckham | England | 115 cap | 40M
+86 | Idrissa Gueye | Senegal | 130 cap | 30M
+87 | Lilian Thuram | France | 142 cap | 6M
+88 | Raphaël Varane | France | 93 cap | 80M
+89 | Memphis Depay | Netherlands | 108 cap | 55M
+90 | Casemiro | Brazil | 84 cap | 80M
+91 | Tomás Rincón | Venezuela | 143 cap | 9M
+92 | Pierre-Emerick Aubameyang | Gabon | 83 cap | 75M
+93 | Leroy Sané | Germany | 74 cap | 100M
+94 | Kaká | Brazil | 92 cap | 70M
+95 | Achraf Hakimi | Morocco | 95 cap | 80M
+96 | Andriy Yarmolenko | Ukraine | 125 cap | 25M
+97 | Xabi Alonso | Spain | 114 cap | 35M
+98 | Mateo Kovacic | Croatia | 111 cap | 45M
+99 | Edwin van der Sar | Netherlands | 130 cap | 6M
+100 | Georgios Karagounis | Greece | 139 cap | 8M
+101 | Martin Ødegaard | Norway | 67 cap | 110M
+102 | Teemu Pukki | Finland | 133 cap | 10M
+103 | Gerard Piqué | Spain | 102 cap | 50M
+104 | Cafu | Brazil | 143 cap | 3M
+105 | Xherdan Shaqiri | Switzerland | 125 cap | 25M
+106 | Dries Mertens | Belgium | 109 cap | 32M
+107 | Georginio Wijnaldum | Netherlands | 96 cap | 50M
+108 | Hakan Çalhanoğlu | Türkiye | 104 cap | 45M
+109 | Ousmane Dembélé | France | 58 cap | 120M
+110 | Dušan Tadić | Serbia | 111 cap | 25M
+111 | N'Golo Kanté | France | 67 cap | 100M
+112 | Nani | Portugal | 111 cap | 37M
+113 | Álvaro Morata | Spain | 87 cap | 65M
+114 | Kasper Schmeichel | Denmark | 120 cap | 12M
+115 | Kim Källström | Sweden | 131 cap | 12M
+116 | Alisson | Brazil | 76 cap | 90M
+117 | Diego Forlán | Uruguay | 112 cap | 30M
+118 | Raúl | Spain | 102 cap | 28M
+119 | Simon Kjaer | Denmark | 132 cap | 13M
+120 | Robin van Persie | Netherlands | 102 cap | 48M
+121 | Kyle Walker | England | 96 cap | 50M
+122 | Keylor Navas | Costa Rica | 126 cap | 20M
+123 | Juan Cuadrado | Colombia | 116 cap | 32M
+124 | Goran Pandev | North Macedonia | 122 cap | 18M
+125 | Héctor Moreno | Mexico | 132 cap | 8M
+126 | Gonzalo Higuaín | Argentina | 75 cap | 75M
+127 | Patrick Vieira | France | 107 cap | 35M
+128 | Ragnar Klavan | Estonia | 130 cap | 4M
+129 | Franck Kessié | Cote d'Ivoire | 99 cap | 55M
+130 | Jari Litmanen | Finland | 137 cap | 2M
+131 | Robinho | Brazil | 100 cap | 37M
+132 | Mesut Özil | Germany | 92 cap | 50M
+133 | Ashley Cole | England | 107 cap | 27M
+134 | Milan Škriniar | Slovakia | 87 cap | 65M
+135 | Marcel Sabitzer | Austria | 97 cap | 42M
+136 | Henrikh Mkhitaryan | Armenia | 95 cap | 37M
+137 | Zinédine Zidane | France | 108 cap | 25M
+138 | Rui Patrício | Portugal | 108 cap | 20M
+139 | David Ospina | Colombia | 130 cap | 8M
+140 | Luis Díaz | Colombia | 72 cap | 85M
+141 | Marcus Rashford | England | 70 cap | 85M
+142 | Mats Hummels | Germany | 78 cap | 60M
+143 | Victor Osimhen | Nigeria | 52 cap | 120M
+144 | Daley Blind | Netherlands | 108 cap | 25M
+145 | Didier Drogba | Cote d'Ivoire | 95 cap | 40M
+146 | Dominik Szoboszlai | Hungary | 63 cap | 100M
+147 | Dirk Kuyt | Netherlands | 104 cap | 20M
+148 | Ronaldo | Brazil | 99 cap | 45M
+149 | Chicharito | Mexico | 109 cap | 25M
+150 | Arjen Robben | Netherlands | 96 cap | 40M
+151 | John Arne Riise | Norway | 110 cap | 15M
+152 | André Ayew | Ghana | 113 cap | 18M
+153 | Rafael van der Vaart | Netherlands | 109 cap | 26M
+154 | Pierre-Emile Højbjerg | Denmark | 95 cap | 45M
+155 | Lúcio | Brazil | 105 cap | 25M
+156 | Roberto Firmino | Brazil | 55 cap | 90M
+157 | Michael Ballack | Germany | 98 cap | 35M
+158 | İlkay Gündoğan | Germany | 82 cap | 50M
+159 | Gianluigi Donnarumma | Italy | 81 cap | 65M
+160 | Franck Ribéry | France | 81 cap | 50M
+161 | Jordan Ayew | Ghana | 117 cap | 10M
+162 | Arda Turan | Türkiye | 100 cap | 35M
+163 | Stephan Lichtsteiner | Switzerland | 108 cap | 17M
+164 | Olof Mellberg | Sweden | 117 cap | 9M
+165 | Rüştü Reçber | Türkiye | 120 cap | 10M
+166 | Serge Gnabry | Germany | 59 cap | 90M
+167 | Christian Pulisic | United States | 84 cap | 60M
+168 | Vincent Aboubakar | Cameroon | 116 cap | 18M
+169 | Antonio Rüdiger | Germany | 82 cap | 50M
+170 | Yaya Touré | Cote d'Ivoire | 92 cap | 37M
+171 | Kai Havertz | Germany | 57 cap | 90M
+172 | Gianluca Zambrotta | Italy | 98 cap | 28M
+173 | Grzegorz Krychowiak | Poland | 100 cap | 30M
+174 | Marcel Desailly | France | 116 cap | 2M
+175 | Jon Dahl Tomasson | Denmark | 111 cap | 15M
+176 | Didier Zokora | Cote d'Ivoire | 107 cap | 16M
+177 | Martin Skrtel | Slovakia | 104 cap | 18M
+178 | Sami Hyypiä | Finland | 105 cap | 9M
+179 | Rigobert Song | Cameroon | 117 cap | 8M
+180 | Aaron Ramsey | Wales | 86 cap | 45M
+181 | João Félix | Portugal | 52 cap | 100M
+182 | Frank de Boer | Netherlands | 112 cap | 1M
+183 | Islam Slimani | Algeria | 105 cap | 25M
+184 | João Cancelo | Portugal | 66 cap | 70M
+185 | Yossi Benayoun | Israel | 102 cap | 11M
+186 | Juraj Kucka | Slovakia | 112 cap | 9M
+187 | Gheorghe Hagi | Romania | 124 cap | 2M
+188 | Timo Werner | Germany | 57 cap | 80M
+189 | Emre Belözoğlu | Türkiye | 101 cap | 12M
+190 | Per Mertesacker | Germany | 104 cap | 20M
+191 | Michael Olise | France | 15 cap | 150M
+192 | Roberto Ayala | Argentina | 114 cap | 9M
+193 | Henrik Larsson | Sweden | 106 cap | 11M
+194 | Julián Alvarez | Argentina | 51 cap | 100M
+195 | Domagoj Vida | Croatia | 105 cap | 12M
+196 | Marc-André ter Stegen | Germany | 44 cap | 90M
+197 | Yann Sommer | Switzerland | 94 cap | 13M
+198 | Clarence Seedorf | Netherlands | 87 cap | 18M
+199 | Jakub Błaszczykowski | Poland | 109 cap | 18M
+200 | Wojciech Szczesny | Poland | 84 cap | 40M
+201 | Davinson Sánchez | Colombia | 77 cap | 60M
+202 | Wilfred Ndidi | Nigeria | 77 cap | 60M
+203 | Tomas Rosicky | Czech Republic | 105 cap | 18M
+204 | Antonio Valencia | Ecuador | 98 cap | 28M
+205 | Giovanni van Bronckhorst | Netherlands | 106 cap | 9M
+206 | Carlos Tévez | Argentina | 76 cap | 40M
+207 | Edson Álvarez | Mexico | 97 cap | 35M
+208 | Shinji Kagawa | Japan | 97 cap | 22M
+209 | Enner Valencia | Ecuador | 105 cap | 11M
+210 | Blaise Matuidi | France | 84 cap | 30M
+211 | Mario Gómez | Germany | 78 cap | 42M
+212 | Vincent Kompany | Belgium | 89 cap | 35M
+213 | Jadon Sancho | England | 23 cap | 130M
+214 | Ricardo Carvalho | Portugal | 89 cap | 30M
+215 | Santi Cazorla | Spain | 81 cap | 30M
+216 | Jérôme Boateng | Germany | 76 cap | 45M
+217 | Youssef En-Nesyri | Morocco | 92 cap | 40M
+218 | Karel Poborský | Czech Republic | 117 cap | 3M
+219 | Rodrigo De Paul | Argentina | 85 cap | 40M
+220 | Min-jae Kim | Korea, South | 78 cap | 60M
+221 | Bruno Alves | Portugal | 95 cap | 18M
+222 | Sokratis Papastathopoulos | Greece | 90 cap | 28M
+223 | Gheorghe Popescu | Romania | 116 cap | 0M
+224 | Marco Verratti | Italy | 55 cap | 75M
+225 | Aurélien Tchouaméni | France | 44 cap | 100M
+226 | Vedran Corluka | Croatia | 103 cap | 15M
+227 | Stevan Jovetić | Montenegro | 91 cap | 30M
+228 | Gylfi Sigurdsson | Iceland | 85 cap | 35M
+229 | Jürgen Klinsmann | Germany | 108 cap | 0M
+230 | Jonathan David | Canada | 75 cap | 60M
+231 | Vitinha | Portugal | 37 cap | 110M
+232 | Chancel Mbemba | DR Congo | 104 cap | 20M
+233 | Mark Schwarzer | Australia | 100 cap | 5M
+234 | Fernando Couto | Portugal | 110 cap | 1M
+235 | Manuel Akanji | Switzerland | 79 cap | 45M
+236 | Simão | Portugal | 85 cap | 25M
+237 | Mario Mandžukić | Croatia | 89 cap | 30M
+238 | David de Gea | Spain | 45 cap | 70M
+239 | Jorginho | Italy | 57 cap | 65M
+240 | Patrice Evra | France | 81 cap | 27M
+241 | Zé Roberto | Brazil | 84 cap | 15M
+242 | Jürgen Kohler | Germany | 105 cap | 0M
+243 | Michael Owen | England | 89 cap | 30M
+244 | Milan Baros | Czech Republic | 94 cap | 18M
+245 | Dimitar Berbatov | Bulgaria | 79 cap | 35M
+246 | Giovani dos Santos | Mexico | 107 cap | 12M
+247 | Diego Simeone | Argentina | 105 cap | 3M
+248 | Stefan Savic | Montenegro | 78 cap | 40M
+249 | Haris Seferovic | Switzerland | 93 cap | 18M
+250 | Khvicha Kvaratskhelia | Georgia | 49 cap | 90M
+251 | Mario Yepes | Colombia | 101 cap | 10M
+252 | Dele Alli | England | 37 cap | 100M
+253 | Gökhan Inler | Switzerland | 89 cap | 18M
+254 | Ricardo Quaresma | Portugal | 79 cap | 25M
+255 | Kingsley Coman | France | 61 cap | 65M
+256 | Tugay Kerimoğlu | Türkiye | 94 cap | 3M
+257 | Andreas Christensen | Denmark | 80 cap | 40M
+258 | Laurent Blanc | France | 97 cap | 0M
+259 | Marco Asensio | Spain | 38 cap | 90M
+260 | Matthijs de Ligt | Netherlands | 52 cap | 75M
+261 | Rafael Leão | Portugal | 43 cap | 90M
+262 | Robert Pirès | France | 79 cap | 22M
+263 | Aleksandar Kolarov | Serbia | 93 cap | 17M
+264 | Kasey Keller | United States | 102 cap | 4M
+265 | Rodrigo Bentancur | Uruguay | 73 cap | 50M
+266 | Filip Kostić | Serbia | 72 cap | 40M
+267 | Nicolas Pépé | Cote d'Ivoire | 52 cap | 75M
+268 | Michael Laudrup | Denmark | 103 cap | 0M
+269 | John Obi Mikel | Nigeria | 88 cap | 23M
+270 | Didier Deschamps | France | 103 cap | 0M
+271 | Salomon Kalou | Cote d'Ivoire | 88 cap | 15M
+272 | Thomas Meunier | Belgium | 78 cap | 35M
+273 | Stanislav Lobotka | Slovakia | 73 cap | 40M
+274 | Sylvain Wiltord | France | 92 cap | 7M
+275 | Sardar Azmoun | Iran | 91 cap | 25M
+276 | Mario Pašalić | Croatia | 83 cap | 28M
+277 | Florent Malouda | France | 80 cap | 20M
+278 | Leandro Paredes | Argentina | 77 cap | 40M
+279 | Lucas Paquetá | Brazil | 61 cap | 65M
+280 | Eidur Gudjohnsen | Iceland | 88 cap | 12M
+281 | Ruud van Nistelrooy | Netherlands | 70 cap | 40M
+282 | William Gallas | France | 84 cap | 19M
+283 | Joseph Yobo | Nigeria | 97 cap | 12M
+284 | Sami Khedira | Germany | 77 cap | 35M
+285 | Joe Hart | England | 75 cap | 24M
+286 | Claudio Pizarro | Peru | 85 cap | 12M
+287 | Thomas Delaney | Denmark | 81 cap | 27M
+288 | Bixente Lizarazu | France | 97 cap | 2M
+289 | Toni Polster | Austria | 95 cap | 0M
+290 | Yevgen Konoplyanka | Ukraine | 87 cap | 25M
+291 | Ciro Immobile | Italy | 57 cap | 50M
+292 | Aymeric Laporte | Spain | 44 cap | 75M
+293 | Maicon | Brazil | 76 cap | 32M
+294 | Christian Poulsen | Denmark | 93 cap | 12M
+295 | Hakim Ziyech | Morocco | 64 cap | 50M
+296 | Ismaïla Sarr | Senegal | 82 cap | 35M
+297 | Aleksandr Hleb | Belarus | 80 cap | 19M
+298 | Nicolás Tagliafico | Argentina | 75 cap | 35M
+299 | Jan Koller | Czech Republic | 91 cap | 9M
+300 | Diego Lugano | Uruguay | 95 cap | 14M
+301 | Moussa Sissoko | France | 71 cap | 25M
+302 | Raphinha | Brazil | 37 cap | 90M
+303 | Mark van Bommel | Netherlands | 79 cap | 15M
+304 | Serge Aurier | Cote d'Ivoire | 91 cap | 20M
+305 | Nigel de Jong | Netherlands | 81 cap | 21M
+306 | Saúl Ñíguez | Spain | 25 cap | 90M
+307 | Bruno Guimarães | Brazil | 41 cap | 85M
+308 | Lorik Cana | Albania | 92 cap | 14M
+309 | Klaas-Jan Huntelaar | Netherlands | 76 cap | 20M
+310 | Thiago Alcántara | Spain | 46 cap | 70M
+311 | Nicolas Anelka | France | 69 cap | 30M
+312 | Claude Makélélé | France | 71 cap | 18M
+313 | Arkadiusz Milik | Poland | 73 cap | 40M
+314 | Karl-Heinz Rummenigge | Germany | 95 cap | 0M
+315 | Claudio Taffarel | Brazil | 102 cap | 0M
+316 | John Carew | Norway | 91 cap | 11M
+317 | Rudi Völler | Germany | 90 cap | 0M
+318 | Adrien Rabiot | France | 57 cap | 50M
+319 | Fernando Hierro | Spain | 89 cap | 0M
+320 | Nicolas N'Koulou | Cameroon | 81 cap | 20M
+321 | Breel Embolo | Switzerland | 85 cap | 22M
+322 | Daniel Van Buyten | Belgium | 85 cap | 15M
+323 | Martin Petrov | Bulgaria | 90 cap | 12M
+324 | Johan Elmander | Sweden | 85 cap | 13M
+325 | Giovani Lo Celso | Argentina | 65 cap | 50M
+326 | Eduardo Camavinga | France | 29 cap | 100M
+327 | Raphaël Guerreiro | Portugal | 65 cap | 40M
+328 | Josko Gvardiol | Croatia | 46 cap | 80M
+329 | Gervinho | Cote d'Ivoire | 82 cap | 19M
+330 | David Trezeguet | France | 71 cap | 30M
+331 | Gennaro Gattuso | Italy | 73 cap | 25M
+332 | Thomas Vermaelen | Belgium | 85 cap | 19M
+333 | Lucas Neill | Australia | 89 cap | 5M
+334 | Burak Yılmaz | Türkiye | 77 cap | 18M
+335 | Nuno Gomes | Portugal | 79 cap | 15M
+336 | Bertrand Traoré | Burkina Faso | 86 cap | 20M
+337 | Sofiane Feghouli | Algeria | 82 cap | 18M
+338 | Yacine Brahimi | Algeria | 72 cap | 26M
+339 | Naby Keïta | Guinea | 54 cap | 65M
+340 | Dejan Lovren | Croatia | 78 cap | 20M
+341 | Fabien Barthez | France | 87 cap | 5M
+342 | Ezgjan Alioski | North Macedonia | 90 cap | 8M
+343 | Eldor Shomurodov | Uzbekistan | 90 cap | 14M
+344 | Omar Marmoush | Egypt | 49 cap | 75M
+345 | Zvjezdan Misimovic | Bosnia-Herzegovina | 84 cap | 15M
+346 | Deco | Portugal | 74 cap | 25M
+347 | Emmanuel Adebayor | Togo | 72 cap | 25M
+348 | Valon Behrami | Switzerland | 83 cap | 16M
+349 | Mehmet Topal | Türkiye | 81 cap | 12M
+350 | Carlos Gamarra | Paraguay | 101 cap | 2M
+351 | Alex Frei | Switzerland | 84 cap | 12M
+352 | Pauleta | Portugal | 87 cap | 12M
+353 | Noureddine Naybet | Morocco | 95 cap | 3M
+354 | Adrian Mutu | Romania | 77 cap | 25M
+355 | Thomas Partey | Ghana | 56 cap | 50M
+356 | Valter Birsa | Slovenia | 90 cap | 5M
+357 | Ruslan Malinovskyi | Ukraine | 70 cap | 30M
+358 | Denis Zakaria | Switzerland | 63 cap | 45M
+359 | Luka Jović | Serbia | 52 cap | 60M
+360 | Dennis Bergkamp | Netherlands | 79 cap | 3M
+361 | Brad Friedel | United States | 81 cap | 4M
+362 | Andrea Barzagli | Italy | 73 cap | 15M
+363 | Robert Kovac | Croatia | 84 cap | 7M
+364 | Eljif Elmas | North Macedonia | 78 cap | 26M
+365 | Hakan Yakin | Switzerland | 87 cap | 4M
+366 | Andreas Brehme | Germany | 86 cap | 0M
+367 | Sofyan Amrabat | Morocco | 73 cap | 30M
+368 | Jules Koundé | France | 46 cap | 65M
+369 | Amir Murillo | Panama | 91 cap | 10M
+370 | Éver Banega | Argentina | 65 cap | 20M
+371 | Andreas Möller | Germany | 85 cap | 0M
+372 | Ramy Bensebaini | Algeria | 81 cap | 22M
+373 | Paulinho | Brazil | 56 cap | 40M
+374 | Carlos Vela | Mexico | 72 cap | 20M
+375 | Emir Spahic | Bosnia-Herzegovina | 94 cap | 6M
+376 | Julian Draxler | Germany | 58 cap | 40M
+377 | Frank Anguissa | Cameroon | 66 cap | 40M
+378 | William Saliba | France | 31 cap | 90M
+379 | Romain Saïss | Morocco | 86 cap | 10M
+380 | Cyle Larin | Canada | 88 cap | 12M
+381 | Ádám Szalai | Hungary | 86 cap | 7M
+382 | Tomas Ujfalusi | Czech Republic | 78 cap | 12M
+383 | David Luiz | Brazil | 57 cap | 30M
+384 | Dan Petrescu | Romania | 95 cap | 1M
+385 | Diego Maradona | Argentina | 91 cap | 0M
+386 | Nwankwo Kanu | Nigeria | 84 cap | 7M
+387 | Youri Djorkaeff | France | 82 cap | 0M
+388 | Ryan Babel | Netherlands | 69 cap | 17M
+389 | Dani Olmo | Spain | 48 cap | 60M
+390 | Enzo Scifo | Belgium | 84 cap | 0M
+391 | Alpay Özalan | Türkiye | 90 cap | 5M
+392 | Rivaldo | Brazil | 76 cap | 7M
+393 | Vedad Ibisevic | Bosnia-Herzegovina | 83 cap | 10M
+394 | Christian Fuchs | Austria | 78 cap | 8M
+395 | Benjamin Pavard | France | 55 cap | 50M
+396 | Patrik Andersson | Sweden | 96 cap | 0M
+397 | Tuncay Şanlı | Türkiye | 80 cap | 12M
+398 | Cristian Romero | Argentina | 49 cap | 65M
+399 | Nahuel Molina | Argentina | 58 cap | 50M
+400 | Fabinho | Brazil | 31 cap | 70M
+401 | Alexander Sørloth | Norway | 70 cap | 25M
+402 | Edgar Davids | Netherlands | 74 cap | 14M
+403 | César Azpilicueta | Spain | 44 cap | 40M
+404 | Ryan Gravenberch | Netherlands | 25 cap | 90M
+405 | Esteban Cambiasso | Argentina | 52 cap | 31M
+406 | Sandro Tonali | Italy | 32 cap | 80M
+407 | Marcus Thuram | France | 33 cap | 75M
+408 | Ferran Torres | Spain | 55 cap | 50M
+409 | Nemanja Matić | Serbia | 48 cap | 40M
+410 | Marc Overmars | Netherlands | 86 cap | 0M
+411 | Stéphane Sessègnon | Benin | 73 cap | 15M
+412 | Juan Sebastián Verón | Argentina | 72 cap | 16M
+413 | Viktor Gyökeres | Sweden | 32 cap | 75M
+414 | Patrick Kluivert | Netherlands | 79 cap | 13M
+415 | Georgios Samaras | Greece | 81 cap | 9M
+416 | Benjamin Sesko | Slovenia | 45 cap | 70M
+417 | João Mário | Portugal | 56 cap | 35M
+418 | Joel Pohjanpalo | Finland | 87 cap | 6M
+419 | Sulley Muntari | Ghana | 77 cap | 17M
+420 | Lucas Digne | France | 56 cap | 35M
+421 | Eric-Maxim Choupo-Moting | Cameroon | 76 cap | 10M
+422 | Michy Batshuayi | Belgium | 55 cap | 40M
+423 | Miranda | Brazil | 58 cap | 22M
+424 | Thorgan Hazard | Belgium | 47 cap | 45M
+425 | Junichi Inamoto | Japan | 82 cap | 3M
+426 | Michael Essien | Ghana | 55 cap | 38M
+427 | Bryan Mbeumo | Cameroon | 32 cap | 80M
+428 | Cédric Bakambu | DR Congo | 67 cap | 25M
+429 | Ian Rush | Wales | 73 cap | 0M
+430 | Jean Michaël Seri | Cote d'Ivoire | 63 cap | 35M
+431 | Matías Fernández | Chile | 74 cap | 14M
+432 | Kieran Trippier | England | 54 cap | 35M
+433 | Juan Mata | Spain | 41 cap | 45M
+434 | Patrik Schick | Czech Republic | 52 cap | 50M
+435 | Ederson | Brazil | 31 cap | 70M
+436 | Milot Rashica | Kosovo | 64 cap | 35M
+437 | Ciriaco Sforza | Switzerland | 79 cap | 1M
+438 | Mark Hughes | Wales | 72 cap | 0M
+439 | Raúl Meireles | Portugal | 75 cap | 16M
+440 | Ariel Ortega | Argentina | 87 cap | 4M
+441 | Ilya Zabarnyi | Ukraine | 57 cap | 55M
+442 | Gabriel Heinze | Argentina | 72 cap | 17M
+443 | Ally Samatta | Tanzania | 79 cap | 12M
+444 | Randal Kolo Muani | France | 32 cap | 80M
+445 | Wataru Endo | Japan | 73 cap | 13M
+446 | Nayef Aguerd | Morocco | 64 cap | 38M
+447 | Toni Schumacher | Germany | 76 cap | 0M
+448 | Mauro Icardi | Argentina | 8 cap | 100M
+449 | Dejan Kulusevski | Sweden | 45 cap | 60M
+450 | Raúl Albiol | Spain | 58 cap | 18M
+451 | Çağlar Söyüncü | Türkiye | 59 cap | 45M
+452 | Maxi Rodríguez | Argentina | 57 cap | 25M
+453 | Theofanis Gekas | Greece | 78 cap | 7M
+454 | Nelson Valdez | Paraguay | 77 cap | 5M
+455 | Zoran Tosic | Serbia | 76 cap | 10M
+456 | Nicklas Bendtner | Denmark | 80 cap | 10M
+457 | André Onana | Cameroon | 53 cap | 45M
+458 | Fabián Ruiz | Spain | 41 cap | 60M
+459 | Vladimir Smicer | Czech Republic | 79 cap | 8M
+460 | DeAndre Yedlin | United States | 81 cap | 8M
+461 | Theo Hernández | France | 42 cap | 60M
+462 | Ademola Lookman | Nigeria | 43 cap | 60M
+463 | Tore André Flo | Norway | 76 cap | 7M
+464 | Emre Can | Germany | 48 cap | 40M
+465 | Donyell Malen | Netherlands | 51 cap | 45M
+466 | Patrick Müller | Switzerland | 81 cap | 6M
+467 | Lucas Biglia | Argentina | 58 cap | 20M
+468 | Darwin Núñez | Uruguay | 38 cap | 70M
+469 | Admir Mehmedi | Switzerland | 76 cap | 10M
+470 | Xavi Simons | Netherlands | 34 cap | 80M
+471 | Bacary Sagna | France | 65 cap | 19M
+472 | Demetrio Albertini | Italy | 79 cap | 2M
+473 | Carlos Pavón | Honduras | 93 cap | 1M
+474 | Benni McCarthy | South Africa | 71 cap | 15M
+475 | Christian Wilhelmsson | Sweden | 78 cap | 7M
+476 | Sergiy Rebrov | Ukraine | 75 cap | 3M
+477 | Blerim Dzemaili | Switzerland | 69 cap | 11M
+478 | Martin Braithwaite | Denmark | 69 cap | 12M
+479 | Joe Cole | England | 56 cap | 21M
+480 | Jérémy Doku | Belgium | 41 cap | 65M
+481 | Walter Samuel | Argentina | 57 cap | 25M
+482 | Dávid Hancko | Slovakia | 59 cap | 35M
+483 | Hidetoshi Nakata | Japan | 79 cap | 10M
+484 | Sead Kolasinac | Bosnia-Herzegovina | 64 cap | 20M
+485 | Emiliano Martínez | Argentina | 59 cap | 35M
+486 | Weston McKennie | United States | 64 cap | 30M
+487 | Wilfried Zaha | Cote d'Ivoire | 34 cap | 55M
+488 | Lucas Torreira | Uruguay | 40 cap | 55M
+489 | Alexandre Lacazette | France | 16 cap | 70M
+490 | Hristo Stoichkov | Bulgaria | 83 cap | 0M
+491 | Stefan Reuter | Germany | 69 cap | 0M
+492 | Jens Lehmann | Germany | 61 cap | 6M
+493 | Eric Dier | England | 49 cap | 40M
+494 | Anthony Martial | France | 30 cap | 65M
+495 | Samuel Umtiti | France | 31 cap | 70M
+496 | Ismaël Bennacer | Algeria | 56 cap | 40M
+497 | Michal Kadlec | Czech Republic | 67 cap | 8M
+498 | Martín Zubimendi | Spain | 25 cap | 80M
+499 | Dean Saunders | Wales | 75 cap | 0M
+500 | Tijjani Reijnders | Netherlands | 30 cap | 70M
+501 | Jay-Jay Okocha | Nigeria | 69 cap | 13M
+502 | Vedat Muriqi | Kosovo | 68 cap | 17M
+503 | Thomas Lemar | France | 27 cap | 70M
+504 | Stéphane Mbia | Cameroon | 69 cap | 15M
+505 | Pablo Zabaleta | Argentina | 58 cap | 19M
+506 | Nacer Chadli | Belgium | 66 cap | 15M
+507 | Oliver Neuville | Germany | 69 cap | 4M
+508 | Hernán Crespo | Argentina | 64 cap | 16M
+509 | Robin Olsen | Sweden | 79 cap | 10M
+510 | Carlos Bacca | Colombia | 52 cap | 25M
+511 | Jean Makoun | Cameroon | 68 cap | 16M
+512 | Gary Lineker | England | 80 cap | 0M
+513 | Éric Abidal | France | 66 cap | 20M
+514 | João Palhinha | Portugal | 37 cap | 60M
+515 | Vladimir Weiss | Slovakia | 77 cap | 4M
+516 | Mathieu Valbuena | France | 52 cap | 15M
+517 | Kaan Ayhan | Türkiye | 72 cap | 9M
+518 | Hélder Postiga | Portugal | 70 cap | 11M
+519 | Jaap Stam | Netherlands | 67 cap | 10M
+520 | Nihat Kahveci | Türkiye | 69 cap | 15M
+521 | Nélson Semedo | Portugal | 48 cap | 40M
+522 | Andriy Voronin | Ukraine | 74 cap | 8M
+523 | Lucas Moura | Brazil | 37 cap | 40M
+524 | Nabil Fekir | France | 25 cap | 70M
+525 | Mikel Merino | Spain | 41 cap | 50M
+526 | Piero Hincapié | Ecuador | 51 cap | 50M
+527 | Douglas Costa | Brazil | 31 cap | 55M
+528 | André Schürrle | Germany | 57 cap | 30M
+529 | Roman Yaremchuk | Ukraine | 67 cap | 18M
+530 | Joshua King | Norway | 62 cap | 20M
+531 | Wout Weghorst | Netherlands | 51 cap | 30M
+532 | Nordin Amrabat | Morocco | 64 cap | 6M
+533 | Michel Platini | France | 72 cap | 0M
+534 | Florian Grillitsch | Austria | 59 cap | 25M
+535 | Luca Toni | Italy | 47 cap | 29M
+536 | Ezequiel Lavezzi | Argentina | 51 cap | 30M
+537 | Frank Rijkaard | Netherlands | 73 cap | 0M
+538 | Konstantinos Mitroglou | Greece | 65 cap | 12M
+539 | Felipe Caicedo | Ecuador | 66 cap | 10M
+540 | Marouane Chamakh | Morocco | 65 cap | 17M
+541 | Pepe Reina | Spain | 36 cap | 22M
+542 | Willian Pacho | Ecuador | 34 cap | 70M
+543 | Vladimir Beschastnykh | Russia | 71 cap | 2M
+544 | Christopher Nkunku | France | 18 cap | 80M
+545 | Kieran Tierney | Scotland | 55 cap | 32M
+546 | Edouard Mendy | Senegal | 56 cap | 32M
+547 | Filipe Luís | Brazil | 44 cap | 25M
+548 | Merih Demiral | Türkiye | 61 cap | 30M
+549 | Gabriel Tamaș | Romania | 67 cap | 4M
+550 | Gelson Fernandes | Switzerland | 67 cap | 7M
+551 | Fernando Gago | Argentina | 61 cap | 22M
+552 | Karl Toko Ekambi | Cameroon | 60 cap | 18M
+553 | Albin Ekdal | Sweden | 70 cap | 5M
+554 | Cenk Tosun | Türkiye | 53 cap | 23M
+555 | Cengiz Ünder | Türkiye | 51 cap | 35M
+556 | Diego | Brazil | 34 cap | 29M
+557 | Brian Laudrup | Denmark | 80 cap | 0M
+558 | Luís Fabiano | Brazil | 45 cap | 28M
+559 | Carlos Kameni | Cameroon | 71 cap | 10M
+560 | Iván Zamorano | Chile | 71 cap | 0M
+561 | Loïs Openda | Belgium | 33 cap | 60M
+562 | Samuel Chukwueze | Nigeria | 58 cap | 30M
+563 | Dimitri Payet | France | 38 cap | 30M
+564 | Diego Costa | Spain | 24 cap | 60M
+565 | Pervis Estupiñán | Ecuador | 52 cap | 35M
+566 | Ashley Young | England | 39 cap | 27M
+567 | Roland Sallai | Hungary | 66 cap | 16M
+568 | Fred | Brazil | 32 cap | 50M
+569 | Emmanuel Eboué | Cote d'Ivoire | 71 cap | 8M
+570 | Nico González | Argentina | 50 cap | 40M
+571 | Jermaine Jones | United States | 69 cap | 8M
+572 | Luis Muriel | Colombia | 45 cap | 30M
+573 | Rasmus Højlund | Denmark | 33 cap | 65M
+574 | Younès Belhanda | Morocco | 59 cap | 14M
+575 | Marc Wilmots | Belgium | 70 cap | 0M
+576 | Chris Waddle | England | 62 cap | 0M
+577 | Laurent Koscielny | France | 51 cap | 22M
+578 | Joachim Andersen | Denmark | 49 cap | 35M
+579 | Oliver Bierhoff | Germany | 70 cap | 0M
+580 | Asmir Begovic | Bosnia-Herzegovina | 63 cap | 13M
+581 | Ozan Tufan | Türkiye | 65 cap | 11M
+582 | Ciprian Marica | Romania | 72 cap | 7M
+583 | Fernando Morientes | Spain | 47 cap | 24M
+584 | Mike Maignan | France | 38 cap | 45M
+585 | Zeki Çelik | Türkiye | 59 cap | 20M
+586 | Dietmar Hamann | Germany | 59 cap | 9M
+587 | Roy Makaay | Netherlands | 43 cap | 25M
+588 | Leon Bailey | Jamaica | 41 cap | 45M
+589 | Christian Panucci | Italy | 57 cap | 7M
+590 | Christian Ziege | Germany | 72 cap | 2M
+591 | Matt Doherty | Ireland | 53 cap | 20M
+592 | Sébastien Haller | Cote d'Ivoire | 34 cap | 45M
+593 | Tomas Sivok | Czech Republic | 64 cap | 8M
+594 | Juan Pablo Sorín | Argentina | 75 cap | 6M
+595 | Cristian Zapata | Colombia | 58 cap | 13M
+596 | Manuel Ugarte | Uruguay | 35 cap | 60M
+597 | Ethan Ampadu | Wales | 61 cap | 25M
+598 | Ruud Gullit | Netherlands | 66 cap | 0M
+599 | Ronald de Boer | Netherlands | 67 cap | 1M
+600 | Maarten Stekelenburg | Netherlands | 63 cap | 11M
+601 | Thomas Helmer | Germany | 68 cap | 0M
+602 | Mahamadou Diarra | Mali | 51 cap | 28M
+603 | Mauro Camoranesi | Italy | 55 cap | 18M
+604 | Harry Kewell | Australia | 53 cap | 20M
+605 | Vasilios Tsiartas | Greece | 70 cap | 3M
+606 | Andreas Köpke | Germany | 59 cap | 0M
+607 | Yerry Mina | Colombia | 52 cap | 30M
+608 | Yohan Cabaye | France | 48 cap | 23M
+609 | Gabriel | Brazil | 17 cap | 75M
+610 | Fredy Guarín | Colombia | 58 cap | 18M
+611 | Kasper Dolberg | Denmark | 56 cap | 23M
+612 | Ante Rebić | Croatia | 42 cap | 40M
+613 | Gianluca Vialli | Italy | 59 cap | 0M
+614 | Kevin Keegan | England | 63 cap | 0M
+615 | Krzysztof Piatek | Poland | 39 cap | 40M
+616 | Eren Derdiyok | Switzerland | 60 cap | 10M
+617 | Kevin Strootman | Netherlands | 46 cap | 28M
+618 | Alex Song | Cameroon | 49 cap | 29M
+619 | Cosmin Contra | Romania | 73 cap | 2M
+620 | Miroslav Stoch | Slovakia | 60 cap | 12M
+621 | Tobias Linderoth | Sweden | 75 cap | 5M
+622 | Kelechi Iheanacho | Nigeria | 58 cap | 20M
+623 | Zdenek Grygera | Czech Republic | 65 cap | 9M
+624 | Willy Sagnol | France | 58 cap | 15M
+625 | Matheus Cunha | Brazil | 21 cap | 70M
+626 | Arthur Melo | Brazil | 22 cap | 70M
+627 | Elano | Brazil | 50 cap | 15M
+628 | Giacomo Raspadori | Italy | 46 cap | 35M
+629 | Júlio Baptista | Brazil | 47 cap | 25M
+630 | Paulo Wanchope | Costa Rica | 73 cap | 5M
+631 | Martín Demichelis | Argentina | 51 cap | 16M
+632 | Steven Pienaar | South Africa | 60 cap | 11M
+633 | Haim Revivo | Israel | 67 cap | 0M
+634 | Djibril Sow | Switzerland | 50 cap | 22M
+635 | Nabil Bentaleb | Algeria | 57 cap | 20M
+636 | Douglas Luiz | Brazil | 18 cap | 70M
+637 | Luiz Gustavo | Brazil | 41 cap | 22M
+638 | Nuri Şahin | Türkiye | 52 cap | 20M
+639 | Míchel Salgado | Spain | 53 cap | 10M
+640 | Sebastian Szymanski | Poland | 52 cap | 20M
+641 | Viorel Moldovan | Romania | 70 cap | 1M
+642 | Antony | Brazil | 16 cap | 75M
+643 | Tammy Abraham | England | 26 cap | 50M
+644 | Daniel Wass | Denmark | 44 cap | 15M
+645 | Garry Rodrigues | Cape Verde | 60 cap | 9M
+646 | Ibrahima Konaté | France | 27 cap | 60M
+647 | Emmanuel Petit | France | 63 cap | 0M
+648 | Teemu Tainio | Finland | 63 cap | 4M
+649 | Pablo Sarabia | Spain | 27 cap | 40M
+650 | Shota Arveladze | Georgia | 61 cap | 6M
+651 | Alex Oxlade-Chamberlain | England | 35 cap | 40M
+652 | Davor Suker | Croatia | 69 cap | 0M
+653 | Gonçalo Guedes | Portugal | 33 cap | 40M
+654 | Kepa Arrizabalaga | Spain | 22 cap | 60M
+655 | Klaus Allofs | Germany | 56 cap | 0M
+656 | Yves Bissouma | Mali | 46 cap | 35M
+657 | Sime Vrsaljko | Croatia | 52 cap | 25M
+658 | Matteo Darmian | Italy | 46 cap | 15M
+659 | Óscar Córdoba | Colombia | 67 cap | 3M
+660 | Álvaro Arbeloa | Spain | 56 cap | 12M
+661 | Thomas Gravesen | Denmark | 66 cap | 6M
+662 | Hugo Ekitiké | France | 8 cap | 90M
+663 | Steve Mandanda | France | 35 cap | 17M
+664 | David Pizarro | Chile | 46 cap | 15M
+665 | Christian Vieri | Italy | 49 cap | 18M
+666 | Samir Nasri | France | 41 cap | 26M
+667 | Rayan Cherki | France | 23 cap | 65M
+668 | Javier Saviola | Argentina | 40 cap | 20M
+669 | Clément Lenglet | France | 16 cap | 60M
+670 | Djibril Cissé | France | 41 cap | 20M
+671 | John Aldridge | Ireland | 69 cap | 0M
+672 | Iliman Ndiaye | Senegal | 38 cap | 50M
+673 | Pierre Webó | Cameroon | 58 cap | 5M
+674 | Sergi Roberto | Spain | 14 cap | 60M
+675 | Alexandru Maxim | Romania | 56 cap | 7M
+676 | Taye Taiwo | Nigeria | 53 cap | 11M
+677 | Davy Klaassen | Netherlands | 41 cap | 22M
+678 | Marc Cucurella | Spain | 23 cap | 55M
+679 | Wissam Ben Yedder | France | 19 cap | 50M
+680 | John Mensah | Ghana | 68 cap | 8M
+681 | Boudewijn Zenden | Netherlands | 54 cap | 6M
+682 | Mario Balotelli | Italy | 36 cap | 32M
+683 | Corentin Tolisso | France | 28 cap | 45M
+684 | Allan | Brazil | 10 cap | 60M
+685 | Maniche | Portugal | 52 cap | 18M
+686 | Fernando Meira | Portugal | 53 cap | 13M
+687 | Erick Pulgar | Chile | 54 cap | 15M
+688 | Kily González | Argentina | 56 cap | 9M
+689 | Rubén Vargas | Switzerland | 60 cap | 13M
+690 | Mostafa Mohamed | Egypt | 61 cap | 10M
+691 | Pape Gueye | Senegal | 40 cap | 40M
+692 | Dani Parejo | Spain | 19 cap | 35M
+693 | Ola Aina | Nigeria | 48 cap | 22M
+694 | Evan Ferguson | Ireland | 26 cap | 65M
+695 | Emil Kostadinov | Bulgaria | 70 cap | 0M
+696 | Kang-in Lee | Korea, South | 46 cap | 30M
+697 | Dani Ceballos | Spain | 29 cap | 45M
+698 | Adem Ljajic | Serbia | 47 cap | 15M
+699 | Dino Baggio | Italy | 60 cap | 1M
+700 | Jakub Kiwior | Poland | 43 cap | 35M
+701 | Moise Kean | Italy | 26 cap | 50M
+702 | Antonio Cassano | Italy | 39 cap | 25M
+703 | Takehiro Tomiyasu | Japan | 43 cap | 35M
+704 | Pedro Neto | Portugal | 23 cap | 60M
+705 | Nicolas Jackson | Senegal | 31 cap | 55M
+706 | Milos Krasic | Serbia | 46 cap | 20M
+707 | Kubilay Türkyilmaz | Switzerland | 62 cap | 0M
+708 | Diogo Dalot | Portugal | 33 cap | 40M
+709 | Pape Matar Sarr | Senegal | 38 cap | 45M
+710 | Nikola Kalinić | Croatia | 42 cap | 20M
+711 | Mame Diouf | Senegal | 48 cap | 11M
+712 | Moussa Dembélé | France | 23 cap | 50M
+713 | Giorgi Mamardashvili | Georgia | 37 cap | 45M
+714 | Predrag Mijatović | Montenegro | 65 cap | 0M
+715 | Serhou Guirassy | Guinea | 27 cap | 45M
+716 | Luuk de Jong | Netherlands | 39 cap | 13M
+717 | Fatih Akyel | Türkiye | 64 cap | 3M
+718 | Okan Buruk | Türkiye | 56 cap | 5M
+719 | Benedikt Höwedes | Germany | 44 cap | 18M
+720 | Emile Mpenza | Belgium | 57 cap | 6M
+721 | Attila Szalai | Hungary | 53 cap | 15M
+722 | Ibrahim Afellay | Netherlands | 53 cap | 14M
+723 | Moussa Sow | Senegal | 46 cap | 16M
+724 | Conor Gallagher | England | 22 cap | 50M
+725 | Artem Dovbyk | Ukraine | 40 cap | 35M
+726 | Alou Diarra | France | 44 cap | 15M
+727 | Umut Bulut | Türkiye | 39 cap | 6M
+728 | David Platt | England | 62 cap | 0M
+729 | Markus Babbel | Germany | 51 cap | 6M
+730 | Reinildo Mandava | Mozambique | 48 cap | 25M
+731 | Saïd Benrahma | Algeria | 40 cap | 25M
+732 | Jérémy Toulalan | France | 36 cap | 22M
+733 | Ronny Johnsen | Norway | 62 cap | 0M
+734 | Keita Baldé | Senegal | 39 cap | 30M
+735 | Steven Fletcher | Scotland | 32 cap | 15M
+736 | Juninho Paulista | Brazil | 52 cap | 6M
+737 | Ansu Fati | Spain | 10 cap | 80M
+738 | Christophe Dugarry | France | 55 cap | 3M
+739 | Yunus Musah | United States | 47 cap | 25M
+740 | Przemyslaw Frankowski | Poland | 51 cap | 9M
+741 | Micky van de Ven | Netherlands | 19 cap | 65M
+742 | Jean-Pierre Papin | France | 54 cap | 0M
+743 | Costinha | Portugal | 53 cap | 15M
+744 | Paul Gascoigne | England | 57 cap | 0M
+745 | Faryd Mondragón | Colombia | 50 cap | 4M
+746 | Paco Alcácer | Spain | 19 cap | 50M
+747 | Ross Barkley | England | 33 cap | 30M
+748 | Hakan Balta | Türkiye | 50 cap | 7M
+749 | Nathan Redmond | England | 39 cap | 20M
+750 | Timothy Weah | United States | 49 cap | 20M
+751 | Mladen Petric | Croatia | 45 cap | 11M
+752 | José Antonio Reyes | Spain | 21 cap | 35M
+753 | Houssem Aouar | Algeria | 19 cap | 55M
+754 | Pierre van Hooijdonk | Netherlands | 46 cap | 3M
+755 | Leander Dendoncker | Belgium | 32 cap | 32M
+756 | Aymen Abdennour | Tunisia | 56 cap | 10M
+757 | Duje Caleta-Car | Croatia | 38 cap | 25M
+758 | Andreas Thom | Germany | 51 cap | 0M
+759 | Carlos Soler | Spain | 20 cap | 50M
+760 | Mamadou Niang | Senegal | 45 cap | 15M
+761 | Nicolò Zaniolo | Italy | 19 cap | 55M
+762 | Christian Nørgaard | Denmark | 41 cap | 20M
+763 | Alexandre Pato | Brazil | 27 cap | 35M
+764 | Victor Moses | Nigeria | 38 cap | 20M
+765 | Giovanni Reyna | United States | 36 cap | 42M
+766 | Mattéo Guendouzi | France | 20 cap | 50M
+767 | Anthony Annan | Ghana | 58 cap | 3M
+768 | Lucas Ocampos | Argentina | 12 cap | 50M
+769 | Robin Le Normand | Spain | 27 cap | 40M
+770 | Hami Mandıralı | Türkiye | 49 cap | 0M
+771 | Georges Mikautadze | Georgia | 43 cap | 30M
+772 | Seko Fofana | Cote d'Ivoire | 31 cap | 32M
+773 | Fernando Llorente | Spain | 24 cap | 30M
+774 | Munas Dabbur | Israel | 40 cap | 15M
+775 | Fabricio Coloccini | Argentina | 39 cap | 10M
+776 | Zdravko Kuzmanovic | Serbia | 50 cap | 10M
+777 | Tanguy Ndombélé | France | 10 cap | 65M
+778 | Stephen Appiah | Ghana | 53 cap | 11M
+779 | Milos Kerkez | Hungary | 31 cap | 45M
+780 | Moussa Diaby | France | 12 cap | 60M
+781 | Hasan Salihamidzic | Bosnia-Herzegovina | 42 cap | 8M
+782 | João Pereira | Portugal | 40 cap | 11M
+783 | Brahim Díaz | Morocco | 24 cap | 45M
+784 | Fabio Grosso | Italy | 48 cap | 10M
+785 | Frank Leboeuf | France | 50 cap | 0M
+786 | Iván Helguera | Spain | 47 cap | 11M
+787 | Nico Paz | Argentina | 8 cap | 80M
+788 | Edon Zhegrova | Kosovo | 46 cap | 25M
+789 | Florian Thauvin | France | 13 cap | 50M
+790 | Mario Lemina | Gabon | 43 cap | 15M
+791 | Valeri Bozhinov | Bulgaria | 43 cap | 13M
+792 | Adrián Ramos | Colombia | 37 cap | 13M
+793 | Christian Karembeu | France | 53 cap | 1M
+794 | Aurélien Chedjou | Cameroon | 48 cap | 12M
+795 | Ben Chilwell | England | 21 cap | 50M
+796 | Reto Ziegler | Switzerland | 35 cap | 8M
+797 | Diego Milito | Argentina | 25 cap | 28M
+798 | Obafemi Martins | Nigeria | 40 cap | 16M
+799 | Yıldıray Baştürk | Türkiye | 49 cap | 11M
+800 | Alberto Aquilani | Italy | 38 cap | 18M
+801 | Elvir Bolic | Bosnia-Herzegovina | 51 cap | 2M
+802 | Castello Lukeba | France | 27 cap | 50M
+803 | Owen Hargreaves | England | 42 cap | 25M
+804 | Álvaro Negredo | Spain | 21 cap | 27M
+805 | Oğuzhan Özyakup | Türkiye | 43 cap | 14M
+806 | Darko Kovacevic | Serbia | 45 cap | 10M
+807 | Hiroshi Kiyotake | Japan | 43 cap | 10M
+808 | Bernard Lama | France | 44 cap | 0M
+809 | Bernd Leno | Germany | 14 cap | 35M
+810 | Billy Gilmour | Scotland | 46 cap | 20M
+811 | Steven Nzonzi | France | 20 cap | 30M
+812 | Chris Smalling | England | 31 cap | 20M
+813 | Robin Gosens | Germany | 24 cap | 35M
+814 | Gerald Vanenburg | Netherlands | 42 cap | 0M
+815 | Trevoh Chalobah | England | 25 cap | 40M
+816 | Gerard Deulofeu | Spain | 36 cap | 25M
+817 | Faouzi Ghoulam | Algeria | 37 cap | 25M
+818 | Dimitrios Pelkas | Greece | 47 cap | 7M
+819 | Fikayo Tomori | England | 15 cap | 50M
+820 | Dean Huijsen | Spain | 11 cap | 70M
+821 | Lucas Barrios | Paraguay | 36 cap | 17M
+822 | Javier Pastore | Argentina | 29 cap | 30M
+823 | Enzo Francescoli | Uruguay | 58 cap | 0M
+824 | Alejandro Grimaldo | Spain | 12 cap | 45M
+825 | Anders Limpar | Sweden | 58 cap | 0M
+826 | Halil Altıntop | Türkiye | 38 cap | 8M
+827 | Renan Lodi | Brazil | 19 cap | 50M
+828 | Mikaël Silvestre | France | 40 cap | 8M
+829 | Joshua Zirkzee | Netherlands | 19 cap | 50M
+830 | André Gomes | Portugal | 29 cap | 30M
+831 | Renato Sanches | Portugal | 32 cap | 30M
+832 | Odilon Kossounou | Cote d'Ivoire | 35 cap | 35M
+833 | Gregory van der Wiel | Netherlands | 46 cap | 10M
+834 | Gianfranco Zola | Italy | 35 cap | 1M
+835 | Grégory Coupet | France | 34 cap | 8M
+836 | Valentino Lazaro | Austria | 36 cap | 19M
+837 | Sunday Oliseh | Nigeria | 52 cap | 2M
+838 | Pep Guardiola | Spain | 47 cap | 2M
+839 | Odion Ighalo | Nigeria | 37 cap | 12M
+840 | Martin Laursen | Denmark | 54 cap | 8M
+841 | Ferdi Kadıoğlu | Türkiye | 30 cap | 30M
+842 | Adil Rami | France | 36 cap | 14M
+843 | Ian Maatsen | Netherlands | 24 cap | 40M
+844 | Giuseppe Rossi | Italy | 30 cap | 30M
+845 | Paul Breitner | Germany | 48 cap | 0M
+846 | Neven Subotic | Serbia | 36 cap | 20M
+847 | Basile Boli | France | 45 cap | 0M
+848 | Iago Aspas | Spain | 20 cap | 25M
+849 | Erik Lamela | Argentina | 25 cap | 30M
+850 | Seydou Doumbia | Cote d'Ivoire | 33 cap | 25M
+851 | Papiss Demba Cissé | Senegal | 32 cap | 19M
+852 | Nicolai Jørgensen | Denmark | 41 cap | 15M
+853 | Evan Ndicka | Cote d'Ivoire | 27 cap | 35M
+854 | Jason Denayer | Belgium | 35 cap | 25M
+855 | Roberto Soldado | Spain | 12 cap | 30M
+856 | Marek Cech | Slovakia | 52 cap | 7M
+857 | Suso | Spain | 9 cap | 50M
+858 | Jes Høgh | Denmark | 58 cap | 0M
+859 | Yoann Gourcuff | France | 31 cap | 24M
+860 | Lamine Diatta | Senegal | 56 cap | 2M
+861 | Geoffrey Kondogbia | Central African Republic | 21 cap | 30M
+862 | Matthias Sammer | Germany | 51 cap | 0M
+863 | Alex Telles | Brazil | 12 cap | 40M
+864 | Iulian Filipescu | Romania | 52 cap | 1M
+865 | Thiago Motta | Italy | 30 cap | 16M
+866 | Jeremie Frimpong | Netherlands | 15 cap | 50M
+867 | Martin Dahlin | Sweden | 60 cap | 0M
+868 | Jeremain Lens | Netherlands | 34 cap | 12M
+869 | Konstantinos Mavropanos | Greece | 41 cap | 20M
+870 | Patrick Cutrone | Italy | 25 cap | 30M
+871 | Jonathan Ikoné | France | 18 cap | 40M
+872 | Giorgi Kinkladze | Georgia | 54 cap | 4M
+873 | Luis Alberto | Spain | 1 cap | 55M
+874 | Massimo Oddo | Italy | 34 cap | 15M
+875 | Raymond Kopa | France | 45 cap | 0M
+876 | Steve McManaman | England | 37 cap | 7M
+877 | Malcom | Brazil | 14 cap | 45M
+878 | Pizzi | Portugal | 17 cap | 27M
+879 | Omar Elabdellaoui | Norway | 49 cap | 6M
+880 | Ricardo Pereira | Portugal | 18 cap | 40M
+881 | Tayfur Havutçu | Türkiye | 45 cap | 1M
+882 | Marco Materazzi | Italy | 41 cap | 9M
+883 | Matija Nastasić | Serbia | 34 cap | 22M
+884 | Arnaud Kalimuendo | France | 33 cap | 30M
+885 | Joaquín Correa | Argentina | 19 cap | 38M
+886 | Colin Kazım-Richards | Türkiye | 37 cap | 5M
+887 | Azzedine Ounahi | Morocco | 47 cap | 15M
+888 | Arthur Masuaku | DR Congo | 43 cap | 10M
+889 | Endrick | Brazil | 15 cap | 60M
+890 | Christoph Metzelder | Germany | 47 cap | 10M
+891 | Marcos Alonso | Spain | 9 cap | 45M
+892 | Rayan Aït-Nouri | Algeria | 27 cap | 40M
+893 | Victor Nelsson | Denmark | 35 cap | 19M
+894 | Souleymane Diawara | Senegal | 38 cap | 8M
+895 | Mattia De Sciglio | Italy | 40 cap | 14M
+896 | Malik Tillman | United States | 28 cap | 35M
+897 | Amad Diallo | Cote d'Ivoire | 18 cap | 50M
+898 | Francisco Trincão | Portugal | 18 cap | 40M
+899 | Adrian Ilie | Romania | 55 cap | 2M
+900 | Mido | Egypt | 47 cap | 11M
+901 | Gaizka Mendieta | Spain | 40 cap | 7M
+902 | Zanka | Denmark | 37 cap | 5M
+903 | Saphir Taïder | Algeria | 46 cap | 10M
+904 | Murat Yakin | Switzerland | 49 cap | 3M
+905 | Felipe Anderson | Brazil | 4 cap | 45M
+906 | Jordan Veretout | France | 12 cap | 35M
+907 | Willian José | Brazil | 15 cap | 30M
+908 | Arouna Koné | Cote d'Ivoire | 34 cap | 12M
+909 | Mathys Tel | France | 20 cap | 50M
+910 | Finidi George | Nigeria | 50 cap | 0M
+911 | Wim Kieft | Netherlands | 43 cap | 0M
+912 | Dimitar Rangelov | Bulgaria | 40 cap | 3M
+913 | Eljero Elia | Netherlands | 30 cap | 17M
+914 | Milos Veljkovic | Serbia | 39 cap | 12M
+915 | Stjepan Tomas | Croatia | 49 cap | 5M
+916 | Mario Gavranovic | Switzerland | 41 cap | 3M
+917 | Allan Simonsen | Denmark | 48 cap | 0M
+918 | Ümit Özat | Türkiye | 41 cap | 5M
+919 | Patrik Berger | Czech Republic | 42 cap | 5M
+920 | Mevlüt Erdinç | Türkiye | 35 cap | 11M
+921 | Ferland Mendy | France | 10 cap | 50M
+922 | Nico Gaitán | Argentina | 19 cap | 30M
+923 | Chris Richards | United States | 36 cap | 25M
+924 | Vincent Candela | France | 40 cap | 4M
+925 | Salif Sané | Senegal | 34 cap | 22M
+926 | Brian Brobbey | Netherlands | 23 cap | 35M
+927 | Bruma | Portugal | 33 cap | 13M
+928 | Hasan Ali Kaldırım | Türkiye | 35 cap | 6M
+929 | Kévin Gameiro | France | 13 cap | 25M
+930 | Mert Müldür | Türkiye | 43 cap | 10M
+931 | Éric Cantona | France | 45 cap | 0M
+932 | Divock Origi | Belgium | 32 cap | 20M
+933 | Kevin Danso | Austria | 31 cap | 25M
+934 | Roque Júnior | Brazil | 48 cap | 8M
+935 | Zvonimir Boban | Croatia | 51 cap | 0M
+936 | Justin Kluivert | Netherlands | 20 cap | 35M
+937 | Kristjan Asllani | Albania | 40 cap | 18M
+938 | Milan Rapaic | Croatia | 49 cap | 2M
+939 | Alassane Pléa | France | 14 cap | 38M
+940 | Álvaro Carreras | Spain | 9 cap | 60M
+941 | Pierluigi Casiraghi | Italy | 44 cap | 0M
+942 | Jocelyn Angloma | Guadeloupe | 37 cap | 0M
+943 | Miha Zajc | Slovenia | 39 cap | 6M
+944 | Ander Herrera | Spain | 14 cap | 30M
+945 | Loïc Rémy | France | 30 cap | 19M
+946 | Karl-Heinz Riedle | Germany | 42 cap | 0M
+947 | Samuel Kuffour | Ghana | 39 cap | 9M
+948 | Callum Hudson-Odoi | England | 22 cap | 35M
+949 | Pedro Porro | Spain | 16 cap | 45M
+950 | Luis Jiménez | Chile | 33 cap | 11M
+951 | Wesley Fofana | France | 7 cap | 65M
+952 | Guillermo Amor | Spain | 37 cap | 0M
+953 | Gedson Fernandes | Portugal | 30 cap | 22M
+954 | Markus Rosenberg | Sweden | 31 cap | 9M
+955 | Héctor Bellerín | Spain | 14 cap | 40M
+956 | Youssouf Fofana | France | 25 cap | 30M
+957 | Wilfried Singo | Cote d'Ivoire | 32 cap | 28M
+958 | Mehmet Aurélio | Türkiye | 37 cap | 10M
+959 | Ismaël Koné | Canada | 38 cap | 25M
+960 | Ozan Kabak | Türkiye | 28 cap | 32M
+961 | Savinho | Brazil | 13 cap | 55M
+962 | Piotr Trochowski | Germany | 35 cap | 10M
+963 | Khéphren Thuram | France | 18 cap | 40M
+964 | Maxwel Cornet | Cote d'Ivoire | 31 cap | 18M
+965 | Badou Ndiaye | Senegal | 31 cap | 15M
+966 | Mathías Olivera | Uruguay | 35 cap | 20M
+967 | Robert Prosinecki | Croatia | 49 cap | 0M
+968 | Shkodran Mustafi | Germany | 20 cap | 30M
+969 | Benjamin Mendy | France | 12 cap | 45M
+970 | Dodi Lukébakio | Belgium | 29 cap | 25M
+971 | Josip Drmic | Switzerland | 35 cap | 12M
+972 | Adama Traoré | Spain | 10 cap | 40M
+973 | Manu Koné | France | 12 cap | 50M
+974 | Alexander Djiku | Ghana | 38 cap | 10M
+975 | Diego Carlos | Brazil | 6 cap | 50M
+976 | Rey Manaj | Albania | 44 cap | 5M
+977 | Zoran Mirkovic | Serbia | 51 cap | 1M
+978 | David Jarolím | Czech Republic | 30 cap | 9M
+979 | Moatasem Al-Musrati | Libya | 37 cap | 16M
+980 | Riccardo Calafiori | Italy | 14 cap | 50M
+981 | Mason Greenwood | England | 6 cap | 55M
+982 | Marc-Vivien Foé | Cameroon | 50 cap | 0M
+983 | Jérémie Boga | Cote d'Ivoire | 24 cap | 25M
+984 | Rade Krunic | Bosnia-Herzegovina | 34 cap | 10M
+985 | Daniel Sturridge | England | 26 cap | 25M
+986 | Amine Harit | Morocco | 24 cap | 30M
+987 | Folarin Balogun | United States | 25 cap | 30M
+988 | Kurt Zouma | France | 13 cap | 35M
+989 | Alfonso | Spain | 38 cap | 5M
+990 | Destiny Udogie | Italy | 16 cap | 45M
+991 | Antônio Carlos Zago | Brazil | 37 cap | 1M
+992 | Matthew Amoah | Ghana | 41 cap | 3M
+993 | Morgan Schneiderlin | France | 15 cap | 30M
+994 | Emile Smith Rowe | England | 16 cap | 40M
+995 | Eric García | Spain | 19 cap | 35M
+996 | Fredi Bobic | Germany | 37 cap | 2M
+997 | Stefan Effenberg | Germany | 35 cap | 0M
+998 | Joseph-Désiré Job | Cameroon | 45 cap | 3M
+999 | Nicola Berti | Italy | 38 cap | 0M
+1000 | Lucas Tousart | France | 22 cap | 25M
+1001 | Tayfun Korkut | Türkiye | 42 cap | 4M
+1002 | Borja Mayoral | Spain | 31 cap | 15M
+1003 | Ryan Sessegnon | England | 20 cap | 35M
+1004 | Peter Etebo | Nigeria | 42 cap | 7M
+1005 | Günter Netzer | Germany | 37 cap | 0M
+1006 | Kléberson | Brazil | 32 cap | 10M
+1007 | Matías Almeyda | Argentina | 40 cap | 6M
+1008 | Andrey Santos | Brazil | 17 cap | 45M
+1009 | Albert Ferrer | Spain | 36 cap | 0M
+1010 | Amir Hadziahmetovic | Bosnia-Herzegovina | 35 cap | 8M
+1011 | Marcelo Zalayeta | Uruguay | 31 cap | 7M
+1012 | Bright Osayi-Samuel | Nigeria | 34 cap | 9M
+1013 | Capucho | Portugal | 34 cap | 0M
+1014 | Arnaut Danjuma | Netherlands | 6 cap | 50M
+1015 | Leny Yoro | France | 10 cap | 55M
+1016 | Isaac Kiese Thelin | Sweden | 33 cap | 5M
+1017 | Emmanuel Emenike | Nigeria | 36 cap | 16M
+1018 | Marko Pantelic | Serbia | 39 cap | 8M
+1019 | Nico Claesen | Belgium | 36 cap | 0M
+1020 | Ruben Loftus-Cheek | England | 17 cap | 30M
+1021 | Maxence Caqueret | France | 24 cap | 25M
+1022 | Ümit Davala | Türkiye | 41 cap | 5M
+1023 | Jean-Philippe Mateta | France | 11 cap | 40M
+1024 | Pierre Kalulu | France | 19 cap | 35M
+1025 | Noah Okafor | Switzerland | 24 cap | 25M
+1026 | Malick Thiaw | Germany | 11 cap | 45M
+1027 | Yann Bisseck | Germany | 8 cap | 50M
+1028 | Habib Beye | Senegal | 34 cap | 6M
+1029 | Jarell Quansah | England | 14 cap | 45M
+1030 | Sam Adekugbe | Canada | 44 cap | 3M
+1031 | Abdukodir Khusanov | Uzbekistan | 25 cap | 35M
+1032 | Radu Drăgușin | Romania | 29 cap | 25M
+1033 | Tiemoué Bakayoko | France | 11 cap | 40M
+1034 | Gaël Kakuta | DR Congo | 30 cap | 8M
+1035 | Marash Kumbulla | Albania | 26 cap | 27M
+1036 | Marcel Tisserand | DR Congo | 35 cap | 8M
+1037 | Boubacar Kamara | France | 10 cap | 40M
+1038 | Jhon Durán | Colombia | 17 cap | 40M
+1039 | Rubén Sosa | Uruguay | 35 cap | 0M
+1040 | Mouctar Diakhaby | Guinea | 18 cap | 30M
+1041 | Felix Nmecha | Germany | 6 cap | 50M
+1042 | Mark Hateley | England | 32 cap | 0M
+1043 | Nico González | Spain | 11 cap | 45M
+1044 | Allan Saint-Maximin | France | 7 cap | 40M
+1045 | Carsten Jancker | Germany | 33 cap | 1M
+1046 | Alen Bokšić | Croatia | 40 cap | 0M
+1047 | Martin Terrier | France | 13 cap | 35M
+1048 | Vaclav Cerny | Czech Republic | 30 cap | 9M
+1049 | Elvir Baljic | Bosnia-Herzegovina | 39 cap | 3M
+1050 | Kenan Karaman | Türkiye | 31 cap | 4M
+1051 | Simone Zaza | Italy | 18 cap | 25M
+1052 | Facundo Pellistri | Uruguay | 39 cap | 10M
+1053 | Osvaldo Ardiles | Argentina | 39 cap | 0M
+1054 | Guy Demel | Cote d'Ivoire | 31 cap | 6M
+1055 | Angel Gomes | England | 18 cap | 28M
+1056 | Lucas Vázquez | Spain | 9 cap | 25M
+1057 | Elye Wahi | Cote d'Ivoire | 13 cap | 40M
+1058 | Lefter Küçükandonyadis | Türkiye | 46 cap | 0M
+1059 | Karl Hein | Estonia | 45 cap | 3M
+1060 | Roberto Di Matteo | Italy | 34 cap | 0M
+1061 | Marek Heinz | Czech Republic | 30 cap | 2M
+1062 | Jesper Lindstrøm | Denmark | 18 cap | 28M
+1063 | Axel Disasi | France | 5 cap | 42M
+1064 | Manucho | Angola | 37 cap | 3M
+1065 | El Bilal Touré | Mali | 30 cap | 20M
+1066 | Amine Adli | Morocco | 17 cap | 30M
+1067 | Noa Lang | Netherlands | 15 cap | 25M
+1068 | Alexander Manninger | Austria | 33 cap | 5M
+1069 | John Charles | Wales | 38 cap | 0M
+1070 | Kerem Demirbay | Germany | 4 cap | 32M
+1071 | Morgan Sanson | France | 10 cap | 28M
+1072 | Borja Iglesias | Spain | 6 cap | 28M
+1073 | Jobe Bellingham | England | 11 cap | 40M
+1074 | Hakan Ünsal | Türkiye | 33 cap | 2M
+1075 | Bryan Roy | Netherlands | 32 cap | 0M
+1076 | José Campaña | Spain | 12 cap | 25M
+1077 | Simone Verdi | Italy | 10 cap | 25M
+1078 | Boubakary Soumaré | France | 14 cap | 28M
+1079 | Youssoufa Moukoko | Germany | 15 cap | 30M
+1080 | Majeed Waris | Ghana | 30 cap | 5M
+1081 | Luis Suárez | Colombia | 10 cap | 30M
+1082 | Taribo West | Nigeria | 39 cap | 1M
+1083 | Adam Ounas | Algeria | 30 cap | 10M
+1084 | Bryan Gil | Spain | 14 cap | 30M
+1085 | Quinton Fortune | South Africa | 38 cap | 3M
+1086 | Junior Olaitan | Benin | 38 cap | 7M
+1087 | Angeliño | Spain | 2 cap | 35M
+1088 | Jorge Cadete | Portugal | 33 cap | 0M
+1089 | Emerson Royal | Brazil | 11 cap | 30M
+1090 | Mario Hermoso | Spain | 5 cap | 35M
+1091 | Guglielmo Vicario | Italy | 5 cap | 35M
+1092 | Suat Serdar | Germany | 11 cap | 25M
+1093 | Cristhian Mosquera | Spain | 14 cap | 35M
+1094 | Alemão | Brazil | 36 cap | 0M
+1095 | Malo Gusto | France | 10 cap | 35M
+1096 | Sepp van den Berg | Netherlands | 10 cap | 32M
+1097 | Patrick Dorgu | Denmark | 12 cap | 35M
+1098 | Enzo Le Fée | France | 15 cap | 25M
+1099 | Rafinha | Brazil | 8 cap | 28M
+1100 | Junior Firpo | Dominican Republic | 15 cap | 25M
+1101 | Josip Skoblar | Croatia | 31 cap | 0M
+1102 | Nuno Tavares | Portugal | 16 cap | 25M
+1103 | Ange-Yoan Bonny | Cote d'Ivoire | 10 cap | 35M
+1104 | Adolfo Valencia | Colombia | 37 cap | 0M
+1105 | Rodrigo Riquelme | Spain | 14 cap | 25M
+1106 | Djordje Petrovic | Serbia | 12 cap | 28M
+1107 | Dan-Axel Zagadou | France | 9 cap | 35M
+1108 | Jean-Clair Todibo | France | 7 cap | 35M
+1109 | Daniel Amokachi | Nigeria | 31 cap | 0M
+1110 | Aleix García | Spain | 8 cap | 25M
+1111 | Djed Spence | England | 6 cap | 32M
+1112 | Máximo Perrone | Argentina | 10 cap | 35M
+1113 | Tetê | Brazil | 7 cap | 28M
+1114 | Tyler Morton | England | 13 cap | 25M
+1115 | Valentín Barco | Argentina | 9 cap | 35M
+1116 | Yan Couto | Brazil | 13 cap | 25M
+1117 | Arthur Vermeeren | Belgium | 11 cap | 30M
+1118 | Mario Gila | Spain | 9 cap | 30M
+1119 | Jonathan Rowe | England | 10 cap | 28M
+1120 | Diego Moreira | Belgium | 12 cap | 25M
+1121 | Lorenzo Lucca | Italy | 6 cap | 30M
+1122 | Renato Veiga | Portugal | 11 cap | 25M
+1123 | Vitor Reis | Brazil | 13 cap | 30M
+1124 | Loïc Badé | France | 6 cap | 30M
+1125 | Lesley Ugochukwu | France | 12 cap | 25M
+1126 | Mamadou Sarr | Senegal | 14 cap | 25M
+1127 | Reinier | Brazil | 10 cap | 25M
+1128 | Jesper Blomqvist | Sweden | 30 cap | 0M
+1129 | Gabriel Sara | Brazil | 1 cap | 27M
+1130 | Jacobo Ramón | Spain | 7 cap | 30M
+1131 | Natan | Brazil | 0 cap | 25M
+1132 | Giovanni Leoni | Italy | 7 cap | 25M

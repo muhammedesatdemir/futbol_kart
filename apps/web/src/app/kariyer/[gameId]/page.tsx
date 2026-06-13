@@ -20,6 +20,7 @@ import { useProfileStore } from '@/lib/profileStore';
 import { useSfx } from '@/lib/useSfx';
 import { createPRNG } from '@futbol-kart/game-engine';
 import { fetchClubInfoMap } from '@/lib/clubsClient';
+import { fetchCareerPools } from '@/lib/careerPoolsClient';
 import { useOnlineCareerMatch } from '@/lib/useOnlineCareerMatch';
 import {
   curateCareers,
@@ -33,6 +34,7 @@ import {
   type CareerPuzzle,
   type ClubInfo,
   type CareerSide,
+  type CareerPools,
 } from '@/lib/careerMode';
 import type {
   CareerReveal,
@@ -72,14 +74,16 @@ export default function CareerGamePage() {
   const matchId = isOnline ? params.gameId : null;
   const online = useOnlineCareerMatch(matchId);
 
-  // OFFLINE: tam kulüp verisi (ad + logo).
+  // OFFLINE: tam kulüp verisi (ad + logo) + kürate havuz (careerPools.json).
   const [clubsById, setClubsById] = useState<Map<string, ClubInfo> | null>(null);
+  const [pools, setPools] = useState<CareerPools | null>(null);
   useEffect(() => {
     if (isOnline) {
       setClubsById(new Map());
       return;
     }
     fetchClubInfoMap().then(setClubsById).catch(() => setClubsById(new Map()));
+    fetchCareerPools().then(setPools).catch(() => setPools(null));
   }, [isOnline]);
 
   const [roundSeed, setRoundSeed] = useState(() => Math.random().toString(36).slice(2));
@@ -89,12 +93,12 @@ export default function CareerGamePage() {
     [session.players],
   );
 
-  // OFFLINE kürate edilmiş 3 kariyer.
+  // OFFLINE kürate edilmiş 3 kariyer (careerPools ağırlığıyla: 2 high + 1 low).
   const offCareers: CareerPuzzle[] | null = useMemo(() => {
     if (isOnline) return null;
     if (!clubsById || clubsById.size === 0 || !session.ready || session.players.length === 0) return null;
-    return curateCareers(`${params.gameId}:${roundSeed}`, session.players, clubsById);
-  }, [isOnline, clubsById, session.ready, session.players, params.gameId, roundSeed]);
+    return curateCareers(`${params.gameId}:${roundSeed}`, session.players, clubsById, pools);
+  }, [isOnline, clubsById, pools, session.ready, session.players, params.gameId, roundSeed]);
 
   const [phase, setPhase] = useState<Phase>('opponent');
   const [opponent, setOpponent] = useState<Opponent>('vs-bot');

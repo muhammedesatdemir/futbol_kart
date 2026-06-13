@@ -167,29 +167,68 @@ export interface CareerPuzzle {
 }
 
 /**
- * Bir maç için CAREER_ROUNDS kariyer seç. Havuz: isCareerEligible (marquee +
- * ≥3 kulüp + 6 büyük ülkeden ≥2 + ≥1 elit). Seed'den deterministik (iki oyuncu
- * aynı maçı görür). Tekrarsız. Havuz yetersizse (olmamalı) eşik gevşetilir.
+ * Kürate edilmiş kariyer havuzları (careerPools.json) — kullanıcı tarafından
+ * elle ayıklanmış + ağırlıklandırılmış id listeleri. `high` = en tanınır (c.txt),
+ * `low` = daha az tanınır ama kabul edilen (a+b.txt).
  */
-export function curateCareers(
-  seed: string,
-  players: Player[],
-  clubsById: Map<string, ClubInfo>,
-): CareerPuzzle[] {
-  const prng = createPRNG(`kariyer:${seed}:careers`);
-  let pool = players.filter((p) => isCareerEligible(p, clubsById));
-  if (pool.length < CAREER_ROUNDS) {
-    // Güvenlik: eşik gevşet (lig/elit şartını kaldır, sadece marquee + ≥3 kulüp).
-    pool = players.filter((p) => isMarquee(p) && distinctClubIds(p).length >= 3);
-  }
-  const chosen = prng.shuffle(pool).slice(0, Math.min(CAREER_ROUNDS, pool.length));
-  return chosen.map((p) => ({
+export interface CareerPools {
+  high: string[];
+  low: string[];
+}
+
+/** Her maçta high'dan kaç, low'dan kaç kariyer (toplam = CAREER_ROUNDS). */
+const HIGH_PER_MATCH = 2;
+const LOW_PER_MATCH = 1;
+
+function buildPuzzle(p: Player, clubsById: Map<string, ClubInfo>): CareerPuzzle {
+  return {
     playerId: p.id,
     playerName: p.displayName || p.name,
     initial: (p.displayName || p.name).trim()[0]?.toLocaleUpperCase('tr-TR') ?? '?',
     nationality: p.nationality ?? null,
     stops: buildCareer(p, clubsById),
-  }));
+  };
+}
+
+/**
+ * Bir maç için CAREER_ROUNDS kariyer seç (kullanıcı kararı 2026-06-13):
+ *   • `pools.high` (c.txt, en tanınır) → HIGH_PER_MATCH (2) kariyer
+ *   • `pools.low` (a+b.txt, daha az tanınır) → LOW_PER_MATCH (1) kariyer
+ *   → her maçta sabit 2 yüksek + 1 düşük (≈%60/%40 ağırlık).
+ * Seed'den deterministik (iki oyuncu aynı maçı görür). Tekrarsız. Sıra karıştırılır
+ * (yüksek/düşük tur sırası belli olmasın). Havuz/pools yoksa eski isCareerEligible
+ * filtresine düşer (güvenlik — careerPools.json eksikse mod yine çalışır).
+ */
+export function curateCareers(
+  seed: string,
+  players: Player[],
+  clubsById: Map<string, ClubInfo>,
+  pools?: CareerPools | null,
+): CareerPuzzle[] {
+  const prng = createPRNG(`kariyer:${seed}:careers`);
+  const byId = new Map(players.map((p) => [p.id, p]));
+
+  // Ağırlıklı seçim: havuzlar varsa 2 high + 1 low.
+  if (pools && pools.high.length >= HIGH_PER_MATCH && pools.low.length >= LOW_PER_MATCH) {
+    const pickIds = (ids: string[], n: number) =>
+      prng.shuffle(ids.filter((id) => byId.has(id))).slice(0, n);
+    const chosenIds = [
+      ...pickIds(pools.high, HIGH_PER_MATCH),
+      ...pickIds(pools.low, LOW_PER_MATCH),
+    ];
+    // Tur sırasını karıştır (düşük-tanınırlık hep son turda olmasın).
+    const ordered = prng.shuffle(chosenIds);
+    const puzzles = ordered.map((id) => byId.get(id)!).filter(Boolean).map((p) => buildPuzzle(p, clubsById));
+    if (puzzles.length >= CAREER_ROUNDS) return puzzles.slice(0, CAREER_ROUNDS);
+    // pools'tan yeterli çıkmadıysa (beklenmez) aşağıdaki fallback'e düş.
+  }
+
+  // FALLBACK: careerPools.json yoksa eski filtre (marquee + ≥3 + 6ülke≥2 + elit).
+  let pool = players.filter((p) => isCareerEligible(p, clubsById));
+  if (pool.length < CAREER_ROUNDS) {
+    pool = players.filter((p) => isMarquee(p) && distinctClubIds(p).length >= 3);
+  }
+  return prng.shuffle(pool).slice(0, CAREER_ROUNDS).map((p) => buildPuzzle(p, clubsById));
 }
 
 // ===========================================================================

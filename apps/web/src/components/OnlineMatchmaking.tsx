@@ -100,10 +100,14 @@ export function OnlineMatchmaking({
       try {
         const res = await fetch(`/api/match/${matchId}`);
         const data = await res.json();
+        // İsim kaynağı moda göre değişir: çoğu mod `state`, Kariyer Yolu maskeli
+        // `view` döner. İkisine de bak (hangisi doluysa) → "Oyuncu 1/2" fallback'i
+        // yalnız gerçekten isim yoksa görünür.
+        const named = data.state ?? data.view ?? {};
         setFound({
           matchId,
-          p1Name: data.state?.p1Name || 'Oyuncu 1',
-          p2Name: data.state?.p2Name || 'Oyuncu 2',
+          p1Name: named.p1Name || 'Oyuncu 1',
+          p2Name: named.p2Name || 'Oyuncu 2',
           yourSide: data.yourSide ?? 'P1',
         });
         setPhase('found');

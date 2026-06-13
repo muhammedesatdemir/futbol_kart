@@ -135,7 +135,10 @@ export async function POST(
     );
   }
 
-  // Sahne, tur VEYA kademe (herhangi bir tarafın tier'ı) değiştiyse taze süre.
+  // Sahne, tur VEYA KADEME (tier) değiştiyse taze süre. KRİTİK: yalnız tier'lara
+  // bakarız — `submitted`/`locked` (bir tarafın "seçtim, bekliyorum" durumu) süreyi
+  // YENİLEMEZ. Aksi halde bir taraf seçince diğeri ek süre kazanırdı (kullanıcı
+  // bildirdi). Kademe gerçekten ilerlediğinde (resolveTier tier++ yapınca) yenilenir.
   const turnChanged =
     state.scene !== m.currentScene ||
     state.round !== prevState.round ||
@@ -190,13 +193,16 @@ export async function POST(
   });
 }
 
-/** Aktif turdaki iki tarafın (tier|locked|submitted) imzası — değişim tespiti. */
+/**
+ * Aktif turdaki iki tarafın KADEME (tier) imzası — süre yenileme tespiti.
+ * SADECE tier'lara bakar; `submitted`/`locked` KASITEN dahil DEĞİL: bir tarafın
+ * "seçtim, bekliyorum" durumu kademe ilerletmez → süre yenilenmemeli (yoksa
+ * seçim yapmayan ek süre kazanır). Yalnız resolveTier tier++ yapınca imza değişir.
+ */
 function tierSig(state: CareerMatchState): string {
   const r = state.rounds[state.round];
   if (!r) return 'none';
-  const f = (s: { tier: number; locked: boolean; submitted: boolean }) =>
-    `${s.tier}${s.locked ? 'L' : ''}${s.submitted ? 'S' : ''}`;
-  return `${f(r.P1)}|${f(r.P2)}`;
+  return `${r.P1.tier}|${r.P2.tier}`;
 }
 
 function computeDeadline(state: CareerMatchState, keep: number | null): Date | null {

@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useParams, useRouter, useSearchParams } from 'next/navigation';
-import { AnimatePresence, motion } from 'framer-motion';
+import { AnimatePresence } from 'framer-motion';
 import Link from 'next/link';
 import { HomeIcon, ArrowLeftIcon } from '@/components/icons';
 import { SceneShell } from '@/components/scenes/SceneShell';
@@ -286,15 +286,18 @@ export default function CommonGamePage() {
   const mySideOnline: CommonSide = online.yourSide ?? 'P1';
   const oppSideOnline: CommonSide = mySideOnline === 'P1' ? 'P2' : 'P1';
 
-  // Maç başlama düdüğü — açılış göründüğünde bir kez.
+  // Maç başlama düdüğü — İLK açılış göründüğünde bir kez (offline + online).
+  // Online: ilk REVEAL_PAIR (round 0). Offline: oyun başlayıp ilk 'reveal' alt-fazı.
   const whistleRef = useRef(false);
   useEffect(() => {
-    const scene = isOnline ? onlineState?.scene : null;
-    if (scene === 'REVEAL_PAIR' && !whistleRef.current) {
+    const atOpening = isOnline
+      ? onlineState?.scene === 'REVEAL_PAIR' && onlineState.round === 0
+      : phase === 'playing' && offSub === 'reveal' && roundIdx === 0;
+    if (atOpening && !whistleRef.current) {
       whistleRef.current = true;
       playSfx('whistleStart');
     }
-  }, [isOnline, onlineState?.scene, playSfx]);
+  }, [isOnline, onlineState?.scene, onlineState?.round, phase, offSub, roundIdx, playSfx]);
 
   // ONLINE seçim: pendingGuess (tıklama→yanıt kilidi) + outcome (correct; puan gizli).
   const [pendingGuess, setPendingGuess] = useState(false);

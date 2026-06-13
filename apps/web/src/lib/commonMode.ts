@@ -69,21 +69,66 @@ export interface CommonRoundPair {
 export type CommonSide = 'P1' | 'P2';
 
 // ===========================================================================
-// Çift kürasyonu (modun kalbi — her tur dengeli, çözülebilir çift)
+// Çift kürasyonu (modun kalbi — her tur dengeli, çözülebilir + BİLİNİR çift)
 // ===========================================================================
 
 /**
+ * ELİT (kalburüstü) kulüpler — TM id ile (Zincir/Kareleri Kap ile aynı liste).
+ * Çift kürasyonunda "tanıdık çapa": her çiftin EN AZ BİR tarafı buradan olur →
+ * "Sampdoria × Torino" gibi iki-tarafı-niş sıkıcı çiftler elenir, ama "Galatasaray
+ * × Konyaspor" gibi bir-tarafı-tanıdık çiftlere izin verilir (sürpriz korunur).
+ */
+const ELITE_CLUB_IDS = new Set<string>([
+  'tm_5', // AC Milan
+  'tm_46', // Inter
+  'tm_506', // Juventus
+  'tm_6195', // Napoli
+  'tm_12', // Roma
+  'tm_36', // Fenerbahçe
+  'tm_141', // Galatasaray
+  'tm_114', // Besiktas
+  'tm_148', // Tottenham
+  'tm_11', // Arsenal
+  'tm_281', // Man City
+  'tm_31', // Liverpool
+  'tm_985', // Man Utd
+  'tm_631', // Chelsea
+  'tm_27', // Bayern Munich
+  'tm_16', // Dortmund
+  'tm_15', // Leverkusen
+  'tm_33', // FC Schalke 04
+  'tm_244', // Marseille
+  'tm_583', // PSG
+  'tm_1041', // Lyon
+  'tm_131', // Barcelona
+  'tm_418', // Real Madrid
+  'tm_13', // Atlético
+  'tm_368', // Sevilla FC
+  'tm_610', // Ajax
+  'tm_294', // Benfica
+  'tm_720', // Porto
+]);
+
+/** Çiftin en az bir tarafı elit (tanıdık çapa) mı? */
+function hasEliteAnchor(p: ClubPair): boolean {
+  return ELITE_CLUB_IDS.has(p.a) || ELITE_CLUB_IDS.has(p.b);
+}
+
+/**
  * Bir maç için COMMON_ROUNDS çift seç (seed'den deterministik → iki oyuncu aynı
- * maçı görür, adalet). KÜRASYON: çok-sığ (count=min) çiftler sıkıcı, çok-derin
- * (count 30+) çiftler "herkes bilir"; orta-derinlikli (count≥5) çiftlerden ağırlık
- * ver ama tekrar etme. Çiftler tekrarsız (aynı maçta aynı çift iki kez gelmez).
+ * maçı görür, adalet). KÜRASYON (kullanıcı kararı 2026-06-13):
+ *   • count >= 5 (sığ çiftler = ölü tur riski; en az 5 ortak oyuncu),
+ *   • EN AZ BİR TARAF ELİT (tanıdık çapa → niş×niş sıkıcı çiftler elenir).
+ * İdeal havuz boşsa kademeli gevşet (elit şartı → count şartı → tüm havuz) ki
+ * mod asla "çift bulunamadı" demesin. Çiftler tekrarsız (shuffle + slice).
  */
 export function curatePairs(seed: string, file: ClubPairsFile): ClubPair[] {
   const prng = createPRNG(`ortak:${seed}:pairs`);
-  // İdeal havuz: en az 5 ortaklı çiftler (sığ olanlar ölü tur riski). Yetmezse
-  // tüm havuza düş (güvenlik).
   const rich = file.pairs.filter((p) => p.count >= 5);
-  const source = rich.length >= COMMON_ROUNDS ? rich : file.pairs;
+  // 1. tercih: derin + elit-çapalı. 2: sadece derin. 3: tüm havuz (güvenlik).
+  const ideal = rich.filter(hasEliteAnchor);
+  const source =
+    ideal.length >= COMMON_ROUNDS ? ideal : rich.length >= COMMON_ROUNDS ? rich : file.pairs;
   const shuffled = prng.shuffle(source);
   return shuffled.slice(0, Math.min(COMMON_ROUNDS, shuffled.length));
 }

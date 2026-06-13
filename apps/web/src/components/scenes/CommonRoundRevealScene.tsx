@@ -91,7 +91,9 @@ export function CommonRoundRevealScene({
       </div>
 
       {autoMs ? (
-        <p className="text-xs text-white/45">Sonraki tur birazdan…</p>
+        <p className="text-xs text-white/45">
+          {roundNo >= totalRounds ? 'Sonuçlara geçiliyor…' : 'Sonraki tur birazdan…'}
+        </p>
       ) : (
         <motion.button
           type="button"

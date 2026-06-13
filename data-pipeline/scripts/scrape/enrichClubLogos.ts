@@ -19,11 +19,18 @@
  * Idempotent: zaten crestUrl'i olan kulüpler atlanır (--force ile yeniden çeker).
  *
  * Kullanım:
- *   pnpm tsx scripts/scrape/enrichClubLogos.ts                 # top 120 kulüp
+ *   pnpm tsx scripts/scrape/enrichClubLogos.ts                 # top 120 kulüp (popülerlik)
  *   pnpm tsx scripts/scrape/enrichClubLogos.ts --top=75
+ *   pnpm tsx scripts/scrape/enrichClubLogos.ts --career        # KARİYER YOLU: F havuzu + ≥2 oyuncu eşik
+ *   pnpm tsx scripts/scrape/enrichClubLogos.ts --career --min=3 # ≥3 oyuncu eşik
  *   pnpm tsx scripts/scrape/enrichClubLogos.ts --limit=3       # TEST: sadece 3 kulüp çek
  *   pnpm tsx scripts/scrape/enrichClubLogos.ts --dry           # çekme, sadece plan göster
  *   pnpm tsx scripts/scrape/enrichClubLogos.ts --force         # mevcut logoları da yenile
+ *
+ * `--career` modu (Kariyer Yolu için): popülerlik=tüm-havuz yerine, SADECE
+ * "Kariyer Yolu uygun havuzu"ndaki (marquee + ≥3 kulüp + 6 büyük ülkeden ≥2 +
+ * ≥1 elit) oyuncuların kariyer duraklarını sayar; ≥min (default 2) oyuncuda
+ * geçen kulüpleri çeker. Niş alt-kulüpler (II takımları) bayrak fallback'te kalır.
  */
 import { readFile, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
@@ -63,8 +70,23 @@ interface SeedClub {
 }
 
 interface SeedPlayer {
+  imageUrl?: string;
+  nationalityCode?: string;
+  stats?: { nationalCaps?: number; maxTransferFeeEUR?: number };
   clubs?: Array<{ clubId: string }>;
 }
+
+/**
+ * Kariyer Yolu "uygun havuz" (F) — careerMode.ts isCareerEligible ile AYNI kural.
+ * 5 büyük lig + TR ülke kodları + elit kulüp id'leri (Zincir/Ortak Bul ile aynı).
+ */
+const BIG6_COUNTRY_CODES = new Set(['EN', 'ES', 'DE', 'IT', 'FR', 'TR']);
+const ELITE_CLUB_IDS = new Set([
+  'tm_5', 'tm_46', 'tm_506', 'tm_6195', 'tm_12', 'tm_36', 'tm_141', 'tm_114',
+  'tm_148', 'tm_11', 'tm_281', 'tm_31', 'tm_985', 'tm_631', 'tm_27', 'tm_16',
+  'tm_15', 'tm_33', 'tm_244', 'tm_583', 'tm_1041', 'tm_131', 'tm_418', 'tm_13',
+  'tm_368', 'tm_610', 'tm_294', 'tm_720',
+]);
 
 function parseArgs() {
   const a = process.argv;
@@ -72,6 +94,8 @@ function parseArgs() {
   return {
     top: get('top') ? parseInt(get('top')!, 10) : 120,
     limit: get('limit') ? parseInt(get('limit')!, 10) : Infinity,
+    career: a.includes('--career'),
+    min: get('min') ? parseInt(get('min')!, 10) : 2,
     dry: a.includes('--dry'),
     force: a.includes('--force'),
   };
@@ -103,17 +127,57 @@ function mapColors(tc: TmApiClub): SeedClub['colors'] | undefined {
 }
 
 async function main() {
-  const { top, limit, dry, force } = parseArgs();
-  console.log(`[enrichClubLogos] top=${top} limit=${limit === Infinity ? 'all' : limit} dry=${dry} force=${force}`);
+  const { top, limit, career, min, dry, force } = parseArgs();
+  console.log(
+    `[enrichClubLogos] mode=${career ? `career(min=${min})` : `top=${top}`} ` +
+      `limit=${limit === Infinity ? 'all' : limit} dry=${dry} force=${force}`,
+  );
 
   const clubs = await readJson<SeedClub[]>(SEED_CLUBS);
   const clubsById = new Map(clubs.map((c) => [c.id, c]));
   console.log(`[enrichClubLogos] seed/clubs.json: ${clubs.length} kulüp`);
 
-  // Popülerlik: players.json'da kulüp başına farklı oyuncu sayısı
+  if (!existsSync(PLAYERS_PUBLIC)) {
+    console.warn(`[enrichClubLogos] UYARI: players.json yok — çekim atlanıyor.`);
+    return;
+  }
+  const players = await readJson<SeedPlayer[]>(PLAYERS_PUBLIC);
+
+  // Kulüp → kaç (uygun) oyuncuda geçiyor sayacı.
   const popularity = new Map<string, number>();
-  if (existsSync(PLAYERS_PUBLIC)) {
-    const players = await readJson<SeedPlayer[]>(PLAYERS_PUBLIC);
+
+  if (career) {
+    // KARİYER YOLU: sadece F-havuzu (uygun) oyuncuların duraklarını say.
+    const ccById = new Map(clubs.map((c) => [c.id, c.countryCode]));
+    const isMarquee = (p: SeedPlayer) =>
+      !!p.imageUrl &&
+      ((p.stats?.nationalCaps ?? 0) >= 30 || (p.stats?.maxTransferFeeEUR ?? 0) >= 25_000_000);
+    const distinctIds = (p: SeedPlayer) => [...new Set((p.clubs ?? []).map((s) => s.clubId))];
+    const big6 = (ids: string[]) => {
+      const set = new Set<string>();
+      for (const id of ids) {
+        const cc = ccById.get(id);
+        if (cc && BIG6_COUNTRY_CODES.has(cc)) set.add(cc);
+      }
+      return set.size;
+    };
+    const eligible = (p: SeedPlayer) => {
+      if (!isMarquee(p)) return false;
+      const ids = distinctIds(p);
+      if (ids.length < 3) return false;
+      if (big6(ids) < 2) return false;
+      return ids.some((id) => ELITE_CLUB_IDS.has(id));
+    };
+
+    let pool = 0;
+    for (const p of players) {
+      if (!eligible(p)) continue;
+      pool++;
+      for (const id of distinctIds(p)) popularity.set(id, (popularity.get(id) ?? 0) + 1);
+    }
+    console.log(`[enrichClubLogos] Kariyer F-havuzu: ${pool} oyuncu, ${popularity.size} farklı kulüp durağı`);
+  } else {
+    // POPÜLERLİK (varsayılan): tüm havuzda kulüp başına farklı oyuncu sayısı.
     for (const p of players) {
       const seen = new Set<string>();
       for (const s of p.clubs ?? []) {
@@ -123,16 +187,15 @@ async function main() {
       }
     }
     console.log(`[enrichClubLogos] popülerlik hesaplandı (${popularity.size} kulüp oyuncu barındırıyor)`);
-  } else {
-    console.warn(`[enrichClubLogos] UYARI: players.json yok, popülerlik sıralaması atlanıyor`);
   }
 
-  // En popüler top-N kulüp, TM'den çekilebilir (tmId çözülebilen) olanlar
+  // Aday kulüpler: TM'den çekilebilir (tmId çözülebilen) + (career ise ≥min eşik).
   const ranked = [...popularity.entries()]
+    .filter(([, n]) => (career ? n >= min : true))
     .map(([id, n]) => ({ id, n, tmId: tmIdOf(id), club: clubsById.get(id) }))
     .filter((x) => x.tmId !== null && x.club !== undefined)
     .sort((a, b) => b.n - a.n)
-    .slice(0, top);
+    .slice(0, career ? Infinity : top);
 
   // Zaten logosu olanları (force değilse) atla
   const todo = ranked.filter((x) => force || !x.club!.crestUrl).slice(0, limit);

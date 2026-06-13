@@ -534,7 +534,13 @@
     "countryCode": "GE",
     "continent": "Europe",
     "lat": 41.7229449,
-    "lng": 44.7898526
+    "lng": 44.7898526,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/663.png",
+    "colors": {
+      "primary": "#321FFF",
+      "secondary": "#FFFFFF",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_1322",
@@ -584,7 +590,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 49.43532,
-    "lng": 7.77662
+    "lng": 7.77662,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2.png",
+    "colors": {
+      "primary": "#F50505",
+      "secondary": "#FFFCFC"
+    }
   },
   {
     "id": "tm_151",
@@ -594,7 +605,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 49.43532,
-    "lng": 7.77662
+    "lng": 7.77662,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/151.png",
+    "colors": {
+      "primary": "#F50505",
+      "secondary": "#FFFCFC"
+    }
   },
   {
     "id": "tm_44",
@@ -670,7 +686,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 45.187263,
-    "lng": 5.738895
+    "lng": 5.738895,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1290.png",
+    "colors": {
+      "primary": "#014898",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_667",
@@ -762,7 +783,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.5813723,
-    "lng": -2.5369749
+    "lng": -2.5369749,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/355.png",
+    "colors": {
+      "primary": "#20266b",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_623",
@@ -772,7 +798,13 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 40.7955166,
-    "lng": -74.0714571
+    "lng": -74.0714571,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/623.png",
+    "colors": {
+      "primary": "#D50031",
+      "secondary": "#012055",
+      "tertiary": "#FFC800"
+    }
   },
   {
     "id": "tm_164",
@@ -869,7 +901,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 51.49046,
-    "lng": 7.23645
+    "lng": 7.23645,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/80.png",
+    "colors": {
+      "primary": "#2B579E",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_409",
@@ -939,7 +976,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 49.10935,
-    "lng": 6.1617681
+    "lng": 6.1617681,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/347.png",
+    "colors": {
+      "primary": "#74070B",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_18",
@@ -975,7 +1017,12 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 47.4813298,
-    "lng": 8.4741283
+    "lng": 8.4741283,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/504.png",
+    "colors": {
+      "primary": "#0064B9",
+      "secondary": "#FDFDFB"
+    }
   },
   {
     "id": "tm_17662",
@@ -1030,7 +1077,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 51.4980718,
-    "lng": 7.4509452
+    "lng": 7.4509452,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/17.png",
+    "colors": {
+      "primary": "#FDF105",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_3384",
@@ -1116,7 +1168,12 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 51.5945632,
-    "lng": 4.7489913
+    "lng": 4.7489913,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/132.png",
+    "colors": {
+      "primary": "#F7EA36",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_3",
@@ -1151,7 +1208,12 @@
     "countryCode": "CZ",
     "continent": "Europe",
     "lat": 49.6003512,
-    "lng": 17.2475504
+    "lng": 17.2475504,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2311.png",
+    "colors": {
+      "primary": "#0004fa",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_5546",
@@ -1161,7 +1223,12 @@
     "countryCode": "CZ",
     "continent": "Europe",
     "lat": 50.4269025,
-    "lng": 14.9158798
+    "lng": 14.9158798,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/5546.png",
+    "colors": {
+      "primary": "#1f69d9",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_503",
@@ -1191,7 +1258,13 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 51.337445,
-    "lng": 6.601699
+    "lng": 6.601699,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/95.png",
+    "colors": {
+      "primary": "#004FED",
+      "secondary": "#FF0000",
+      "tertiary": "#004FED"
+    }
   },
   {
     "id": "tm_41",
@@ -1217,7 +1290,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 42.8537431,
-    "lng": 13.5807076
+    "lng": 13.5807076,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/408.png",
+    "colors": {
+      "primary": "#FAFAFA",
+      "secondary": "#030000"
+    }
   },
   {
     "id": "tm_406",
@@ -1277,7 +1355,12 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 33.863489,
-    "lng": -118.261168
+    "lng": -118.261168,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/79527.png",
+    "colors": {
+      "primary": "#00245D",
+      "secondary": "#F1AA00"
+    }
   },
   {
     "id": "tm_81384",
@@ -1327,7 +1410,8 @@
     "countryCode": "XX",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/42237.png"
   },
   {
     "id": "tm_862",
@@ -1337,7 +1421,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.444367,
-    "lng": 10.9693343
+    "lng": 10.9693343,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/862.png",
+    "colors": {
+      "primary": "#F0F027",
+      "secondary": "#3910E0"
+    }
   },
   {
     "id": "tm_4",
@@ -1347,7 +1436,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 49.4351398,
-    "lng": 11.131834
+    "lng": 11.131834,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4.png",
+    "colors": {
+      "primary": "#990000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_102",
@@ -1357,7 +1451,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 48.7897451,
-    "lng": 9.2346423
+    "lng": 9.2346423,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/102.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#FF0000"
+    }
   },
   {
     "id": "tm_14",
@@ -1402,7 +1501,13 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 51.341011,
-    "lng": 12.339056
+    "lng": 12.339056,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/23826.png",
+    "colors": {
+      "primary": "#DD013E",
+      "secondary": "#FFFFFF",
+      "tertiary": "#031E46"
+    }
   },
   {
     "id": "tm_394",
@@ -1477,7 +1582,13 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 54.084957,
-    "lng": 12.095136
+    "lng": 12.095136,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/30.png",
+    "colors": {
+      "primary": "#0033CC",
+      "secondary": "#FFFFFF",
+      "tertiary": "#FF0000"
+    }
   },
   {
     "id": "tm_45",
@@ -1487,7 +1598,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 52.5205608,
-    "lng": 13.2446141
+    "lng": 13.2446141,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/45.png",
+    "colors": {
+      "primary": "#004CFF",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_208",
@@ -1497,7 +1613,12 @@
     "countryCode": "XX",
     "continent": "Europe",
     "lat": 42.684475,
-    "lng": 23.333732
+    "lng": 23.333732,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/208.png",
+    "colors": {
+      "primary": "#B3040C",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_21361",
@@ -1527,7 +1648,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 51.0374376,
-    "lng": 6.9992234
+    "lng": 6.9992234,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/211.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_148",
@@ -1660,7 +1786,13 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 37.350771,
-    "lng": -121.932757
+    "lng": -121.932757,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/218.png",
+    "colors": {
+      "primary": "#0051BA",
+      "secondary": "#000000",
+      "tertiary": "#B1B4B2"
+    }
   },
   {
     "id": "tm_11946",
@@ -1680,7 +1812,12 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 33.8643479,
-    "lng": -118.2610929
+    "lng": -118.2610929,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1061.png",
+    "colors": {
+      "primary": "#00245D",
+      "secondary": "#F1AA00"
+    }
   },
   {
     "id": "tm_29",
@@ -1706,7 +1843,12 @@
     "countryCode": "MX",
     "continent": "North America",
     "lat": 21.1163783,
-    "lng": -101.6572317
+    "lng": -101.6572317,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4941.png",
+    "colors": {
+      "primary": "#009900",
+      "secondary": "#FFFF00"
+    }
   },
   {
     "id": "tm_129",
@@ -1716,7 +1858,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 51.04141,
-    "lng": 13.74726
+    "lng": 13.74726,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/129.png",
+    "colors": {
+      "primary": "#F0CA00",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_73490",
@@ -1746,7 +1893,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 52.4450906,
-    "lng": 13.2533927
+    "lng": 13.2533927,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2943.png",
+    "colors": {
+      "primary": "#0033CC",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_3556",
@@ -1796,7 +1948,13 @@
     "countryCode": "AR",
     "continent": "South America",
     "lat": -34.5914124,
-    "lng": -58.4696201
+    "lng": -58.4696201,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1030.png",
+    "colors": {
+      "primary": "#c92f34",
+      "secondary": "#FFFFFF",
+      "tertiary": "#c92f34"
+    }
   },
   {
     "id": "tm_209",
@@ -1867,7 +2025,13 @@
     "countryCode": "AR",
     "continent": "South America",
     "lat": -34.633789989937,
-    "lng": -58.425107561052
+    "lng": -58.425107561052,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1775.png",
+    "colors": {
+      "primary": "#EC1E2A",
+      "secondary": "#FFFFFF",
+      "tertiary": "#163756"
+    }
   },
   {
     "id": "tm_40",
@@ -1892,7 +2056,13 @@
     "countryCode": "UY",
     "continent": "South America",
     "lat": -34.8858556,
-    "lng": -56.1579118
+    "lng": -56.1579118,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/866.png",
+    "colors": {
+      "primary": "#172B8C",
+      "secondary": "#FFFFFF",
+      "tertiary": "#FF0000"
+    }
   },
   {
     "id": "tm_6600",
@@ -1902,7 +2072,12 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -30.065484,
-    "lng": -51.23588
+    "lng": -51.23588,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6600.png",
+    "colors": {
+      "primary": "#F00000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_10",
@@ -1912,7 +2087,13 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 52.0312525,
-    "lng": 8.5165101
+    "lng": 8.5165101,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#FFFFFF",
+      "tertiary": "#005C9E"
+    }
   },
   {
     "id": "tm_71",
@@ -1922,7 +2103,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 48.74812,
-    "lng": 9.18592
+    "lng": 9.18592,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/71.png",
+    "colors": {
+      "primary": "#0BB1DB",
+      "secondary": "#FFFCFC"
+    }
   },
   {
     "id": "tm_113",
@@ -2024,7 +2210,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 15.519493121749,
-    "lng": 73.828952461481
+    "lng": 73.828952461481,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/45321.png"
   },
   {
     "id": "tm_3973",
@@ -2054,7 +2241,13 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 53.550341135553,
-    "lng": 10.000653862953
+    "lng": 10.000653862953,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/389.png",
+    "colors": {
+      "primary": "#014495",
+      "secondary": "#FFFFFF",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_127",
@@ -2074,7 +2267,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 51.406895555951,
-    "lng": 6.7787967994809
+    "lng": 6.7787967994809,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/52.png",
+    "colors": {
+      "primary": "#3C4E99",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_533",
@@ -2099,7 +2297,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 48.1018482,
-    "lng": 11.5727913
+    "lng": 11.5727913,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/28.png",
+    "colors": {
+      "primary": "#DB072D",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_2411",
@@ -2109,7 +2312,8 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 46.1626471,
-    "lng": 8.8032187
+    "lng": 8.8032187,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2411.png"
   },
   {
     "id": "tm_61",
@@ -2119,7 +2323,12 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 46.1782217,
-    "lng": 6.1278926
+    "lng": 6.1278926,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/61.png",
+    "colors": {
+      "primary": "#8D132C",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_648",
@@ -2129,7 +2338,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 28.462947,
-    "lng": -16.261648
+    "lng": -16.261648,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/648.png",
+    "colors": {
+      "primary": "#0000FF",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1006",
@@ -2139,7 +2353,13 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 51.1739151,
-    "lng": 6.3848809
+    "lng": 6.3848809,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1006.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#FFFFFF",
+      "tertiary": "#00CC00"
+    }
   },
   {
     "id": "tm_48",
@@ -2225,7 +2445,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 25.268679808853,
-    "lng": 51.409176810114
+    "lng": 51.409176810114,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6297.png",
+    "colors": {
+      "primary": "#fff000",
+      "secondary": "#0076e0"
+    }
   },
   {
     "id": "tm_7081",
@@ -2271,7 +2496,8 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -27.6548806,
-    "lng": -48.5249914
+    "lng": -48.5249914,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2035.png"
   },
   {
     "id": "tm_309",
@@ -2306,7 +2532,8 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -25.4210008,
-    "lng": -49.2597503
+    "lng": -49.2597503,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/776.png"
   },
   {
     "id": "tm_330",
@@ -2316,7 +2543,12 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -19.927205,
-    "lng": -43.9465522
+    "lng": -43.9465522,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/330.png",
+    "colors": {
+      "primary": "#050505",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_11952",
@@ -2366,7 +2598,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 51.22544,
-    "lng": 6.82858
+    "lng": 6.82858,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/38.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_19",
@@ -2376,7 +2613,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.5318743,
-    "lng": 10.2207613
+    "lng": 10.2207613,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/19.png",
+    "colors": {
+      "primary": "#007FFF",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1025",
@@ -2427,7 +2669,8 @@
     "countryCode": "HR",
     "continent": "Europe",
     "lat": 45.338885,
-    "lng": 14.3804657
+    "lng": 14.3804657,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/144.png"
   },
   {
     "id": "tm_39",
@@ -2437,7 +2680,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 49.993992,
-    "lng": 8.2210167
+    "lng": 8.2210167,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/39.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1247",
@@ -2447,7 +2695,13 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 39.805701,
-    "lng": -104.889368
+    "lng": -104.889368,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1247.png",
+    "colors": {
+      "primary": "#91022D",
+      "secondary": "#85B7EA",
+      "tertiary": "#8A8D8F"
+    }
   },
   {
     "id": "tm_11141",
@@ -2467,7 +2721,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 49.993992,
-    "lng": 8.2210167
+    "lng": 8.2210167,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/851.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_25467",
@@ -2477,7 +2736,12 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 39.8289397,
-    "lng": -75.3834871
+    "lng": -75.3834871,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/25467.png",
+    "colors": {
+      "primary": "#001B2D",
+      "secondary": "#B18500"
+    }
   },
   {
     "id": "tm_813",
@@ -2487,7 +2751,12 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 40.0089948,
-    "lng": -82.9912198
+    "lng": -82.9912198,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/813.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#FFDB00"
+    }
   },
   {
     "id": "tm_825",
@@ -2497,7 +2766,13 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 39.7974995,
-    "lng": 30.5196043
+    "lng": 30.5196043,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/825.png",
+    "colors": {
+      "primary": "#FFED00",
+      "secondary": "#CE0000",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_23135",
@@ -2552,7 +2827,12 @@
     "countryCode": "BE",
     "continent": "Europe",
     "lat": 50.4133568,
-    "lng": 4.4521026
+    "lng": 4.4521026,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/172.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_85",
@@ -2699,7 +2979,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 44.709158534681,
-    "lng": 10.613087676466
+    "lng": 10.613087676466,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/5621.png",
+    "colors": {
+      "primary": "#821d1c",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_610",
@@ -2724,7 +3009,12 @@
     "countryCode": "BE",
     "continent": "Europe",
     "lat": 51.0050257,
-    "lng": 5.533332
+    "lng": 5.533332,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1184.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#0000FF"
+    }
   },
   {
     "id": "tm_17368",
@@ -2754,7 +3044,13 @@
     "countryCode": "NO",
     "continent": "Europe",
     "lat": 59.964798,
-    "lng": 10.727134
+    "lng": 10.727134,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/175.png",
+    "colors": {
+      "primary": "#de1111",
+      "secondary": "#2323c2",
+      "tertiary": "#ede8e8"
+    }
   },
   {
     "id": "tm_501",
@@ -2764,7 +3060,12 @@
     "countryCode": "NO",
     "continent": "Europe",
     "lat": 67.2763274,
-    "lng": 14.3828764
+    "lng": 14.3828764,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/501.png",
+    "colors": {
+      "primary": "#ffea00",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_195",
@@ -2774,7 +3075,12 @@
     "countryCode": "NO",
     "continent": "Europe",
     "lat": 63.4123175,
-    "lng": 10.404476
+    "lng": 10.404476,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/195.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_3440",
@@ -2794,7 +3100,13 @@
     "countryCode": "NO",
     "continent": "Europe",
     "lat": 59.9491237,
-    "lng": 10.7343663
+    "lng": 10.7343663,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/76.png",
+    "colors": {
+      "primary": "#0033FF",
+      "secondary": "#FFFFFF",
+      "tertiary": "#FF0000"
+    }
   },
   {
     "id": "tm_238",
@@ -2874,7 +3186,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 50.9071024,
-    "lng": 6.9070198
+    "lng": 6.9070198,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/438.png",
+    "colors": {
+      "primary": "#ED1C23",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_6055",
@@ -2914,7 +3231,12 @@
     "countryCode": "HU",
     "continent": "Europe",
     "lat": 47.47571,
-    "lng": 19.097191
+    "lng": 19.097191,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/279.png",
+    "colors": {
+      "primary": "#006600",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_708",
@@ -2964,7 +3286,12 @@
     "countryCode": "SE",
     "continent": "Europe",
     "lat": 55.5642572,
-    "lng": 12.9728307
+    "lng": 12.9728307,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/496.png",
+    "colors": {
+      "primary": "#81C0FF",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_46607",
@@ -3170,7 +3497,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 48.101843,
-    "lng": 11.565084
+    "lng": 11.565084,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/72.png",
+    "colors": {
+      "primary": "#5d9AF5",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_73",
@@ -3266,7 +3598,12 @@
     "countryCode": "DK",
     "continent": "Europe",
     "lat": 55.649055,
-    "lng": 12.417575
+    "lng": 12.417575,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/206.png",
+    "colors": {
+      "primary": "#fffb00",
+      "secondary": "#0091ff"
+    }
   },
   {
     "id": "tm_527",
@@ -3276,7 +3613,12 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 46.543348,
-    "lng": 6.621259
+    "lng": 6.621259,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/527.png",
+    "colors": {
+      "primary": "#006EB7",
+      "secondary": "#FFFEFF"
+    }
   },
   {
     "id": "tm_831",
@@ -3356,7 +3698,12 @@
     "countryCode": "AT",
     "continent": "Europe",
     "lat": 48.1974122,
-    "lng": 16.2656202
+    "lng": 16.2656202,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/170.png",
+    "colors": {
+      "primary": "#008543",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_3183",
@@ -3366,7 +3713,13 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 31.1485528,
-    "lng": 121.5665417
+    "lng": 121.5665417,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3183.png",
+    "colors": {
+      "primary": "#0058AB",
+      "secondary": "#FFFFFF",
+      "tertiary": "#0058AB"
+    }
   },
   {
     "id": "tm_856",
@@ -3376,7 +3729,12 @@
     "countryCode": "AT",
     "continent": "Europe",
     "lat": 47.7399176,
-    "lng": 16.4062761
+    "lng": 16.4062761,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/856.png",
+    "colors": {
+      "primary": "#018202",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_23131",
@@ -3461,7 +3819,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 43.2656162,
-    "lng": -2.929938
+    "lng": -2.929938,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/621.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_244",
@@ -3536,7 +3899,13 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -12.9793391,
-    "lng": -38.4262599
+    "lng": -38.4262599,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10010.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#FF0000",
+      "tertiary": "#0000FF"
+    }
   },
   {
     "id": "tm_116",
@@ -3546,7 +3915,13 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 47.383804,
-    "lng": 8.059469
+    "lng": 8.059469,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/116.png",
+    "colors": {
+      "primary": "#e60000",
+      "secondary": "#ffffff",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_9534",
@@ -3596,7 +3971,13 @@
     "countryCode": "PL",
     "continent": "Europe",
     "lat": 51.4145414,
-    "lng": 16.1966113
+    "lng": 16.1966113,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/168.png",
+    "colors": {
+      "primary": "#ed7300",
+      "secondary": "#ffffff",
+      "tertiary": "#059600"
+    }
   },
   {
     "id": "tm_3899",
@@ -3606,7 +3987,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 34.923609721145,
-    "lng": 33.623618334532
+    "lng": 33.623618334532,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3899.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#1E88E0"
+    }
   },
   {
     "id": "tm_21064",
@@ -3626,7 +4012,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 51.5595364,
-    "lng": 7.0621706
+    "lng": 7.0621706,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/34.png",
+    "colors": {
+      "primary": "#025FAC",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_35",
@@ -3636,7 +4027,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 53.553355,
-    "lng": 9.9665511
+    "lng": 9.9665511,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/35.png",
+    "colors": {
+      "primary": "#8B4513",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_65",
@@ -3656,7 +4052,13 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 50.066208516839986,
-    "lng": 8.648853242301474
+    "lng": 8.648853242301474,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/177.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#000000",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_16337",
@@ -3731,7 +4133,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 50.388054,
-    "lng": -4.150901
+    "lng": -4.150901,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2262.png",
+    "colors": {
+      "primary": "#004F3E",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_321",
@@ -3741,7 +4148,12 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 46.103115036047,
-    "lng": 7.0727353915572
+    "lng": 7.0727353915572,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/321.png",
+    "colors": {
+      "primary": "#ec1F00",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_8031",
@@ -3751,7 +4163,13 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 40.437748,
-    "lng": 49.955206
+    "lng": 49.955206,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8031.png",
+    "colors": {
+      "primary": "#f5f5f5",
+      "secondary": "#050505",
+      "tertiary": "#d90b0b"
+    }
   },
   {
     "id": "tm_3436",
@@ -3781,7 +4199,12 @@
     "countryCode": "BE",
     "continent": "Europe",
     "lat": 50.8141892,
-    "lng": 5.164847
+    "lng": 5.164847,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/475.png",
+    "colors": {
+      "primary": "#FFFF00",
+      "secondary": "#0000FF"
+    }
   },
   {
     "id": "tm_354",
@@ -3791,7 +4214,13 @@
     "countryCode": "BE",
     "continent": "Europe",
     "lat": 51.037238,
-    "lng": 4.487391
+    "lng": 4.487391,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/354.png",
+    "colors": {
+      "primary": "#FFFF00",
+      "secondary": "#FF0000",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_89",
@@ -3801,7 +4230,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 52.45747,
-    "lng": 13.56621
+    "lng": 13.56621,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/89.png",
+    "colors": {
+      "primary": "#E40019",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_294",
@@ -3852,7 +4286,12 @@
     "countryCode": "DK",
     "continent": "Europe",
     "lat": 55.714254,
-    "lng": 9.556127
+    "lng": 9.556127,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/443.png",
+    "colors": {
+      "primary": "#fa0808",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_16783",
@@ -3988,7 +4427,8 @@
     "countryCode": "CZ",
     "continent": "Europe",
     "lat": 49.8452985,
-    "lng": 18.298364
+    "lng": 18.298364,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/377.png"
   },
   {
     "id": "tm_995",
@@ -4123,7 +4563,13 @@
     "countryCode": "IR",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4947.png",
+    "colors": {
+      "primary": "#FFEE00",
+      "secondary": "#000000",
+      "tertiary": "#ffffff"
+    }
   },
   {
     "id": "tm_31273",
@@ -4179,7 +4625,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 49.2356249,
-    "lng": 6.9925686
+    "lng": 6.9925686,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1.png",
+    "colors": {
+      "primary": "#0033FF",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_399",
@@ -4205,7 +4656,12 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -12.9183866,
-    "lng": -38.4264885
+    "lng": -38.4264885,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2125.png",
+    "colors": {
+      "primary": "#CC1010",
+      "secondary": "#080808"
+    }
   },
   {
     "id": "tm_978",
@@ -4215,7 +4671,13 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -22.890857,
-    "lng": -43.228288
+    "lng": -43.228288,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/978.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#ffffff",
+      "tertiary": "#ff0000"
+    }
   },
   {
     "id": "tm_18916",
@@ -4341,7 +4803,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.7884704,
-    "lng": -2.2303248
+    "lng": -2.2303248,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1132.png",
+    "colors": {
+      "primary": "#660808",
+      "secondary": "#73e8f0",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_97",
@@ -4361,7 +4829,12 @@
     "countryCode": "NO",
     "continent": "Europe",
     "lat": 62.7333731,
-    "lng": 7.1478971
+    "lng": 7.1478971,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/687.png",
+    "colors": {
+      "primary": "#3366FF",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_16854",
@@ -4381,7 +4854,12 @@
     "countryCode": "BE",
     "continent": "Europe",
     "lat": 51.1437883,
-    "lng": 4.5755011
+    "lng": 4.5755011,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/204.png",
+    "colors": {
+      "primary": "#FFFF00",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_273",
@@ -4457,7 +4935,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 41.314361448707,
-    "lng": 15.627012191276
+    "lng": 15.627012191276,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/704.png",
+    "colors": {
+      "primary": "#bd0b0b",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_703",
@@ -4503,7 +4986,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 48.020535010015,
-    "lng": 7.8297181150075
+    "lng": 7.8297181150075,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/60.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_39417",
@@ -4533,7 +5021,13 @@
     "countryCode": "UA",
     "continent": "Europe",
     "lat": 50.474437,
-    "lng": 34.97017
+    "lng": 34.97017,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/339.png",
+    "colors": {
+      "primary": "#00418e",
+      "secondary": "#FFFFFF",
+      "tertiary": "#00a0e4"
+    }
   },
   {
     "id": "tm_1326",
@@ -4553,7 +5047,8 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 38.388041354254,
-    "lng": 27.173377387226
+    "lng": 27.173377387226,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2750.png"
   },
   {
     "id": "tm_6249",
@@ -4563,7 +5058,13 @@
     "countryCode": "UA",
     "continent": "Europe",
     "lat": 50.449282044036,
-    "lng": 30.516468246808
+    "lng": 30.516468246808,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6249.png",
+    "colors": {
+      "primary": "#1070c2",
+      "secondary": "#ffffff",
+      "tertiary": "#174493"
+    }
   },
   {
     "id": "tm_17202",
@@ -4683,7 +5184,12 @@
     "countryCode": "UA",
     "continent": "Europe",
     "lat": 47.9727488,
-    "lng": 37.7996485
+    "lng": 37.7996485,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2783.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#0000FF"
+    }
   },
   {
     "id": "tm_4602",
@@ -4773,7 +5279,12 @@
     "countryCode": "CZ",
     "continent": "Europe",
     "lat": 50.08861,
-    "lng": 14.42139
+    "lng": 14.42139,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/62.png",
+    "colors": {
+      "primary": "#ed1a2f",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_69",
@@ -4858,7 +5369,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.3693324,
-    "lng": -1.4718588
+    "lng": -1.4718588,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/350.png",
+    "colors": {
+      "primary": "#ec2227",
+      "secondary": "#010101",
+      "tertiary": "#ffffff"
+    }
   },
   {
     "id": "tm_349",
@@ -4868,7 +5385,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.551742,
-    "lng": -1.468189
+    "lng": -1.468189,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/349.png",
+    "colors": {
+      "primary": "#eb1717",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_1274",
@@ -4878,7 +5400,12 @@
     "countryCode": "NO",
     "continent": "Europe",
     "lat": 59.9203294,
-    "lng": 10.5781749
+    "lng": 10.5781749,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1274.png",
+    "colors": {
+      "primary": "#330066",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1755",
@@ -4898,7 +5425,12 @@
     "countryCode": "MX",
     "continent": "North America",
     "lat": 25.7225198,
-    "lng": -100.3120225
+    "lng": -100.3120225,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/7055.png",
+    "colors": {
+      "primary": "#FFFF00",
+      "secondary": "#0000CC"
+    }
   },
   {
     "id": "tm_159",
@@ -4908,7 +5440,13 @@
     "countryCode": "RS",
     "continent": "Europe",
     "lat": 45.247769,
-    "lng": 19.739924
+    "lng": 19.739924,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/159.png",
+    "colors": {
+      "primary": "#F50C0C",
+      "secondary": "#FFFFFF",
+      "tertiary": "#1500FF"
+    }
   },
   {
     "id": "tm_3551",
@@ -4938,7 +5476,13 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 53.066281,
-    "lng": 8.8387808
+    "lng": 8.8387808,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/87.png",
+    "colors": {
+      "primary": "#00924A",
+      "secondary": "#FFFFFF",
+      "tertiary": "#0C4011"
+    }
   },
   {
     "id": "tm_446",
@@ -4948,7 +5492,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 51.49046,
-    "lng": 7.23645
+    "lng": 7.23645,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/446.png",
+    "colors": {
+      "primary": "#2B579E",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_22027",
@@ -5018,7 +5567,13 @@
     "countryCode": "UA",
     "continent": "Europe",
     "lat": 50.449282044036,
-    "lng": 30.516468246808
+    "lng": 30.516468246808,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/338.png",
+    "colors": {
+      "primary": "#1070c2",
+      "secondary": "#ffffff",
+      "tertiary": "#174493"
+    }
   },
   {
     "id": "tm_1083",
@@ -5028,7 +5583,13 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 47.241449,
-    "lng": 39.757162
+    "lng": 39.757162,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1083.png",
+    "colors": {
+      "primary": "#f2e10b",
+      "secondary": "#d8dbe2",
+      "tertiary": "#08204c"
+    }
   },
   {
     "id": "tm_11746",
@@ -5098,7 +5659,13 @@
     "countryCode": "RS",
     "continent": "Europe",
     "lat": 44.789261,
-    "lng": 20.460034
+    "lng": 20.460034,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/669.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#00005c",
+      "tertiary": "#ffffff"
+    }
   },
   {
     "id": "tm_17335",
@@ -5228,7 +5795,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 51.8843568,
-    "lng": -0.4332953
+    "lng": -0.4332953,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1031.png",
+    "colors": {
+      "primary": "#F08008",
+      "secondary": "#2E1C94",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_2817",
@@ -5238,7 +5811,12 @@
     "countryCode": "NO",
     "continent": "Europe",
     "lat": 59.7466287,
-    "lng": 10.156634
+    "lng": 10.156634,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2817.png",
+    "colors": {
+      "primary": "#000066",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_19532",
@@ -5258,7 +5836,13 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 55.82,
-    "lng": 37.44
+    "lng": 37.44,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/232.png",
+    "colors": {
+      "primary": "#dd0019",
+      "secondary": "#FFFFFF",
+      "tertiary": "#dd0019"
+    }
   },
   {
     "id": "tm_40845",
@@ -5278,7 +5862,13 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 55.82,
-    "lng": 37.44
+    "lng": 37.44,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6189.png",
+    "colors": {
+      "primary": "#dd0019",
+      "secondary": "#FFFFFF",
+      "tertiary": "#dd0019"
+    }
   },
   {
     "id": "tm_5416",
@@ -5444,7 +6034,13 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 53.2276272,
-    "lng": 50.1669445
+    "lng": 50.1669445,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2696.png",
+    "colors": {
+      "primary": "#3d84ff",
+      "secondary": "#ffffff",
+      "tertiary": "#0024b3"
+    }
   },
   {
     "id": "tm_337",
@@ -5454,7 +6050,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 52.475074964501,
-    "lng": -1.8648595220825
+    "lng": -1.8648595220825,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/337.png",
+    "colors": {
+      "primary": "#0700D1",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_2293",
@@ -5541,7 +6142,13 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 47.5951456,
-    "lng": -122.331601
+    "lng": -122.331601,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/9636.png",
+    "colors": {
+      "primary": "#4F8A10",
+      "secondary": "#11568C",
+      "tertiary": "#212930"
+    }
   },
   {
     "id": "tm_94",
@@ -5626,7 +6233,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.5813723,
-    "lng": -2.5369749
+    "lng": -2.5369749,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/9259.png",
+    "colors": {
+      "primary": "#20266b",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_714",
@@ -5711,7 +6323,13 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 41.765033,
-    "lng": -87.8007683
+    "lng": -87.8007683,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/432.png",
+    "colors": {
+      "primary": "#AF2626",
+      "secondary": "#0A174A",
+      "tertiary": "#8A8D8F"
+    }
   },
   {
     "id": "tm_2509",
@@ -5731,7 +6349,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 52.91495706206636,
-    "lng": -1.4471829153780837
+    "lng": -1.4471829153780837,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/22.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_269",
@@ -5741,7 +6364,13 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 54.357076,
-    "lng": 10.102572
+    "lng": 10.102572,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/269.png",
+    "colors": {
+      "primary": "#0F5787",
+      "secondary": "#FFFFFF",
+      "tertiary": "#CC3043"
+    }
   },
   {
     "id": "tm_1737",
@@ -5761,7 +6390,13 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 50.9915837,
-    "lng": 5.8430964
+    "lng": 5.8430964,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/385.png",
+    "colors": {
+      "primary": "#089908",
+      "secondary": "#fcf803",
+      "tertiary": "#ffffff"
+    }
   },
   {
     "id": "tm_108",
@@ -5811,7 +6446,12 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 38.6214758,
-    "lng": 27.3937352
+    "lng": 27.3937352,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1267.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1749",
@@ -5907,7 +6547,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.7739113,
-    "lng": -2.6899376
+    "lng": -2.6899376,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/466.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#0A075C"
+    }
   },
   {
     "id": "tm_237",
@@ -5997,7 +6642,8 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 46.36571,
-    "lng": 6.46783
+    "lng": 6.46783,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/14171.png"
   },
   {
     "id": "tm_473",
@@ -6017,7 +6663,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 47.5124167,
-    "lng": 6.8112
+    "lng": 6.8112,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/750.png",
+    "colors": {
+      "primary": "#ffe51c",
+      "secondary": "#243778"
+    }
   },
   {
     "id": "tm_4320",
@@ -6102,7 +6753,13 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 48.396126,
-    "lng": 10.882622
+    "lng": 10.882622,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/167.png",
+    "colors": {
+      "primary": "#BB3532",
+      "secondary": "#006633",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_8087",
@@ -6142,7 +6799,13 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 52.360993,
-    "lng": 9.7329105
+    "lng": 9.7329105,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1065.png",
+    "colors": {
+      "primary": "#009932",
+      "secondary": "#FFFFFF",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_135",
@@ -6172,7 +6835,12 @@
     "countryCode": "CZ",
     "continent": "Europe",
     "lat": 48.966262,
-    "lng": 14.466938
+    "lng": 14.466938,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1321.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_600",
@@ -6242,7 +6910,12 @@
     "countryCode": "BE",
     "continent": "Europe",
     "lat": 51.0929078,
-    "lng": 4.9289747
+    "lng": 4.9289747,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/968.png",
+    "colors": {
+      "primary": "#FFFF00",
+      "secondary": "#0066FF"
+    }
   },
   {
     "id": "tm_132994",
@@ -6297,7 +6970,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 52.0105035,
-    "lng": -0.7348877
+    "lng": -0.7348877,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/991.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#EEE8AA",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_192",
@@ -6307,7 +6986,12 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 50.8575421,
-    "lng": 6.0054373
+    "lng": 6.0054373,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/192.png",
+    "colors": {
+      "primary": "#ffdd00",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_5598",
@@ -6407,7 +7091,13 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 55.794291600799,
-    "lng": 37.551331222057
+    "lng": 37.551331222057,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/121.png",
+    "colors": {
+      "primary": "#2b5a92",
+      "secondary": "#FCFCFC",
+      "tertiary": "#3e4245"
+    }
   },
   {
     "id": "tm_491",
@@ -6467,7 +7157,8 @@
     "countryCode": "HR",
     "continent": "Europe",
     "lat": 45.8051647,
-    "lng": 15.9598861
+    "lng": 15.9598861,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/5107.png"
   },
   {
     "id": "tm_447",
@@ -6477,7 +7168,8 @@
     "countryCode": "HR",
     "continent": "Europe",
     "lat": 43.5196129,
-    "lng": 16.4318567
+    "lng": 16.4318567,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/447.png"
   },
   {
     "id": "tm_6076",
@@ -6507,7 +7199,12 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 47.4077501,
-    "lng": 9.3041668
+    "lng": 9.3041668,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/257.png",
+    "colors": {
+      "primary": "#008141",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_16817",
@@ -6527,7 +7224,12 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 46.963068,
-    "lng": 7.466327
+    "lng": 7.466327,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/452.png",
+    "colors": {
+      "primary": "#FFD940",
+      "secondary": "#000002"
+    }
   },
   {
     "id": "tm_5508",
@@ -6547,7 +7249,12 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 47.0371786,
-    "lng": 8.3021699
+    "lng": 8.3021699,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/434.png",
+    "colors": {
+      "primary": "#154281",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_2047",
@@ -6557,7 +7264,12 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 46.1929163,
-    "lng": 9.0247812
+    "lng": 9.0247812,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2047.png",
+    "colors": {
+      "primary": "#9c2e2e",
+      "secondary": "#39a1f0"
+    }
   },
   {
     "id": "tm_16274",
@@ -6577,7 +7289,13 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 55.794291600799,
-    "lng": 37.551331222057
+    "lng": 37.551331222057,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/11741.png",
+    "colors": {
+      "primary": "#2b5a92",
+      "secondary": "#FCFCFC",
+      "tertiary": "#3e4245"
+    }
   },
   {
     "id": "tm_322",
@@ -6587,7 +7305,12 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 46.7832876,
-    "lng": 6.6461797
+    "lng": 6.6461797,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/322.png",
+    "colors": {
+      "primary": "#00ba06",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_2790",
@@ -6597,7 +7320,12 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 46.023981,
-    "lng": 8.960574
+    "lng": 8.960574,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2790.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_317",
@@ -6607,7 +7335,12 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 52.236496,
-    "lng": 6.8376935
+    "lng": 6.8376935,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/317.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_2036",
@@ -6692,7 +7425,8 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 49.8922358,
-    "lng": 2.2592767
+    "lng": 2.2592767,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1416.png"
   },
   {
     "id": "tm_709",
@@ -6812,7 +7546,8 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 43.553001,
-    "lng": 6.9631709
+    "lng": 6.9631709,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/895.png"
   },
   {
     "id": "tm_53819",
@@ -6852,7 +7587,12 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 47.3725268,
-    "lng": 8.5301609
+    "lng": 8.5301609,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/260.png",
+    "colors": {
+      "primary": "#00bfff",
+      "secondary": "#FDFDFB"
+    }
   },
   {
     "id": "tm_850",
@@ -6882,7 +7622,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.59365,
-    "lng": 9.300542
+    "lng": 9.300542,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2919.png",
+    "colors": {
+      "primary": "#ff0000",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_143",
@@ -6892,7 +7637,13 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 52.4326297,
-    "lng": 10.8039391
+    "lng": 10.8039391,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/143.png",
+    "colors": {
+      "primary": "#00CC00",
+      "secondary": "#FFFFFF",
+      "tertiary": "#77BBFF"
+    }
   },
   {
     "id": "tm_11747",
@@ -6967,7 +7718,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 36.736142032273,
-    "lng": -4.433109470382
+    "lng": -4.433109470382,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1084.png",
+    "colors": {
+      "primary": "#3399FF",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_605",
@@ -6977,7 +7733,12 @@
     "countryCode": "GR",
     "continent": "Europe",
     "lat": 40.6004141,
-    "lng": 22.968585
+    "lng": 22.968585,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/605.png",
+    "colors": {
+      "primary": "#fcd112",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_786",
@@ -7017,7 +7778,13 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 41.2718921,
-    "lng": 36.3549185
+    "lng": 36.3549185,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/152.png",
+    "colors": {
+      "primary": "#cc0000",
+      "secondary": "#FFFFFF",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_1160",
@@ -7027,7 +7794,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 43.837425031344,
-    "lng": 4.360068552196
+    "lng": 4.360068552196,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1160.png",
+    "colors": {
+      "primary": "#e4141c",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_3725",
@@ -7097,7 +7869,12 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 41.0284739,
-    "lng": 28.5552897
+    "lng": 28.5552897,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/924.png",
+    "colors": {
+      "primary": "#FFBD17",
+      "secondary": "#030303"
+    }
   },
   {
     "id": "tm_868",
@@ -7132,7 +7909,12 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 42.0925375,
-    "lng": -71.264125
+    "lng": -71.264125,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/626.png",
+    "colors": {
+      "primary": "#0A2141",
+      "secondary": "#D80016"
+    }
   },
   {
     "id": "tm_619",
@@ -7152,7 +7934,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 49.49931243845743,
-    "lng": 0.16860496046202017
+    "lng": 0.16860496046202017,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/738.png",
+    "colors": {
+      "primary": "#11A4D9",
+      "secondary": "#0065D1"
+    }
   },
   {
     "id": "tm_595",
@@ -7162,7 +7949,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 42.6560914,
-    "lng": 9.4410508
+    "lng": 9.4410508,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/595.png",
+    "colors": {
+      "primary": "#1a1aed",
+      "secondary": "#cecee0"
+    }
   },
   {
     "id": "tm_826",
@@ -7212,7 +8004,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 51.4870161,
-    "lng": 0.0339016
+    "lng": 0.0339016,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/358.png",
+    "colors": {
+      "primary": "#D6011D",
+      "secondary": "#FFFFFF",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_1159",
@@ -7222,7 +8020,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 48.6954662,
-    "lng": 6.2106993
+    "lng": 6.2106993,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1159.png",
+    "colors": {
+      "primary": "#e93526",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_10840",
@@ -7232,7 +8035,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 48.6954662,
-    "lng": 6.2106993
+    "lng": 6.2106993,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10840.png",
+    "colors": {
+      "primary": "#e93526",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_3591",
@@ -7252,7 +8060,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 56.4739294,
-    "lng": -2.9684927
+    "lng": -2.9684927,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1519.png",
+    "colors": {
+      "primary": "#FF6600",
+      "secondary": "#000000",
+      "tertiary": "#FF6600"
+    }
   },
   {
     "id": "tm_1154",
@@ -7367,7 +8181,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3612.png",
+    "colors": {
+      "primary": "#3b971b",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_8422",
@@ -7427,7 +8246,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 52.9781219,
-    "lng": -2.1743229
+    "lng": -2.1743229,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/512.png",
+    "colors": {
+      "primary": "#FF0033",
+      "secondary": "#FFFFFF",
+      "tertiary": "#1161C2"
+    }
   },
   {
     "id": "tm_290",
@@ -7437,7 +8262,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 47.782256,
-    "lng": 3.596762
+    "lng": 3.596762,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/290.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#1862F5"
+    }
   },
   {
     "id": "tm_6469",
@@ -7492,7 +8322,11 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 40.6344579,
-    "lng": 14.8305797
+    "lng": 14.8305797,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/380.png",
+    "colors": {
+      "primary": "#831d1c"
+    }
   },
   {
     "id": "tm_369",
@@ -7502,7 +8336,8 @@
     "countryCode": "DK",
     "continent": "Europe",
     "lat": 55.782181,
-    "lng": 12.506453
+    "lng": 12.506453,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/369.png"
   },
   {
     "id": "tm_173",
@@ -7522,7 +8357,8 @@
     "countryCode": "DK",
     "continent": "Europe",
     "lat": 56.117103,
-    "lng": 8.9510125
+    "lng": 8.9510125,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/865.png"
   },
   {
     "id": "tm_362",
@@ -7552,7 +8388,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 40.387659,
-    "lng": -3.6602353
+    "lng": -3.6602353,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/367.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#FF0000"
+    }
   },
   {
     "id": "tm_366",
@@ -7597,7 +8438,12 @@
     "countryCode": "JP",
     "continent": "Asia",
     "lat": 34.684049610127,
-    "lng": 135.56377150118
+    "lng": 135.56377150118,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1022.png",
+    "colors": {
+      "primary": "#DA005C",
+      "secondary": "#1E2380"
+    }
   },
   {
     "id": "tm_288",
@@ -7607,7 +8453,12 @@
     "countryCode": "AR",
     "continent": "South America",
     "lat": -34.9167916,
-    "lng": -57.9480167
+    "lng": -57.9480167,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/288.png",
+    "colors": {
+      "primary": "#de1d23",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_331",
@@ -7617,7 +8468,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 42.7967124,
-    "lng": -1.630999
+    "lng": -1.630999,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/331.png",
+    "colors": {
+      "primary": "#D10000",
+      "secondary": "#1A0880"
+    }
   },
   {
     "id": "tm_1826",
@@ -7637,7 +8493,12 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 41.44575862707871,
-    "lng": -8.302028353825719
+    "lng": -8.302028353825719,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2420.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_16371",
@@ -7752,7 +8613,13 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 59.9725857,
-    "lng": 30.2201384
+    "lng": 30.2201384,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/964.png",
+    "colors": {
+      "primary": "#21a5ef",
+      "secondary": "#FCFCFC",
+      "tertiary": "#016196"
+    }
   },
   {
     "id": "tm_6082",
@@ -7762,7 +8629,13 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 59.9725857,
-    "lng": 30.2201384
+    "lng": 30.2201384,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6082.png",
+    "colors": {
+      "primary": "#21a5ef",
+      "secondary": "#FCFCFC",
+      "tertiary": "#016196"
+    }
   },
   {
     "id": "tm_180",
@@ -7787,7 +8660,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 52.5084661,
-    "lng": -1.9650551
+    "lng": -1.9650551,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/984.png",
+    "colors": {
+      "primary": "#000080",
+      "secondary": "#FFFFFF",
+      "tertiary": "#178C17"
+    }
   },
   {
     "id": "tm_190",
@@ -7797,7 +8676,13 @@
     "countryCode": "DK",
     "continent": "Europe",
     "lat": 55.7017665,
-    "lng": 12.5722078
+    "lng": 12.5722078,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/190.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#0520B5",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_9252",
@@ -7868,7 +8753,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 41.088131709465,
-    "lng": 16.82326387614
+    "lng": 16.82326387614,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/332.png",
+    "colors": {
+      "primary": "#F7F7F7",
+      "secondary": "#F03030"
+    }
   },
   {
     "id": "tm_996",
@@ -7938,7 +8828,11 @@
     "countryCode": "JP",
     "continent": "Asia",
     "lat": 35.609985038042,
-    "lng": 140.11812586337
+    "lng": 140.11812586337,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6632.png",
+    "colors": {
+      "primary": "#FFFF00"
+    }
   },
   {
     "id": "tm_943",
@@ -8048,7 +8942,8 @@
     "countryCode": "AU",
     "continent": "Oceania",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/7006.png"
   },
   {
     "id": "tm_697",
@@ -8058,7 +8953,8 @@
     "countryCode": "CZ",
     "continent": "Europe",
     "lat": 50.776731,
-    "lng": 15.0508367
+    "lng": 15.0508367,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/697.png"
   },
   {
     "id": "tm_48743",
@@ -8088,7 +8984,8 @@
     "countryCode": "AU",
     "continent": "Oceania",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/36100.png"
   },
   {
     "id": "tm_1219",
@@ -8158,7 +9055,13 @@
     "countryCode": "IL",
     "continent": "Asia",
     "lat": 32.0575,
-    "lng": 34.76138889
+    "lng": 34.76138889,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/119.png",
+    "colors": {
+      "primary": "#ebd445",
+      "secondary": "#1c3574",
+      "tertiary": "#faf8e8"
+    }
   },
   {
     "id": "tm_2294",
@@ -8178,7 +9081,12 @@
     "countryCode": "IL",
     "continent": "Asia",
     "lat": 32.0995818,
-    "lng": 34.8888555
+    "lng": 34.8888555,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3785.png",
+    "colors": {
+      "primary": "#1338be",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_245",
@@ -8228,7 +9136,11 @@
     "countryCode": "JP",
     "continent": "Asia",
     "lat": 35.791891623719,
-    "lng": 139.64079223573
+    "lng": 139.64079223573,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/828.png",
+    "colors": {
+      "primary": "#FF0000"
+    }
   },
   {
     "id": "tm_126",
@@ -8283,7 +9195,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2524.png"
   },
   {
     "id": "tm_5299",
@@ -8333,7 +9246,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 18.861478,
-    "lng": 82.586412
+    "lng": 82.586412,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/45080.png"
   },
   {
     "id": "tm_1521",
@@ -8353,7 +9267,13 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 35.1611864,
-    "lng": 33.3633675
+    "lng": 33.3633675,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2784.png",
+    "colors": {
+      "primary": "#fc5203",
+      "secondary": "#03159e",
+      "tertiary": "#ffbb00"
+    }
   },
   {
     "id": "tm_897",
@@ -8379,7 +9299,12 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -22.9548108,
-    "lng": -43.1779533
+    "lng": -43.1779533,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/537.png",
+    "colors": {
+      "primary": "#080808",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1066",
@@ -8489,7 +9414,13 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 55.8540624,
-    "lng": 49.0847762
+    "lng": 49.0847762,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2698.png",
+    "colors": {
+      "primary": "#7f2a3d",
+      "secondary": "#ffffff",
+      "tertiary": "#03885d"
+    }
   },
   {
     "id": "tm_7971",
@@ -8499,7 +9430,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 38.3573561,
-    "lng": -0.4930086
+    "lng": -0.4930086,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/7971.png",
+    "colors": {
+      "primary": "#242EFC",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1214",
@@ -8509,7 +9445,13 @@
     "countryCode": "PY",
     "continent": "South America",
     "lat": -25.2855618,
-    "lng": -57.6269539
+    "lng": -57.6269539,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1214.png",
+    "colors": {
+      "primary": "#DB001D",
+      "secondary": "#0009B3",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_3368",
@@ -8519,7 +9461,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 39.4948976,
-    "lng": -0.3650553
+    "lng": -0.3650553,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3368.png",
+    "colors": {
+      "primary": "#0000CC",
+      "secondary": "#CC0000"
+    }
   },
   {
     "id": "tm_17250",
@@ -8609,7 +9556,12 @@
     "countryCode": "UY",
     "continent": "South America",
     "lat": -34.8985428,
-    "lng": -56.1823751
+    "lng": -56.1823751,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/861.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#FCF81F"
+    }
   },
   {
     "id": "tm_3449",
@@ -8629,7 +9581,12 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 52.0789238,
-    "lng": 5.1462439
+    "lng": 5.1462439,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/200.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_36329",
@@ -8729,7 +9686,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 48.5568037,
-    "lng": -3.1433639
+    "lng": -3.1433639,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/855.png",
+    "colors": {
+      "primary": "#ff0000",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_110600",
@@ -8759,7 +9721,12 @@
     "countryCode": "UY",
     "continent": "South America",
     "lat": -34.8605839,
-    "lng": -56.1337594
+    "lng": -56.1337594,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1306.png",
+    "colors": {
+      "primary": "#050505",
+      "secondary": "#fffcfc"
+    }
   },
   {
     "id": "tm_3711",
@@ -8769,7 +9736,12 @@
     "countryCode": "MX",
     "continent": "North America",
     "lat": 19.2625337,
-    "lng": -99.1238777
+    "lng": -99.1238777,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3711.png",
+    "colors": {
+      "primary": "#141FAA",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_4035",
@@ -8779,7 +9751,8 @@
     "countryCode": "MX",
     "continent": "North America",
     "lat": 20.0845185,
-    "lng": -98.7842386
+    "lng": -98.7842386,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4035.png"
   },
   {
     "id": "tm_3631",
@@ -8789,7 +9762,12 @@
     "countryCode": "MX",
     "continent": "North America",
     "lat": 19.3126911,
-    "lng": -99.1367255
+    "lng": -99.1367255,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3631.png",
+    "colors": {
+      "primary": "#F0EB9A",
+      "secondary": "#000099"
+    }
   },
   {
     "id": "tm_14598",
@@ -8845,7 +9823,12 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 38.3989822,
-    "lng": 27.0799961
+    "lng": 27.0799961,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1467.png",
+    "colors": {
+      "primary": "#FFDD00",
+      "secondary": "#DD0000"
+    }
   },
   {
     "id": "tm_2292",
@@ -8875,7 +9858,8 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 46.9910756,
-    "lng": 6.932395
+    "lng": 6.932395,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/625.png"
   },
   {
     "id": "tm_120",
@@ -8885,7 +9869,12 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 40.762660770774,
-    "lng": 29.928723536432
+    "lng": 29.928723536432,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/120.png",
+    "colors": {
+      "primary": "#00622a",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_1064",
@@ -8895,7 +9884,13 @@
     "countryCode": "IL",
     "continent": "Asia",
     "lat": 32.783678,
-    "lng": 34.960601
+    "lng": 34.960601,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1064.png",
+    "colors": {
+      "primary": "#14A11D",
+      "secondary": "#ffffff",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_1305",
@@ -9035,7 +10030,12 @@
     "countryCode": "AT",
     "continent": "Europe",
     "lat": 47.047246,
-    "lng": 15.480404
+    "lng": 15.480404,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/122.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_4443",
@@ -9055,7 +10055,12 @@
     "countryCode": "AT",
     "continent": "Europe",
     "lat": 48.1974122,
-    "lng": 16.2656202
+    "lng": 16.2656202,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/7001.png",
+    "colors": {
+      "primary": "#008543",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_3392",
@@ -9135,7 +10140,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 47.9361925,
-    "lng": 0.221578
+    "lng": 0.221578,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1164.png",
+    "colors": {
+      "primary": "#991319",
+      "secondary": "#deaa1b"
+    }
   },
   {
     "id": "tm_9668",
@@ -9165,7 +10175,13 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 41.163159424588,
-    "lng": -8.6433156207204
+    "lng": -8.6433156207204,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2503.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#ffffff",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_1075",
@@ -9175,7 +10191,12 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 41.567539938616,
-    "lng": -8.4358625113964
+    "lng": -8.4358625113964,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1075.png",
+    "colors": {
+      "primary": "#e80c0c",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_524",
@@ -9250,7 +10271,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 43.4757311,
-    "lng": -3.7918956
+    "lng": -3.7918956,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/630.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#009900"
+    }
   },
   {
     "id": "tm_1062",
@@ -9340,7 +10366,13 @@
     "countryCode": "EC",
     "continent": "South America",
     "lat": -0.2055359,
-    "lng": -78.4953819
+    "lng": -78.4953819,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/9855.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#FF0000",
+      "tertiary": "#000AC4"
+    }
   },
   {
     "id": "tm_1444",
@@ -9350,7 +10382,12 @@
     "countryCode": "AR",
     "continent": "South America",
     "lat": -34.664736057759,
-    "lng": -58.362898112114
+    "lng": -58.362898112114,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1444.png",
+    "colors": {
+      "primary": "#00B3FF",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_6889",
@@ -9390,7 +10427,8 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/845.png"
   },
   {
     "id": "tm_155",
@@ -9465,7 +10503,13 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 43.3205303,
-    "lng": 11.3265
+    "lng": 11.3265,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1387.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#FFFFFF",
+      "tertiary": "#ffb829"
+    }
   },
   {
     "id": "tm_2118",
@@ -9495,7 +10539,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 48.3150834,
-    "lng": 4.1073717
+    "lng": 4.1073717,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1095.png",
+    "colors": {
+      "primary": "#006eb3",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_1011",
@@ -9615,7 +10664,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.8063064,
-    "lng": -3.049894
+    "lng": -3.049894,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1181.png",
+    "colors": {
+      "primary": "#FF8C00",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_2454",
@@ -9625,7 +10679,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.5099065,
-    "lng": -1.1137068
+    "lng": -1.1137068,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2454.png",
+    "colors": {
+      "primary": "#ff0000",
+      "secondary": "#fcfcfc"
+    }
   },
   {
     "id": "tm_29982",
@@ -9655,7 +10714,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 52.5908807,
-    "lng": -2.1318009
+    "lng": -2.1318009,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/543.png",
+    "colors": {
+      "primary": "#FDB913",
+      "secondary": "#231F20"
+    }
   },
   {
     "id": "tm_1003",
@@ -9680,7 +10744,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 52.6227255,
-    "lng": 1.3117356
+    "lng": 1.3117356,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1123.png",
+    "colors": {
+      "primary": "#009900",
+      "secondary": "#FFFF00"
+    }
   },
   {
     "id": "tm_1148",
@@ -9690,7 +10759,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 51.484440821411,
-    "lng": -0.31838221971225
+    "lng": -0.31838221971225,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1148.png",
+    "colors": {
+      "primary": "#ff0000",
+      "secondary": "#ffffff",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_23565",
@@ -9740,7 +10815,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 52.4487462,
-    "lng": -1.4953092
+    "lng": -1.4953092,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/990.png",
+    "colors": {
+      "primary": "#42A7FF",
+      "secondary": "#FFFFFF",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_801",
@@ -9750,7 +10831,8 @@
     "countryCode": "SE",
     "continent": "Europe",
     "lat": 57.6971853,
-    "lng": 12.0286951
+    "lng": 12.0286951,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/801.png"
   },
   {
     "id": "tm_1044",
@@ -9760,7 +10842,13 @@
     "countryCode": "SE",
     "continent": "Europe",
     "lat": 59.349414,
-    "lng": 18.100853
+    "lng": 18.100853,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1044.png",
+    "colors": {
+      "primary": "#32BAF2",
+      "secondary": "#002554",
+      "tertiary": "#002554"
+    }
   },
   {
     "id": "tm_1055",
@@ -9780,7 +10868,13 @@
     "countryCode": "SE",
     "continent": "Europe",
     "lat": 59.299666018393,
-    "lng": 18.05846773088
+    "lng": 18.05846773088,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1059.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#1a7812",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1050",
@@ -9805,7 +10899,8 @@
     "countryCode": "XX",
     "continent": "Europe",
     "lat": 60.187493,
-    "lng": 24.9218424
+    "lng": 24.9218424,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1008.png"
   },
   {
     "id": "tm_20796",
@@ -9865,7 +10960,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 43.6113317,
-    "lng": 3.9187216
+    "lng": 3.9187216,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/969.png",
+    "colors": {
+      "primary": "#344575",
+      "secondary": "#D87043"
+    }
   },
   {
     "id": "tm_6195",
@@ -9889,7 +10989,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 52.0569709,
-    "lng": 1.1458849
+    "lng": 1.1458849,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/677.png",
+    "colors": {
+      "primary": "#1100FF",
+      "secondary": "#FFFFFF",
+      "tertiary": "#FF9900"
+    }
   },
   {
     "id": "tm_1039",
@@ -9899,7 +11005,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 51.51007858048,
-    "lng": -0.23144781589508
+    "lng": -0.23144781589508,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1039.png",
+    "colors": {
+      "primary": "#0066FF",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_660",
@@ -9909,7 +11020,12 @@
     "countryCode": "UA",
     "continent": "Europe",
     "lat": 50.377555,
-    "lng": 30.794648
+    "lng": 30.794648,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/660.png",
+    "colors": {
+      "primary": "#FF6600",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_1007",
@@ -9949,7 +11065,13 @@
     "countryCode": "RO",
     "continent": "Asia",
     "lat": 44.341241,
-    "lng": 26.153211
+    "lng": 26.153211,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/301.png",
+    "colors": {
+      "primary": "#0000FF",
+      "secondary": "#FF0000",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_3447",
@@ -9979,7 +11101,13 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 40.356717,
-    "lng": 18.174586
+    "lng": 18.174586,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1005.png",
+    "colors": {
+      "primary": "#F7FF08",
+      "secondary": "#E80000",
+      "tertiary": "#080857"
+    }
   },
   {
     "id": "tm_312",
@@ -9989,7 +11117,13 @@
     "countryCode": "RO",
     "continent": "Asia",
     "lat": 44.456336,
-    "lng": 26.103264
+    "lng": 26.103264,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/312.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF",
+      "tertiary": "#FF0000"
+    }
   },
   {
     "id": "tm_1060",
@@ -10009,7 +11143,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.5474632,
-    "lng": -2.6537547
+    "lng": -2.6537547,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1071.png",
+    "colors": {
+      "primary": "#2335FA",
+      "secondary": "#FFFFFF",
+      "tertiary": "#25C21D"
+    }
   },
   {
     "id": "tm_9264",
@@ -10029,7 +11169,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 51.6489342,
-    "lng": -0.4060653
+    "lng": -0.4060653,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1010.png",
+    "colors": {
+      "primary": "#FFF71C",
+      "secondary": "#E3002D",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_24212",
@@ -10049,7 +11195,12 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 41.2020001,
-    "lng": 32.6153598
+    "lng": 32.6153598,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1506.png",
+    "colors": {
+      "primary": "#0000FF",
+      "secondary": "#FF0000"
+    }
   },
   {
     "id": "tm_29831",
@@ -10079,7 +11230,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 50.7963603,
-    "lng": -1.0637801
+    "lng": -1.0637801,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1020.png",
+    "colors": {
+      "primary": "#0754ed",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_45274",
@@ -10089,7 +11245,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/45274.png"
   },
   {
     "id": "tm_6251",
@@ -10119,7 +11276,13 @@
     "countryCode": "XX",
     "continent": "Europe",
     "lat": 64.1332231,
-    "lng": -21.9251959
+    "lng": -21.9251959,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1033.png",
+    "colors": {
+      "primary": "#ff0000",
+      "secondary": "#ffffff",
+      "tertiary": "#5752eb"
+    }
   },
   {
     "id": "tm_2441",
@@ -10129,7 +11292,12 @@
     "countryCode": "GR",
     "continent": "Europe",
     "lat": 38.0431,
-    "lng": 23.7425
+    "lng": 23.7425,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2441.png",
+    "colors": {
+      "primary": "#fcd20f",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_3237",
@@ -10275,7 +11443,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 22.535636,
-    "lng": 88.388412
+    "lng": 88.388412,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/45278.png"
   },
   {
     "id": "tm_1047",
@@ -10285,7 +11454,13 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.8128856,
-    "lng": 9.0702187
+    "lng": 9.0702187,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1047.png",
+    "colors": {
+      "primary": "#007FFF",
+      "secondary": "#ffffff",
+      "tertiary": "#a30808"
+    }
   },
   {
     "id": "tm_2250",
@@ -10325,7 +11500,8 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 41.3795811,
-    "lng": 2.1193902
+    "lng": 2.1193902,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2464.png"
   },
   {
     "id": "tm_20911",
@@ -10405,7 +11581,8 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 49.1817688,
-    "lng": -0.4010799
+    "lng": -0.4010799,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1162.png"
   },
   {
     "id": "tm_25250",
@@ -10425,7 +11602,12 @@
     "countryCode": "AU",
     "continent": "Oceania",
     "lat": -31.94,
-    "lng": 115.82
+    "lng": 115.82,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/970.png",
+    "colors": {
+      "primary": "#633492",
+      "tertiary": "#FF6600"
+    }
   },
   {
     "id": "tm_9250",
@@ -10485,7 +11667,13 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 52.6127759,
-    "lng": 4.7420745
+    "lng": 4.7420745,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1090.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_1434",
@@ -10515,7 +11703,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 51.4713851,
-    "lng": -3.1980992
+    "lng": -3.1980992,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/603.png",
+    "colors": {
+      "primary": "#0070B5",
+      "secondary": "#D11524"
+    }
   },
   {
     "id": "tm_22414",
@@ -10630,7 +11823,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 50.8605096,
-    "lng": -0.0825973
+    "lng": -0.0825973,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1237.png",
+    "colors": {
+      "primary": "#0054A6",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1032",
@@ -10640,7 +11838,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 51.4223932,
-    "lng": -0.9826326
+    "lng": -0.9826326,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1032.png",
+    "colors": {
+      "primary": "#0051ff",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_53860",
@@ -10670,7 +11873,13 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 51.6859491,
-    "lng": 5.0892079
+    "lng": 5.0892079,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/235.png",
+    "colors": {
+      "primary": "#FFFF00",
+      "secondary": "#0033CC",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1045",
@@ -10690,7 +11899,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 19.05444,
-    "lng": 72.84056
+    "lng": 72.84056,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/45275.png"
   },
   {
     "id": "tm_6731",
@@ -10710,7 +11920,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.561046205997,
-    "lng": -2.3222284018993
+    "lng": -2.3222284018993,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2413.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#032AF0"
+    }
   },
   {
     "id": "tm_7067",
@@ -10730,7 +11945,13 @@
     "countryCode": "CI",
     "continent": "Europe",
     "lat": 5.323259240557905,
-    "lng": -4.023593262016691
+    "lng": -4.023593262016691,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3891.png",
+    "colors": {
+      "primary": "#FBEA0D",
+      "secondary": "#000000",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_7149",
@@ -10770,7 +11991,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/45299.png"
   },
   {
     "id": "tm_79530",
@@ -10840,7 +12062,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.7460934,
-    "lng": -0.3682974
+    "lng": -0.3682974,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3008.png",
+    "colors": {
+      "primary": "#F5A12D",
+      "secondary": "#000000",
+      "tertiary": "#F5A12D"
+    }
   },
   {
     "id": "tm_25565",
@@ -10880,7 +12108,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.0842987,
-    "lng": -2.4358238
+    "lng": -2.4358238,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1042.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#ff0000"
+    }
   },
   {
     "id": "tm_22986",
@@ -10900,7 +12133,8 @@
     "countryCode": "AU",
     "continent": "Oceania",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8054.png"
   },
   {
     "id": "tm_19723",
@@ -10960,7 +12194,12 @@
     "countryCode": "JP",
     "continent": "Asia",
     "lat": 35.746329399568,
-    "lng": 139.57342386246
+    "lng": 139.57342386246,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6631.png",
+    "colors": {
+      "primary": "#0000CC",
+      "secondary": "#FF0000"
+    }
   },
   {
     "id": "tm_1418",
@@ -10970,7 +12209,13 @@
     "countryCode": "AR",
     "continent": "South America",
     "lat": -32.970932761461,
-    "lng": -60.645426699172
+    "lng": -60.645426699172,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1418.png",
+    "colors": {
+      "primary": "#0000FF",
+      "secondary": "#FFFF00",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_989",
@@ -10980,7 +12225,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 50.7352306,
-    "lng": -1.8382791
+    "lng": -1.8382791,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/989.png",
+    "colors": {
+      "primary": "#BF0C10",
+      "secondary": "#0C0D0F",
+      "tertiary": "#BEA578"
+    }
   },
   {
     "id": "tm_698",
@@ -11020,7 +12271,13 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 47.748214248980126,
-    "lng": -3.3697734325721145
+    "lng": -3.3697734325721145,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1158.png",
+    "colors": {
+      "primary": "#F58113",
+      "secondary": "#000000",
+      "tertiary": "#ffffff"
+    }
   },
   {
     "id": "tm_26594",
@@ -11130,7 +12387,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 25.4875242,
-    "lng": 51.396568
+    "lng": 51.396568,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10920.png",
+    "colors": {
+      "primary": "#f39b31",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_16662",
@@ -11140,7 +12402,13 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 47.748214248980126,
-    "lng": -3.3697734325721145
+    "lng": -3.3697734325721145,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/16662.png",
+    "colors": {
+      "primary": "#F58113",
+      "secondary": "#000000",
+      "tertiary": "#ffffff"
+    }
   },
   {
     "id": "tm_1118",
@@ -11150,7 +12418,8 @@
     "countryCode": "SE",
     "continent": "Europe",
     "lat": 63.8223321,
-    "lng": 20.2753893
+    "lng": 20.2753893,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1118.png"
   },
   {
     "id": "tm_306",
@@ -11160,7 +12429,13 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 52.9583371,
-    "lng": 5.9353617
+    "lng": 5.9353617,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/306.png",
+    "colors": {
+      "primary": "#0000CC",
+      "secondary": "#FFFFFF",
+      "tertiary": "#FF0000"
+    }
   },
   {
     "id": "tm_22981",
@@ -11180,7 +12455,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.6538119,
-    "lng": -1.7704918
+    "lng": -1.7704918,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1110.png",
+    "colors": {
+      "primary": "#0072CE",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1108",
@@ -11190,7 +12470,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 42.8380228,
-    "lng": -2.6887438
+    "lng": -2.6887438,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1108.png",
+    "colors": {
+      "primary": "#048FD9",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_8172",
@@ -11200,7 +12485,12 @@
     "countryCode": "CO",
     "continent": "South America",
     "lat": 6.1763802,
-    "lng": -75.5980025
+    "lng": -75.5980025,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8172.png",
+    "colors": {
+      "primary": "#3BBD68",
+      "tertiary": "#3BBD68"
+    }
   },
   {
     "id": "tm_3816",
@@ -11230,7 +12520,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.0519576,
-    "lng": -3.0038091
+    "lng": -3.0038091,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1112.png",
+    "colors": {
+      "primary": "#f40b12",
+      "secondary": "#0d5741",
+      "tertiary": "#1e1e1e"
+    }
   },
   {
     "id": "tm_1028",
@@ -11240,7 +12536,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 51.4858294,
-    "lng": -0.0536694
+    "lng": -0.0536694,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1028.png",
+    "colors": {
+      "primary": "#2F3D99",
+      "secondary": "#FAFAFA"
+    }
   },
   {
     "id": "tm_3001",
@@ -11260,7 +12561,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.8036596,
-    "lng": -1.7607287
+    "lng": -1.7607287,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1027.png",
+    "colors": {
+      "primary": "#990033",
+      "secondary": "#FF9900"
+    }
   },
   {
     "id": "tm_1074",
@@ -11270,7 +12576,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.3734274,
-    "lng": -3.0358548
+    "lng": -3.0358548,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1074.png",
+    "colors": {
+      "primary": "#0048FF",
+      "secondary": "#FCFCFC"
+    }
   },
   {
     "id": "tm_415",
@@ -11565,7 +12876,12 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 40.789401,
-    "lng": 30.4237216
+    "lng": 30.4237216,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2463.png",
+    "colors": {
+      "primary": "#006633",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_416",
@@ -11589,7 +12905,8 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -25.4490631,
-    "lng": -49.2778446
+    "lng": -49.2778446,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/679.png"
   },
   {
     "id": "tm_45604",
@@ -11599,7 +12916,12 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 28.7849823,
-    "lng": -81.3588655
+    "lng": -81.3588655,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/45604.png",
+    "colors": {
+      "primary": "#633492",
+      "secondary": "#FDE192"
+    }
   },
   {
     "id": "tm_2431",
@@ -11609,7 +12931,13 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 38.750666412618,
-    "lng": -9.2299224436283
+    "lng": -9.2299224436283,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2431.png",
+    "colors": {
+      "primary": "#f21111",
+      "secondary": "#ffffff",
+      "tertiary": "#1f942f"
+    }
   },
   {
     "id": "tm_1465",
@@ -11619,7 +12947,12 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 38.71537,
-    "lng": -9.406078
+    "lng": -9.406078,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1465.png",
+    "colors": {
+      "primary": "#ffff00",
+      "secondary": "#0070e0"
+    }
   },
   {
     "id": "tm_4294",
@@ -11649,7 +12982,8 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -29.1631234,
-    "lng": -51.1770362
+    "lng": -51.1770362,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10492.png"
   },
   {
     "id": "tm_291",
@@ -11679,7 +13013,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 41.40385979705,
-    "lng": 69.455145969987
+    "lng": 69.455145969987,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/19401.png",
+    "colors": {
+      "primary": "#4511f0",
+      "secondary": "#d9e01d"
+    }
   },
   {
     "id": "tm_1784",
@@ -11709,7 +13048,13 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -22.9364364,
-    "lng": -43.1851284
+    "lng": -43.1851284,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2462.png",
+    "colors": {
+      "primary": "#910029",
+      "secondary": "#FFFFFF",
+      "tertiary": "#006941"
+    }
   },
   {
     "id": "tm_4961",
@@ -11719,7 +13064,13 @@
     "countryCode": "MX",
     "continent": "North America",
     "lat": 20.5701626,
-    "lng": -100.3638252
+    "lng": -100.3638252,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4961.png",
+    "colors": {
+      "primary": "#0033CC",
+      "secondary": "#FFFFFF",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_1427",
@@ -11739,7 +13090,12 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 40.01514405633,
-    "lng": 32.332422360778
+    "lng": 32.332422360778,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2944.png",
+    "colors": {
+      "primary": "#003399",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_20698",
@@ -11799,7 +13155,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 53.4114317,
-    "lng": -1.5006631
+    "lng": -1.5006631,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1035.png",
+    "colors": {
+      "primary": "#1E3CFA",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_2655",
@@ -11809,7 +13170,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.544516,
-    "lng": 11.55481
+    "lng": 11.55481,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2655.png",
+    "colors": {
+      "primary": "#FAFAFA",
+      "secondary": "#F02828"
+    }
   },
   {
     "id": "tm_5174",
@@ -11829,7 +13195,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.4318315,
-    "lng": 11.8596038
+    "lng": 11.8596038,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3037.png",
+    "colors": {
+      "primary": "#ff0000",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_53840",
@@ -11875,7 +13246,13 @@
     "countryCode": "BE",
     "continent": "Europe",
     "lat": 50.8847867,
-    "lng": 3.4366414
+    "lng": 3.4366414,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3508.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#009900",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_163",
@@ -11915,7 +13292,13 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 55.8540624,
-    "lng": 49.0847762
+    "lng": 49.0847762,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/11750.png",
+    "colors": {
+      "primary": "#7f2a3d",
+      "secondary": "#ffffff",
+      "tertiary": "#03885d"
+    }
   },
   {
     "id": "tm_5544",
@@ -11975,7 +13358,8 @@
     "countryCode": "XX",
     "continent": "Europe",
     "lat": 60.7726422,
-    "lng": 26.7877558
+    "lng": 26.7877558,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2688.png"
   },
   {
     "id": "tm_2952",
@@ -12015,7 +13399,12 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 38.9192307,
-    "lng": 27.8126481
+    "lng": 27.8126481,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/19771.png",
+    "colors": {
+      "primary": "#006633",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_22989",
@@ -12105,7 +13494,11 @@
     "countryCode": "AR",
     "continent": "South America",
     "lat": -34.688352258771,
-    "lng": -58.336141716685
+    "lng": -58.336141716685,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1234.png",
+    "colors": {
+      "primary": "#F00303"
+    }
   },
   {
     "id": "tm_15979",
@@ -12210,7 +13603,11 @@
     "countryCode": "GR",
     "continent": "Europe",
     "lat": 37.930459998787,
-    "lng": 23.631061390042
+    "lng": 23.631061390042,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4603.png",
+    "colors": {
+      "primary": "#610909"
+    }
   },
   {
     "id": "tm_499",
@@ -12220,7 +13617,12 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 51.9649418,
-    "lng": 5.8919183
+    "lng": 5.8919183,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/499.png",
+    "colors": {
+      "primary": "#FFE600",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_3302",
@@ -12230,7 +13632,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 37.64557,
-    "lng": -2.0749
+    "lng": -2.0749,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3302.png",
+    "colors": {
+      "primary": "#ff0000",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_2926",
@@ -12330,7 +13737,13 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 51.5427202,
-    "lng": 5.0665291
+    "lng": 5.0665291,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/403.png",
+    "colors": {
+      "primary": "#CC0000",
+      "secondary": "#FFFFFF",
+      "tertiary": "#0033FF"
+    }
   },
   {
     "id": "tm_1176",
@@ -12400,7 +13813,8 @@
     "countryCode": "DK",
     "continent": "Europe",
     "lat": 56.184948,
-    "lng": 9.573902
+    "lng": 9.573902,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1177.png"
   },
   {
     "id": "tm_276",
@@ -12435,7 +13849,12 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -23.2769281,
-    "lng": -47.2902318
+    "lng": -47.2902318,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4773.png",
+    "colors": {
+      "primary": "#d81e3c",
+      "secondary": "#2b2b2b"
+    }
   },
   {
     "id": "tm_23133",
@@ -12455,7 +13874,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.1406577,
-    "lng": 10.0340863
+    "lng": 10.0340863,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2239.png",
+    "colors": {
+      "primary": "#808080",
+      "secondary": "#ff0000"
+    }
   },
   {
     "id": "tm_1408",
@@ -12535,7 +13959,13 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.48484,
-    "lng": 12.250608
+    "lng": 12.250608,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/607.png",
+    "colors": {
+      "primary": "#ff8000",
+      "secondary": "#000000",
+      "tertiary": "#3eb304"
+    }
   },
   {
     "id": "tm_21102",
@@ -12555,7 +13985,12 @@
     "countryCode": "AR",
     "continent": "South America",
     "lat": -32.958850908566,
-    "lng": -60.66801968962
+    "lng": -60.66801968962,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1286.png",
+    "colors": {
+      "primary": "#FA0505",
+      "secondary": "#080808"
+    }
   },
   {
     "id": "tm_1388",
@@ -12565,7 +14000,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.379168953475,
-    "lng": 11.916520558298
+    "lng": 11.916520558298,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1388.png",
+    "colors": {
+      "primary": "#ff0000",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_3197",
@@ -12635,7 +14075,12 @@
     "countryCode": "SK",
     "continent": "Europe",
     "lat": 48.1620389,
-    "lng": 17.1368698
+    "lng": 17.1368698,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/540.png",
+    "colors": {
+      "primary": "#00a6ff",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_3503",
@@ -12725,7 +14170,12 @@
     "countryCode": "BE",
     "continent": "Europe",
     "lat": 51.2329898,
-    "lng": 4.4699265
+    "lng": 4.4699265,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1096.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#FF0000"
+    }
   },
   {
     "id": "tm_3679",
@@ -12735,7 +14185,13 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 40.4017297,
-    "lng": -3.7206353
+    "lng": -3.7206353,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3679.png",
+    "colors": {
+      "primary": "#CF321F",
+      "secondary": "#FFFFFF",
+      "tertiary": "#212B61"
+    }
   },
   {
     "id": "tm_3772",
@@ -12755,7 +14211,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/14829.png",
+    "colors": {
+      "primary": "#2f65b5",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_11720",
@@ -12775,7 +14236,12 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 52.5177771,
-    "lng": 6.1233412
+    "lng": 6.1233412,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1269.png",
+    "colors": {
+      "primary": "#2D2DD4",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_25507",
@@ -12875,7 +14341,8 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 49.1817688,
-    "lng": -0.4010799
+    "lng": -0.4010799,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/12770.png"
   },
   {
     "id": "tm_30443",
@@ -12915,7 +14382,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 40.9943714,
-    "lng": -5.6659264
+    "lng": -5.6659264,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1087.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_1436",
@@ -12965,7 +14437,13 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 41.5324815,
-    "lng": -8.6214938
+    "lng": -8.6214938,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2424.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#ffffff",
+      "tertiary": "#0037eb"
+    }
   },
   {
     "id": "tm_3327",
@@ -13015,7 +14493,12 @@
     "countryCode": "SA",
     "continent": "Asia",
     "lat": 21.5471939,
-    "lng": 39.2103892
+    "lng": 39.2103892,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8023.png",
+    "colors": {
+      "primary": "#ede100",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_1081",
@@ -13025,7 +14508,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 49.734393234539,
-    "lng": 4.9552281988265
+    "lng": 4.9552281988265,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1081.png",
+    "colors": {
+      "primary": "#004534",
+      "secondary": "#ba1f3c"
+    }
   },
   {
     "id": "tm_903",
@@ -13035,7 +14523,13 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 55.962124,
-    "lng": -3.167031
+    "lng": -3.167031,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/903.png",
+    "colors": {
+      "primary": "#006633",
+      "secondary": "#FFFFFF",
+      "tertiary": "#006633"
+    }
   },
   {
     "id": "tm_31230",
@@ -13105,7 +14599,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 38.995092278189,
-    "lng": -1.8559156358242
+    "lng": -1.8559156358242,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1532.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#c40000"
+    }
   },
   {
     "id": "tm_1103",
@@ -13115,7 +14614,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 42.566051,
-    "lng": 12.652861
+    "lng": 12.652861,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1103.png",
+    "colors": {
+      "primary": "#e01d1d",
+      "secondary": "#316629"
+    }
   },
   {
     "id": "tm_9353",
@@ -13145,7 +14649,13 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 39.9409264,
-    "lng": 116.4476579
+    "lng": 116.4476579,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3176.png",
+    "colors": {
+      "primary": "#008f4c",
+      "secondary": "#fff200",
+      "tertiary": "#008f4c"
+    }
   },
   {
     "id": "tm_718",
@@ -13255,7 +14765,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 50.4071244,
-    "lng": 2.8436164
+    "lng": 2.8436164,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8152.png",
+    "colors": {
+      "primary": "#FFDF00",
+      "secondary": "#F50505"
+    }
   },
   {
     "id": "tm_4361",
@@ -13290,7 +14805,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 38.111226931812,
-    "lng": 13.352443166077
+    "lng": 13.352443166077,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/458.png",
+    "colors": {
+      "primary": "#f0c0c8",
+      "secondary": "#0a0a0a"
+    }
   },
   {
     "id": "tm_7831",
@@ -13320,7 +14840,12 @@
     "countryCode": "SE",
     "continent": "Europe",
     "lat": 57.739977,
-    "lng": 11.948087
+    "lng": 11.948087,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1109.png",
+    "colors": {
+      "primary": "#1a171b",
+      "secondary": "#f9eb1b"
+    }
   },
   {
     "id": "tm_2967",
@@ -13340,7 +14865,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 48.39,
-    "lng": -4.49
+    "lng": -4.49,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3911.png",
+    "colors": {
+      "primary": "#ED1C24",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_3668",
@@ -13460,7 +14990,12 @@
     "countryCode": "MX",
     "continent": "North America",
     "lat": 20.6953486,
-    "lng": -103.3752642
+    "lng": -103.3752642,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8590.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_23166",
@@ -13540,7 +15075,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 25.2048493,
-    "lng": 55.2707828
+    "lng": 55.2707828,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/16214.png"
   },
   {
     "id": "tm_3575",
@@ -13590,7 +15126,12 @@
     "countryCode": "MX",
     "continent": "North America",
     "lat": 21.8527299,
-    "lng": -102.3525029
+    "lng": -102.3525029,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1146.png",
+    "colors": {
+      "primary": "#CC0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_6362",
@@ -13610,7 +15151,12 @@
     "countryCode": "MX",
     "continent": "North America",
     "lat": 19.3124488,
-    "lng": -99.1679733
+    "lng": -99.1679733,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/7633.png",
+    "colors": {
+      "primary": "#000066",
+      "secondary": "#FFCC66"
+    }
   },
   {
     "id": "tm_4561",
@@ -13670,7 +15216,12 @@
     "countryCode": "BE",
     "continent": "Europe",
     "lat": 51.0160918,
-    "lng": 3.7339803
+    "lng": 3.7339803,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/157.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#0033CC"
+    }
   },
   {
     "id": "tm_13509",
@@ -13690,7 +15241,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 47.5124167,
-    "lng": 6.8112
+    "lng": 6.8112,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10825.png",
+    "colors": {
+      "primary": "#ffe51c",
+      "secondary": "#243778"
+    }
   },
   {
     "id": "tm_250",
@@ -13700,7 +15256,12 @@
     "countryCode": "XX",
     "continent": "Africa",
     "lat": 35.8280641,
-    "lng": 10.6249938
+    "lng": 10.6249938,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/250.png",
+    "colors": {
+      "primary": "#D40000",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_8512",
@@ -13710,7 +15271,13 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 48.841438,
-    "lng": 2.2530801
+    "lng": 2.2530801,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8512.png",
+    "colors": {
+      "primary": "#1f3157",
+      "secondary": "#FCFCFC",
+      "tertiary": "#6d2944"
+    }
   },
   {
     "id": "tm_1161",
@@ -13730,7 +15297,13 @@
     "countryCode": "CA",
     "continent": "North America",
     "lat": 45.561144,
-    "lng": -73.554178
+    "lng": -73.554178,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4078.png",
+    "colors": {
+      "primary": "#122089",
+      "secondary": "#000000",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_17782",
@@ -13800,7 +15373,8 @@
     "countryCode": "DK",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/67194.png"
   },
   {
     "id": "tm_1150",
@@ -13910,7 +15484,8 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 45.0803509,
-    "lng": 38.9795773
+    "lng": 38.9795773,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2439.png"
   },
   {
     "id": "tm_33775",
@@ -13940,7 +15515,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 40.4523571,
-    "lng": -3.6867885
+    "lng": -3.6867885,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6767.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#004996"
+    }
   },
   {
     "id": "tm_987",
@@ -14040,7 +15620,13 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 55.8035855,
-    "lng": 37.7411726
+    "lng": 37.7411726,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/932.png",
+    "colors": {
+      "primary": "#2d5e49",
+      "secondary": "#FCFCFC",
+      "tertiary": "#262626"
+    }
   },
   {
     "id": "tm_33397",
@@ -14190,7 +15776,13 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 51.8219656,
-    "lng": 5.8364969
+    "lng": 5.8364969,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/467.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#006633",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_18544",
@@ -14200,7 +15792,12 @@
     "countryCode": "SA",
     "continent": "Asia",
     "lat": 25.661565292007,
-    "lng": 45.539740920067
+    "lng": 45.539740920067,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/18544.png",
+    "colors": {
+      "primary": "#FFFB00",
+      "secondary": "#003CF0"
+    }
   },
   {
     "id": "tm_6078",
@@ -14260,7 +15857,13 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4785.png",
+    "colors": {
+      "primary": "#0099FF",
+      "secondary": "#0066FF",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_6062",
@@ -14280,7 +15883,8 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 43.491476,
-    "lng": 4.9688722
+    "lng": 4.9688722,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2580.png"
   },
   {
     "id": "tm_839",
@@ -14290,7 +15894,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 43.1079075,
-    "lng": 12.3582757
+    "lng": 12.3582757,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/839.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#d91515"
+    }
   },
   {
     "id": "tm_1385",
@@ -14300,7 +15909,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 44.6524365,
-    "lng": 10.9228226
+    "lng": 10.9228226,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1385.png",
+    "colors": {
+      "primary": "#fbff00",
+      "secondary": "#1616cc"
+    }
   },
   {
     "id": "tm_1104",
@@ -14330,7 +15944,12 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 51.8019811,
-    "lng": 4.6904219
+    "lng": 4.6904219,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1455.png",
+    "colors": {
+      "primary": "#339933",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_25249",
@@ -14350,7 +15969,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.4858841,
-    "lng": 9.1484143
+    "lng": 9.1484143,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10958.png",
+    "colors": {
+      "primary": "#B50909",
+      "secondary": "#050505"
+    }
   },
   {
     "id": "tm_511",
@@ -14370,7 +15994,13 @@
     "countryCode": "EG",
     "continent": "Africa",
     "lat": 30.0868729,
-    "lng": 31.2099189
+    "lng": 31.2099189,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/664.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#FF0000",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1304",
@@ -14380,7 +16010,12 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 52.3388029,
-    "lng": 6.6498161
+    "lng": 6.6498161,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1304.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1426",
@@ -14460,7 +16095,8 @@
     "countryCode": "DK",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/62685.png"
   },
   {
     "id": "tm_62698",
@@ -14520,7 +16156,13 @@
     "countryCode": "XX",
     "continent": "Europe",
     "lat": 42.70541,
-    "lng": 23.36323
+    "lng": 23.36323,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/156.png",
+    "colors": {
+      "primary": "#28338a",
+      "secondary": "#fabb32",
+      "tertiary": "#D50F3B"
+    }
   },
   {
     "id": "tm_38929",
@@ -14540,7 +16182,13 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 42.465287842985,
-    "lng": 14.218842739715
+    "lng": 14.218842739715,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2921.png",
+    "colors": {
+      "primary": "#0b06b3",
+      "secondary": "#fafafa",
+      "tertiary": "#59a9e6"
+    }
   },
   {
     "id": "tm_36677",
@@ -14590,7 +16238,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/15541.png"
   },
   {
     "id": "tm_39118",
@@ -14610,7 +16259,13 @@
     "countryCode": "DK",
     "continent": "Europe",
     "lat": 55.4867976,
-    "lng": 8.4358608
+    "lng": 8.4358608,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3426.png",
+    "colors": {
+      "primary": "#246ab5",
+      "secondary": "#ebebeb",
+      "tertiary": "#c7af50"
+    }
   },
   {
     "id": "tm_1029",
@@ -14620,7 +16275,12 @@
     "countryCode": "AR",
     "continent": "South America",
     "lat": -34.6330249,
-    "lng": -58.518727
+    "lng": -58.518727,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1029.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#2342DB"
+    }
   },
   {
     "id": "tm_2350",
@@ -14630,7 +16290,13 @@
     "countryCode": "CO",
     "continent": "South America",
     "lat": 4.645877159431411,
-    "lng": -74.07738234673171
+    "lng": -74.07738234673171,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2350.png",
+    "colors": {
+      "primary": "#061e51",
+      "secondary": "#ffffff",
+      "tertiary": "#001644"
+    }
   },
   {
     "id": "tm_2331",
@@ -14700,7 +16366,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 40.3395999,
-    "lng": -3.7627152
+    "lng": -3.7627152,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1244.png",
+    "colors": {
+      "primary": "#0000FF",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_53843",
@@ -14720,7 +16391,13 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 42.8419167,
-    "lng": 47.6052326
+    "lng": 47.6052326,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2700.png",
+    "colors": {
+      "primary": "#006600",
+      "secondary": "#FFFFff",
+      "tertiary": "#FFFF00"
+    }
   },
   {
     "id": "tm_965",
@@ -14730,7 +16407,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 25.293650617179,
-    "lng": 51.545643769205
+    "lng": 51.545643769205,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/965.png",
+    "colors": {
+      "primary": "#FFCB08",
+      "secondary": "#050708"
+    }
   },
   {
     "id": "tm_69166",
@@ -14770,7 +16452,13 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.482487524697,
-    "lng": 9.1940599679947
+    "lng": 9.1940599679947,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/5380.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#0055A0",
+      "tertiary": "#cfb013"
+    }
   },
   {
     "id": "tm_10680",
@@ -14810,7 +16498,12 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 51.9552319,
-    "lng": 6.3100957
+    "lng": 6.3100957,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/642.png",
+    "colors": {
+      "primary": "#0066FF",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1389",
@@ -14820,7 +16513,12 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 52.2095057,
-    "lng": 5.9278443
+    "lng": 5.9278443,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1389.png",
+    "colors": {
+      "primary": "#1c52e6",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_202",
@@ -14830,7 +16528,12 @@
     "countryCode": "NL",
     "continent": "Europe",
     "lat": 53.2067858,
-    "lng": 6.5919917
+    "lng": 6.5919917,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/202.png",
+    "colors": {
+      "primary": "#009900",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_9715",
@@ -15140,7 +16843,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 28.125327,
-    "lng": -15.4324881
+    "lng": -15.4324881,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/472.png",
+    "colors": {
+      "primary": "#FFFF00",
+      "secondary": "#0000FF"
+    }
   },
   {
     "id": "tm_1511",
@@ -15260,7 +16968,13 @@
     "countryCode": "SA",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/9840.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#000000",
+      "tertiary": "#fa7908"
+    }
   },
   {
     "id": "tm_15542",
@@ -15310,7 +17024,13 @@
     "countryCode": "AT",
     "continent": "Europe",
     "lat": 47.844092,
-    "lng": 13.008301
+    "lng": 13.008301,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/37024.png",
+    "colors": {
+      "primary": "#E41349",
+      "secondary": "#FFFFFF",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_485",
@@ -15470,7 +17190,13 @@
     "countryCode": "PL",
     "continent": "Europe",
     "lat": 50.2959259,
-    "lng": 18.7675689
+    "lng": 18.7675689,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/428.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#0009b0",
+      "tertiary": "#e80303"
+    }
   },
   {
     "id": "tm_6112",
@@ -15570,7 +17296,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 48.058081041581,
-    "lng": -0.76195041882403
+    "lng": -0.76195041882403,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1080.png",
+    "colors": {
+      "primary": "#fc8f0a",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_1165",
@@ -15590,7 +17321,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 46.7967196,
-    "lng": 1.7236116
+    "lng": 1.7236116,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1175.png",
+    "colors": {
+      "primary": "#00448D",
+      "secondary": "#E10019"
+    }
   },
   {
     "id": "tm_2969",
@@ -15600,7 +17336,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 47.3029956,
-    "lng": 5.0597826
+    "lng": 5.0597826,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2969.png",
+    "colors": {
+      "primary": "#D3072A",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_3161",
@@ -15610,7 +17351,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 47.375713,
-    "lng": 0.726395
+    "lng": 0.726395,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3161.png",
+    "colors": {
+      "primary": "#00c4ff",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_3205",
@@ -15706,7 +17452,13 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 41.36450601591,
-    "lng": -8.7393923625596
+    "lng": -8.7393923625596,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2425.png",
+    "colors": {
+      "primary": "#076132",
+      "secondary": "#ffffff",
+      "tertiary": "#85521f"
+    }
   },
   {
     "id": "tm_27400",
@@ -15776,7 +17528,13 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 48.396126,
-    "lng": 10.882622
+    "lng": 10.882622,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/5379.png",
+    "colors": {
+      "primary": "#BB3532",
+      "secondary": "#006633",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_10838",
@@ -15796,7 +17554,13 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 43.66576,
-    "lng": 4.6228
+    "lng": 4.6228,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/11300.png",
+    "colors": {
+      "primary": "#0080FF",
+      "secondary": "#F2E63A",
+      "tertiary": "#0080FF"
+    }
   },
   {
     "id": "tm_9010",
@@ -15856,7 +17620,13 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 45.76706620794103,
-    "lng": 5.012739622638681
+    "lng": 5.012739622638681,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/12764.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#003781",
+      "tertiary": "#DB0013"
+    }
   },
   {
     "id": "tm_853",
@@ -15876,7 +17646,13 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 47.45953974579876,
-    "lng": -0.5689906165506101
+    "lng": -0.5689906165506101,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1420.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#FFFFFF",
+      "tertiary": "#b49978"
+    }
   },
   {
     "id": "tm_10872",
@@ -15886,7 +17662,8 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 44.87594964731081,
-    "lng": -0.6700845877718842
+    "lng": -0.6700845877718842,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10872.png"
   },
   {
     "id": "tm_429",
@@ -15896,7 +17673,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 34.6839684,
-    "lng": 33.0513099
+    "lng": 33.0513099,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/429.png",
+    "colors": {
+      "primary": "#086cf0",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_3558",
@@ -15916,7 +17698,8 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 43.58325443488045,
-    "lng": 1.4341230998537668
+    "lng": 1.4341230998537668,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/9371.png"
   },
   {
     "id": "tm_7042",
@@ -15926,7 +17709,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 50.725231,
-    "lng": 1.613334
+    "lng": 1.613334,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/7042.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#FF0000"
+    }
   },
   {
     "id": "tm_9268",
@@ -15986,7 +17774,12 @@
     "countryCode": "EG",
     "continent": "Africa",
     "lat": 29.9899318,
-    "lng": 31.319696
+    "lng": 31.319696,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/18234.png",
+    "colors": {
+      "primary": "#FFFF00",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_3527",
@@ -16006,7 +17799,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3229.png",
+    "colors": {
+      "primary": "#e6292d",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_8524",
@@ -16016,7 +17814,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 43.300805099272,
-    "lng": 5.4672690108418
+    "lng": 5.4672690108418,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8524.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#099FFF"
+    }
   },
   {
     "id": "tm_1230",
@@ -16026,7 +17829,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 25.285400741845,
-    "lng": 51.514908930719
+    "lng": 51.514908930719,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1230.png",
+    "colors": {
+      "primary": "#bb2025",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_9202",
@@ -16046,7 +17854,13 @@
     "countryCode": "CL",
     "continent": "South America",
     "lat": -33.3964096,
-    "lng": -70.5037311
+    "lng": -70.5037311,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3277.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#0379E5",
+      "tertiary": "#E30000"
+    }
   },
   {
     "id": "tm_3369",
@@ -16076,7 +17890,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 25.293650617179,
-    "lng": 51.545643769205
+    "lng": 51.545643769205,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/656.png",
+    "colors": {
+      "primary": "#FFFFF8",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_22507",
@@ -16106,7 +17925,12 @@
     "countryCode": "CO",
     "continent": "South America",
     "lat": 3.4566905,
-    "lng": -76.5125997
+    "lng": -76.5125997,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/9961.png",
+    "colors": {
+      "primary": "#055907",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_17707",
@@ -16146,7 +17970,12 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 38.53028450224209,
-    "lng": -8.890866303322342
+    "lng": -8.890866303322342,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1085.png",
+    "colors": {
+      "primary": "#047830",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_2330",
@@ -16186,7 +18015,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 44.143025672392,
-    "lng": 12.262221425772
+    "lng": 12.262221425772,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1429.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#080808"
+    }
   },
   {
     "id": "tm_2723",
@@ -16216,7 +18050,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6450.png",
+    "colors": {
+      "primary": "#ff6200",
+      "tertiary": "#ff6200"
+    }
   },
   {
     "id": "tm_7074",
@@ -16226,7 +18065,8 @@
     "countryCode": "RO",
     "continent": "Asia",
     "lat": 45.75211,
-    "lng": 21.2225739
+    "lng": 21.2225739,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/7074.png"
   },
   {
     "id": "tm_11493",
@@ -16306,7 +18146,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 45.8141207,
-    "lng": 3.1208467
+    "lng": 3.1208467,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3524.png",
+    "colors": {
+      "primary": "#C50C46",
+      "secondary": "#002D6A"
+    }
   },
   {
     "id": "tm_8154",
@@ -16316,7 +18161,13 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 48.1075474,
-    "lng": -1.7128875
+    "lng": -1.7128875,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8154.png",
+    "colors": {
+      "primary": "#E13327",
+      "secondary": "#FFFFFF",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_2259",
@@ -16396,7 +18247,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 44.78900365589,
-    "lng": 10.863413885236
+    "lng": 10.863413885236,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4102.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#de1616"
+    }
   },
   {
     "id": "tm_53853",
@@ -16416,7 +18272,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 43.710104,
-    "lng": 10.395961
+    "lng": 10.395961,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4172.png",
+    "colors": {
+      "primary": "#050404",
+      "secondary": "#100778"
+    }
   },
   {
     "id": "tm_12130",
@@ -16426,7 +18287,8 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/12130.png"
   },
   {
     "id": "tm_6692",
@@ -16436,7 +18298,11 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.435806,
-    "lng": 8.595996
+    "lng": 8.595996,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6692.png",
+    "colors": {
+      "primary": "#007FFF"
+    }
   },
   {
     "id": "tm_3709",
@@ -16446,7 +18312,13 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 40.3243202,
-    "lng": -3.7146721
+    "lng": -3.7146721,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3709.png",
+    "colors": {
+      "primary": "#0000FF",
+      "secondary": "#FFFFFF",
+      "tertiary": "#FF0000"
+    }
   },
   {
     "id": "tm_2254",
@@ -16476,7 +18348,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.669942,
-    "lng": 12.256108
+    "lng": 12.256108,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2251.png",
+    "colors": {
+      "primary": "#f9fbfc",
+      "secondary": "#d4effc"
+    }
   },
   {
     "id": "tm_4271",
@@ -16486,7 +18363,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.6210837,
-    "lng": 13.7901409
+    "lng": 13.7901409,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4271.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_21100",
@@ -16546,7 +18428,13 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 44.93217,
-    "lng": 9.91144
+    "lng": 9.91144,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4163.png",
+    "colors": {
+      "primary": "#d91f1f",
+      "secondary": "#000000",
+      "tertiary": "#a8a8a8"
+    }
   },
   {
     "id": "tm_5514",
@@ -16616,7 +18504,13 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 43.780831,
-    "lng": 11.2826806
+    "lng": 11.2826806,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8505.png",
+    "colors": {
+      "primary": "#5C2180",
+      "secondary": "#FFFFFF",
+      "tertiary": "#5C2180"
+    }
   },
   {
     "id": "tm_6574",
@@ -16626,7 +18520,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 44.5404485,
-    "lng": 10.7878668
+    "lng": 10.7878668,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6574.png",
+    "colors": {
+      "primary": "#099902",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_5432",
@@ -16636,7 +18535,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/5432.png"
   },
   {
     "id": "tm_2618",
@@ -16676,7 +18576,13 @@
     "countryCode": "JP",
     "continent": "Asia",
     "lat": 35.357674056131,
-    "lng": 139.31827772409
+    "lng": 139.31827772409,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8457.png",
+    "colors": {
+      "primary": "#6FBA2C",
+      "secondary": "#005CA2",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_10948",
@@ -16686,7 +18592,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 23.1352026,
-    "lng": 113.3250298
+    "lng": 113.3250298,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10948.png",
+    "colors": {
+      "primary": "#ff0000",
+      "tertiary": "#ff0000"
+    }
   },
   {
     "id": "tm_3522",
@@ -16696,7 +18607,13 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 44.11680891801,
-    "lng": 9.861916936934
+    "lng": 9.861916936934,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3522.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#000000",
+      "tertiary": "#6C93BA"
+    }
   },
   {
     "id": "tm_2418",
@@ -16716,7 +18633,12 @@
     "countryCode": "RO",
     "continent": "Asia",
     "lat": 44.9415658,
-    "lng": 26.0348695
+    "lng": 26.0348695,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/9465.png",
+    "colors": {
+      "primary": "#FFFF00",
+      "secondary": "#1B3CF7"
+    }
   },
   {
     "id": "tm_11997",
@@ -16736,7 +18658,12 @@
     "countryCode": "SK",
     "continent": "Europe",
     "lat": 48.3202122,
-    "lng": 18.0871692
+    "lng": 18.0871692,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1562.png",
+    "colors": {
+      "primary": "#3c54f0",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_636",
@@ -16756,7 +18683,13 @@
     "countryCode": "RS",
     "continent": "Europe",
     "lat": 45.26444,
-    "lng": 19.83167
+    "lng": 19.83167,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/448.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FAFAFA",
+      "tertiary": "#3972D4"
+    }
   },
   {
     "id": "tm_3840",
@@ -16766,7 +18699,13 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 36.987498563509,
-    "lng": 35.33658798784
+    "lng": 35.33658798784,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3840.png",
+    "colors": {
+      "primary": "#99ceff",
+      "secondary": "#020066",
+      "tertiary": "#ffffff"
+    }
   },
   {
     "id": "tm_4458",
@@ -16836,7 +18775,12 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 36.5436,
-    "lng": 31.9997
+    "lng": 31.9997,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/11282.png",
+    "colors": {
+      "primary": "#f58320",
+      "secondary": "#42a13f"
+    }
   },
   {
     "id": "tm_12301",
@@ -16916,7 +18860,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.1128156,
-    "lng": 7.6337703
+    "lng": 7.6337703,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/11008.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#0A0909"
+    }
   },
   {
     "id": "tm_10091",
@@ -17036,7 +18985,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 41.6331168,
-    "lng": 13.321471
+    "lng": 13.321471,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8970.png",
+    "colors": {
+      "primary": "#ffdd00",
+      "secondary": "#004393"
+    }
   },
   {
     "id": "tm_38995",
@@ -17066,7 +19020,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 39.078438,
-    "lng": 17.1264832
+    "lng": 17.1264832,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4083.png",
+    "colors": {
+      "primary": "#d43333",
+      "secondary": "#1d0d61"
+    }
   },
   {
     "id": "tm_12816",
@@ -17086,7 +19045,13 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/45276.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#FF0000",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_22302",
@@ -17116,7 +19081,8 @@
     "countryCode": "GR",
     "continent": "Europe",
     "lat": 38.0284079,
-    "lng": 23.7424897
+    "lng": 23.7424897,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/441.png"
   },
   {
     "id": "tm_8715",
@@ -17346,7 +19312,13 @@
     "countryCode": "SK",
     "continent": "Europe",
     "lat": 49.2292506,
-    "lng": 18.7441305
+    "lng": 18.7441305,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1443.png",
+    "colors": {
+      "primary": "#fbe200",
+      "secondary": "#004f2a",
+      "tertiary": "#5bded6"
+    }
   },
   {
     "id": "tm_5704",
@@ -17386,7 +19358,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2150.png"
   },
   {
     "id": "tm_2273",
@@ -17566,7 +19539,13 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 40.356717,
-    "lng": 18.174586
+    "lng": 18.174586,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/5618.png",
+    "colors": {
+      "primary": "#F7FF08",
+      "secondary": "#E80000",
+      "tertiary": "#080857"
+    }
   },
   {
     "id": "tm_18051",
@@ -17646,7 +19625,13 @@
     "countryCode": "SA",
     "continent": "Asia",
     "lat": 21.581008877317,
-    "lng": 39.165360890329
+    "lng": 39.165360890329,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/18487.png",
+    "colors": {
+      "primary": "#08992F",
+      "secondary": "#FFFFFF",
+      "tertiary": "#08992F"
+    }
   },
   {
     "id": "tm_2238",
@@ -17696,7 +19681,13 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/78435.png",
+    "colors": {
+      "primary": "#0080FF",
+      "secondary": "#111e24",
+      "tertiary": "#FCFCFC"
+    }
   },
   {
     "id": "tm_28436",
@@ -17786,7 +19777,13 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/12001.png",
+    "colors": {
+      "primary": "#515EE8",
+      "secondary": "#F5EBEB",
+      "tertiary": "#E61C1C"
+    }
   },
   {
     "id": "tm_4053",
@@ -17836,7 +19833,13 @@
     "countryCode": "SA",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1114.png",
+    "colors": {
+      "primary": "#4169E1",
+      "secondary": "#FFFFFF",
+      "tertiary": "#B81E25"
+    }
   },
   {
     "id": "tm_51786",
@@ -17876,7 +19879,13 @@
     "countryCode": "CO",
     "continent": "South America",
     "lat": 3.4094795,
-    "lng": -76.5511298
+    "lng": -76.5511298,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2352.png",
+    "colors": {
+      "primary": "#e31919",
+      "secondary": "#ffffff",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_5743",
@@ -17896,7 +19905,12 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 41.0473293,
-    "lng": 28.9298084
+    "lng": 28.9298084,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/7160.png",
+    "colors": {
+      "primary": "#65539D",
+      "secondary": "#E5D100"
+    }
   },
   {
     "id": "tm_4780",
@@ -17926,7 +19940,13 @@
     "countryCode": "JP",
     "continent": "Asia",
     "lat": 34.6568109,
-    "lng": 135.1674342
+    "lng": 135.1674342,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3958.png",
+    "colors": {
+      "primary": "#990000",
+      "secondary": "#ffffff",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_7",
@@ -17996,7 +20016,12 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 36.229884070613,
-    "lng": 36.192550621927
+    "lng": 36.192550621927,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/7775.png",
+    "colors": {
+      "primary": "#7d2223",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_8174",
@@ -18126,7 +20151,12 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 41.026616,
-    "lng": 28.939498
+    "lng": 28.939498,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6646.png",
+    "colors": {
+      "primary": "#080808",
+      "secondary": "#f00909"
+    }
   },
   {
     "id": "tm_12511",
@@ -18416,7 +20446,13 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 37.062444685838,
-    "lng": 37.37385879162
+    "lng": 37.37385879162,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2832.png",
+    "colors": {
+      "primary": "#e0212e",
+      "secondary": "#000000",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_2748",
@@ -18436,7 +20472,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 37.2329894,
-    "lng": -6.9530468
+    "lng": -6.9530468,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2867.png",
+    "colors": {
+      "primary": "#003ffc",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_23667",
@@ -18486,7 +20527,8 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -22.9135285,
-    "lng": -47.0511872
+    "lng": -47.0511872,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1134.png"
   },
   {
     "id": "tm_3734",
@@ -18636,7 +20678,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 49.29233,
-    "lng": 8.81739
+    "lng": 8.81739,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/983.png",
+    "colors": {
+      "primary": "#0033CC",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_45468",
@@ -18716,7 +20763,12 @@
     "countryCode": "SA",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/7732.png",
+    "colors": {
+      "primary": "#C11B17",
+      "secondary": "#347C2C"
+    }
   },
   {
     "id": "tm_2374",
@@ -18926,7 +20978,8 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -27.5857499,
-    "lng": -48.5854685
+    "lng": -48.5854685,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4064.png"
   },
   {
     "id": "tm_8494",
@@ -19036,7 +21089,13 @@
     "countryCode": "RU",
     "continent": "Europe",
     "lat": 55.7917067,
-    "lng": 37.5161542
+    "lng": 37.5161542,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2410.png",
+    "colors": {
+      "primary": "#eb0a2b",
+      "secondary": "#FCFCFC",
+      "tertiary": "#741f63"
+    }
   },
   {
     "id": "tm_7390",
@@ -19056,7 +21115,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 43.1814415,
-    "lng": -2.4752053
+    "lng": -2.4752053,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1533.png",
+    "colors": {
+      "primary": "#e01212",
+      "secondary": "#0707e0"
+    }
   },
   {
     "id": "tm_9899",
@@ -19066,7 +21130,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 43.30202,
-    "lng": -1.9729
+    "lng": -1.9729,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/9899.png",
+    "colors": {
+      "primary": "#0000ff",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_10773",
@@ -19086,7 +21155,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 43.3609687877992,
-    "lng": -5.87032723267782
+    "lng": -5.87032723267782,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2497.png",
+    "colors": {
+      "primary": "#0066FF",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_2502",
@@ -19116,7 +21190,12 @@
     "countryCode": "MA",
     "continent": "Africa",
     "lat": 33.5608429,
-    "lng": -7.6469319
+    "lng": -7.6469319,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6603.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_1531",
@@ -19126,7 +21205,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 38.265063,
-    "lng": -0.664697
+    "lng": -0.664697,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1531.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#00CC33"
+    }
   },
   {
     "id": "tm_3239",
@@ -19146,7 +21230,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 36.5023274,
-    "lng": -6.2740745
+    "lng": -6.2740745,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2687.png",
+    "colors": {
+      "primary": "#ffff00",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_28218",
@@ -19176,7 +21265,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 43.2656162,
-    "lng": -2.929938
+    "lng": -2.929938,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6688.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_26080",
@@ -19306,7 +21400,13 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 39.4650877,
-    "lng": -0.3578772
+    "lng": -0.3578772,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6182.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#000000",
+      "tertiary": "#F57710"
+    }
   },
   {
     "id": "tm_2929",
@@ -19326,7 +21426,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 41.9610605,
-    "lng": 2.8271791
+    "lng": 2.8271791,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/12321.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_12609",
@@ -19436,7 +21541,13 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/236.png",
+    "colors": {
+      "primary": "#ff0000",
+      "secondary": "#ffffff",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_26092",
@@ -19496,7 +21607,11 @@
     "countryCode": "MX",
     "continent": "North America",
     "lat": 25.6679193,
-    "lng": -100.2417743
+    "lng": -100.2417743,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2407.png",
+    "colors": {
+      "primary": "#000066"
+    }
   },
   {
     "id": "tm_16479",
@@ -19556,7 +21671,12 @@
     "countryCode": "JP",
     "continent": "Asia",
     "lat": 33.377853678998,
-    "lng": 130.50619650632
+    "lng": 130.50619650632,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/22177.png",
+    "colors": {
+      "primary": "#3399FF",
+      "secondary": "#FF33CC"
+    }
   },
   {
     "id": "tm_5649",
@@ -19576,7 +21696,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 42.687437,
-    "lng": -2.9447638
+    "lng": -2.9447638,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/13222.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_34696",
@@ -19616,7 +21741,12 @@
     "countryCode": "IL",
     "continent": "Asia",
     "lat": 31.764142340059,
-    "lng": 35.186687707901
+    "lng": 35.186687707901,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3793.png",
+    "colors": {
+      "primary": "#FFFF00",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_2923",
@@ -19756,7 +21886,8 @@
     "countryCode": "XX",
     "continent": "Africa",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/84230.png"
   },
   {
     "id": "tm_797",
@@ -19896,7 +22027,12 @@
     "countryCode": "SI",
     "continent": "Europe",
     "lat": 46.056354,
-    "lng": 14.560933
+    "lng": 14.560933,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4772.png",
+    "colors": {
+      "primary": "#009933",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_10997",
@@ -19946,7 +22082,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 51.7155029,
-    "lng": -1.2087832
+    "lng": -1.2087832,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/988.png",
+    "colors": {
+      "primary": "#ffee00",
+      "secondary": "#0000FF"
+    }
   },
   {
     "id": "tm_5595",
@@ -19976,7 +22117,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 50.3482383,
-    "lng": 3.5298314
+    "lng": 3.5298314,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1423.png",
+    "colors": {
+      "primary": "#ED1C24",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_3828",
@@ -20106,7 +22252,13 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 40.55928528632,
-    "lng": -111.88970690673
+    "lng": -111.88970690673,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6643.png",
+    "colors": {
+      "primary": "#A50531",
+      "secondary": "#013474",
+      "tertiary": "#F2D11A"
+    }
   },
   {
     "id": "tm_62204",
@@ -20286,7 +22438,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 24.434141412533,
-    "lng": 54.384510756736
+    "lng": 54.384510756736,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/161.png"
   },
   {
     "id": "tm_16439",
@@ -20586,7 +22739,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 25.322231,
-    "lng": 51.611687
+    "lng": 51.611687,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/26091.png",
+    "colors": {
+      "primary": "#ff0000",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_4630",
@@ -20596,7 +22754,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4630.png",
+    "colors": {
+      "primary": "#2423E4",
+      "secondary": "#030303"
+    }
   },
   {
     "id": "tm_9018",
@@ -20716,7 +22879,8 @@
     "countryCode": "BE",
     "continent": "Europe",
     "lat": 51.2137927,
-    "lng": 4.2454265
+    "lng": 4.2454265,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1073.png"
   },
   {
     "id": "tm_6304",
@@ -21006,7 +23170,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 48.55999259855363,
-    "lng": 7.755045063283487
+    "lng": 7.755045063283487,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/7968.png",
+    "colors": {
+      "primary": "#009FE3",
+      "secondary": "#DC2F34"
+    }
   },
   {
     "id": "tm_10717",
@@ -21066,7 +23235,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 37.1550921,
-    "lng": -3.5966768
+    "lng": -3.5966768,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/16795.png",
+    "colors": {
+      "primary": "#a61b2b",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_2521",
@@ -21076,7 +23250,13 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 39.662164998741,
-    "lng": -8.1353521719575
+    "lng": -8.1353521719575,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2521.png",
+    "colors": {
+      "primary": "#2f4e91",
+      "secondary": "#f51c0c",
+      "tertiary": "#ffffff"
+    }
   },
   {
     "id": "tm_3267",
@@ -21096,7 +23276,13 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 31.22306,
-    "lng": 121.53972
+    "lng": 121.53972,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/27190.png",
+    "colors": {
+      "primary": "#BA2C22",
+      "secondary": "#FFFFFF",
+      "tertiary": "#BA2C22"
+    }
   },
   {
     "id": "tm_1119",
@@ -21276,7 +23462,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 52.6886484,
-    "lng": -2.7357215
+    "lng": -2.7357215,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3054.png",
+    "colors": {
+      "primary": "#1D1DE0",
+      "secondary": "#E6BD17"
+    }
   },
   {
     "id": "tm_3867",
@@ -21506,7 +23697,12 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 38.7561674,
-    "lng": -9.1822884
+    "lng": -9.1822884,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10330.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_6348",
@@ -21556,7 +23752,12 @@
     "countryCode": "AR",
     "continent": "South America",
     "lat": -34.816229634702,
-    "lng": -58.202627863828
+    "lng": -58.202627863828,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2402.png",
+    "colors": {
+      "primary": "#FFEE00",
+      "secondary": "#63B015"
+    }
   },
   {
     "id": "tm_480",
@@ -21776,7 +23977,12 @@
     "countryCode": "EN",
     "continent": "Europe",
     "lat": 51.6421561,
-    "lng": -3.9351185
+    "lng": -3.9351185,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2288.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#faf7f7"
+    }
   },
   {
     "id": "tm_41654",
@@ -22376,7 +24582,12 @@
     "countryCode": "DE",
     "continent": "Europe",
     "lat": 52.290134,
-    "lng": 10.5214925
+    "lng": 10.5214925,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/23.png",
+    "colors": {
+      "primary": "#025FAC",
+      "secondary": "#FDF105"
+    }
   },
   {
     "id": "tm_889",
@@ -22456,7 +24667,8 @@
     "countryCode": "GR",
     "continent": "Europe",
     "lat": 37.955894,
-    "lng": 23.702099
+    "lng": 23.702099,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3062.png"
   },
   {
     "id": "tm_6678",
@@ -22736,7 +24948,12 @@
     "countryCode": "PL",
     "continent": "Europe",
     "lat": 50.058775,
-    "lng": 19.922231
+    "lng": 19.922231,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/5689.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_9055",
@@ -22946,7 +25163,12 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 41.270585,
-    "lng": -8.3856525
+    "lng": -8.3856525,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2995.png",
+    "colors": {
+      "primary": "#ffff08",
+      "secondary": "#00bd16"
+    }
   },
   {
     "id": "tm_5381",
@@ -23006,7 +25228,12 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 41.567539938616,
-    "lng": -8.4358625113964
+    "lng": -8.4358625113964,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10789.png",
+    "colors": {
+      "primary": "#e80c0c",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_29501",
@@ -23106,7 +25333,8 @@
     "countryCode": "DK",
     "continent": "Europe",
     "lat": 55.8160704,
-    "lng": 12.3519478
+    "lng": 12.3519478,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2778.png"
   },
   {
     "id": "tm_23287",
@@ -23316,7 +25544,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 48.3150834,
-    "lng": 4.1073717
+    "lng": 4.1073717,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10846.png",
+    "colors": {
+      "primary": "#006eb3",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_1842",
@@ -23446,7 +25679,12 @@
     "countryCode": "RO",
     "continent": "Asia",
     "lat": 46.780105,
-    "lng": 23.578373
+    "lng": 23.578373,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/7769.png",
+    "colors": {
+      "primary": "#94283f",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_13613",
@@ -23456,7 +25694,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/13613.png"
   },
   {
     "id": "tm_7319",
@@ -23716,7 +25955,12 @@
     "countryCode": "RS",
     "continent": "Europe",
     "lat": 44.772647,
-    "lng": 20.421655
+    "lng": 20.421655,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6621.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_4000",
@@ -23726,7 +25970,12 @@
     "countryCode": "PL",
     "continent": "Europe",
     "lat": 54.3910853,
-    "lng": 18.6378926
+    "lng": 18.6378926,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4000.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#009c3c"
+    }
   },
   {
     "id": "tm_5817",
@@ -24366,7 +26615,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 42.237644805376156,
-    "lng": -8.724130520240335
+    "lng": -8.724130520240335,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8733.png",
+    "colors": {
+      "primary": "#99CCFF",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_38946",
@@ -24466,7 +26720,8 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 41.0647952,
-    "lng": 29.087316
+    "lng": 29.087316,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/24245.png"
   },
   {
     "id": "tm_27261",
@@ -24516,7 +26771,8 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/11998.png"
   },
   {
     "id": "tm_790",
@@ -24536,7 +26792,13 @@
     "countryCode": "CL",
     "continent": "South America",
     "lat": -33.5050018,
-    "lng": -70.6067321
+    "lng": -70.6067321,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2433.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#000000",
+      "tertiary": "#e00000"
+    }
   },
   {
     "id": "tm_1185",
@@ -24896,7 +27158,12 @@
     "countryCode": "PL",
     "continent": "Europe",
     "lat": 53.4374337,
-    "lng": 14.5168769
+    "lng": 14.5168769,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/324.png",
+    "colors": {
+      "primary": "#00003D",
+      "secondary": "#730000"
+    }
   },
   {
     "id": "tm_12765",
@@ -24906,7 +27173,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 50.597822,
-    "lng": 3.248101
+    "lng": 3.248101,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/12765.png",
+    "colors": {
+      "primary": "#F20505",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_6361",
@@ -24946,7 +27218,8 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 48.841802,
-    "lng": 2.411745
+    "lng": 2.411745,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10004.png"
   },
   {
     "id": "tm_25014",
@@ -24996,7 +27269,13 @@
     "countryCode": "GH",
     "continent": "Africa",
     "lat": 5.60423216,
-    "lng": -0.18625624
+    "lng": -0.18625624,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/3601.png",
+    "colors": {
+      "primary": "#C22826",
+      "secondary": "#FFCD1A",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_53",
@@ -25006,7 +27285,12 @@
     "countryCode": "RS",
     "continent": "Europe",
     "lat": 44.815327,
-    "lng": 20.492237
+    "lng": 20.492237,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/53.png",
+    "colors": {
+      "primary": "#0000B0",
+      "secondary": "#FCFCFC"
+    }
   },
   {
     "id": "tm_9566",
@@ -25166,7 +27450,8 @@
     "countryCode": "HR",
     "continent": "Europe",
     "lat": 45.8632294,
-    "lng": 15.7991278
+    "lng": 15.7991278,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/918.png"
   },
   {
     "id": "tm_3334",
@@ -25236,7 +27521,13 @@
     "countryCode": "CL",
     "continent": "South America",
     "lat": -22.461307168455,
-    "lng": -68.927020797887
+    "lng": -68.927020797887,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/9103.png",
+    "colors": {
+      "primary": "#e68e22",
+      "secondary": "#ffffff",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_10747",
@@ -25456,7 +27747,13 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 34.0620276,
-    "lng": -118.3337659
+    "lng": -118.3337659,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/51828.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#C4A465",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_5662",
@@ -25606,7 +27903,8 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 39.054745,
-    "lng": 117.279351
+    "lng": 117.279351,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/33714.png"
   },
   {
     "id": "tm_3070",
@@ -25726,7 +28024,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 24.664590192363,
-    "lng": 121.7613325377
+    "lng": 121.7613325377,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/36630.png",
+    "colors": {
+      "primary": "#ff0011",
+      "tertiary": "#ff0011"
+    }
   },
   {
     "id": "tm_11831",
@@ -25756,7 +28059,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.44266908799,
-    "lng": 10.966780185699
+    "lng": 10.966780185699,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/14845.png",
+    "colors": {
+      "primary": "#F0F027",
+      "secondary": "#3910E0"
+    }
   },
   {
     "id": "tm_2414",
@@ -25886,7 +28194,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/33304.png",
+    "colors": {
+      "primary": "#040b8f",
+      "tertiary": "#04228F"
+    }
   },
   {
     "id": "tm_17238",
@@ -26026,7 +28339,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 40.704106247736,
-    "lng": 14.493310712278
+    "lng": 14.493310712278,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/5587.png",
+    "colors": {
+      "primary": "#e8f009",
+      "secondary": "#00004a"
+    }
   },
   {
     "id": "tm_28457",
@@ -26536,7 +28854,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 44.796096,
-    "lng": 10.337488
+    "lng": 10.337488,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/5243.png",
+    "colors": {
+      "primary": "#FFFB00",
+      "secondary": "#0000FF"
+    }
   },
   {
     "id": "tm_25790",
@@ -26696,7 +29019,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 45.412921,
-    "lng": 10.973773
+    "lng": 10.973773,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/16996.png",
+    "colors": {
+      "primary": "#F2E63A",
+      "secondary": "#5338DE"
+    }
   },
   {
     "id": "tm_11676",
@@ -26706,7 +29034,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 40.680360120409,
-    "lng": 14.759453907609
+    "lng": 14.759453907609,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/11676.png",
+    "colors": {
+      "primary": "#AB0A0A",
+      "secondary": "#0F0F6B"
+    }
   },
   {
     "id": "tm_38040",
@@ -26776,7 +29109,13 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 42.465287842985,
-    "lng": 14.218842739715
+    "lng": 14.218842739715,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8525.png",
+    "colors": {
+      "primary": "#0b06b3",
+      "secondary": "#fafafa",
+      "tertiary": "#59a9e6"
+    }
   },
   {
     "id": "tm_10511",
@@ -26846,7 +29185,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 25.291304343727,
-    "lng": 55.374457575381
+    "lng": 55.374457575381,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/60529.png",
+    "colors": {
+      "primary": "#ff0303",
+      "secondary": "#f7f7f7"
+    }
   },
   {
     "id": "tm_16042",
@@ -27156,7 +29500,8 @@
     "countryCode": "BR",
     "continent": "South America",
     "lat": -22.9633927,
-    "lng": -46.5367237
+    "lng": -46.5367237,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8793.png"
   },
   {
     "id": "tm_17776",
@@ -27396,7 +29741,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 43.6113317,
-    "lng": 3.9187216
+    "lng": 3.9187216,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6572.png",
+    "colors": {
+      "primary": "#344575",
+      "secondary": "#D87043"
+    }
   },
   {
     "id": "tm_14635",
@@ -28106,7 +30456,13 @@
     "countryCode": "AR",
     "continent": "South America",
     "lat": -34.6434167,
-    "lng": -58.3965327
+    "lng": -58.3965327,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2063.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF",
+      "tertiary": "#0000FF"
+    }
   },
   {
     "id": "tm_9875",
@@ -28336,7 +30692,12 @@
     "countryCode": "UY",
     "continent": "South America",
     "lat": -34.832149654444,
-    "lng": -55.965617448092
+    "lng": -55.965617448092,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2403.png",
+    "colors": {
+      "primary": "#080808",
+      "secondary": "#fffcfc"
+    }
   },
   {
     "id": "tm_18122",
@@ -28366,7 +30727,8 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 44.9189193,
-    "lng": -0.2393119
+    "lng": -0.2393119,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2968.png"
   },
   {
     "id": "tm_31614",
@@ -28466,7 +30828,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 46.08004,
-    "lng": 13.19863
+    "lng": 13.19863,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10959.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_34903",
@@ -28966,7 +31333,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 49.10935,
-    "lng": 6.1617681
+    "lng": 6.1617681,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8179.png",
+    "colors": {
+      "primary": "#74070B",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_79532",
@@ -29966,7 +32338,13 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 37.919885,
-    "lng": 40.232647
+    "lng": 40.232647,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/12382.png",
+    "colors": {
+      "primary": "#007F0E",
+      "secondary": "#F50528",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_16418",
@@ -30116,7 +32494,13 @@
     "countryCode": "US",
     "continent": "North America",
     "lat": 26.198774,
-    "lng": -80.17273
+    "lng": -80.17273,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/69261.png",
+    "colors": {
+      "primary": "#F5B6CD",
+      "secondary": "#231F20",
+      "tertiary": "#FCFCFC"
+    }
   },
   {
     "id": "tm_53815",
@@ -30226,7 +32610,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 45.4842407,
-    "lng": 4.3707841
+    "lng": 4.3707841,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8515.png",
+    "colors": {
+      "primary": "#40b848",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_5570",
@@ -30296,7 +32685,8 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 43.6806409,
-    "lng": 7.1992505
+    "lng": 7.1992505,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8158.png"
   },
   {
     "id": "tm_10820",
@@ -30306,7 +32696,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 47.782256,
-    "lng": 3.596762
+    "lng": 3.596762,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10820.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#1862F5"
+    }
   },
   {
     "id": "tm_2573",
@@ -30316,7 +32711,8 @@
     "countryCode": "XX",
     "continent": "Europe",
     "lat": 43.847591732505,
-    "lng": 18.387045376003
+    "lng": 18.387045376003,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2573.png"
   },
   {
     "id": "tm_21705",
@@ -30376,7 +32772,13 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 38.7619078,
-    "lng": -9.1630336
+    "lng": -9.1630336,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10949.png",
+    "colors": {
+      "primary": "#008056",
+      "secondary": "#FFFFFF",
+      "tertiary": "#F3C242"
+    }
   },
   {
     "id": "tm_37",
@@ -30796,7 +33198,12 @@
     "countryCode": "TR",
     "continent": "Europe",
     "lat": 38.399689,
-    "lng": 27.117754
+    "lng": 27.117754,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/12374.png",
+    "colors": {
+      "primary": "#0000FF",
+      "secondary": "#CC0000"
+    }
   },
   {
     "id": "tm_3841",
@@ -31306,7 +33713,13 @@
     "countryCode": "CO",
     "continent": "South America",
     "lat": 11.0010716,
-    "lng": -74.7995951
+    "lng": -74.7995951,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/11854.png",
+    "colors": {
+      "primary": "#F70000",
+      "secondary": "#FFFFFF",
+      "tertiary": "#11008F"
+    }
   },
   {
     "id": "tm_6368",
@@ -31336,7 +33749,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 39.9389639,
-    "lng": -0.1211441
+    "lng": -0.1211441,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/11972.png",
+    "colors": {
+      "primary": "#FFFF00",
+      "secondary": "#0073ff"
+    }
   },
   {
     "id": "tm_10679",
@@ -31466,7 +33884,12 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 41.237556,
-    "lng": -8.355235
+    "lng": -8.355235,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10331.png",
+    "colors": {
+      "primary": "#0037eb",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_23019",
@@ -31676,7 +34099,8 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/11514.png"
   },
   {
     "id": "tm_4677",
@@ -32046,7 +34470,13 @@
     "countryCode": "SE",
     "continent": "Europe",
     "lat": 59.337799,
-    "lng": 17.9366291
+    "lng": 17.9366291,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1092.png",
+    "colors": {
+      "primary": "#f50a0a",
+      "secondary": "#000000",
+      "tertiary": "#000000"
+    }
   },
   {
     "id": "tm_8954",
@@ -32206,7 +34636,8 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 49.648905790265,
-    "lng": -1.5875237435102
+    "lng": -1.5875237435102,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/5773.png"
   },
   {
     "id": "tm_27490",
@@ -32616,7 +35047,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 47.2792325,
-    "lng": -1.5402599
+    "lng": -1.5402599,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10850.png",
+    "colors": {
+      "primary": "#FCD405",
+      "secondary": "#1B8F3A"
+    }
   },
   {
     "id": "tm_18303",
@@ -32666,7 +35102,8 @@
     "countryCode": "DK",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/62683.png"
   },
   {
     "id": "tm_2776",
@@ -33086,7 +35523,12 @@
     "countryCode": "XX",
     "continent": "North America",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/4720.png",
+    "colors": {
+      "primary": "#7A003C",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_38749",
@@ -33726,7 +36168,12 @@
     "countryCode": "HR",
     "continent": "Europe",
     "lat": 43.743862739053,
-    "lng": 15.897168223746
+    "lng": 15.897168223746,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/223.png",
+    "colors": {
+      "primary": "#ff8400",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_9138",
@@ -34376,7 +36823,13 @@
     "countryCode": "SA",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/40039.png",
+    "colors": {
+      "primary": "#DB0B0B",
+      "secondary": "#4372D1",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_12452",
@@ -34756,7 +37209,8 @@
     "countryCode": "AR",
     "continent": "South America",
     "lat": -35.16667,
-    "lng": -58.21667
+    "lng": -58.21667,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/14831.png"
   },
   {
     "id": "tm_9093",
@@ -34776,7 +37230,8 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 50.349396215837835,
-    "lng": 3.530570699838844
+    "lng": 3.530570699838844,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/16663.png"
   },
   {
     "id": "tm_22275",
@@ -35156,7 +37611,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 37.3840603,
-    "lng": -5.9718187
+    "lng": -5.9718187,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/8519.png",
+    "colors": {
+      "primary": "#FF0000",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_67212",
@@ -35496,7 +37956,8 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 37.351667,
-    "lng": -5.982222
+    "lng": -5.982222,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/2865.png"
   },
   {
     "id": "tm_71085",
@@ -36426,7 +38887,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 49.23178,
-    "lng": 4.0822399
+    "lng": 4.0822399,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1421.png",
+    "colors": {
+      "primary": "#EE2223",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_44008",
@@ -36586,7 +39052,12 @@
     "countryCode": "CH",
     "continent": "Europe",
     "lat": 47.717267,
-    "lng": 8.66626
+    "lng": 8.66626,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1277.png",
+    "colors": {
+      "primary": "#ffd500",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_6620",
@@ -36766,7 +39237,13 @@
     "countryCode": "SA",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/27221.png",
+    "colors": {
+      "primary": "#04B486",
+      "secondary": "#0174DF",
+      "tertiary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_8468",
@@ -37956,7 +40433,8 @@
     "countryCode": "DK",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/62689.png"
   },
   {
     "id": "tm_4032",
@@ -38876,7 +41354,12 @@
     "countryCode": "EC",
     "continent": "South America",
     "lat": -0.3811588,
-    "lng": -78.5036065
+    "lng": -78.5036065,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/19309.png",
+    "colors": {
+      "primary": "#130080",
+      "secondary": "#FD44A0"
+    }
   },
   {
     "id": "tm_52967",
@@ -39136,7 +41619,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/15099.png",
+    "colors": {
+      "primary": "#ff0000",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_99722",
@@ -39306,7 +41794,12 @@
     "countryCode": "SA",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/6070.png",
+    "colors": {
+      "primary": "#eff700",
+      "secondary": "#008c25"
+    }
   },
   {
     "id": "tm_17195",
@@ -39756,7 +42249,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 49.49931243845743,
-    "lng": 0.16860496046202017
+    "lng": 0.16860496046202017,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/15439.png",
+    "colors": {
+      "primary": "#11A4D9",
+      "secondary": "#0065D1"
+    }
   },
   {
     "id": "tm_6639",
@@ -41166,7 +43664,12 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 40.28321013545655,
-    "lng": -7.512089771658823
+    "lng": -7.512089771658823,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10140.png",
+    "colors": {
+      "primary": "#0d4708",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_14165",
@@ -44296,7 +46799,8 @@
     "countryCode": "SA",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/39536.png"
   },
   {
     "id": "tm_12423",
@@ -44316,7 +46820,8 @@
     "countryCode": "HR",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/44796.png"
   },
   {
     "id": "tm_31168",
@@ -44696,7 +47201,12 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 49.23178,
-    "lng": 4.0822399
+    "lng": 4.0822399,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/11204.png",
+    "colors": {
+      "primary": "#EE2223",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_80503",
@@ -44726,7 +47236,12 @@
     "countryCode": "SA",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/34911.png",
+    "colors": {
+      "primary": "#ffe9c9",
+      "secondary": "#6e2222"
+    }
   },
   {
     "id": "tm_21047",
@@ -45536,7 +48051,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 44.5404485,
-    "lng": 10.7878668
+    "lng": 10.7878668,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/19114.png",
+    "colors": {
+      "primary": "#099902",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_22277",
@@ -45736,7 +48256,12 @@
     "countryCode": "ES",
     "continent": "Europe",
     "lat": 37.1550921,
-    "lng": -3.5966768
+    "lng": -3.5966768,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/21550.png",
+    "colors": {
+      "primary": "#a61b2b",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_4075",
@@ -46596,7 +49121,12 @@
     "countryCode": "XX",
     "continent": "Asia",
     "lat": 26.118287098622,
-    "lng": 51.215682439506
+    "lng": 51.215682439506,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/10775.png",
+    "colors": {
+      "primary": "#FFFFFF",
+      "secondary": "#FF0000"
+    }
   },
   {
     "id": "tm_57299",
@@ -47086,7 +49616,12 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 41.44946270768153,
-    "lng": -8.27906966996833
+    "lng": -8.27906966996833,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/15136.png",
+    "colors": {
+      "primary": "#ffffff",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_21075",
@@ -47206,7 +49741,13 @@
     "countryCode": "SA",
     "continent": "Asia",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/67913.png",
+    "colors": {
+      "primary": "#ffff00",
+      "secondary": "#0000ff",
+      "tertiary": "#ff0000"
+    }
   },
   {
     "id": "tm_9669",
@@ -47846,7 +50387,13 @@
     "countryCode": "SK",
     "continent": "Europe",
     "lat": 49.2292506,
-    "lng": 18.7441305
+    "lng": 18.7441305,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/20634.png",
+    "colors": {
+      "primary": "#fbe200",
+      "secondary": "#004f2a",
+      "tertiary": "#5bded6"
+    }
   },
   {
     "id": "tm_32111",
@@ -50356,7 +52903,13 @@
     "countryCode": "FR",
     "continent": "Europe",
     "lat": 47.45953974579876,
-    "lng": -0.5689906165506101
+    "lng": -0.5689906165506101,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/16672.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#FFFFFF",
+      "tertiary": "#b49978"
+    }
   },
   {
     "id": "tm_478",
@@ -54786,7 +57339,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/49752.png",
+    "colors": {
+      "primary": "#d90000",
+      "secondary": "#000000"
+    }
   },
   {
     "id": "tm_13653",
@@ -55846,7 +58404,8 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/49567.png"
   },
   {
     "id": "tm_50913",
@@ -56046,7 +58605,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/41101.png",
+    "colors": {
+      "primary": "#000000",
+      "secondary": "#ffffff"
+    }
   },
   {
     "id": "tm_18519",
@@ -57786,7 +60350,12 @@
     "countryCode": "PT",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/41588.png",
+    "colors": {
+      "primary": "#0133DE",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_21423",
@@ -58026,7 +60595,12 @@
     "countryCode": "IT",
     "continent": "Europe",
     "lat": 0,
-    "lng": 0
+    "lng": 0,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/49755.png",
+    "colors": {
+      "primary": "#020075",
+      "secondary": "#fbff0d"
+    }
   },
   {
     "id": "tm_20839",
@@ -58736,7 +61310,12 @@
     "countryCode": "SN",
     "continent": "Africa",
     "lat": 14.849070818704,
-    "lng": -17.173701524734
+    "lng": -17.173701524734,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/30031.png",
+    "colors": {
+      "primary": "#AB1111",
+      "secondary": "#FFFFFF"
+    }
   },
   {
     "id": "tm_62105",
@@ -60336,7 +62915,13 @@
     "countryCode": "GE",
     "continent": "Europe",
     "lat": 41.5192537,
-    "lng": 45.0329456
+    "lng": 45.0329456,
+    "crestUrl": "https://tmssl.akamaized.net/images/wappen/big/1799.png",
+    "colors": {
+      "primary": "#b82727",
+      "secondary": "#ffffff",
+      "tertiary": "#050505"
+    }
   },
   {
     "id": "tm_48174",

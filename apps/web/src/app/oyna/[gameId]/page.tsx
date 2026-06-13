@@ -246,6 +246,10 @@ export default function GameSessionPage() {
         router.push(`/zincir/${params.gameId}`);
         return;
       }
+      if (mode === 'ortak') {
+        router.push(`/ortak-bul/${params.gameId}`);
+        return;
+      }
       setPickedMode('vs');
     },
     [router, params.gameId],

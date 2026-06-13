@@ -5,14 +5,14 @@ import { cn } from '@/lib/cn';
 import { SwordsIcon, CardsIcon, TrophyIcon, QuestionIcon } from '@/components/icons';
 
 /** Oynanabilir oyun modu kimliği (rakip türünden FARKLI — bu oyunun türü). */
-export type PlayableMode = 'vs' | 'squad' | 'target' | 'list' | 'kareler' | 'zincir';
+export type PlayableMode = 'vs' | 'squad' | 'target' | 'list' | 'kareler' | 'zincir' | 'ortak';
 
 interface GameModeSelectSceneProps {
   onPick: (mode: PlayableMode) => void;
 }
 
 interface ModeDef {
-  id: PlayableMode | 'target' | 'list';
+  id: PlayableMode;
   emoji: string;
   icon: React.ReactNode;
   title: string;
@@ -69,6 +69,14 @@ const MODES: ModeDef[] = [
     body: '7 kulüp gösterilir; futbolcu seç, kaçında oynadıysa o kadar puan. Her oyuncu 5 futbolcu girer.',
     ready: true,
   },
+  {
+    id: 'ortak',
+    emoji: '🤝',
+    icon: <CardsIcon size={26} />,
+    title: 'Ortak Bul',
+    body: 'Her tur 2 kulüp gelir; ikisinde de oynamış futbolcuyu bul. Ne kadar az bilinen ortak, o kadar puan.',
+    ready: true,
+  },
 ];
 
 export function GameModeSelectScene({ onPick }: GameModeSelectSceneProps) {
@@ -101,7 +109,8 @@ export function GameModeSelectScene({ onPick }: GameModeSelectSceneProps) {
                 m.id === 'target' ||
                 m.id === 'list' ||
                 m.id === 'kareler' ||
-                m.id === 'zincir')
+                m.id === 'zincir' ||
+                m.id === 'ortak')
                 ? () => onPick(m.id as PlayableMode)
                 : undefined
             }

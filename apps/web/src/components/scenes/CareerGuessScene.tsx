@@ -7,12 +7,13 @@ import { PlayerCard } from '@/components/PlayerCard';
 import { CountdownRing } from '@/components/CountdownRing';
 import { cn } from '@/lib/cn';
 import { normalize } from '@/lib/playerFilters';
+import { nationalityTr } from '@/lib/trLocale';
 import { CareerTimeline } from './CareerTimeline';
 import { TIER_POINTS, type CareerClue, type CareerSide } from '@/lib/careerMode';
 
 const SIDE = {
-  P1: { text: 'text-side-red', border: 'border-side-red/70', dot: 'bg-side-red' },
-  P2: { text: 'text-side-blue', border: 'border-side-blue/70', dot: 'bg-side-blue' },
+  P1: { text: 'text-side-red', border: 'border-side-red/70', dot: 'bg-side-red', glow: 'shadow-[0_0_18px_rgba(239,68,68,0.4)]' },
+  P2: { text: 'text-side-blue', border: 'border-side-blue/70', dot: 'bg-side-blue', glow: 'shadow-[0_0_18px_rgba(59,130,246,0.4)]' },
 } as const;
 
 const TIER_LABEL = ['Dağınık kulüpler', 'Kronolojik sıra', 'Yıllar + milliyet', 'İlk harf'];
@@ -26,7 +27,6 @@ interface CareerGuessSceneProps {
   timerKey: string | number;
   deadlineMs?: number | null;
   hideTimer?: boolean;
-  /** Bir futbolcu seç (id). */
   onGuess: (playerId: string) => void;
   onTimeout: () => void;
   mySide: CareerSide;
@@ -34,22 +34,18 @@ interface CareerGuessSceneProps {
   p2Name?: string;
   p1Score: number;
   p2Score: number;
-  /** Bu kademede tahminim yapıldı mı + doğru muydu (puan reveal'da). */
   myGuess?: { correct: boolean } | null;
-  /** Doğru bilip kilitlendim mi (artık bekliyorum)? */
   myLocked?: boolean;
   myPoints?: number;
-  /** Rakip sinyali: hangi kademede, kilitlendi mi, bu kademede tahmin etti mi. */
   oppSignal?: { tier: number; locked: boolean; submitted: boolean } | null;
-  /** Seçim kilitli mi (tahmin yaptım/kilitliyim → bekle). */
   locked?: boolean;
   waitingLabel?: string | null;
 }
 
 /**
- * "Kariyer Yolu" tahmin sahnesi (KADEMELİ). Üstte kademe + puan + süre; ortada
- * kariyer çizelgesi (CareerTimeline); altta havuz + arama. Bir futbolcuya tıkla =
- * bu kademedeki tahminin. Doğru → kilitlenirsin (puan). Yanlış → sonraki kademe.
+ * "Kariyer Yolu" tahmin sahnesi (KADEMELİ). Kompakt üst panel (skorlar kademe
+ * çubuğunun iki yanında) + SAĞ-STICKY sayaç (sayfa kaydıkça görünür, kartlarla
+ * çakışmaz) + İRİ kariyer çizelgesi + belirgin ipucu kutuları + havuz arama.
  */
 export function CareerGuessScene({
   clue,
@@ -76,7 +72,6 @@ export function CareerGuessScene({
 }: CareerGuessSceneProps) {
   const [search, setSearch] = useState('');
 
-  // Kademe değişince aramayı temizle (yeni ipucu, taze arama).
   useEffect(() => {
     setSearch('');
   }, [clue.tier, roundNo]);
@@ -103,143 +98,149 @@ export function CareerGuessScene({
     return pool.filter((p) => normalize(p.displayName).includes(q)).slice(0, 48);
   }, [pool, search]);
 
-  const myName = mySide === 'P1' ? p1Name : p2Name;
-  const oppName = mySide === 'P1' ? p2Name : p1Name;
   const oppSide: CareerSide = mySide === 'P1' ? 'P2' : 'P1';
   const tierPoints = TIER_POINTS[clue.tier] ?? 0;
   const noResults = search && candidates.length === 0;
 
   return (
-    <section className="flex flex-col gap-4 pb-10">
-      {/* Üst: tur + kademe + puan göstergesi */}
-      <header className="flex flex-col items-center gap-3 text-center">
+    <section className="flex flex-col gap-5 pb-10">
+      {/* ───── KOMPAKT ÜST PANEL: [P1 skor] — [kademe çubuğu] — [P2 skor] ───── */}
+      <header className="flex flex-col items-center gap-3">
         <span className="inline-flex items-center gap-2 rounded-full border border-accent-gold/30 bg-accent-gold/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-goldHi">
           🎽 Kariyer Yolu · Tur {roundNo}/{totalRounds}
         </span>
-        <h1 className="text-xl font-black tracking-tight sm:text-2xl">Bu kariyer kimin?</h1>
 
-        {/* Kademe ilerleme çubuğu (4 nokta, puan azalan) */}
-        <div className="flex items-center gap-2">
-          {TIER_POINTS.map((pts, i) => (
-            <div
-              key={i}
-              className={cn(
-                'flex flex-col items-center gap-0.5 rounded-lg px-2 py-1 transition',
-                i === clue.tier
-                  ? 'bg-accent-gold/20 ring-1 ring-accent-gold/50'
-                  : i < clue.tier
-                    ? 'opacity-40'
-                    : 'opacity-25',
-              )}
-            >
-              <span className={cn('text-sm font-black', i === clue.tier ? 'text-accent-goldHi' : 'text-white/60')}>
-                {pts}p
-              </span>
-              <span className="text-[8px] uppercase tracking-wider text-white/40">{i + 1}. ipucu</span>
-            </div>
-          ))}
+        <div className="flex w-full max-w-3xl items-center justify-center gap-3 sm:gap-5">
+          <ScoreBlock name={p1Name} score={p1Score} side="P1" />
+
+          {/* Kademe çubuğu (4 nokta, puan azalan) — ORTA */}
+          <div className="flex items-center gap-1.5 sm:gap-2">
+            {TIER_POINTS.map((pts, i) => (
+              <div
+                key={i}
+                className={cn(
+                  'flex flex-col items-center gap-0.5 rounded-xl px-2.5 py-1.5 transition',
+                  i === clue.tier
+                    ? 'bg-accent-gold/20 ring-2 ring-accent-gold/60 shadow-[0_0_16px_rgba(240,193,75,0.4)]'
+                    : i < clue.tier
+                      ? 'opacity-35'
+                      : 'opacity-25',
+                )}
+              >
+                <span className={cn('text-base font-black leading-none', i === clue.tier ? 'text-accent-goldHi' : 'text-white/55')}>
+                  {pts}p
+                </span>
+                <span className="text-[8px] uppercase tracking-wider text-white/40">{i + 1}.</span>
+              </div>
+            ))}
+          </div>
+
+          <ScoreBlock name={p2Name} score={p2Score} side="P2" />
         </div>
+
         <p className="text-xs text-white/55">
-          Şu an <span className="font-semibold text-accent-goldHi">{tierPoints} puan</span> · {TIER_LABEL[clue.tier]}
+          Şu an <span className="font-bold text-accent-goldHi">{tierPoints} puan</span> · {TIER_LABEL[clue.tier]}
         </p>
-
-        <div className="flex items-center gap-4">
-          <ScorePill name={p1Name} score={p1Score} side="P1" />
-          <span className="text-xs font-bold text-white/40">vs</span>
-          <ScorePill name={p2Name} score={p2Score} side="P2" />
-        </div>
       </header>
 
-      {/* Süre + durum */}
-      <div className="flex flex-col items-center gap-3">
+      {/* ───── SAĞ-STICKY SAYAÇ + DURUM (sayfa kaydıkça görünür, kartlarla çakışmaz) ───── */}
+      <div className="pointer-events-none fixed right-3 top-1/3 z-40 flex flex-col items-center gap-2 sm:right-6">
         {!hideTimer && !myLocked && (
-          <CountdownRing
-            seconds={seconds}
-            deadlineMs={deadlineMs}
-            runKey={timerKey}
-            onComplete={onTimeout}
-            size={60}
-            stroke={6}
-            color="#f0c14b"
-            urgentColor="#ef4444"
-          />
+          <div className="pointer-events-auto rounded-full bg-black/40 p-1.5 backdrop-blur-sm">
+            <CountdownRing
+              seconds={seconds}
+              deadlineMs={deadlineMs}
+              runKey={timerKey}
+              onComplete={onTimeout}
+              size={62}
+              stroke={6}
+              color="#f0c14b"
+              urgentColor="#ef4444"
+            />
+          </div>
         )}
-
-        <div className="flex flex-wrap items-center justify-center gap-2">
-          {/* Kendi durumum */}
+        {/* Kendi durum rozeti */}
+        <div className="pointer-events-auto flex flex-col items-center gap-1.5">
           {myLocked ? (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-emerald-400/60 bg-emerald-400/15 px-3 py-1.5 text-xs font-bold text-emerald-300">
-              ✓ Bildin · +{myPoints} · rakip bekleniyor
+            <span className="inline-flex items-center gap-1 rounded-full border border-emerald-400/60 bg-emerald-400/15 px-2.5 py-1 text-[11px] font-bold text-emerald-300 backdrop-blur-sm">
+              ✓ +{myPoints}
             </span>
           ) : myGuess ? (
             <span
               className={cn(
-                'inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold',
+                'inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[11px] font-bold backdrop-blur-sm',
                 myGuess.correct
                   ? 'border-emerald-400/60 bg-emerald-400/15 text-emerald-300'
                   : 'border-side-red/60 bg-side-red/15 text-side-red',
               )}
             >
-              {myGuess.correct ? '✓ Doğru!' : '✗ Yanlış — sonraki ipucu açılıyor'}
+              {myGuess.correct ? '✓ Doğru' : '✗ Yanlış'}
             </span>
-          ) : (
-            <span className={cn('inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-semibold', SIDE[mySide].text)}>
-              {myName}: tahmin et →
-            </span>
-          )}
-
-          {/* Rakip sinyali (kim/ne seçtiği GİZLİ; sadece durum) */}
+          ) : null}
+          {/* Rakip sinyali (kim/ne GİZLİ; sadece durum) */}
           {oppSignal && (
-            <span className={cn('inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-bold', SIDE[oppSide].border, SIDE[oppSide].text)}>
-              <span className={cn('h-2 w-2 rounded-full', SIDE[oppSide].dot)} aria-hidden />
-              {oppSignal.locked
-                ? `${oppName} bildi ✓`
-                : oppSignal.submitted
-                  ? `${oppName} tahmin etti`
-                  : `${oppName}: ${oppSignal.tier + 1}. ipucu`}
+            <span className={cn('inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-[10px] font-bold backdrop-blur-sm', SIDE[oppSide].border, SIDE[oppSide].text)}>
+              <span className={cn('h-1.5 w-1.5 rounded-full', SIDE[oppSide].dot)} aria-hidden />
+              {oppSignal.locked ? 'bildi ✓' : oppSignal.submitted ? 'seçti' : `${oppSignal.tier + 1}. ipucu`}
             </span>
           )}
         </div>
-
-        {/* Bekleme/kilit etiketi + deny shake */}
-        {locked && waitingLabel && (
-          <motion.div
-            key={denyShake}
-            animate={denyActive ? { x: [0, -6, 6, -4, 4, -2, 2, 0] } : {}}
-            transition={{ duration: 0.45 }}
-            className={cn(
-              'inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-bold transition-colors duration-300',
-              denyActive
-                ? 'border-side-red/70 bg-side-red/20 text-side-red'
-                : 'border-accent-gold/40 bg-accent-gold/10 text-accent-goldHi',
-            )}
-          >
-            <span aria-hidden>{denyActive ? '🚫' : '⏳'}</span>
-            {denyActive ? 'Şu an tahmin edemezsin!' : waitingLabel}
-          </motion.div>
-        )}
       </div>
 
-      {/* Kariyer çizelgesi */}
-      <CareerTimeline clue={clue} />
+      {/* ───── DURUM / BEKLEME ETİKETİ (akış içinde, sticky değil) ───── */}
+      {(locked || myGuess) && (
+        <div className="flex justify-center">
+          {locked && waitingLabel ? (
+            <motion.div
+              key={denyShake}
+              animate={denyActive ? { x: [0, -6, 6, -4, 4, -2, 2, 0] } : {}}
+              transition={{ duration: 0.45 }}
+              className={cn(
+                'inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-sm font-bold transition-colors duration-300',
+                denyActive
+                  ? 'border-side-red/70 bg-side-red/20 text-side-red'
+                  : 'border-accent-gold/40 bg-accent-gold/10 text-accent-goldHi',
+              )}
+            >
+              <span aria-hidden>{denyActive ? '🚫' : '⏳'}</span>
+              {denyActive ? 'Şu an tahmin edemezsin!' : waitingLabel}
+            </motion.div>
+          ) : null}
+        </div>
+      )}
 
-      {/* Açık ipuçları (milliyet / ilk harf) */}
+      {/* ───── İPUCU KUTULARI (milliyet / ilk harf) — BELİRGİN + yanıp sönen glow ───── */}
       {(clue.nationality || clue.initial) && (
-        <div className="flex flex-wrap items-center justify-center gap-2">
+        <div className="flex flex-wrap items-center justify-center gap-3">
           {clue.nationality && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-white/15 bg-white/5 px-3 py-1.5 text-xs font-bold text-white/80">
-              🌍 {clue.nationality}
-            </span>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1, boxShadow: ['0 0 0px rgba(255,255,255,0)', '0 0 18px rgba(255,255,255,0.18)', '0 0 0px rgba(255,255,255,0)'] }}
+              transition={{ boxShadow: { duration: 2, repeat: Infinity, ease: 'easeInOut' } }}
+              className="flex flex-col items-center gap-1 rounded-2xl border-2 border-white/25 bg-white/8 px-5 py-2.5"
+            >
+              <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-white/45">Milliyet</span>
+              <span className="text-lg font-black text-white/95">🌍 {nationalityTr(clue.nationality)}</span>
+            </motion.div>
           )}
           {clue.initial && (
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-accent-gold/40 bg-accent-gold/15 px-3 py-1.5 text-xs font-black text-accent-goldHi">
-              İlk harf: {clue.initial}…
-            </span>
+            <motion.div
+              initial={{ opacity: 0, scale: 0.9 }}
+              animate={{ opacity: 1, scale: 1, boxShadow: ['0 0 8px rgba(240,193,75,0.25)', '0 0 26px rgba(240,193,75,0.6)', '0 0 8px rgba(240,193,75,0.25)'] }}
+              transition={{ boxShadow: { duration: 1.6, repeat: Infinity, ease: 'easeInOut' } }}
+              className="flex flex-col items-center gap-1 rounded-2xl border-2 border-accent-gold/60 bg-accent-gold/15 px-5 py-2.5"
+            >
+              <span className="text-[9px] font-bold uppercase tracking-[0.18em] text-accent-goldHi/70">İlk harf</span>
+              <span className="text-2xl font-black text-accent-goldHi">{clue.initial}…</span>
+            </motion.div>
           )}
         </div>
       )}
 
-      {/* Havuz arama */}
+      {/* ───── KARİYER ÇİZELGESİ (İRİ) ───── */}
+      <CareerTimeline clue={clue} />
+
+      {/* ───── HAVUZ ARAMA ───── */}
       <div className="flex flex-col gap-3">
         <div className="flex items-center justify-between gap-3">
           <h2 className="text-sm font-bold text-white/80">Futbolcuyu tahmin et</h2>
@@ -274,18 +275,12 @@ export function CareerGuessScene({
           {noResults && (
             <div className="col-span-full flex flex-col items-center gap-1 py-8 text-center">
               <span className="text-2xl" aria-hidden>🔍</span>
-              <p className="text-sm font-semibold text-white/70">
-                Bu isim oyuncu havuzumuzda yok gibi görünüyor.
-              </p>
-              <p className="text-xs text-white/45">
-                Farklı bir yazım dene — yalnızca havuzdaki futbolcular seçilebilir.
-              </p>
+              <p className="text-sm font-semibold text-white/70">Bu isim oyuncu havuzumuzda yok gibi görünüyor.</p>
+              <p className="text-xs text-white/45">Farklı bir yazım dene — yalnızca havuzdaki futbolcular seçilebilir.</p>
             </div>
           )}
           {!search && (
-            <p className="col-span-full py-6 text-center text-sm text-white/45">
-              İpuçlarına bak, aklındaki futbolcuyu yaz.
-            </p>
+            <p className="col-span-full py-6 text-center text-sm text-white/45">İpuçlarına bak, aklındaki futbolcuyu yaz.</p>
           )}
         </div>
       </div>
@@ -293,11 +288,11 @@ export function CareerGuessScene({
   );
 }
 
-function ScorePill({ name, score, side }: { name: string; score: number; side: CareerSide }) {
+function ScoreBlock({ name, score, side }: { name: string; score: number; side: CareerSide }) {
   return (
-    <div className="flex flex-col items-center rounded-2xl border border-white/10 px-4 py-1.5">
-      <span className={cn('text-xs font-bold', SIDE[side].text)}>{name}</span>
-      <span className="text-xl font-black tabular-nums">{score}</span>
+    <div className={cn('flex min-w-[72px] flex-col items-center rounded-2xl border bg-white/5 px-3 py-1.5', SIDE[side].border)}>
+      <span className={cn('max-w-[90px] truncate text-xs font-bold', SIDE[side].text)}>{name}</span>
+      <span className="text-2xl font-black tabular-nums">{score}</span>
     </div>
   );
 }

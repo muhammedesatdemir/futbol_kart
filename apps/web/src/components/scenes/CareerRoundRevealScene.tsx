@@ -6,6 +6,7 @@ import type { Player } from '@futbol-kart/shared-types';
 import { PlayerCard } from '@/components/PlayerCard';
 import { cn } from '@/lib/cn';
 import { countryFlag } from '@/lib/playerDisplay';
+import { nationalityTr, clubNameTr } from '@/lib/trLocale';
 import { useSfx } from '@/lib/useSfx';
 import type { CareerSide } from '@/lib/careerMode';
 import type { CareerReveal } from '@/lib/server/careerMatchEngine';
@@ -83,7 +84,7 @@ export function CareerRoundRevealScene({
         )}
         <h2 className="text-xl font-black">{reveal.answerName}</h2>
         {reveal.nationality && (
-          <span className="text-xs font-semibold text-white/60">🌍 {reveal.nationality}</span>
+          <span className="text-xs font-semibold text-white/60">🌍 {nationalityTr(reveal.nationality)}</span>
         )}
       </motion.div>
 
@@ -92,7 +93,7 @@ export function CareerRoundRevealScene({
         {reveal.stops.map((s, i) => (
           <span key={s.clubId + ':' + i} className="inline-flex items-center gap-1">
             <span className="inline-flex items-center gap-1 rounded-lg border border-white/10 bg-white/5 px-2 py-1 text-[11px] font-semibold text-white/80">
-              {countryFlag(s.countryCode) || ''} {s.name}
+              {countryFlag(s.countryCode) || ''} {clubNameTr(s.name)}
               <span className="font-mono text-[9px] text-accent-goldHi/80">{s.fromYear}</span>
             </span>
             {i < reveal.stops.length - 1 && <span className="text-white/30">→</span>}

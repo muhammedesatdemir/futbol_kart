@@ -177,14 +177,15 @@ export default function CareerGamePage() {
             },
           ]);
         }
-        playSfx(next.P1.correct || next.P2.correct ? 'win' : 'heartbreak');
+        // Tur sonu sesi REVEAL sahnesinde tek sefer çalar (çift ses önlendi) →
+        // burada çalmıyoruz. Yanlış tahmin "anlık" sesi guess handler'larında.
         setPhase('round-reveal');
       } else {
         setHsActive('P1'); // yeni kademe → hotseat tekrar P1'den
       }
       scrollTop();
     },
-    [p1Score, p2Score, playSfx, scrollTop, offCareers, roundIdx],
+    [p1Score, p2Score, scrollTop, offCareers, roundIdx],
   );
 
   // ── BOTA KARŞI: P1 tahmin → bot karar → çöz ──
@@ -197,6 +198,8 @@ export default function CareerGamePage() {
       if (!next.P1.locked && next.P1.tier < CAREER_TIERS) {
         const correct = playerId ? isCorrectGuess(career, playerId) : false;
         next.P1 = { ...next.P1, guessedId: playerId, correct };
+        // Anlık geri bildirim: YANLIŞ tahminde kalp kırıklığı (doğru sesi reveal'da).
+        if (playerId && !correct) playSfx('heartbreak');
       }
       // P2 (bot) — kendi kademesinde karar verir
       if (!next.P2.locked && next.P2.tier < CAREER_TIERS) {
@@ -206,7 +209,7 @@ export default function CareerGamePage() {
       }
       resolveTier(next);
     },
-    [offCareers, roundIdx, prog, seedStr, resolveTier],
+    [offCareers, roundIdx, prog, seedStr, resolveTier, playSfx],
   );
 
   // ── ARKADAŞA KARŞI: sırayla P1 → P2, sonra çöz ──
@@ -219,6 +222,8 @@ export default function CareerGamePage() {
       const next = { P1: { ...prog.P1 }, P2: { ...prog.P2 } };
       if (!next[side].locked && next[side].tier < CAREER_TIERS) {
         next[side] = { ...next[side], guessedId: playerId, correct };
+        // Anlık geri bildirim: YANLIŞ tahminde kalp kırıklığı (doğru sesi reveal'da).
+        if (playerId && !correct) playSfx('heartbreak');
       }
       setProg(next);
       // İki aktif taraf da bu kademede tahmin etti mi?
@@ -234,7 +239,7 @@ export default function CareerGamePage() {
       void pending;
       resolveTier(next);
     },
-    [offCareers, roundIdx, prog, hsActive, resolveTier, scrollTop],
+    [offCareers, roundIdx, prog, hsActive, resolveTier, scrollTop, playSfx],
   );
 
   const onGuessOffline = useCallback(
@@ -319,7 +324,9 @@ export default function CareerGamePage() {
           return;
         }
         setMyOutcome({ correct: outcome.correct });
-        playSfx(outcome.correct ? 'win' : 'heartbreak');
+        // Anlık geri bildirim: YANLIŞ tahminde kalp kırıklığı; doğru/tur sonu sesi
+        // REVEAL sahnesinde tek sefer (çift gol sesi önlendi).
+        if (!outcome.correct) playSfx('heartbreak');
         scrollTop();
       });
     },

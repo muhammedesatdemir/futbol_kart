@@ -16,7 +16,6 @@
  */
 import type { Player } from '@futbol-kart/shared-types';
 import { createPRNG } from '@futbol-kart/game-engine';
-import { normalize } from './playerFilters';
 
 /** Bir maçtaki tur (kariyer) sayısı. */
 export const CAREER_ROUNDS = 3;
@@ -38,14 +37,12 @@ const ELITE_CLUB_IDS = new Set<string>([
   'tm_15', 'tm_33', 'tm_244', 'tm_583', 'tm_1041', 'tm_131', 'tm_418', 'tm_13',
   'tm_368', 'tm_610', 'tm_294', 'tm_720',
 ]);
-/** Türk kulüpleri (elit listesinde olmayanlar dahil) — tanıdık çapa sayılır. */
-const TURK_CLUB_IDS = new Set<string>([
-  'tm_36', 'tm_141', 'tm_114', 'tm_449', 'tm_6890', 'tm_2293', 'tm_589',
-]);
-
-function isAnchorClub(clubId: string): boolean {
-  return ELITE_CLUB_IDS.has(clubId) || TURK_CLUB_IDS.has(clubId);
-}
+/**
+ * 5 büyük lig + Türkiye ülke kodları (countryCode). "Lig yayılımı" çapası:
+ * kariyer bu 6 ülkeden ≥2'sine yayılmışsa "büyük liglerde gezmiş, takip
+ * edilebilir" demektir. Niş-tek-ülke kariyerleri eler.
+ */
+const BIG6_COUNTRY_CODES = new Set<string>(['EN', 'ES', 'DE', 'IT', 'FR', 'TR']);
 
 // ===========================================================================
 // Marquee (tanınırlık) — bilinmeyen oyuncu sorulmasın
@@ -62,19 +59,37 @@ export function isMarquee(p: Player): boolean {
   return (s?.nationalCaps ?? 0) >= 30 || (s?.maxTransferFeeEUR ?? 0) >= 25_000_000;
 }
 
-/** Bir oyuncunun farklı kulüp sayısı. */
-function distinctClubCount(p: Player): number {
-  return new Set(p.clubs.map((s) => s.clubId)).size;
+/** Bir oyuncunun farklı kulüp id'leri. */
+function distinctClubIds(p: Player): string[] {
+  return [...new Set(p.clubs.map((s) => s.clubId))];
 }
 
 /**
- * Kariyer Yolu için uygun mu: marquee + ≥3 farklı kulüp + ≥1 elit/Türk durak.
- * 1778 oyuncu (ölçüldü) → 3 tur için fazlasıyla bol.
+ * Oyuncunun kariyerinin yayıldığı FARKLI büyük-lig ülkesi sayısı (5 büyük + TR).
+ * clubsById ile her kulübün countryCode'una bakar.
  */
-export function isCareerEligible(p: Player): boolean {
+function big6CountryCount(p: Player, clubsById: Map<string, ClubInfo>): number {
+  const codes = new Set<string>();
+  for (const id of distinctClubIds(p)) {
+    const cc = clubsById.get(id)?.countryCode;
+    if (cc && BIG6_COUNTRY_CODES.has(cc)) codes.add(cc);
+  }
+  return codes.size;
+}
+
+/**
+ * Kariyer Yolu için uygun mu (kullanıcı kararı F, 2026-06-13):
+ *   marquee + ≥3 farklı kulüp + **6 büyük ülke liginden ≥2 farklı ülke**
+ *   + **≥1 elit kulüp durağı**.
+ * İki katmanlı tanınırlık: "büyük liglere yayılmış" (niş-tek-ülke eler) + "en az
+ * bir net tanıdık çapa" (tek-elit-gerisi-niş eler). Havuz 1126 (ölçüldü) → bol.
+ */
+export function isCareerEligible(p: Player, clubsById: Map<string, ClubInfo>): boolean {
   if (!isMarquee(p)) return false;
-  if (distinctClubCount(p) < 3) return false;
-  return p.clubs.some((s) => isAnchorClub(s.clubId));
+  const ids = distinctClubIds(p);
+  if (ids.length < 3) return false;
+  if (big6CountryCount(p, clubsById) < 2) return false;
+  return ids.some((id) => ELITE_CLUB_IDS.has(id));
 }
 
 // ===========================================================================
@@ -153,8 +168,8 @@ export interface CareerPuzzle {
 
 /**
  * Bir maç için CAREER_ROUNDS kariyer seç. Havuz: isCareerEligible (marquee +
- * ≥3 kulüp + ≥1 elit/Türk). Seed'den deterministik (iki oyuncu aynı maçı görür).
- * Tekrarsız. Havuz yetersizse (olmamalı) eşik gevşetilir.
+ * ≥3 kulüp + 6 büyük ülkeden ≥2 + ≥1 elit). Seed'den deterministik (iki oyuncu
+ * aynı maçı görür). Tekrarsız. Havuz yetersizse (olmamalı) eşik gevşetilir.
  */
 export function curateCareers(
   seed: string,
@@ -162,10 +177,10 @@ export function curateCareers(
   clubsById: Map<string, ClubInfo>,
 ): CareerPuzzle[] {
   const prng = createPRNG(`kariyer:${seed}:careers`);
-  let pool = players.filter(isCareerEligible);
+  let pool = players.filter((p) => isCareerEligible(p, clubsById));
   if (pool.length < CAREER_ROUNDS) {
-    // Güvenlik: eşik gevşet (≥1 elit şartını kaldır, sadece marquee + ≥3 kulüp).
-    pool = players.filter((p) => isMarquee(p) && distinctClubCount(p) >= 3);
+    // Güvenlik: eşik gevşet (lig/elit şartını kaldır, sadece marquee + ≥3 kulüp).
+    pool = players.filter((p) => isMarquee(p) && distinctClubIds(p).length >= 3);
   }
   const chosen = prng.shuffle(pool).slice(0, Math.min(CAREER_ROUNDS, pool.length));
   return chosen.map((p) => ({

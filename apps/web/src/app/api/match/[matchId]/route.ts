@@ -43,6 +43,12 @@ import {
   maskCommonState,
   type CommonMatchState,
 } from '@/lib/server/commonMatchEngine';
+import {
+  applyCareerTimeout,
+  careerSceneDeadlineSeconds,
+  viewCareerState,
+  type CareerMatchState,
+} from '@/lib/server/careerMatchEngine';
 import { publishMatchEvent } from '@/lib/server/ably';
 import { enforceRateLimit } from '@/lib/server/rateLimit';
 
@@ -130,6 +136,9 @@ export async function GET(
   }
   if (m.mode === 'ortak') {
     return getCommonMatch(db, m, side, clientVersion);
+  }
+  if (m.mode === 'kariyer') {
+    return getCareerMatch(db, m, side, clientVersion);
   }
 
   // SÜRE KONTROLÜ (lazy): yükleme anında süre dolduysa otomatik tamamla.
@@ -757,6 +766,88 @@ async function getCommonMatch(
     seed: m.seed,
     // 🔒 MASKELİ: rakibin aktif-tur seçimi + cevap havuzu gizli (spoiler koruması).
     state: maskCommonState(state, side),
+    winnerSide: m.winnerSide,
+    turnDeadline: deadline ? deadline.toISOString() : null,
+  });
+}
+
+/**
+ * "Kariyer Yolu" maçı için GET — sade kol (getCommonMatch kardeşi). MASKELEME VAR:
+ * doğru cevap + açılmamış kademe ipuçları + rakibin seçimi gizlenmeli. State ham
+ * DÖNMEZ; `viewCareerState(side)` taraf-özel güvenli görünüm üretir (kendi clue'm
+ * açık, rakip yalnız tier/locked sinyali, doğru cevap yalnız ROUND_REVEAL/RESULT).
+ * Süre dolumu lazy (kademe pas), versiyon kısa-devresi aynı.
+ */
+async function getCareerMatch(
+  db: ReturnType<typeof getDb>,
+  m: typeof matchTable.$inferSelect,
+  side: 'P1' | 'P2',
+  clientVersion: number,
+) {
+  let state = m.state as CareerMatchState;
+  let deadline = m.turnDeadline ? new Date(m.turnDeadline) : null;
+  let currentVersion = m.version;
+
+  let timed: { state: CareerMatchState; changed: boolean };
+  try {
+    timed = await applyCareerTimeout(
+      state,
+      deadline ? deadline.getTime() : null,
+      Date.now(),
+    );
+  } catch (err) {
+    console.error('applyCareerTimeout hatası (maç çökmesi önlendi):', err);
+    timed = { state, changed: false };
+  }
+
+  if (
+    !timed.changed &&
+    Number.isFinite(clientVersion) &&
+    clientVersion === m.version
+  ) {
+    return NextResponse.json({
+      unchanged: true,
+      version: m.version,
+      turnDeadline: deadline ? deadline.toISOString() : null,
+    });
+  }
+
+  if (timed.changed) {
+    const secs = careerSceneDeadlineSeconds(timed.state);
+    const newDeadline = secs ? new Date(Date.now() + secs * 1000) : null;
+    const updated = await db
+      .update(matchTable)
+      .set({
+        state: timed.state,
+        currentScene: timed.state.scene,
+        turnDeadline: newDeadline,
+        version: m.version + 1,
+        winnerSide: timed.state.scene === 'RESULT' ? timed.state.winner : null,
+        status: timed.state.scene === 'RESULT' ? 'finished' : 'active',
+        updatedAt: new Date(),
+      })
+      .where(and(eq(matchTable.id, m.id), eq(matchTable.version, m.version)))
+      .returning({ id: matchTable.id });
+    if (updated.length > 0) {
+      state = timed.state;
+      deadline = newDeadline;
+      currentVersion = m.version + 1;
+      await publishMatchEvent(m.id, 'state-changed', {
+        scene: state.scene,
+        round: state.round,
+      });
+    }
+  }
+
+  return NextResponse.json({
+    matchId: m.id,
+    mode: m.mode,
+    status: m.status,
+    version: currentVersion,
+    yourSide: side,
+    seed: m.seed,
+    // 🔒 MASKELİ taraf-özel görünüm — ham state DÖNMEZ (doğru cevap/rakip seçimi gizli).
+    view: viewCareerState(state, side),
     winnerSide: m.winnerSide,
     turnDeadline: deadline ? deadline.toISOString() : null,
   });

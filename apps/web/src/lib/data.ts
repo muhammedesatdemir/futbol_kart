@@ -13,6 +13,8 @@ interface ClubRaw {
   lat: number;
   lng: number;
   founded?: number;
+  /** Kulüp logosu — yalnız top ~120 kulüpte var (Kariyer Yolu logo/bayrak fallback). */
+  crestUrl?: string;
 }
 
 let cached: {

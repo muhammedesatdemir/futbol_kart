@@ -250,6 +250,10 @@ export default function GameSessionPage() {
         router.push(`/ortak-bul/${params.gameId}`);
         return;
       }
+      if (mode === 'kariyer') {
+        router.push(`/kariyer/${params.gameId}`);
+        return;
+      }
       setPickedMode('vs');
     },
     [router, params.gameId],

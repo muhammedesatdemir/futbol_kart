@@ -119,7 +119,7 @@ VS Düello'nun **online sürümü canlı ve uçtan uca test edildi**: iki gerçe
 
 - ✅ **Zincir Kur** (kulüp-bazlı) — [`lib/server/chainMatchEngine.ts`](apps/web/src/lib/server/chainMatchEngine.ts) (7 kulüp seed'den kategorik kürate edilir; **keşişim SUNUCUDA** hesaplanır; snake A-B-B-A-A-B-B-A-A-B; süre dolunca 0-puanlık pas) + [`api/match/[matchId]/chain-move`](apps/web/src/app/api/match/[matchId]/chain-move/route.ts) + [`useOnlineChainMatch.ts`](apps/web/src/lib/useOnlineChainMatch.ts) + [`zincir/[gameId]`](apps/web/src/app/zincir/[gameId]/page.tsx) `?online=1` dalı. 7 kulüp açık → maskeleme yok; **öneri jokeri** sunucuda (yalnız isteyene). `ONLINE_MODES`'a `'kareler'` + `'zincir'` eklendi (mod-özel kuyruk).
 
-> Tam plan, fazlar ve kararlar: [ONLINE-YOL-HARITASI.md](ONLINE-YOL-HARITASI.md) + [PLAN.md §19](PLAN.md). **Altı modun da online'ı tamam.** Kalan: rating/Elo + kalan kulüp-bazlı modlar (İki Takım Ortak / Kariyer Yolu / 4'lü Kıyas / İmposter).
+> Tam plan, fazlar ve kararlar: [ONLINE-YOL-HARITASI.md](ONLINE-YOL-HARITASI.md) + [PLAN.md §19-22](PLAN.md). **Dokuz modun da online'ı tamam** (VS Düello · Hedefe · Kadro · Liste · Kareler · Zincir · Ortak Bul · Kariyer Yolu · **4'lü Kıyas**). Kalan: rating/Elo + İki Takım Ortak (veri hazır) + İmposter (Faz 2, realtime lobi).
 
 #### Veri pipeline'ı
 - ✅ **TM JSON API mimarisi** — Transfermarkt'ın resmi (açık) JSON API'leri (`tmapi-alpha/players`, `tmapi-alpha/clubs`, `ceapi/performance-game`) kullanılarak ~34,000 HTTP isteği ile 8,912 oyuncuya ait detaylı veri çekildi.

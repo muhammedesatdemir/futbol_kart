@@ -254,6 +254,10 @@ export default function GameSessionPage() {
         router.push(`/kariyer/${params.gameId}`);
         return;
       }
+      if (mode === 'kiyas') {
+        router.push(`/4lu-kiyas/${params.gameId}`);
+        return;
+      }
       setPickedMode('vs');
     },
     [router, params.gameId],

@@ -5,7 +5,7 @@ import { cn } from '@/lib/cn';
 import { SwordsIcon, CardsIcon, TrophyIcon, QuestionIcon } from '@/components/icons';
 
 /** Oynanabilir oyun modu kimliği (rakip türünden FARKLI — bu oyunun türü). */
-export type PlayableMode = 'vs' | 'squad' | 'target' | 'list' | 'kareler' | 'zincir' | 'ortak' | 'kariyer';
+export type PlayableMode = 'vs' | 'squad' | 'target' | 'list' | 'kareler' | 'zincir' | 'ortak' | 'kariyer' | 'kiyas';
 
 interface GameModeSelectSceneProps {
   onPick: (mode: PlayableMode) => void;
@@ -85,6 +85,14 @@ const MODES: ModeDef[] = [
     body: 'Kulüpler kademe kademe açılır; kariyerin sahibini tahmin et. Ne kadar erken bilirsen o kadar puan.',
     ready: true,
   },
+  {
+    id: 'kiyas',
+    emoji: '⚖️',
+    icon: <QuestionIcon size={26} />,
+    title: "4'lü Kıyas",
+    body: '4 futbolcu, 1 ölçüt: hangisinin golü/kupası/boyu en fazla? Doğru bil, puanı kap. %50 ve x2 jokerli.',
+    ready: true,
+  },
 ];
 
 export function GameModeSelectScene({ onPick }: GameModeSelectSceneProps) {
@@ -119,7 +127,8 @@ export function GameModeSelectScene({ onPick }: GameModeSelectSceneProps) {
                 m.id === 'kareler' ||
                 m.id === 'zincir' ||
                 m.id === 'ortak' ||
-                m.id === 'kariyer')
+                m.id === 'kariyer' ||
+                m.id === 'kiyas')
                 ? () => onPick(m.id as PlayableMode)
                 : undefined
             }

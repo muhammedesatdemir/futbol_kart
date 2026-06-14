@@ -153,10 +153,12 @@ export function QuizSelectScene({
           Tur {roundNo}/{totalRounds}
         </span>
         <h2 className="text-lg font-black sm:text-xl">
-          {positionContext && (
-            <span className="text-white/85">{cap(positionContext)} arasında </span>
+          {positionContext ? (
+            <span className="text-white/85">{cap(positionContext)} arasında hangisinin </span>
+          ) : (
+            'Hangisinin '
           )}
-          hangisinin <span className="text-accent-goldHi">{metricQuestion}</span> {metricMost}?
+          <span className="text-accent-goldHi">{metricQuestion}</span> {metricMost}?
         </h2>
         <div className="flex items-center gap-4">
           <ScorePill name={p1Name} score={p1Score} side="P1" />

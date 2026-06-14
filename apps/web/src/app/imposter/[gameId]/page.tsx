@@ -16,7 +16,6 @@ import { cn } from '@/lib/cn';
 import { useOnlineImposterMatch } from '@/lib/useOnlineImposterMatch';
 import {
   IMPOSTER_ROUNDS,
-  IMPOSTER_ROLE_SECONDS,
   IMPOSTER_WORD_SECONDS,
   IMPOSTER_VOTE_SECONDS,
 } from '@/lib/imposterMode';
@@ -192,8 +191,6 @@ export default function ImposterGamePage() {
                 total={view.playerNames.length}
                 acked={view.roleAcks[me] ?? false}
                 onAck={() => void online.ackRole()}
-                onTimeout={() => void online.refresh()}
-                deadlineMs={deadlineMs}
               />
             </SceneShell>
           )}
@@ -279,8 +276,6 @@ function RoleRevealScene({
   total,
   acked,
   onAck,
-  onTimeout,
-  deadlineMs,
 }: {
   youAreImposter: boolean;
   clueWord: string | null;
@@ -289,12 +284,12 @@ function RoleRevealScene({
   total: number;
   acked: boolean;
   onAck: () => void;
-  onTimeout: () => void;
-  deadlineMs: number | null;
 }) {
+  // Rol açılışında GERİ SAYIM YOK (kullanıcı kararı) — sadece rolünü oku, "Hazırım".
+  // Sunucu yine de sessiz bir güvenlik timeout'uyla ilerler (AFK kilitlenmesin);
+  // o, ekranda sayaç/tik-tak göstermeden GET-poll'de applyImposterTimeout ile olur.
   return (
     <section className="flex flex-col items-center gap-6 py-6 text-center">
-      <CountdownRing seconds={IMPOSTER_ROLE_SECONDS} deadlineMs={deadlineMs} runKey="role" onComplete={onTimeout} size={56} stroke={5} color="#f0c14b" urgentColor="#ef4444" />
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}

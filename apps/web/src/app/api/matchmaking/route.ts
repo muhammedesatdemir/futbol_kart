@@ -4,6 +4,7 @@ import { auth } from '@/lib/auth';
 import {
   joinMatchmaking,
   joinImposterLobby,
+  pollImposterLobby,
   leaveMatchmaking,
   findActiveMatchFor,
   createInvite,
@@ -109,8 +110,9 @@ export async function GET(req: Request) {
   //  yalnız POST'ta değil poll'de de çalışsın; aksi halde herkes susunca lobi
   //  hiç kurulmaz). joinImposterLobby idempotent (enqueuedAt korunur, re-upsert).
   if (mode && isLobbyMode(mode)) {
+    // GET-poll: HAFİF yoklama (kuyruğa yeniden YAZMAZ — oyuncu POST'ta girdi).
     const code = url.searchParams.get('invite');
-    const result = await joinImposterLobby(userId, mode, code && code.length >= 4 ? code : null);
+    const result = await pollImposterLobby(userId, mode, code && code.length >= 4 ? code : null);
     return NextResponse.json(result);
   }
 

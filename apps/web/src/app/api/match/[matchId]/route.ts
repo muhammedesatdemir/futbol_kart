@@ -1036,7 +1036,8 @@ async function getImposterMatch(
     status: m.status,
     version: currentVersion,
     yourSide: side,
-    seed: m.seed,
+    // 🔒 `seed` BİLİNÇLİ OLARAK DÖNMÜYOR — imposter index/gizli futbolcu seed'den
+    // türetilmemeli ki client konsoldan hesaplayamasın (rol/cevap reveal-öncesi gizli).
     // 🔒 MASKELİ taraf-özel görünüm — ham state DÖNMEZ (rol/oy/cevap gizli).
     view: viewImposterState(state, side),
     turnDeadline: deadline ? deadline.toISOString() : null,

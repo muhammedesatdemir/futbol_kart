@@ -323,6 +323,12 @@ async function createMatchBetween(
 
 /** Lobi: en eski bekleyen bu süreyi aşınca (≥MIN kişiyle) maç başlat. */
 const IMPOSTER_LOBBY_WAIT_MS = 30 * 1000;
+/**
+ * Lobi kaydı bu süreyi aşarsa "zombi" sayılır (oyuncu sekmeyi çökerterek kapattı,
+ * poll durdu, leaveMatchmaking çağrılmadı). Temizlenir ki hayalet sayım olmasın
+ * (Bulgu 4). 5dk: 30sn formasyon penceresinin çok üstü → aktif bekleyeni silmez.
+ */
+const IMPOSTER_LOBBY_TTL_MS = 5 * 60 * 1000;
 
 /**
  * İmposter lobisine katıl (rastgele VEYA davet kodlu). Kuyruğa girer, ardından
@@ -365,6 +371,36 @@ export async function joinImposterLobby(
   return { matched: false, queued: true, lobbyCount: waiting, lobbyMax: IMPOSTER_MAX_PLAYERS };
 }
 
+/**
+ * GET-POLL için HAFİF lobi yoklaması — kuyruğa YENİDEN YAZMAZ (oyuncu zaten POST'ta
+ * girdi). Yalnız: aktif maç var mı + lobi oluşturmayı dene (30sn tetikleyici herkes
+ * idle olsa da çalışsın). joinImposterLobby'nin her-poll upsert'i DB'yi gereksiz
+ * yoruyordu (Bulgu 3) → poll yolu yazma yapmaz, yalnız okur + (gerekirse) kurar.
+ */
+export async function pollImposterLobby(
+  userId: string,
+  mode: OnlineMode,
+  inviteCode: string | null,
+): Promise<MatchmakingResult> {
+  const db = getDb();
+
+  // 1) Zaten bu modda aktif maçta mıyım? (lobi kuruldu) → o maça.
+  const existing = await findActiveMatchFor(userId, mode);
+  if (existing) return { matched: true, matchId: existing };
+
+  // 2) Lobi oluşturmayı dene (atomik; yazma YOK eğer koşul sağlanmazsa). Kurulduysa
+  //    ben içinde olabilirim.
+  const formed = await tryFormImposterLobby(db, mode, inviteCode);
+  if (formed) {
+    const mine = await findActiveMatchFor(userId, mode);
+    if (mine) return { matched: true, matchId: mine };
+  }
+
+  // 3) Hâlâ bekliyorum → sayaç (tek SELECT). Upsert YOK.
+  const waiting = await countLobby(db, mode, inviteCode);
+  return { matched: false, queued: true, lobbyCount: waiting, lobbyMax: IMPOSTER_MAX_PLAYERS };
+}
+
 /** Belirli mod+kod kuyruğunda kaç kişi bekliyor. */
 async function countLobby(
   db: ReturnType<typeof getDb>,
@@ -396,6 +432,17 @@ async function tryFormImposterLobby(
     ? eq(matchmakingQueue.inviteCode, inviteCode)
     : isNull(matchmakingQueue.inviteCode);
 
+  // ZOMBİ TEMİZLİĞİ (Bulgu 4): TTL aşmış lobi kayıtlarını sil (sekme çöktü, poll
+  //  durdu, leaveMatchmaking çağrılmadı). Hayalet sayımı önler; aktif bekleyene
+  //  dokunmaz (5dk > 30sn formasyon penceresi).
+  const staleBefore = new Date(Date.now() - IMPOSTER_LOBBY_TTL_MS);
+  await db
+    .delete(matchmakingQueue)
+    .where(
+      and(eq(matchmakingQueue.mode, mode), codeCond, lte(matchmakingQueue.enqueuedAt, staleBefore)),
+    )
+    .catch(() => {});
+
   // Bekleyenleri en eskiden yeniye sırala (FIFO).
   const waiting = await db
     .select({ userId: matchmakingQueue.userId, enqueuedAt: matchmakingQueue.enqueuedAt })
@@ -412,10 +459,12 @@ async function tryFormImposterLobby(
 
   // Kaç kişi alacağız: dolu ise tam MAX, değilse mevcut hepsi (3-MAX arası).
   const take = Math.min(waiting.length, IMPOSTER_MAX_PLAYERS);
-  const ids = waiting.slice(0, take).map((w) => w.userId);
+  const claim = waiting.slice(0, take); // {userId, enqueuedAt} — enqueuedAt KORUNUR
+  const ids = claim.map((w) => w.userId);
 
   // ATOMİK claim: bu id'leri kuyruktan tek işlemde sil + döndür. Eşzamanlı başka
-  // istek aynı satırları silemez → yalnız biri lobiyi kurar.
+  // istek aynı satırları silemez (Postgres satır kilidi + RETURNING) → yalnız biri
+  // gerçekten silip lobiyi kurar; diğeri daha az/0 satır görür.
   const claimed = await db
     .delete(matchmakingQueue)
     .where(
@@ -428,18 +477,30 @@ async function tryFormImposterLobby(
     .returning({ userId: matchmakingQueue.userId });
 
   // Yarış: başkası bazılarını kapmış olabilir → MIN'in altına düştüyse iptal,
-  // kapılanları geri kuyruğa koy (enqueuedAt tazelenir; sıradaki denemede tekrar).
+  // kapılanları geri kuyruğa koy. KRİTİK: enqueuedAt KORUNUR (orijinal değer) —
+  // yoksa her parçalı-claim'de saat sıfırlanır, "30sn doldu" KOŞULU HİÇ sağlanmaz
+  // → 3-4 kişilik lobi sonsuza dek kurulamaz (starvation bug'ı, Bulgu 2).
   if (claimed.length < IMPOSTER_MIN_PLAYERS) {
     if (claimed.length > 0) {
+      const claimedSet = new Set(claimed.map((c) => c.userId));
+      const restore = claim.filter((w) => claimedSet.has(w.userId));
       await db
         .insert(matchmakingQueue)
-        .values(claimed.map((c) => ({ userId: c.userId, mode, inviteCode })))
+        .values(restore.map((w) => ({ userId: w.userId, mode, inviteCode, enqueuedAt: w.enqueuedAt })))
         .onConflictDoNothing();
     }
     return null;
   }
 
-  return createImposterMatch(db, claimed.map((c) => c.userId), mode);
+  try {
+    return await createImposterMatch(db, claimed.map((c) => c.userId), mode);
+  } catch (err) {
+    // Maç kurma yarıda kaldı (örn. Neon HTTP hatası → match_player rollback edildi).
+    // Claim'li oyuncular kuyruktan silinmiş olabilir; sonraki poll'de tekrar girer.
+    // Poll'ü 500'le çökertme — null dön, yeniden denenir.
+    console.error('createImposterMatch hatası (lobi yeniden denenecek):', err);
+    return null;
+  }
 }
 
 /**
@@ -473,9 +534,18 @@ async function createImposterMatch(
   });
 
   // Tüm oyuncuları match_player'a yaz (playerIndex = state.playerNames sırası).
-  await db.insert(matchPlayerTable).values(
-    userIds.map((uid, i) => ({ matchId, userId: uid, playerIndex: i })),
-  );
+  // Neon HTTP'de transaction YOK → match INSERT başarılı ama bu fail ederse YARIM
+  // MAÇ kalır (match_player boş → kimse giremez, zombi active satır — Bulgu 5).
+  // KURTARMA: match_player fail ederse match satırını GERİ AL (rollback) + fırlat;
+  // claim'li oyuncular sonraki poll'de tekrar kuyruğa girip yeni lobi kurar.
+  try {
+    await db.insert(matchPlayerTable).values(
+      userIds.map((uid, i) => ({ matchId, userId: uid, playerIndex: i })),
+    );
+  } catch (err) {
+    await db.delete(matchTable).where(eq(matchTable.id, matchId)).catch(() => {});
+    throw err;
+  }
 
   // Güvenlik ağı: bu oyuncuları kuyruktan temizle (claim zaten sildi).
   await db.delete(matchmakingQueue).where(inArray(matchmakingQueue.userId, userIds));

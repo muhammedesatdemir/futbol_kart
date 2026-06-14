@@ -16,6 +16,7 @@ import type { Player } from '@futbol-kart/shared-types';
 import { loadGameData } from '@/lib/data';
 import { readFile } from 'node:fs/promises';
 import { join } from 'node:path';
+import { randomInt, randomUUID } from 'node:crypto';
 import {
   pickSecretFromPool,
   pickSecretPlayer,
@@ -121,36 +122,42 @@ async function loadImposterPool(): Promise<ImposterPool | null> {
 }
 
 /**
- * Online başlangıç state — gizli futbolcu + imposter + ipucu seed'den deterministik.
- * `names` = oyuncuların görünen adları (match_player index sırası). İlk imposter
- * rastgele seçilir. ROLE_REVEAL sahnesiyle başlar.
+ * Online başlangıç state. `names` = oyuncuların görünen adları (match_player
+ * index sırası). İmposter + gizli futbolcu + ipucu SUNUCU-GİZLİ rastgeleden
+ * seçilir (public `seed`'den DEĞİL — güvenlik). ROLE_REVEAL sahnesiyle başlar.
+ *
+ * NOT: `seed` parametresi imza-tutarlılığı için korunur (matchmaking maç seed'ini
+ * geçer) ama İMPOSTER'da KULLANILMAZ — rol/cevap seed'den türetilirse client
+ * konsoldan hesaplar. crypto rastgele kullanılır.
  */
 export async function buildInitialImposterState(
-  seed: string,
+  _seed: string,
   names: string[],
 ): Promise<ImposterMatchState> {
   const { players } = await loadGameData();
+  // 🔒 GİZLİ SEED — gizli futbolcu + ipucu bundan türetilir (public `seed`'den DEĞİL).
+  // Public seed client'a açık olsaydı, kürate havuz + algoritma public olduğundan
+  // gizli futbolcu konsoldan hesaplanabilirdi. crypto rastgele → türetilemez.
+  const privateSeed = randomUUID();
   // Gizli futbolcu: önce KÜRATE havuz (kariyer-havuz.txt rank 1-585, %60/%40 bant);
   // havuz yüklenemezse marquee fallback.
   const pool = await loadImposterPool();
   let secret: Player | null = null;
   if (pool) {
     const playersById = new Map((players as Player[]).map((p) => [p.id, p]));
-    secret = pickSecretFromPool(seed, pool.tierA, pool.tierB, playersById);
+    secret = pickSecretFromPool(privateSeed, pool.tierA, pool.tierB, playersById);
   }
-  if (!secret) secret = pickSecretPlayer(seed, players as Player[]);
+  if (!secret) secret = pickSecretPlayer(privateSeed, players as Player[]);
   if (!secret) throw new Error('Gizli futbolcu havuzu boş.');
 
-  const clue = buildClue(seed, secret);
-  // İmposter index'i seed'den (createPRNG değil, basit deterministik hash → names'ten bağımsız değil).
+  const clue = buildClue(privateSeed, secret);
+  // 🔒 İMPOSTER INDEX — SUNUCU-GİZLİ RASTGELE (seed'den DEĞİL!).
+  // KRİTİK: seed client'a açık (GET yanıtı + hash algoritması public bundle'da).
+  // Eğer imposterIndex seed'den deterministik türetilseydi, bir oyuncu konsoldan
+  // hesaplayıp imposter'ın kim olduğunu reveal'dan ÖNCE bulurdu (modun amacı çöker).
+  // crypto.randomInt → tahmin edilemez, yalnız state'te (maskeli) saklanır.
   const n = names.length;
-  let h = 2166136261;
-  const k = `imposter:${seed}:role`;
-  for (let i = 0; i < k.length; i++) {
-    h ^= k.charCodeAt(i);
-    h = Math.imul(h, 16777619);
-  }
-  const imposterIndex = (h >>> 0) % n;
+  const imposterIndex = randomInt(n);
 
   return {
     kind: 'imposter',
@@ -348,6 +355,13 @@ export interface ImposterView {
  *  - youAreImposter yalnız KENDİ rolün; imposterIndex RESULT'a kadar null.
  *  - imposter → clueWord dolu, secretPlayerName null; crew → tersi.
  *  - Oylar VOTE'ta gizli (yalnız votedCount + kendi oyun); RESULT'ta tam açılır.
+ *
+ * ⚠️ GÜVENLİK — `state.bannedNameTokens` BU VIEW'A ASLA EKLENMEMELİ. O token'lar
+ * gizli futbolcunun adının köklerini (ör. ["lionel","messi"]) düz metin taşır;
+ * view'a girerse imposter F12'den okuyup futbolcuyu çözer = modun amacı çöker.
+ * Yasak-kelime doğrulaması ZATEN sunucuda (`applyImposterWord` → `isValidWord`),
+ * client'a göndermeye GEREK YOK. "Client önizleme/uyarı" isteği gelirse bile token
+ * client'a değil, doğrulama sunucu yanıtı (`wordOutcome.reason`) üzerinden gösterilmeli.
  */
 export function viewImposterState(state: ImposterMatchState, side: number): ImposterView {
   const isResult = state.scene === 'RESULT';

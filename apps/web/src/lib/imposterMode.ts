@@ -27,11 +27,11 @@ export const IMPOSTER_MAX_PLAYERS = 5;
 
 // Sahne süreleri (sn) — client-safe (sahne + sunucu motoru ortak kullanır).
 /**
- * Rol açılış ekranı (sen imposter'sın/değilsin) — herkes "Hazırım"a basınca geçer.
- * Ekranda GERİ SAYIM GÖSTERİLMEZ (kullanıcı kararı — baskı/tik-tak kötü deneyim);
- * bu yalnız SESSİZ güvenlik timeout'u (AFK biri lobiyi kilitlemesin). Rahat süre.
+ * Rol açılış ekranı (sen imposter'sın/değilsin) — herkes "Hazırım"a basınca HEMEN
+ * geçer; basmasa(lar) bile en geç bu süre sonunda otomatik başlar. Ekranda SESSİZ +
+ * SAYISIZ bir ilerleme halkası gösterilir (tik-tak/sayı yok, sadece dolan yay).
  */
-export const IMPOSTER_ROLE_SECONDS = 35;
+export const IMPOSTER_ROLE_SECONDS = 5;
 /** Bir oyuncunun kelime yazma süresi. */
 export const IMPOSTER_WORD_SECONDS = 30;
 /** Oylama süresi. */

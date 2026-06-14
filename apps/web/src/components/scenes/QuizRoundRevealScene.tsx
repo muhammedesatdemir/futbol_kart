@@ -17,7 +17,9 @@ interface QuizRoundRevealSceneProps {
   /** Her oyuncunun metrikteki değeri (choices ile aynı sıra). */
   values: number[];
   correctIndex: number;
-  metricLabel: string;
+  /** Reveal ifadesi (örn. "toplam kupa") + fiil (örn. "en fazla"). */
+  metricReveal: string;
+  metricMost: string;
   metricUnit: string;
   roundNo: number;
   totalRounds: number;
@@ -43,7 +45,8 @@ export function QuizRoundRevealScene({
   choices,
   values,
   correctIndex,
-  metricLabel,
+  metricReveal,
+  metricMost,
   metricUnit,
   roundNo,
   totalRounds,
@@ -74,7 +77,8 @@ export function QuizRoundRevealScene({
           Tur {roundNo}/{totalRounds} sonucu
         </span>
         <h2 className="text-lg font-black sm:text-xl">
-          En çok <span className="text-accent-goldHi">{metricLabel.toLocaleLowerCase('tr-TR')}</span>
+          {metricMost === 'en yüksek' ? 'En yüksek' : metricMost === 'en uzun' ? 'En uzun' : 'En çok'}{' '}
+          <span className="text-accent-goldHi">{metricReveal}</span>
         </h2>
       </motion.div>
 

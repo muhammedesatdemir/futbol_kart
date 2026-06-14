@@ -77,6 +77,71 @@ export function metricByKey(key: string): MetricField | undefined {
   return QUIZ_METRICS.find((f) => f.key === key);
 }
 
+// ===========================================================================
+// Türkçe soru ifadeleri (iyelik eki + net anlam) — UI metni, veriye dokunmaz
+// ===========================================================================
+
+/** Bir metriğin Türkçe ifade biçimi (sahne başlığı + reveal için). */
+export interface QuizPhrase {
+  /** "Hangisinin ___ en fazla/yüksek?" boşluğu (iyelik ekli; örn. "toplam kupası"). */
+  question: string;
+  /** "En çok/yüksek ___" reveal başlığı boşluğu (örn. "toplam kupa"). */
+  reveal: string;
+  /** Karşılaştırma fiili — sayılabilir → "en fazla", ölçü → "en yüksek". */
+  most: 'en fazla' | 'en yüksek';
+}
+
+/**
+ * Metrik → Türkçe ifade. `criteriaCatalog.shortLabel` ham/eksiz (örn. "Toplam kupa");
+ * burada iyelik eki + uygun fiil verilir → "Hangisinin TOPLAM KUPASI en fazla?".
+ * Transfer/piyasa değeri NET ifade edilir: kariyer ZİRVE değeri (aktif değil).
+ */
+const QUIZ_METRIC_PHRASES: Record<string, QuizPhrase> = {
+  goals: { question: 'toplam golü', reveal: 'toplam gol', most: 'en fazla' },
+  assists: { question: 'toplam asisti', reveal: 'toplam asist', most: 'en fazla' },
+  apps: { question: 'toplam maçı', reveal: 'toplam maç', most: 'en fazla' },
+  caps: { question: 'milli maçı', reveal: 'milli maç', most: 'en fazla' },
+  natgoals: { question: 'milli golü', reveal: 'milli gol', most: 'en fazla' },
+  seasongoals: { question: 'tek sezonluk gol rekoru', reveal: 'tek sezon gol rekoru', most: 'en yüksek' },
+  career: { question: 'kariyer süresi', reveal: 'kariyer süresi', most: 'en uzun' as 'en yüksek' },
+  // Transfer değeri NET: kariyer ZİRVESİNDE ulaştığı en yüksek piyasa değeri.
+  value: { question: 'kariyerindeki zirve piyasa değeri', reveal: 'zirve piyasa değeri', most: 'en yüksek' },
+  height: { question: 'boyu', reveal: 'boy', most: 'en yüksek' },
+  uclapps: { question: 'Şampiyonlar Ligi maçı', reveal: 'Şampiyonlar Ligi maçı', most: 'en fazla' },
+  uclgoals: { question: 'Şampiyonlar Ligi golü', reveal: 'Şampiyonlar Ligi golü', most: 'en fazla' },
+  leaguegoals: { question: 'lig golü', reveal: 'lig golü', most: 'en fazla' },
+  leagueapps: { question: 'lig maçı', reveal: 'lig maçı', most: 'en fazla' },
+  wcapps: { question: 'Dünya Kupası maçı', reveal: 'Dünya Kupası maçı', most: 'en fazla' },
+  trophies: { question: 'toplam kupası', reveal: 'toplam kupa', most: 'en fazla' },
+  leaguetitles: { question: 'lig şampiyonluğu', reveal: 'lig şampiyonluğu', most: 'en fazla' },
+  awards: { question: 'bireysel ödülü', reveal: 'bireysel ödül', most: 'en fazla' },
+};
+
+/** Metriğin Türkçe ifadesi (yoksa shortLabel'den makul fallback). */
+export function quizPhrase(key: string): QuizPhrase {
+  const p = QUIZ_METRIC_PHRASES[key];
+  if (p) return p;
+  const f = metricByKey(key);
+  const label = (f?.shortLabel ?? key).toLocaleLowerCase('tr-TR');
+  return { question: label, reveal: label, most: 'en fazla' };
+}
+
+/** Pozisyon grubu → Türkçe çoğul-bağlam etiketi (soru bağlamı: "...forvetler arasında"). */
+export function positionGroupLabel(group: Position | null): string | null {
+  switch (group) {
+    case 'GK':
+      return 'kaleciler';
+    case 'DEF':
+      return 'defans oyuncuları';
+    case 'MID':
+      return 'orta saha oyuncuları';
+    case 'FWD':
+      return 'forvetler';
+    default:
+      return null;
+  }
+}
+
 /** Bir oyuncunun metrikteki ham değeri (yoksa null). */
 export function metricValue(field: MetricField, p: Player): number | null {
   const v = field.pick(p);
@@ -96,6 +161,11 @@ export interface QuizChoice {
 export interface QuizRound {
   /** Metrik anahtarı (criteriaCatalog) — değer her çağrı `pick`le çözülür. */
   metricKey: string;
+  /**
+   * Pozisyon grubu — yalnız pozisyona-bağlı metriklerde (4 oyuncu bu gruptan).
+   * Soru ifadesine bağlam katar ("en golcü forvet?") → çeşitlilik artar. Yoksa null.
+   */
+  positionGroup: Position | null;
   /** 4 oyuncu id'si (ekran sırası — karıştırılmış). */
   choiceIds: string[];
   /** Her oyuncunun metrikteki ham değeri (choiceIds ile aynı sıra). */
@@ -235,12 +305,17 @@ export function buildQuizRounds(seed: string, players: Player[]): QuizRound[] {
   const rounds: QuizRound[] = [];
   const usedMetrics = new Set<string>();
 
+  // Soru-kimliği = metrik + (varsa) pozisyon grubu. "golcü forvet" ile "golcü defans"
+  // FARKLI sorular sayılır → pozisyon-bağlamı sayesinde maç-içi çeşitlilik artar.
+  const usedQuestions = new Set<string>();
+
   let guard = 0;
-  while (rounds.length < QUIZ_ROUNDS && guard < QUIZ_ROUNDS * 30) {
+  while (rounds.length < QUIZ_ROUNDS && guard < QUIZ_ROUNDS * 40) {
     guard++;
-    // Metrik seç (tekrarsız tercih — havuz tükenirse tekrar serbest).
-    const avail = QUIZ_METRICS.filter((f) => !usedMetrics.has(f.key));
-    const metricList = avail.length > 0 ? avail : QUIZ_METRICS;
+    // Metrik seç: bu maçta HİÇ kullanılmamış metrikleri önceliklendir (geniş
+    // çeşitlilik); hepsi kullanıldıysa pozisyon-bağlamıyla tekrara izin ver.
+    const fresh = QUIZ_METRICS.filter((f) => !usedMetrics.has(f.key));
+    const metricList = fresh.length > 0 ? fresh : QUIZ_METRICS;
     const field = metricList[Math.floor(prng.next() * metricList.length)]!;
 
     // Pozisyon grubu (metrik pozisyona bağlıysa). GK seyrek tutulur.
@@ -248,6 +323,9 @@ export function buildQuizRounds(seed: string, players: Player[]): QuizRound[] {
     if (field.positionFilterable) {
       group = pickPositionGroup(prng.next);
     }
+
+    const qKey = group ? `${field.key}:${group}` : field.key;
+    if (usedQuestions.has(qKey)) continue; // aynı (metrik+poz) tekrarı yok
 
     const pool = metricPool(field, players, group);
     const built = buildRoundFromPool(field, pool, prng.next);
@@ -257,12 +335,14 @@ export function buildQuizRounds(seed: string, players: Player[]): QuizRound[] {
     const correctIndex = argmax(values);
     rounds.push({
       metricKey: field.key,
+      positionGroup: group,
       choiceIds: built.ids,
       values,
       correctIndex,
       fiftyKeepIndexes: computeFiftyKeep(values, correctIndex),
     });
     usedMetrics.add(field.key);
+    usedQuestions.add(qKey);
   }
 
   return rounds;

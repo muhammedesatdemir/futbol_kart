@@ -13,10 +13,19 @@ const SIDE = {
   P2: { text: 'text-side-blue', border: 'border-side-blue/70', dot: 'bg-side-blue', ring: 'ring-side-blue' },
 } as const;
 
+/** İlk harfi Türkçe-duyarlı büyüt (örn. "forvetler" → "Forvetler"). */
+function cap(s: string): string {
+  return s.charAt(0).toLocaleUpperCase('tr-TR') + s.slice(1);
+}
+
 interface QuizSelectSceneProps {
   /** Bu turdaki 4 oyuncu (ekran sırası). */
   choices: Player[];
-  metricLabel: string;
+  /** İyelik ekli soru ifadesi (örn. "toplam kupası") + karşılaştırma fiili. */
+  metricQuestion: string;
+  metricMost: string;
+  /** Pozisyon bağlamı (örn. "forvetler") — pozisyona-bağlı metrikte; yoksa null. */
+  positionContext?: string | null;
   roundNo: number;
   totalRounds: number;
   /** Seçim süresi (sn) — halka oranı referansı. */
@@ -60,7 +69,9 @@ interface QuizSelectSceneProps {
  */
 export function QuizSelectScene({
   choices,
-  metricLabel,
+  metricQuestion,
+  metricMost,
+  positionContext = null,
   roundNo,
   totalRounds,
   seconds,
@@ -142,7 +153,10 @@ export function QuizSelectScene({
           Tur {roundNo}/{totalRounds}
         </span>
         <h2 className="text-lg font-black sm:text-xl">
-          Hangisinin <span className="text-accent-goldHi">{metricLabel.toLocaleLowerCase('tr-TR')}</span> en fazla?
+          {positionContext && (
+            <span className="text-white/85">{cap(positionContext)} arasında </span>
+          )}
+          hangisinin <span className="text-accent-goldHi">{metricQuestion}</span> {metricMost}?
         </h2>
         <div className="flex items-center gap-4">
           <ScorePill name={p1Name} score={p1Score} side="P1" />

@@ -4,8 +4,13 @@ import { useEffect } from 'react';
 import { motion } from 'framer-motion';
 
 interface QuizRevealSceneProps {
-  /** Metrik etiketi (örn. "Toplam gol"). */
+  /** Metrik etiketi (örn. "Toplam kupa") — büyük başlık. */
   metricLabel: string;
+  /** İyelik ekli soru ifadesi (örn. "toplam kupası") + fiil. */
+  metricQuestion: string;
+  metricMost: string;
+  /** Pozisyon bağlamı (örn. "forvetler") — pozisyona-bağlı metrikte; yoksa null. */
+  positionContext?: string | null;
   roundNo: number;
   totalRounds: number;
   autoMs?: number;
@@ -14,11 +19,14 @@ interface QuizRevealSceneProps {
 
 /**
  * "4'lü Kıyas" tur açılışı — bu turda hangi metriğin kıyaslanacağı duyurulur
- * ("Hangisinin TOPLAM GOLÜ en fazla?"). autoMs verilirse otomatik geçer
+ * ("Hangisinin TOPLAM KUPASI en fazla?"). autoMs verilirse otomatik geçer
  * (online/bot), yoksa "Başla" butonu (offline tek ekran).
  */
 export function QuizRevealScene({
   metricLabel,
+  metricQuestion,
+  metricMost,
+  positionContext = null,
   roundNo,
   totalRounds,
   autoMs,
@@ -45,8 +53,13 @@ export function QuizRevealScene({
         transition={{ delay: 0.1, type: 'spring', stiffness: 200, damping: 20 }}
         className="glass-panel-strong flex flex-col items-center gap-2 rounded-3xl border-2 border-accent-gold/40 px-8 py-6"
       >
-        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/55">Hangisinin en fazla?</span>
+        <span className="text-[11px] font-bold uppercase tracking-[0.2em] text-white/55">Hangisinin {metricMost}?</span>
         <span className="text-3xl font-black text-accent-goldHi sm:text-4xl">{metricLabel}</span>
+        {positionContext && (
+          <span className="rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-bold text-white/75">
+            yalnızca {positionContext} arasında
+          </span>
+        )}
       </motion.div>
 
       <motion.p
@@ -55,7 +68,7 @@ export function QuizRevealScene({
         transition={{ delay: 0.25 }}
         className="max-w-md text-sm text-white/60"
       >
-        4 futbolcudan <span className="font-semibold text-white/85">{metricLabel.toLocaleLowerCase('tr-TR')}</span> en yüksek olanı seç. Doğru bilen <span className="font-semibold text-accent-goldHi">+1 puan</span>.
+        4 futbolcudan <span className="font-semibold text-white/85">{metricQuestion} {metricMost}</span> olanı seç. Doğru bilen <span className="font-semibold text-accent-goldHi">+1 puan</span>.
       </motion.p>
 
       {!autoMs && (

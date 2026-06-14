@@ -28,6 +28,8 @@ import {
   decideQuizWinner,
   botPick,
   metricByKey,
+  quizPhrase,
+  positionGroupLabel,
   QUIZ_ROUNDS,
   type QuizRound,
   type QuizSide,
@@ -232,6 +234,7 @@ export default function QuizGamePage() {
     (joker: QuizJoker) => {
       const round = offlineRounds?.[roundIdx];
       if (!round || offActiveJokers[joker]) return;
+      playSfx('joker');
       if (joker === 'fifty') {
         setActiveFifty(
           round.choiceIds.map((_, i) => i).filter((i) => !round.fiftyKeepIndexes.includes(i)),
@@ -242,7 +245,7 @@ export default function QuizGamePage() {
       const setter = offActiveSide === 'P1' ? setJokersP1 : setJokersP2;
       setter((prev) => ({ ...prev, [joker]: true }));
     },
-    [offlineRounds, roundIdx, offActiveJokers, offActiveSide],
+    [offlineRounds, roundIdx, offActiveJokers, offActiveSide, playSfx],
   );
 
   // ── OFFLINE round-reveal sonrası ──
@@ -327,6 +330,7 @@ export default function QuizGamePage() {
   const onJokerOnline = useCallback(
     (joker: QuizJoker) => {
       if (!onlineState || onlineState.jokers[mySideOnline][joker]) return;
+      playSfx('joker');
       void online.useJoker(joker).then((r) => {
         if (r?.joker === 'fifty' && r.keepIndexes) {
           const keep = new Set(r.keepIndexes);
@@ -338,12 +342,24 @@ export default function QuizGamePage() {
         void online.refresh();
       });
     },
-    [online, onlineState, mySideOnline],
+    [online, onlineState, mySideOnline, playSfx],
   );
 
   const onTimeoutOnline = useCallback(() => {
     void online.refresh();
   }, [online]);
+
+  // ONLINE tur sonucu sesi: ROUND_REVEAL'e geçince bir kez (offline'daki gibi).
+  // Tur reveal'inde tarafların doğru/yanlışına göre win/heartbreak (offline ile aynı kural).
+  const roundSfxRef = useRef(-1);
+  useEffect(() => {
+    if (!isOnline || onlineState?.scene !== 'ROUND_REVEAL') return;
+    if (roundSfxRef.current === onlineState.round) return;
+    roundSfxRef.current = onlineState.round;
+    const sel = onlineState.selections[onlineState.round];
+    const anyCorrect = !!(sel && (sel.P1.correct || sel.P2.correct));
+    playSfx(anyCorrect ? 'win' : 'heartbreak');
+  }, [isOnline, onlineState?.scene, onlineState?.round, onlineState?.selections, playSfx]);
 
   const onRematch = useCallback(() => {
     if (isOnline) {
@@ -441,6 +457,8 @@ export default function QuizGamePage() {
   const onlineMetric = onlineRoundData ? metricByKey(onlineRoundData.metricKey) : null;
   const onlineMetricLabel = onlineMetric?.shortLabel ?? onlineRoundData?.metricKey ?? '';
   const onlineMetricUnit = onlineMetric?.unit ?? '';
+  const onlinePhrase = quizPhrase(onlineRoundData?.metricKey ?? '');
+  const onlinePosCtx = positionGroupLabel(onlineRoundData?.positionGroup ?? null);
   const onlineChoices: Player[] = (onlineRoundData?.choiceIds ?? [])
     .map((id) => playersById.get(id))
     .filter((p): p is Player => !!p);
@@ -471,6 +489,8 @@ export default function QuizGamePage() {
   const offMetric = offRound ? metricByKey(offRound.metricKey) : null;
   const offMetricLabel = offMetric?.shortLabel ?? offRound?.metricKey ?? '';
   const offMetricUnit = offMetric?.unit ?? '';
+  const offPhrase = quizPhrase(offRound?.metricKey ?? '');
+  const offPosCtx = positionGroupLabel(offRound?.positionGroup ?? null);
   const offChoices: Player[] = (offRound?.choiceIds ?? [])
     .map((id) => playersById.get(id))
     .filter((p): p is Player => !!p);
@@ -525,6 +545,9 @@ export default function QuizGamePage() {
               <SceneShell sceneKey="quiz-online-reveal" key={`quiz-online-reveal-${onlineState.round}`}>
                 <QuizRevealScene
                   metricLabel={onlineMetricLabel}
+                  metricQuestion={onlinePhrase.question}
+                  metricMost={onlinePhrase.most}
+                  positionContext={onlinePosCtx}
                   roundNo={onlineState.round + 1}
                   totalRounds={QUIZ_ROUNDS}
                   autoMs={5000}
@@ -537,7 +560,9 @@ export default function QuizGamePage() {
               <SceneShell sceneKey="quiz-online-select" key="quiz-online-select">
                 <QuizSelectScene
                   choices={onlineChoices}
-                  metricLabel={onlineMetricLabel}
+                  metricQuestion={onlinePhrase.question}
+                  metricMost={onlinePhrase.most}
+                  positionContext={onlinePosCtx}
                   roundNo={onlineState.round + 1}
                   totalRounds={QUIZ_ROUNDS}
                   seconds={30}
@@ -575,7 +600,8 @@ export default function QuizGamePage() {
                   choices={onlineChoices}
                   values={onlineRoundData.values}
                   correctIndex={onlineRoundData.correctIndex}
-                  metricLabel={onlineMetricLabel}
+                  metricReveal={onlinePhrase.reveal}
+                  metricMost={onlinePhrase.most}
                   metricUnit={onlineMetricUnit}
                   roundNo={onlineState.round + 1}
                   totalRounds={QUIZ_ROUNDS}
@@ -628,6 +654,9 @@ export default function QuizGamePage() {
               <SceneShell sceneKey="quiz-reveal" key={`quiz-reveal-${roundIdx}`}>
                 <QuizRevealScene
                   metricLabel={offMetricLabel}
+                  metricQuestion={offPhrase.question}
+                  metricMost={offPhrase.most}
+                  positionContext={offPosCtx}
                   roundNo={roundIdx + 1}
                   totalRounds={offlineRounds?.length ?? QUIZ_ROUNDS}
                   onDone={() => setOffSub('select-p1')}
@@ -639,7 +668,9 @@ export default function QuizGamePage() {
               <SceneShell sceneKey="quiz-select" key={`quiz-select-${roundIdx}-${offSub}`}>
                 <QuizSelectScene
                   choices={offChoices}
-                  metricLabel={offMetricLabel}
+                  metricQuestion={offPhrase.question}
+                  metricMost={offPhrase.most}
+                  positionContext={offPosCtx}
                   roundNo={roundIdx + 1}
                   totalRounds={offlineRounds?.length ?? QUIZ_ROUNDS}
                   seconds={OFFLINE_SELECT_SECONDS}
@@ -692,7 +723,8 @@ export default function QuizGamePage() {
                   choices={offChoices}
                   values={offRound.values}
                   correctIndex={offRound.correctIndex}
-                  metricLabel={offMetricLabel}
+                  metricReveal={offPhrase.reveal}
+                  metricMost={offPhrase.most}
                   metricUnit={offMetricUnit}
                   roundNo={roundIdx + 1}
                   totalRounds={offlineRounds?.length ?? QUIZ_ROUNDS}

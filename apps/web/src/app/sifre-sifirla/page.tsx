@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { HomeIcon } from '@/components/icons';
 import { PitchBackground } from '@/components/PitchBackground';
 import { resetPassword } from '@/lib/authClient';
+import { trAuthError } from '@/lib/authErrors';
 import { cn } from '@/lib/cn';
 
 type Status = 'idle' | 'busy' | 'error' | 'done';
@@ -51,9 +52,7 @@ function ResetInner() {
     setErrorMsg(null);
     const { error } = await resetPassword({ newPassword: password, token });
     if (error) {
-      return fail(
-        error.message ?? 'Şifre sıfırlanamadı. Link süresi dolmuş olabilir.',
-      );
+      return fail(trAuthError(error, 'Şifre sıfırlanamadı. Link süresi dolmuş olabilir.'));
     }
     setStatus('done');
     // 2 sn sonra girişe yönlendir.

@@ -8,6 +8,7 @@ import Image from 'next/image';
 import { HomeIcon } from '@/components/icons';
 import { PitchBackground } from '@/components/PitchBackground';
 import { signIn, signUp, requestPasswordReset } from '@/lib/authClient';
+import { trAuthError } from '@/lib/authErrors';
 import { cn } from '@/lib/cn';
 
 type Tab = 'login' | 'register' | 'forgot';
@@ -71,7 +72,7 @@ function LoginInner() {
     });
     if (error) {
       setStatus('error');
-      setErrorMsg(error.message ?? 'Google ile giriş başarısız, tekrar dene.');
+      setErrorMsg(trAuthError(error, 'Google ile giriş başarısız, tekrar dene.'));
     }
   };
 
@@ -84,9 +85,7 @@ function LoginInner() {
     setErrorMsg(null);
     const { error } = await signIn.email({ email: mail, password });
     if (error) {
-      return fail(
-        error.message ?? 'E-posta veya şifre hatalı. Tekrar dene.',
-      );
+      return fail(trAuthError(error, 'E-posta veya şifre hatalı. Tekrar dene.'));
     }
     goAfterAuth();
   };
@@ -104,9 +103,7 @@ function LoginInner() {
     // requireEmailVerification: false → kayıt başarılıysa session açılır (oto-giriş).
     const { error } = await signUp.email({ email: mail, password, name });
     if (error) {
-      return fail(
-        error.message ?? 'Kayıt başarısız. Bu e-posta zaten kayıtlı olabilir.',
-      );
+      return fail(trAuthError(error, 'Kayıt başarısız. Bu e-posta zaten kayıtlı olabilir.'));
     }
     goAfterAuth();
   };
@@ -122,7 +119,7 @@ function LoginInner() {
       redirectTo: '/sifre-sifirla',
     });
     if (error) {
-      return fail(error.message ?? 'Bir şey ters gitti, tekrar dene.');
+      return fail(trAuthError(error, 'Bir şey ters gitti, tekrar dene.'));
     }
     setStatus('sent');
   };

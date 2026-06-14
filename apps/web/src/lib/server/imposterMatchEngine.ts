@@ -14,7 +14,10 @@
  */
 import type { Player } from '@futbol-kart/shared-types';
 import { loadGameData } from '@/lib/data';
+import { readFile } from 'node:fs/promises';
+import { join } from 'node:path';
 import {
+  pickSecretFromPool,
   pickSecretPlayer,
   buildClue,
   secretNameTokens,
@@ -99,6 +102,24 @@ async function loadBannedClubTokens(): Promise<Set<string>> {
   return set;
 }
 
+/** Kürate gizli-futbolcu havuzu (kariyer-havuz.txt rank 1-585 → imposterPool.json). */
+interface ImposterPool { tierA: string[]; tierB: string[] }
+let cachedPool: ImposterPool | null = null;
+async function loadImposterPool(): Promise<ImposterPool | null> {
+  if (cachedPool) return cachedPool;
+  try {
+    const path = join(process.cwd(), 'public', 'data', 'imposterPool.json');
+    const raw = JSON.parse(await readFile(path, 'utf8')) as ImposterPool;
+    if (Array.isArray(raw.tierA) && Array.isArray(raw.tierB)) {
+      cachedPool = raw;
+      return raw;
+    }
+  } catch {
+    // havuz yoksa → marquee fallback (pickSecretPlayer)
+  }
+  return null;
+}
+
 /**
  * Online başlangıç state — gizli futbolcu + imposter + ipucu seed'den deterministik.
  * `names` = oyuncuların görünen adları (match_player index sırası). İlk imposter
@@ -109,7 +130,15 @@ export async function buildInitialImposterState(
   names: string[],
 ): Promise<ImposterMatchState> {
   const { players } = await loadGameData();
-  const secret = pickSecretPlayer(seed, players as Player[]);
+  // Gizli futbolcu: önce KÜRATE havuz (kariyer-havuz.txt rank 1-585, %60/%40 bant);
+  // havuz yüklenemezse marquee fallback.
+  const pool = await loadImposterPool();
+  let secret: Player | null = null;
+  if (pool) {
+    const playersById = new Map((players as Player[]).map((p) => [p.id, p]));
+    secret = pickSecretFromPool(seed, pool.tierA, pool.tierB, playersById);
+  }
+  if (!secret) secret = pickSecretPlayer(seed, players as Player[]);
   if (!secret) throw new Error('Gizli futbolcu havuzu boş.');
 
   const clue = buildClue(seed, secret);

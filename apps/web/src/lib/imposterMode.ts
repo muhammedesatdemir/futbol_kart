@@ -58,7 +58,32 @@ export function isFamousPlayer(p: Player): boolean {
   );
 }
 
-/** Havuzdan gizli futbolcu seç (seed deterministik). */
+/**
+ * Gizli futbolcuyu KÜRATE havuzdan seç (kariyer-havuz.txt rank 1-585 →
+ * `imposterPool.json`). İki bant: tierA = rank 1-300 (%60), tierB = 301-585 (%40).
+ * Seed deterministik (iki istek aynı maçta aynı oyuncuyu üretir). Önce bant
+ * seçilir (60/40), sonra o banttan rastgele oyuncu. Bant boşsa diğerine düşer.
+ *
+ * `tierA`/`tierB` = player id dizileri (sunucu motoru imposterPool.json'dan yükler).
+ * playersById = id → Player (var olmayan id'ler atlanır → güvenli).
+ */
+export function pickSecretFromPool(
+  seed: string,
+  tierA: string[],
+  tierB: string[],
+  playersById: Map<string, Player>,
+): Player | null {
+  const a = tierA.map((id) => playersById.get(id)).filter((p): p is Player => !!p);
+  const b = tierB.map((id) => playersById.get(id)).filter((p): p is Player => !!p);
+  const prng = createPRNG(`imposter:${seed}:secret`);
+  // Bant: %60 A, %40 B (boşsa diğerine düş).
+  const useA = a.length > 0 && (b.length === 0 || prng.next() < 0.6);
+  const band = useA ? a : b;
+  if (band.length === 0) return null;
+  return band[Math.floor(prng.next() * band.length)] ?? null;
+}
+
+/** Havuzdan gizli futbolcu seç (seed deterministik) — KÜRATE havuz yoksa YEDEK. */
 export function pickSecretPlayer(seed: string, players: Player[]): Player | null {
   const pool = players.filter(isFamousPlayer);
   if (pool.length === 0) return null;

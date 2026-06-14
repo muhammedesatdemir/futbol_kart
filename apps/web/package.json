@@ -7,7 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "build:imposter-pool": "tsx scripts/buildImposterPool.ts"
   },
   "dependencies": {
     "@futbol-kart/db": "workspace:*",

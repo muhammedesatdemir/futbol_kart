@@ -47,6 +47,10 @@ interface FoundInfo {
   p1Name: string;
   p2Name: string;
   yourSide: 'P1' | 'P2';
+  /** LOBİ modu (imposter): N oyuncu adı (varsa 2-kart yerine N-kart gösterilir). */
+  playerNames?: string[];
+  /** LOBİ modu: bu kullanıcının index'i (SEN rozeti için). */
+  yourIndex?: number;
 }
 
 /**
@@ -102,15 +106,21 @@ export function OnlineMatchmaking({
       try {
         const res = await fetch(`/api/match/${matchId}`);
         const data = await res.json();
-        // İsim kaynağı moda göre değişir: çoğu mod `state`, Kariyer Yolu maskeli
+        // İsim kaynağı moda göre değişir: çoğu mod `state`, Kariyer/İmposter maskeli
         // `view` döner. İkisine de bak (hangisi doluysa) → "Oyuncu 1/2" fallback'i
         // yalnız gerçekten isim yoksa görünür.
         const named = data.state ?? data.view ?? {};
+        // LOBİ modu (imposter): view.playerNames[] + sayısal yourSide → N-kart.
+        const playerNames: string[] | undefined = Array.isArray(named.playerNames)
+          ? named.playerNames
+          : undefined;
         setFound({
           matchId,
-          p1Name: named.p1Name || 'Oyuncu 1',
-          p2Name: named.p2Name || 'Oyuncu 2',
-          yourSide: data.yourSide ?? 'P1',
+          p1Name: named.p1Name || playerNames?.[0] || 'Oyuncu 1',
+          p2Name: named.p2Name || playerNames?.[1] || 'Oyuncu 2',
+          yourSide: typeof data.yourSide === 'number' ? 'P1' : (data.yourSide ?? 'P1'),
+          playerNames,
+          yourIndex: typeof data.yourSide === 'number' ? data.yourSide : undefined,
         });
         setPhase('found');
       } catch {
@@ -546,6 +556,9 @@ function MatchFound({ found }: { found: FoundInfo }) {
     playSfx('matchFound');
   }, [playSfx]);
 
+  // LOBİ modu (imposter): N oyuncu → N-kart tek satır, aralarına "vs".
+  const isLobby = Array.isArray(found.playerNames) && found.playerNames.length > 2;
+
   return (
     <section className="flex min-h-[70vh] flex-col items-center justify-center gap-10">
       <motion.h2
@@ -553,33 +566,49 @@ function MatchFound({ found }: { found: FoundInfo }) {
         animate={{ opacity: 1, y: 0 }}
         className="text-3xl font-black text-accent-goldHi sm:text-4xl"
       >
-        Rakip bulundu! 🎯
+        {isLobby ? 'Lobi dolu! 🕵️' : 'Rakip bulundu! 🎯'}
       </motion.h2>
 
-      <div className="flex items-center gap-4 sm:gap-10">
-        <UserCard
-          name={found.p1Name}
-          side="P1"
-          isYou={found.yourSide === 'P1'}
-          delay={0.1}
-        />
-        <motion.div
-          initial={{ opacity: 0, scale: 0.4 }}
-          animate={{ opacity: 1, scale: 1 }}
-          transition={{ delay: 0.3, type: 'spring', stiffness: 300, damping: 18 }}
-          className="flex flex-col items-center"
-        >
-          <span className="text-4xl font-black text-white drop-shadow-[0_2px_12px_rgba(255,215,107,0.5)] sm:text-5xl">
-            VS
-          </span>
-        </motion.div>
-        <UserCard
-          name={found.p2Name}
-          side="P2"
-          isYou={found.yourSide === 'P2'}
-          delay={0.18}
-        />
-      </div>
+      {isLobby ? (
+        <div className="flex w-full max-w-5xl items-center justify-center gap-2 px-2 sm:gap-3">
+          {found.playerNames!.map((nm, i) => (
+            <div key={i} className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+              <LobbyUserCard
+                name={nm || `Oyuncu ${i + 1}`}
+                colorIndex={i}
+                isYou={found.yourIndex === i}
+                count={found.playerNames!.length}
+                delay={0.08 * i}
+              />
+              {i < found.playerNames!.length - 1 && (
+                <motion.span
+                  initial={{ opacity: 0, scale: 0.4 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: 0.2 + 0.05 * i, type: 'spring', stiffness: 300, damping: 18 }}
+                  className="shrink-0 text-base font-black text-white/80 drop-shadow sm:text-xl"
+                >
+                  vs
+                </motion.span>
+              )}
+            </div>
+          ))}
+        </div>
+      ) : (
+        <div className="flex items-center gap-4 sm:gap-10">
+          <UserCard name={found.p1Name} side="P1" isYou={found.yourSide === 'P1'} delay={0.1} />
+          <motion.div
+            initial={{ opacity: 0, scale: 0.4 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.3, type: 'spring', stiffness: 300, damping: 18 }}
+            className="flex flex-col items-center"
+          >
+            <span className="text-4xl font-black text-white drop-shadow-[0_2px_12px_rgba(255,215,107,0.5)] sm:text-5xl">
+              VS
+            </span>
+          </motion.div>
+          <UserCard name={found.p2Name} side="P2" isYou={found.yourSide === 'P2'} delay={0.18} />
+        </div>
+      )}
 
       <motion.p
         initial={{ opacity: 0 }}
@@ -587,9 +616,67 @@ function MatchFound({ found }: { found: FoundInfo }) {
         transition={{ delay: 0.6 }}
         className="text-sm font-semibold text-white/55"
       >
-        Maç başlıyor…
+        {isLobby ? 'Oyun başlıyor…' : 'Maç başlıyor…'}
       </motion.p>
     </section>
+  );
+}
+
+/** Lobi (imposter) için N-kart — UserCard'ın renk-paletli, otomatik-küçülen sürümü. */
+const LOBBY_COLORS = [
+  { glow: 'rgba(220,38,38,0.5)', grad: 'from-side-red/90 via-side-red/40' },
+  { glow: 'rgba(37,99,235,0.5)', grad: 'from-side-blue/90 via-side-blue/40' },
+  { glow: 'rgba(16,185,129,0.5)', grad: 'from-emerald-500/90 via-emerald-500/40' },
+  { glow: 'rgba(245,158,11,0.5)', grad: 'from-amber-500/90 via-amber-500/40' },
+  { glow: 'rgba(168,85,247,0.5)', grad: 'from-purple-500/90 via-purple-500/40' },
+];
+
+function LobbyUserCard({
+  name,
+  colorIndex,
+  isYou,
+  count,
+  delay,
+}: {
+  name: string;
+  colorIndex: number;
+  isYou: boolean;
+  count: number;
+  delay: number;
+}) {
+  const c = LOBBY_COLORS[colorIndex % LOBBY_COLORS.length]!;
+  const initial = name.charAt(0).toUpperCase();
+  // 3-4 kart geniş, 5 kart biraz dar → her zaman tek satır.
+  const widthCls = count >= 5 ? 'max-w-[112px]' : 'max-w-[150px]';
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 24, scale: 0.85 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay, type: 'spring', stiffness: 240, damping: 20 }}
+      className={cn('group relative aspect-[2/3] min-w-0 flex-1 select-none', widthCls)}
+    >
+      {isYou && (
+        <span className="absolute -top-2.5 left-1/2 z-40 -translate-x-1/2 rounded-full bg-accent-gold px-3 py-0.5 text-[10px] font-black tracking-wide text-[#1f1500] shadow-lg">
+          SEN
+        </span>
+      )}
+      <div
+        className="relative flex h-full w-full flex-col overflow-hidden rounded-xl shadow-card"
+        style={{ boxShadow: `0 0 24px -6px ${c.glow}` }}
+      >
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 to-zinc-950" />
+        <div className={`absolute inset-x-0 top-0 h-[62%] bg-gradient-to-b ${c.grad} to-transparent`} />
+        <div className="relative z-20 flex flex-1 items-center justify-center">
+          <span className="flex h-12 w-12 items-center justify-center rounded-full bg-white text-2xl font-black text-zinc-900 shadow-lg sm:h-14 sm:w-14">
+            {initial}
+          </span>
+        </div>
+        <div className="relative z-20 border-t border-white/10 bg-black/45 px-1.5 py-2 text-center backdrop-blur-sm">
+          <div className="truncate text-xs font-bold text-white sm:text-sm">{name}</div>
+        </div>
+      </div>
+    </motion.div>
   );
 }
 

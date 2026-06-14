@@ -149,7 +149,6 @@ export default function ImposterGamePage() {
   }
 
   const bgKey = view.scene === 'RESULT' ? 'final' : view.scene === 'VOTE' ? 'handoff' : 'pick';
-  const myName = view.playerNames[me] ?? 'Sen';
 
   return (
     <>
@@ -204,7 +203,6 @@ export default function ImposterGamePage() {
               <WordsScene
                 view={view}
                 me={me}
-                myName={myName}
                 wordInput={wordInput}
                 setWordInput={setWordInput}
                 wordError={wordError}
@@ -348,7 +346,6 @@ function RoleRevealScene({
 function WordsScene({
   view,
   me,
-  myName,
   wordInput,
   setWordInput,
   wordError,
@@ -359,7 +356,6 @@ function WordsScene({
 }: {
   view: NonNullable<ReturnType<typeof useOnlineImposterMatch>['view']>;
   me: number;
-  myName: string;
   wordInput: string;
   setWordInput: (v: string) => void;
   wordError: string | null;
@@ -370,53 +366,25 @@ function WordsScene({
 }) {
   const isMyTurn = view.activeIndex === me;
   const activeName = view.playerNames[view.activeIndex] ?? 'Oyuncu';
+  const n = view.playerNames.length;
 
   return (
-    <section className="flex flex-col gap-5 pb-10">
-      <header className="flex flex-col items-center gap-3 text-center">
+    <section className="flex flex-col items-center gap-4">
+      {/* Üst: tur + sayaç + başlık */}
+      <div className="flex flex-col items-center gap-2 text-center">
         <span className="inline-flex items-center gap-2 rounded-full border border-accent-gold/30 bg-accent-gold/10 px-3 py-1 text-[10px] font-bold uppercase tracking-wider text-accent-goldHi">
           Tur {view.round + 1}/{IMPOSTER_ROUNDS} · Kelime sırası
         </span>
-        <CountdownRing seconds={IMPOSTER_WORD_SECONDS} deadlineMs={deadlineMs} runKey={`words-${view.round}-${view.activeIndex}`} onComplete={onTimeout} size={56} stroke={5} color="#3b82f6" urgentColor="#ef4444" />
-        <h2 className="text-lg font-black sm:text-xl">
+        <CountdownRing seconds={IMPOSTER_WORD_SECONDS} deadlineMs={deadlineMs} runKey={`words-${view.round}-${view.activeIndex}`} onComplete={onTimeout} size={48} stroke={5} color="#3b82f6" urgentColor="#ef4444" />
+        <h2 className="text-base font-black sm:text-lg">
           {isMyTurn ? 'Sıra sende — bir kelime yaz' : <><span className="text-accent-goldHi">{activeName}</span> yazıyor…</>}
         </h2>
-      </header>
-
-      {/* Kelime tablosu — tüm oyuncular × tüm turlar (anlık görünür) */}
-      <div className="flex flex-col gap-2">
-        {view.playerNames.map((name, pi) => (
-          <div
-            key={pi}
-            className={cn(
-              'flex items-center gap-2 rounded-xl border px-3 py-2',
-              pi === view.activeIndex ? 'border-accent-gold/60 bg-accent-gold/10' : 'border-white/10 bg-white/5',
-              pi === me && 'ring-1 ring-emerald-400/40',
-            )}
-          >
-            <span className={cn('w-28 shrink-0 truncate text-sm font-bold', pi === me ? 'text-emerald-300' : 'text-white/80')}>
-              {name}{pi === me ? ' (sen)' : ''}
-            </span>
-            <div className="flex flex-1 flex-wrap gap-1.5">
-              {view.words.map((roundWords, ri) => {
-                const w = roundWords[pi];
-                if (w === null || w === undefined) return null;
-                return (
-                  <span key={ri} className="rounded-md bg-white/10 px-2 py-0.5 text-xs font-semibold">
-                    {w}
-                  </span>
-                );
-              })}
-              {pi === view.activeIndex && <span className="animate-pulse text-xs text-accent-goldHi">✍️ yazıyor…</span>}
-            </div>
-          </div>
-        ))}
       </div>
 
-      {/* Kendi sıramsa giriş */}
+      {/* Giriş kutusu — sürenin altında, kartların üstünde, ortada (kullanıcı isteği) */}
       {isMyTurn ? (
-        <div className="flex flex-col items-center gap-2">
-          <div className="flex w-full max-w-md items-center gap-2">
+        <div className="flex w-full max-w-md flex-col items-center gap-1.5">
+          <div className="flex w-full items-center gap-2">
             <input
               autoFocus
               value={wordInput}
@@ -431,11 +399,26 @@ function WordsScene({
             </button>
           </div>
           {wordError && <span className="text-xs font-semibold text-side-red">⚠️ {wordError}</span>}
-          <p className="text-[11px] text-white/45">{myName} olarak yazıyorsun · futbolcu/kulüp adı yasak</p>
         </div>
       ) : (
         <p className="text-center text-sm text-white/55">Sıranı bekle — diğer oyuncuların kelimelerini izle.</p>
       )}
+
+      {/* Oyuncu kartları — yan yana, tek satır, içinde dikey kelimeler */}
+      <div className="flex w-full max-w-5xl items-stretch justify-center gap-2 sm:gap-3">
+        {view.playerNames.map((name, pi) => (
+          <PlayerWordCard
+            key={pi}
+            name={name}
+            colorIndex={pi}
+            count={n}
+            isMe={pi === me}
+            isActive={pi === view.activeIndex}
+            words={view.words.map((r) => r[pi]).filter((w): w is string => !!w)}
+            writing={pi === view.activeIndex}
+          />
+        ))}
+      </div>
     </section>
   );
 }
@@ -461,62 +444,137 @@ function VoteScene({
   // Oy verdim mi? yourVote dolu (birine oy) VEYA yerel bayrak (çekimser dahil).
   const iVoted = view.yourVote !== null || myVoteCast;
   const locked = iVoted || voting;
+  const n = view.playerNames.length;
 
   return (
-    <section className="flex flex-col gap-5 py-4">
-      <header className="flex flex-col items-center gap-3 text-center">
-        <CountdownRing seconds={IMPOSTER_VOTE_SECONDS} deadlineMs={deadlineMs} runKey="vote" onComplete={onTimeout} size={56} stroke={5} color="#ef4444" urgentColor="#ef4444" />
-        <h2 className="text-xl font-black">Kim imposter? 🕵️</h2>
-        <p className="text-sm text-white/60">Şüphelendiğin oyuncuya oy ver. {view.votedCount}/{view.playerNames.length} oy verildi.</p>
-      </header>
-
-      {/* Kelime özeti (oylamada hatırlatma) */}
-      <div className="flex flex-col gap-2">
-        {view.playerNames.map((name, pi) => {
-          const isMe = pi === me;
-          const allWords = view.words.map((r) => r[pi]).filter((w): w is string => !!w);
-          const votedThis = view.yourVote === pi;
-          return (
-            <button
-              key={pi}
-              type="button"
-              disabled={isMe || locked}
-              onClick={() => onVote(pi)}
-              className={cn(
-                'flex items-center gap-3 rounded-xl border px-3 py-2 text-left transition',
-                votedThis ? 'border-side-red/70 bg-side-red/20' : 'border-white/10 bg-white/5',
-                !isMe && !locked && 'hover:border-side-red/50 hover:bg-side-red/10',
-                isMe && 'opacity-50',
-                locked && !votedThis && 'cursor-not-allowed opacity-60',
-              )}
-            >
-              <span className={cn('w-28 shrink-0 truncate text-sm font-bold', isMe ? 'text-emerald-300' : 'text-white/85')}>
-                {name}{isMe ? ' (sen)' : ''}
-              </span>
-              <span className="flex flex-1 flex-wrap gap-1.5">
-                {allWords.map((w, i) => (
-                  <span key={i} className="rounded-md bg-white/10 px-2 py-0.5 text-xs">{w}</span>
-                ))}
-              </span>
-              {votedThis && <span className="shrink-0 text-xs font-black text-side-red">✓ oyun</span>}
-            </button>
-          );
-        })}
+    <section className="flex flex-col items-center gap-4">
+      <div className="flex flex-col items-center gap-2 text-center">
+        <CountdownRing seconds={IMPOSTER_VOTE_SECONDS} deadlineMs={deadlineMs} runKey="vote" onComplete={onTimeout} size={48} stroke={5} color="#ef4444" urgentColor="#ef4444" />
+        <h2 className="text-lg font-black sm:text-xl">Kim imposter? 🕵️</h2>
+        <p className="text-sm text-white/60">
+          {iVoted ? '✓ Oyun alındı — diğerleri bekleniyor…' : 'Şüphelendiğin oyuncunun kartına dokun.'}{' '}
+          {view.votedCount}/{n} oy verildi.
+        </p>
       </div>
 
-      <div className="flex flex-col items-center gap-2">
-        <button
-          type="button"
-          disabled={locked}
-          onClick={() => onVote(null)}
-          className={cn('btn-ghost px-6 py-2 text-sm', locked && 'cursor-not-allowed opacity-50')}
-        >
-          Çekimser kal
-        </button>
-        {iVoted && <span className="text-xs font-semibold text-accent-goldHi">✓ Oyun alındı — diğerleri bekleniyor…</span>}
+      {/* Oyuncu kartları — yan yana tek satır, tıklanabilir (oy). Kelimeler dikey. */}
+      <div className="flex w-full max-w-5xl items-stretch justify-center gap-2 sm:gap-3">
+        {view.playerNames.map((name, pi) => (
+          <PlayerWordCard
+            key={pi}
+            name={name}
+            colorIndex={pi}
+            count={n}
+            isMe={pi === me}
+            words={view.words.map((r) => r[pi]).filter((w): w is string => !!w)}
+            voteable={!locked && pi !== me}
+            voted={view.yourVote === pi}
+            onVote={() => onVote(pi)}
+          />
+        ))}
       </div>
+
+      <button
+        type="button"
+        disabled={locked}
+        onClick={() => onVote(null)}
+        className={cn('btn-ghost px-6 py-2 text-sm', locked && 'cursor-not-allowed opacity-50')}
+      >
+        Çekimser kal
+      </button>
     </section>
   );
+}
+
+/* ─────────────── Oyuncu kartı (kelime/oylama — renkli + baş harf + dikey kelime) ─────────────── */
+const CARD_COLORS = [
+  { grad: 'from-side-red/85 via-side-red/35', glow: 'rgba(220,38,38,0.45)', ring: 'ring-side-red' },
+  { grad: 'from-side-blue/85 via-side-blue/35', glow: 'rgba(37,99,235,0.45)', ring: 'ring-side-blue' },
+  { grad: 'from-emerald-500/85 via-emerald-500/35', glow: 'rgba(16,185,129,0.45)', ring: 'ring-emerald-400' },
+  { grad: 'from-amber-500/85 via-amber-500/35', glow: 'rgba(245,158,11,0.45)', ring: 'ring-amber-400' },
+  { grad: 'from-purple-500/85 via-purple-500/35', glow: 'rgba(168,85,247,0.45)', ring: 'ring-purple-400' },
+] as const;
+
+function PlayerWordCard({
+  name,
+  colorIndex,
+  count,
+  isMe,
+  isActive = false,
+  writing = false,
+  words,
+  voteable = false,
+  voted = false,
+  onVote,
+}: {
+  name: string;
+  colorIndex: number;
+  count: number;
+  isMe: boolean;
+  isActive?: boolean;
+  writing?: boolean;
+  words: string[];
+  voteable?: boolean;
+  voted?: boolean;
+  onVote?: () => void;
+}) {
+  const c = CARD_COLORS[colorIndex % CARD_COLORS.length]!;
+  const initial = name.charAt(0).toLocaleUpperCase('tr-TR');
+  // 3-4 kart geniş, 5 kart dar → her zaman tek satır (flex-1 eşit böl + max-w).
+  const maxW = count >= 5 ? 'max-w-[118px]' : count === 4 ? 'max-w-[150px]' : 'max-w-[180px]';
+
+  const inner = (
+    <motion.div
+      initial={{ opacity: 0, y: 16, scale: 0.92 }}
+      animate={{ opacity: 1, y: 0, scale: 1 }}
+      transition={{ delay: 0.05 * colorIndex, type: 'spring', stiffness: 240, damping: 22 }}
+      className={cn(
+        'relative flex h-full w-full flex-col overflow-hidden rounded-xl border transition',
+        isActive ? 'border-accent-gold/70' : voted ? 'border-side-red/80' : 'border-white/10',
+        isMe && 'ring-2 ring-offset-1 ring-offset-transparent ' + c.ring,
+        voteable && 'cursor-pointer hover:-translate-y-1 hover:border-side-red/60',
+      )}
+      style={{ boxShadow: `0 0 20px -8px ${c.glow}` }}
+    >
+      {/* Üst renkli bölge + baş harf */}
+      <div className="relative">
+        <div className="absolute inset-0 bg-gradient-to-b from-zinc-900 to-zinc-950" />
+        <div className={cn('absolute inset-0 bg-gradient-to-b to-transparent', c.grad)} />
+        <div className="relative z-10 flex flex-col items-center gap-1 px-1 pb-2 pt-3">
+          <span className="flex h-9 w-9 items-center justify-center rounded-full bg-white text-base font-black text-zinc-900 shadow sm:h-10 sm:w-10">
+            {initial}
+          </span>
+          <span className="max-w-full truncate text-[11px] font-bold text-white sm:text-xs">
+            {name}{isMe ? ' (sen)' : ''}
+          </span>
+          {isActive && writing && <span className="animate-pulse text-[10px] font-bold text-accent-goldHi">✍️ yazıyor…</span>}
+          {voted && <span className="text-[10px] font-black text-side-red">✓ oyun</span>}
+        </div>
+      </div>
+      {/* Kelimeler — dikey, yukarıdan aşağı */}
+      <div className="flex flex-1 flex-col items-stretch gap-1 bg-black/40 px-1.5 py-2">
+        {words.length === 0 ? (
+          <span className="py-1 text-center text-[10px] text-white/30">—</span>
+        ) : (
+          words.map((w, i) => (
+            <span key={i} className="truncate rounded-md bg-white/10 px-1.5 py-1 text-center text-[11px] font-semibold text-white/90">
+              {w}
+            </span>
+          ))
+        )}
+      </div>
+    </motion.div>
+  );
+
+  const wrapCls = cn('min-w-0 flex-1', maxW);
+  if (voteable && onVote) {
+    return (
+      <button type="button" onClick={onVote} className={cn(wrapCls, 'block text-left')}>
+        {inner}
+      </button>
+    );
+  }
+  return <div className={wrapCls}>{inner}</div>;
 }
 
 /* ─────────────────────────── RESULT ─────────────────────────── */

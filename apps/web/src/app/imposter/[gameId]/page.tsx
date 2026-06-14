@@ -251,13 +251,19 @@ function SilentProgressRing({
 }) {
   const [ratio, setRatio] = useState(1); // 1 = tam dolu, 0 = bitti
   useEffect(() => {
-    const totalMs = totalSeconds * 1000;
+    // Halka TAM DOLU başlar: pencere = MOUNT ANINDAKİ kalan süre (deadline − now),
+    // sabit totalSeconds DEĞİL. Aksi halde found-ekranı (~4sn) sonrası sayfaya
+    // gelince deadline'dan ~8sn kalmışken sabit 12sn'ye bölünür → halka 2/3 dolu
+    // başlardı (kullanıcının sezdiği uyuşmazlık). Şimdi 1.0'dan başlayıp gerçek
+    // kalan sürede 0'a iner; bitiş anı yine sunucu deadline'ıyla EŞ.
+    const now = Date.now();
+    const windowMs =
+      deadlineMs !== null ? Math.max(1, deadlineMs - now) : totalSeconds * 1000;
+    const startMs = now;
     let raf = 0;
     const tick = () => {
-      const now = Date.now();
-      // deadlineMs varsa ona kilitle (sunucu-otoriteli); yoksa salt görsel.
-      const remainMs = deadlineMs !== null ? deadlineMs - now : totalMs;
-      const r = Math.max(0, Math.min(1, remainMs / totalMs));
+      const elapsed = Date.now() - startMs;
+      const r = Math.max(0, Math.min(1, 1 - elapsed / windowMs));
       setRatio(r);
       if (r > 0) raf = requestAnimationFrame(tick);
     };

@@ -26,7 +26,7 @@
  */
 import type { Player, Position } from '@futbol-kart/shared-types';
 import { createPRNG } from '@futbol-kart/game-engine';
-import { METRIC_FIELDS, type MetricField } from './criteriaCatalog';
+import { METRIC_FIELDS } from './criteriaCatalog';
 
 /** Bir maçtaki tur sayısı. */
 export const QUIZ_ROUNDS = 7;
@@ -62,18 +62,67 @@ export function isMarquee(p: Player): boolean {
 }
 
 // ===========================================================================
-// Metrik havuzu — 4'lü Kıyas'a uygun METRIC_FIELDS alt-kümesi
+// Metrik havuzu — 4'lü Kıyas metrikleri (criteriaCatalog alt-kümesi + quiz-özel)
 // ===========================================================================
 
-/**
- * Bu modda kullanılabilir metrikler: değer "yüksek = daha çok" anlamı taşıyan,
- * tek oyuncuda anlamlı alanlar (listEligible bunu zaten kodluyor — top-10
- * sıralanabilen alanlar tek-oyuncu kıyasına da uygun). Hepsi `pick` + `unit`
- * + `positionFilterable` taşır (criteriaCatalog).
- */
-export const QUIZ_METRICS: MetricField[] = METRIC_FIELDS.filter((f) => f.listEligible);
+/** 4'lü Kıyas'ın ihtiyaç duyduğu sade metrik modeli (MetricField'ın çekirdeği). */
+export interface QuizMetric {
+  key: string;
+  /** Kısa etiket (büyük başlık). */
+  shortLabel: string;
+  /** Birim (gol/maç/kupa/cm/M€…). */
+  unit: string;
+  /** Tek oyuncudan ham değer (yoksa undefined/0). */
+  pick: (p: Player) => number | undefined;
+  /** Pozisyona bağlı mı? (gol → evet; toplam maç → hayır) */
+  positionFilterable: boolean;
+}
 
-export function metricByKey(key: string): MetricField | undefined {
+/** criteriaCatalog'taki bir MetricField'ı QuizMetric'e indir. */
+function fromCatalog(key: string): QuizMetric {
+  const f = METRIC_FIELDS.find((m) => m.key === key)!;
+  return {
+    key: f.key,
+    shortLabel: f.shortLabel,
+    unit: f.unit,
+    pick: f.pick,
+    positionFilterable: f.positionFilterable,
+  };
+}
+
+/** stat picker kısayolu (undefined/NaN korumalı çağıran tarafta). */
+const pk = (fn: (p: Player) => number | undefined) => fn;
+
+/**
+ * Bu modda kullanılabilir metrikler. (A) criteriaCatalog'tan listEligible olanlar
+ * + (B) quiz-özel YENİ metrikler (doluluk + ayırt edicilik players.json'da ölçüldü;
+ * yalnız ≥%40 dolu + net-kazanan üreten alanlar — "ölü tur" üretmez).
+ */
+export const QUIZ_METRICS: QuizMetric[] = [
+  // (A) Kataloğtan gelen 17 metrik
+  ...METRIC_FIELDS.filter((f) => f.listEligible).map((f) => fromCatalog(f.key)),
+  // (B) Quiz-özel yeni metrikler (criteriaCatalog'a dokunmaz; ölçülmüş güvenli alanlar)
+  { key: 'leagueassists', shortLabel: 'Lig asisti', unit: 'asist', positionFilterable: true,
+    pick: pk((p) => p.stats.competitions?.leagueAssists) },
+  { key: 'uelapps', shortLabel: 'Avrupa Ligi maçı', unit: 'maç', positionFilterable: false,
+    pick: pk((p) => p.stats.competitions?.uelApps) },
+  { key: 'uelgoals', shortLabel: 'Avrupa Ligi golü', unit: 'gol', positionFilterable: true,
+    pick: pk((p) => p.stats.competitions?.uelGoals) },
+  { key: 'uclassists', shortLabel: 'Şampiyonlar Ligi asisti', unit: 'asist', positionFilterable: true,
+    pick: pk((p) => p.stats.competitions?.uclAssists) },
+  { key: 'domcupapps', shortLabel: 'Ulusal kupa maçı', unit: 'maç', positionFilterable: false,
+    pick: pk((p) => p.stats.competitions?.domesticCupApps) },
+  { key: 'domcupgoals', shortLabel: 'Ulusal kupa golü', unit: 'gol', positionFilterable: true,
+    pick: pk((p) => p.stats.competitions?.domesticCupGoals) },
+  { key: 'domcuptitles', shortLabel: 'Ulusal kupa', unit: 'kupa', positionFilterable: false,
+    pick: pk((p) => p.achievements.trophies?.domesticCupTitles) },
+  { key: 'last5goals', shortLabel: 'Son sezonların lig golü', unit: 'gol', positionFilterable: true,
+    pick: pk((p) => p.stats.last5LeagueGoals) },
+  { key: 'clubs', shortLabel: 'Farklı kulüp sayısı', unit: 'kulüp', positionFilterable: false,
+    pick: pk((p) => new Set(p.clubs.map((c) => c.clubId)).size) },
+];
+
+export function metricByKey(key: string): QuizMetric | undefined {
   return QUIZ_METRICS.find((f) => f.key === key);
 }
 
@@ -115,6 +164,16 @@ const QUIZ_METRIC_PHRASES: Record<string, QuizPhrase> = {
   trophies: { question: 'toplam kupası', reveal: 'toplam kupa', most: 'en fazla' },
   leaguetitles: { question: 'lig şampiyonluğu', reveal: 'lig şampiyonluğu', most: 'en fazla' },
   awards: { question: 'bireysel ödülü', reveal: 'bireysel ödül', most: 'en fazla' },
+  // Quiz-özel yeni metrikler
+  leagueassists: { question: 'lig asisti', reveal: 'lig asisti', most: 'en fazla' },
+  uelapps: { question: 'Avrupa Ligi maçı', reveal: 'Avrupa Ligi maçı', most: 'en fazla' },
+  uelgoals: { question: 'Avrupa Ligi golü', reveal: 'Avrupa Ligi golü', most: 'en fazla' },
+  uclassists: { question: 'Şampiyonlar Ligi asisti', reveal: 'Şampiyonlar Ligi asisti', most: 'en fazla' },
+  domcupapps: { question: 'ulusal kupa maçı', reveal: 'ulusal kupa maçı', most: 'en fazla' },
+  domcupgoals: { question: 'ulusal kupa golü', reveal: 'ulusal kupa golü', most: 'en fazla' },
+  domcuptitles: { question: 'ulusal kupası', reveal: 'ulusal kupa', most: 'en fazla' },
+  last5goals: { question: 'son sezonlardaki lig golü', reveal: 'son sezon lig golü', most: 'en fazla' },
+  clubs: { question: 'forma giydiği farklı kulüp sayısı', reveal: 'farklı kulüp sayısı', most: 'en fazla' },
 };
 
 /** Metriğin Türkçe ifadesi (yoksa shortLabel'den makul fallback). */
@@ -142,10 +201,68 @@ export function positionGroupLabel(group: Position | null): string | null {
   }
 }
 
+/**
+ * Soru bağlamı (sıfat + pozisyon noun) — "...arasında" öncesi. Türkçe sıralama:
+ *   filtre sıfatı + pozisyon/genel-noun → çoğul.
+ *   ("Brezilyalı forvetler", "aktif oyuncular", "Türk futbolcular", "forvetler").
+ * Hiç filtre+pozisyon yoksa null (sade "Hangisinin ...").
+ */
+export function quizContextLabel(filterKey: string | null, group: Position | null): string | null {
+  const adj = filterByKey(filterKey)?.adjective ?? null;
+  const pos = positionGroupLabel(group);
+  if (adj && pos) return `${adj} ${pos}`;
+  if (adj) return `${adj} futbolcular`;
+  if (pos) return pos;
+  return null;
+}
+
 /** Bir oyuncunun metrikteki ham değeri (yoksa null). */
-export function metricValue(field: MetricField, p: Player): number | null {
+export function metricValue(field: QuizMetric, p: Player): number | null {
   const v = field.pick(p);
   return typeof v === 'number' && Number.isFinite(v) ? v : null;
+}
+
+// ===========================================================================
+// Filtre ekseni (çeşitlilik çarpanı) — çağ + milliyet (pozisyon ayrı eksende)
+// ===========================================================================
+
+/** Bir havuz filtresi: oyuncuyu daraltır + Türkçe ifade ekleri taşır. */
+export interface QuizFilter {
+  key: string;
+  test: (p: Player) => boolean;
+  /** Soru ifadesine eklenen sıfat (örn. "Brezilyalı", "aktif"). */
+  adjective: string;
+}
+
+/** Çağ filtreleri (×2). */
+const ERA_FILTERS: QuizFilter[] = [
+  { key: 'active', adjective: 'aktif', test: (p) => p.isActive },
+  { key: 'legend', adjective: 'emekli', test: (p) => !p.isActive },
+];
+
+/** Milliyet filtreleri (Liste Doldur ile aynı 9 ülke). */
+const NAT_FILTERS: QuizFilter[] = [
+  { key: 'natTR', adjective: 'Türk', test: (p) => p.nationalityCode === 'TR' },
+  { key: 'natBR', adjective: 'Brezilyalı', test: (p) => p.nationalityCode === 'BR' },
+  { key: 'natAR', adjective: 'Arjantinli', test: (p) => p.nationalityCode === 'AR' },
+  { key: 'natES', adjective: 'İspanyol', test: (p) => p.nationalityCode === 'ES' },
+  { key: 'natFR', adjective: 'Fransız', test: (p) => p.nationalityCode === 'FR' },
+  { key: 'natDE', adjective: 'Alman', test: (p) => p.nationalityCode === 'DE' },
+  { key: 'natIT', adjective: 'İtalyan', test: (p) => p.nationalityCode === 'IT' },
+  { key: 'natEN', adjective: 'İngiliz', test: (p) => p.nationalityCode === 'EN' },
+  { key: 'natNL', adjective: 'Hollandalı', test: (p) => p.nationalityCode === 'NL' },
+];
+
+/**
+ * Filtre eksenleri. `null` = filtre yok (sade soru). buildQuizRounds her tur bir
+ * eksen seçer (ya çağ ya milliyet ya hiç) → "En golcü Brezilyalı", "en değerli
+ * aktif oyuncu", veya filtresiz. (Pozisyon AYRI bir eksen — positionGroup.)
+ */
+export const QUIZ_FILTERS: Array<QuizFilter | null> = [null, ...ERA_FILTERS, ...NAT_FILTERS];
+
+export function filterByKey(key: string | null): QuizFilter | null {
+  if (!key) return null;
+  return QUIZ_FILTERS.find((f) => f?.key === key) ?? null;
 }
 
 // ===========================================================================
@@ -159,13 +276,15 @@ export interface QuizChoice {
 
 /** Bir tur (sunucu-içi tam veri: değerler + doğru cevap dahil). */
 export interface QuizRound {
-  /** Metrik anahtarı (criteriaCatalog) — değer her çağrı `pick`le çözülür. */
+  /** Metrik anahtarı — değer build-time `pick`le çözülür (state'te `values` hazır). */
   metricKey: string;
   /**
    * Pozisyon grubu — yalnız pozisyona-bağlı metriklerde (4 oyuncu bu gruptan).
    * Soru ifadesine bağlam katar ("en golcü forvet?") → çeşitlilik artar. Yoksa null.
    */
   positionGroup: Position | null;
+  /** Filtre anahtarı (çağ/milliyet) — havuz daraltıldı + ifadeye sıfat. Yoksa null. */
+  filterKey: string | null;
   /** 4 oyuncu id'si (ekran sırası — karıştırılmış). */
   choiceIds: string[];
   /** Her oyuncunun metrikteki ham değeri (choiceIds ile aynı sıra). */
@@ -207,16 +326,19 @@ function positionGroup(pos: Position): Position {
 
 /**
  * Bir metrik için aday havuzu: marquee + metrikte değeri olan oyuncular.
- * Metrik pozisyona bağlıysa (`positionFilterable`) verilen pozisyon grubundan.
+ * Metrik pozisyona bağlıysa (`positionFilterable`) verilen pozisyon grubundan;
+ * ayrıca opsiyonel filtre (çağ/milliyet) uygulanır.
  */
 function metricPool(
-  field: MetricField,
+  field: QuizMetric,
   players: Player[],
   group: Position | null,
+  filter: QuizFilter | null,
 ): Player[] {
   return players.filter((p) => {
     if (!isMarquee(p)) return false;
     if (group !== null && positionGroup(p.position) !== group) return false;
+    if (filter && !filter.test(p)) return false;
     return metricValue(field, p) !== null && metricValue(field, p)! > 0;
   });
 }
@@ -231,7 +353,7 @@ function metricPool(
  * Döndürülen 4 oyuncu KARIŞTIRILIR (doğru cevap sıradan anlaşılmaz).
  */
 function buildRoundFromPool(
-  field: MetricField,
+  field: QuizMetric,
   pool: Player[],
   rng: () => number,
 ): { ids: string[]; values: number[] } | null {
@@ -294,6 +416,12 @@ function shuffleIndexes(n: number, rng: () => number): number[] {
 }
 
 /**
+ * GK'nin anlamlı olduğu pozisyon-bağlı metrikler. "Kaleci golü/asisti" saçma →
+ * GK yalnız fiziksel/değer metriklerinde aday olur (boy, piyasa değeri).
+ */
+const GK_OK_METRICS = new Set<string>(['height', 'value']);
+
+/**
  * Bir maç için QUIZ_ROUNDS tur kur (seed'den deterministik → iki oyuncu aynı
  * maçı görür, adalet). Her tur farklı metrik (mümkünse tekrarsız) + adil 4'lü.
  *
@@ -305,37 +433,47 @@ export function buildQuizRounds(seed: string, players: Player[]): QuizRound[] {
   const rounds: QuizRound[] = [];
   const usedMetrics = new Set<string>();
 
-  // Soru-kimliği = metrik + (varsa) pozisyon grubu. "golcü forvet" ile "golcü defans"
-  // FARKLI sorular sayılır → pozisyon-bağlamı sayesinde maç-içi çeşitlilik artar.
+  // Soru-kimliği = metrik + (varsa) pozisyon + (varsa) filtre. Bu üç eksen birlikte
+  // "En golcü Brezilyalı forvet" ile "En golcü aktif orta saha"yı FARKLI soru yapar
+  // → devasa çeşitlilik. Aynı kombinasyon maç-içinde tekrar etmez.
   const usedQuestions = new Set<string>();
 
   let guard = 0;
-  while (rounds.length < QUIZ_ROUNDS && guard < QUIZ_ROUNDS * 40) {
+  while (rounds.length < QUIZ_ROUNDS && guard < QUIZ_ROUNDS * 50) {
     guard++;
-    // Metrik seç: bu maçta HİÇ kullanılmamış metrikleri önceliklendir (geniş
-    // çeşitlilik); hepsi kullanıldıysa pozisyon-bağlamıyla tekrara izin ver.
+    // 1) Metrik: bu maçta HİÇ kullanılmamış metrikleri önceliklendir (geniş çeşitlilik).
     const fresh = QUIZ_METRICS.filter((f) => !usedMetrics.has(f.key));
     const metricList = fresh.length > 0 ? fresh : QUIZ_METRICS;
     const field = metricList[Math.floor(prng.next() * metricList.length)]!;
 
-    // Pozisyon grubu (metrik pozisyona bağlıysa). GK seyrek tutulur.
+    // 2) Pozisyon grubu (metrik pozisyona bağlıysa). GK seyrek + yalnız
+    //    GK-anlamlı metriklerde (boy/değer) — "kaleci golü" gibi saçma sorular elenir.
     let group: Position | null = null;
     if (field.positionFilterable) {
-      group = pickPositionGroup(prng.next);
+      group = pickPositionGroup(prng.next, GK_OK_METRICS.has(field.key));
     }
 
-    const qKey = group ? `${field.key}:${group}` : field.key;
-    if (usedQuestions.has(qKey)) continue; // aynı (metrik+poz) tekrarı yok
+    // 3) Filtre (çağ/milliyet) — ~%55 olasılıkla bir filtre uygula (kalanı sade soru).
+    //    Filtre + pozisyon küçük havuz yaratabilir → buildRoundFromPool prune eder.
+    let filter: QuizFilter | null = null;
+    if (prng.next() < 0.55) {
+      const f = QUIZ_FILTERS[Math.floor(prng.next() * QUIZ_FILTERS.length)] ?? null;
+      filter = f;
+    }
 
-    const pool = metricPool(field, players, group);
+    const qKey = `${field.key}|${group ?? ''}|${filter?.key ?? ''}`;
+    if (usedQuestions.has(qKey)) continue; // aynı (metrik+poz+filtre) tekrarı yok
+
+    const pool = metricPool(field, players, group, filter);
     const built = buildRoundFromPool(field, pool, prng.next);
-    if (!built) continue; // bu metrik/grup belirginlik veremedi → tekrar dene
+    if (!built) continue; // havuz yetmedi / belirginlik veremedi → başka kombinasyon
 
     const values = built.values;
     const correctIndex = argmax(values);
     rounds.push({
       metricKey: field.key,
       positionGroup: group,
+      filterKey: filter?.key ?? null,
       choiceIds: built.ids,
       values,
       correctIndex,
@@ -348,14 +486,20 @@ export function buildQuizRounds(seed: string, players: Player[]): QuizRound[] {
   return rounds;
 }
 
-/** Pozisyon grubu seç — GK düşük olasılıkla (havuz dar). */
-function pickPositionGroup(rng: () => number): Position {
+/** Pozisyon grubu seç — GK düşük olasılıkla + yalnız GK-uygun metrikte. */
+function pickPositionGroup(rng: () => number, gkAllowed: boolean): Position {
   const r = rng();
-  // FWD %38, MID %30, DEF %24, GK %8 (GK havuzu darlığına saygı — §14.3).
-  if (r < 0.38) return 'FWD';
-  if (r < 0.68) return 'MID';
-  if (r < 0.92) return 'DEF';
-  return 'GK';
+  if (gkAllowed) {
+    // FWD %35, MID %28, DEF %25, GK %12 (boy/değerde kaleci anlamlı).
+    if (r < 0.35) return 'FWD';
+    if (r < 0.63) return 'MID';
+    if (r < 0.88) return 'DEF';
+    return 'GK';
+  }
+  // GK yok (gol/asist gibi): FWD %40, MID %33, DEF %27.
+  if (r < 0.4) return 'FWD';
+  if (r < 0.73) return 'MID';
+  return 'DEF';
 }
 
 /** En yüksek değerin indexi (eşitlikte ilk; belirginlik şartı eşitliği zaten eler). */

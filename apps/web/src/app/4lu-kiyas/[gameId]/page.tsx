@@ -29,7 +29,7 @@ import {
   botPick,
   metricByKey,
   quizPhrase,
-  positionGroupLabel,
+  quizContextLabel,
   QUIZ_ROUNDS,
   type QuizRound,
   type QuizSide,
@@ -44,6 +44,11 @@ type Phase = 'opponent' | 'playing' | 'result';
 const OFFLINE_SELECT_SECONDS = 25;
 /** Tur sonucu otomatik gösterim (ms). */
 const ROUND_REVEAL_MS = 6000;
+
+/** İlk harfi Türkçe-duyarlı büyüt (sonuç döküm etiketi için). */
+function capFirst(s: string): string {
+  return s.charAt(0).toLocaleUpperCase('tr-TR') + s.slice(1);
+}
 
 interface OffSelection {
   indexes: number[] | null;
@@ -458,7 +463,7 @@ export default function QuizGamePage() {
   const onlineMetricLabel = onlineMetric?.shortLabel ?? onlineRoundData?.metricKey ?? '';
   const onlineMetricUnit = onlineMetric?.unit ?? '';
   const onlinePhrase = quizPhrase(onlineRoundData?.metricKey ?? '');
-  const onlinePosCtx = positionGroupLabel(onlineRoundData?.positionGroup ?? null);
+  const onlinePosCtx = quizContextLabel(onlineRoundData?.filterKey ?? null, onlineRoundData?.positionGroup ?? null);
   const onlineChoices: Player[] = (onlineRoundData?.choiceIds ?? [])
     .map((id) => playersById.get(id))
     .filter((p): p is Player => !!p);
@@ -470,8 +475,9 @@ export default function QuizGamePage() {
       ? onlineState.rounds.map((r, i) => {
           const f = metricByKey(r.metricKey);
           const sel = onlineState.selections[i];
+          const ctx = quizContextLabel(r.filterKey, r.positionGroup);
           return {
-            metricLabel: f?.shortLabel ?? r.metricKey,
+            metricLabel: ctx ? `${capFirst(ctx)} · ${f?.shortLabel ?? r.metricKey}` : (f?.shortLabel ?? r.metricKey),
             metricUnit: f?.unit ?? '',
             choiceIds: r.choiceIds,
             values: r.values,
@@ -490,7 +496,7 @@ export default function QuizGamePage() {
   const offMetricLabel = offMetric?.shortLabel ?? offRound?.metricKey ?? '';
   const offMetricUnit = offMetric?.unit ?? '';
   const offPhrase = quizPhrase(offRound?.metricKey ?? '');
-  const offPosCtx = positionGroupLabel(offRound?.positionGroup ?? null);
+  const offPosCtx = quizContextLabel(offRound?.filterKey ?? null, offRound?.positionGroup ?? null);
   const offChoices: Player[] = (offRound?.choiceIds ?? [])
     .map((id) => playersById.get(id))
     .filter((p): p is Player => !!p);
@@ -500,8 +506,9 @@ export default function QuizGamePage() {
     phase === 'result' && offlineRounds
       ? offlineRounds.map((r, i) => {
           const f = metricByKey(r.metricKey);
+          const ctx = quizContextLabel(r.filterKey, r.positionGroup);
           return {
-            metricLabel: f?.shortLabel ?? r.metricKey,
+            metricLabel: ctx ? `${capFirst(ctx)} · ${f?.shortLabel ?? r.metricKey}` : (f?.shortLabel ?? r.metricKey),
             metricUnit: f?.unit ?? '',
             choiceIds: r.choiceIds,
             values: r.values,

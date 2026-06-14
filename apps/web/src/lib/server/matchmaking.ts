@@ -65,10 +65,7 @@ import {
   buildInitialQuizState,
   quizSceneDeadlineSeconds,
 } from '@/lib/server/quizMatchEngine';
-import {
-  buildInitialImposterState,
-  imposterSceneDeadlineSeconds,
-} from '@/lib/server/imposterMatchEngine';
+import { buildInitialImposterState } from '@/lib/server/imposterMatchEngine';
 import { IMPOSTER_MIN_PLAYERS, IMPOSTER_MAX_PLAYERS } from '@/lib/imposterMode';
 
 /**
@@ -517,8 +514,10 @@ async function createImposterMatch(
   const seed = `${matchId}-${mode}`;
   const names = await Promise.all(userIds.map((uid) => displayNameOf(db, uid)));
   const state = await buildInitialImposterState(seed, names);
-  const deadlineSecs = imposterSceneDeadlineSeconds(state);
-  const turnDeadline = deadlineSecs ? new Date(Date.now() + deadlineSecs * 1000) : null;
+  // ROLE_REVEAL deadline'ını maç kurulurken BAŞLATMA → null. getImposterMatch ilk
+  // GET'te lazy olarak now+süre yazar; böylece found-ekranı gecikmesi süreyi yemez
+  // ve her oyuncu rol ekranına geldiği andan itibaren TAM süreyi alır (eşit+tutarlı).
+  const turnDeadline = null;
 
   await db.insert(matchTable).values({
     id: matchId,

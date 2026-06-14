@@ -251,19 +251,20 @@ function SilentProgressRing({
 }) {
   const [ratio, setRatio] = useState(1); // 1 = tam dolu, 0 = bitti
   useEffect(() => {
-    // Halka TAM DOLU başlar: pencere = MOUNT ANINDAKİ kalan süre (deadline − now),
-    // sabit totalSeconds DEĞİL. Aksi halde found-ekranı (~4sn) sonrası sayfaya
-    // gelince deadline'dan ~8sn kalmışken sabit 12sn'ye bölünür → halka 2/3 dolu
-    // başlardı (kullanıcının sezdiği uyuşmazlık). Şimdi 1.0'dan başlayıp gerçek
-    // kalan sürede 0'a iner; bitiş anı yine sunucu deadline'ıyla EŞ.
-    const now = Date.now();
-    const windowMs =
-      deadlineMs !== null ? Math.max(1, deadlineMs - now) : totalSeconds * 1000;
-    const startMs = now;
+    // Deadline HENÜZ GELMEDİYSE (null) halka TAM DOLU sabit dursun — boşalmaya
+    // başlama. (Lazy-deadline: ilk GET deadline'ı now+süre yazar; o gelene kadar
+    // bekle, yoksa null'dan yanlış pencere hesaplayıp anında boşalır = gözlenen bug.)
+    if (deadlineMs === null) {
+      setRatio(1);
+      return;
+    }
+    // Deadline geldi → kalan/toplam oranı. Lazy-deadline sayesinde varış anında
+    // remaining ≈ totalSeconds, yani ~1.0'dan başlayıp 0'a iner. Capped ≤1.
+    const totalMs = totalSeconds * 1000;
     let raf = 0;
     const tick = () => {
-      const elapsed = Date.now() - startMs;
-      const r = Math.max(0, Math.min(1, 1 - elapsed / windowMs));
+      const remaining = deadlineMs - Date.now();
+      const r = Math.max(0, Math.min(1, remaining / totalMs));
       setRatio(r);
       if (r > 0) raf = requestAnimationFrame(tick);
     };

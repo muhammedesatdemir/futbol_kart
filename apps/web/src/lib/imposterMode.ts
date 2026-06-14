@@ -28,16 +28,15 @@ export const IMPOSTER_MAX_PLAYERS = 5;
 // Sahne süreleri (sn) — client-safe (sahne + sunucu motoru ortak kullanır).
 /**
  * Rol açılış ekranı (sen imposter'sın/değilsin) — herkes "Hazırım"a basınca HEMEN
- * geçer; basmasa(lar) bile en geç bu süre sonunda otomatik başlar. Ekranda SESSİZ +
- * SAYISIZ bir ilerleme halkası gösterilir (tik-tak/sayı yok, sadece dolan yay).
+ * geçer; basmasa(lar) bile bu süre sonunda otomatik başlar. Ekranda SESSİZ + SAYISIZ
+ * ilerleme halkası (tik-tak/sayı yok, sadece dolan yay).
  *
- * ⚠️ FOUND-GECİKMESİ TELAFİSİ: deadline maç KURULURKEN başlar, ama oyuncu önce
- * OnlineMatchmaking "Lobi dolu!" ekranını ~4sn (FOUND_SHOW_MS) görüp SONRA sayfaya
- * geçer. Bu yüzden süre ~4sn found + ~8sn rahat okuma = 12sn. DAHA DÜŞÜK YAPMA —
- * yoksa oyuncu sayfaya vardığında deadline çoktan dolar, rol/gizli-futbolcu
- * OKUNAMADAN sahne WORDS'e atlar (Hedefe/Kadro REVEAL=14sn aynı gerekçeyle uzun).
+ * NOT: Deadline maç kurulurken DEĞİL, oyuncu rol ekranına İLK GİRDİĞİNDE başlar
+ * (getImposterMatch'te lazy: turnDeadline null ise now+bu-süre yazılır). Böylece
+ * found-ekranı (~4sn) gecikmesi süreyi YEMEZ ve HER OYUNCU geldiği andan itibaren
+ * TAM bu kadar süre alır (eşit + tutarlı). Bu yüzden saf okuma süresi yeterli.
  */
-export const IMPOSTER_ROLE_SECONDS = 12;
+export const IMPOSTER_ROLE_SECONDS = 8;
 /** Bir oyuncunun kelime yazma süresi. */
 export const IMPOSTER_WORD_SECONDS = 30;
 /** Oylama süresi. */

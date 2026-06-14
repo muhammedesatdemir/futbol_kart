@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { headers } from 'next/headers';
-import { and, eq, getDb, match as matchTable } from '@futbol-kart/db';
+import { and, eq, getDb, isNull, match as matchTable } from '@futbol-kart/db';
 import type { SessionState, FlowState } from '@futbol-kart/game-engine';
 import { auth } from '@/lib/auth';
 import {
@@ -978,6 +978,31 @@ async function getImposterMatch(
   let state = m.state as ImposterMatchState;
   let deadline = m.turnDeadline ? new Date(m.turnDeadline) : null;
   let currentVersion = m.version;
+
+  // LAZY DEADLINE BAŞLATMA: ROLE_REVEAL'de deadline maç kurulurken NULL bırakıldı
+  // (found-ekranı gecikmesi süreyi yemesin). İLK GET deadline'ı now+süre olarak
+  // yazar → her oyuncu rol ekranına geldiği andan itibaren TAM süreyi alır. Bir
+  // oyuncu başlattıktan sonra (deadline dolu) diğerleri o deadline'ı paylaşır.
+  // version BUMP edilmez (deadline metadata; aşağıdaki timeout optimistic-lock'u
+  // m.version ile eşleşmeye devam etsin). Eşzamanlı iki ilk-GET ~aynı değeri yazar.
+  if (deadline === null && state.scene === 'ROLE_REVEAL') {
+    const secs = imposterSceneDeadlineSeconds(state);
+    if (secs) {
+      const started = new Date(Date.now() + secs * 1000);
+      await db
+        .update(matchTable)
+        .set({ turnDeadline: started })
+        .where(and(eq(matchTable.id, m.id), isNull(matchTable.turnDeadline)))
+        .catch(() => {});
+      // Taze deadline'ı oku (başka bir GET araya girmiş olabilir → onunkini paylaş).
+      const fresh = await db
+        .select({ turnDeadline: matchTable.turnDeadline })
+        .from(matchTable)
+        .where(eq(matchTable.id, m.id))
+        .limit(1);
+      deadline = fresh[0]?.turnDeadline ? new Date(fresh[0].turnDeadline) : started;
+    }
+  }
 
   let timed: { state: ImposterMatchState; changed: boolean };
   try {

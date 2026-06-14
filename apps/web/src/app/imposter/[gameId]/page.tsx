@@ -16,7 +16,6 @@ import { cn } from '@/lib/cn';
 import { useOnlineImposterMatch } from '@/lib/useOnlineImposterMatch';
 import {
   IMPOSTER_ROUNDS,
-  IMPOSTER_ROLE_SECONDS,
   IMPOSTER_WORD_SECONDS,
   IMPOSTER_VOTE_SECONDS,
 } from '@/lib/imposterMode';
@@ -193,7 +192,6 @@ export default function ImposterGamePage() {
                 total={view.playerNames.length}
                 acked={view.roleAcks[me] ?? false}
                 onAck={() => void online.ackRole()}
-                deadlineMs={deadlineMs}
               />
             </SceneShell>
           )}
@@ -239,64 +237,6 @@ export default function ImposterGamePage() {
   );
 }
 
-/* ─── Sessiz ilerleme halkası (rol açılışı) — sayı YOK, tik-tak YOK, sadece dolan yay ─── */
-function SilentProgressRing({
-  deadlineMs,
-  totalSeconds,
-  size = 40,
-}: {
-  deadlineMs: number | null;
-  totalSeconds: number;
-  size?: number;
-}) {
-  const [ratio, setRatio] = useState(1); // 1 = tam dolu, 0 = bitti
-  useEffect(() => {
-    // Deadline HENÜZ GELMEDİYSE (null) halka TAM DOLU sabit dursun — boşalmaya
-    // başlama. (Lazy-deadline: ilk GET deadline'ı now+süre yazar; o gelene kadar
-    // bekle, yoksa null'dan yanlış pencere hesaplayıp anında boşalır = gözlenen bug.)
-    if (deadlineMs === null) {
-      setRatio(1);
-      return;
-    }
-    // Deadline geldi → kalan/toplam oranı. Lazy-deadline sayesinde varış anında
-    // remaining ≈ totalSeconds, yani ~1.0'dan başlayıp 0'a iner. Capped ≤1.
-    const totalMs = totalSeconds * 1000;
-    let raf = 0;
-    const tick = () => {
-      const remaining = deadlineMs - Date.now();
-      const r = Math.max(0, Math.min(1, remaining / totalMs));
-      setRatio(r);
-      if (r > 0) raf = requestAnimationFrame(tick);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [deadlineMs, totalSeconds]);
-
-  const stroke = 4;
-  const radius = (size - stroke) / 2;
-  const circ = 2 * Math.PI * radius;
-  const color = '#f0c14b';
-  return (
-    <span className="relative inline-flex items-center justify-center" style={{ width: size, height: size }} aria-hidden>
-      <svg width={size} height={size} className="-rotate-90">
-        <circle cx={size / 2} cy={size / 2} r={radius} fill="none" stroke="rgba(255,255,255,0.12)" strokeWidth={stroke} />
-        <circle
-          cx={size / 2}
-          cy={size / 2}
-          r={radius}
-          fill="none"
-          stroke={color}
-          strokeWidth={stroke}
-          strokeLinecap="round"
-          strokeDasharray={circ}
-          strokeDashoffset={circ * (1 - ratio)}
-          style={{ filter: `drop-shadow(0 0 4px ${color})` }}
-        />
-      </svg>
-    </span>
-  );
-}
-
 /* ─────────────────────────── Kenar rol şeridi ─────────────────────────── */
 function RoleStrip({
   youAreImposter,
@@ -337,7 +277,6 @@ function RoleRevealScene({
   total,
   acked,
   onAck,
-  deadlineMs,
 }: {
   youAreImposter: boolean;
   clueWord: string | null;
@@ -346,14 +285,20 @@ function RoleRevealScene({
   total: number;
   acked: boolean;
   onAck: () => void;
-  deadlineMs: number | null;
 }) {
   // Rol açılışı: herkes "Hazırım"a basınca HEMEN, basmasa bile ~5sn sonra başlar.
   // SESSİZ + SAYISIZ ilerleme halkası (tik-tak/sayı yok — sadece dolan yay) oyunun
   // başlamak üzere olduğunu gösterir. Asıl ilerletme sunucuda (applyImposterTimeout).
   return (
     <section className="flex flex-col items-center gap-5 py-6 text-center">
-      <SilentProgressRing deadlineMs={deadlineMs} totalSeconds={IMPOSTER_ROLE_SECONDS} size={40} />
+      <motion.span
+        initial={{ opacity: 0 }}
+        animate={{ opacity: [0.5, 1, 0.5] }}
+        transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
+        className="text-xs font-bold uppercase tracking-[0.25em] text-accent-goldHi"
+      >
+        Oyun başlıyor…
+      </motion.span>
       <motion.div
         initial={{ opacity: 0, scale: 0.9 }}
         animate={{ opacity: 1, scale: 1 }}

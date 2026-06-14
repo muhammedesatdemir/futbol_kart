@@ -33,6 +33,7 @@ const MODE_ROUTES: Record<string, (matchId: string) => string> = {
   ortak: (id) => `/ortak-bul/${id}?online=1`,
   kariyer: (id) => `/kariyer/${id}?online=1`,
   kiyas: (id) => `/4lu-kiyas/${id}?online=1`,
+  imposter: (id) => `/imposter/${id}?online=1`,
 };
 /** Bilinmeyen/eksik mod → VS Düello (geri uyumluluk). */
 const DEFAULT_MODE = 'vs-duello';

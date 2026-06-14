@@ -258,6 +258,11 @@ export default function GameSessionPage() {
         router.push(`/4lu-kiyas/${params.gameId}`);
         return;
       }
+      if (mode === 'imposter') {
+        // İmposter SADECE online (3-5 kişi) — doğrudan lobi eşleşmesine.
+        router.push('/online?mode=imposter');
+        return;
+      }
       setPickedMode('vs');
     },
     [router, params.gameId],

@@ -3,11 +3,13 @@ import { headers } from 'next/headers';
 import { auth } from '@/lib/auth';
 import {
   joinMatchmaking,
+  joinImposterLobby,
   leaveMatchmaking,
   findActiveMatchFor,
   createInvite,
   joinInvite,
   pruneStaleInvites,
+  isLobbyMode,
   ONLINE_MODES,
   type OnlineMode,
 } from '@/lib/server/matchmaking';
@@ -55,7 +57,10 @@ export async function POST(req: Request) {
     }
     // Yeni davet açarken bayat davetleri ara sıra temizle (ucuz, yan etki).
     void pruneStaleInvites().catch(() => {});
-    const result = await createInvite(userId, mode, inviteCode);
+    // LOBİ modu (imposter): davet eden de aynı kodlu lobiye girer (N kişi toplanır).
+    const result = isLobbyMode(mode)
+      ? await joinImposterLobby(userId, mode, inviteCode)
+      : await createInvite(userId, mode, inviteCode);
     return NextResponse.json(result);
   }
 
@@ -63,11 +68,15 @@ export async function POST(req: Request) {
     if (!inviteCode) {
       return NextResponse.json({ error: 'Davet kodu eksik.' }, { status: 400 });
     }
-    const result = await joinInvite(userId, mode, inviteCode);
+    // LOBİ modu (imposter): katılan da aynı kodlu lobiye girer (5/5 veya 30sn+3).
+    const result = isLobbyMode(mode)
+      ? await joinImposterLobby(userId, mode, inviteCode)
+      : await joinInvite(userId, mode, inviteCode);
     return NextResponse.json(result);
   }
 
-  // Varsayılan: rastgele eşleşme (mevcut davranış — değişmedi).
+  // Varsayılan: rastgele eşleşme (mevcut davranış — 2-kişi; imposter lobi dalına
+  // joinMatchmaking içinde yönlenir).
   const result = await joinMatchmaking(userId, mode);
   return NextResponse.json(result);
 }
@@ -90,10 +99,21 @@ export async function GET(req: Request) {
   const limited = enforceRateLimit(`matchmaking:${userId}`, 90, 60_000);
   if (limited) return limited;
 
-  const modeParam = new URL(req.url).searchParams.get('mode');
+  const url = new URL(req.url);
+  const modeParam = url.searchParams.get('mode');
   const mode = ONLINE_MODES.includes(modeParam as OnlineMode)
     ? (modeParam as OnlineMode)
     : undefined;
+
+  // LOBİ modu (imposter): poll'de lobi oluşturmayı DA dene (30sn+≥3 tetikleyici
+  //  yalnız POST'ta değil poll'de de çalışsın; aksi halde herkes susunca lobi
+  //  hiç kurulmaz). joinImposterLobby idempotent (enqueuedAt korunur, re-upsert).
+  if (mode && isLobbyMode(mode)) {
+    const code = url.searchParams.get('invite');
+    const result = await joinImposterLobby(userId, mode, code && code.length >= 4 ? code : null);
+    return NextResponse.json(result);
+  }
+
   const matchId = await findActiveMatchFor(userId, mode);
   if (matchId) {
     return NextResponse.json({ matched: true, matchId });

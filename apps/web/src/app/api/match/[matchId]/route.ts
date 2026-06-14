@@ -55,6 +55,13 @@ import {
   maskQuizState,
   type QuizMatchState,
 } from '@/lib/server/quizMatchEngine';
+import {
+  applyImposterTimeout,
+  imposterSceneDeadlineSeconds,
+  viewImposterState,
+  type ImposterMatchState,
+} from '@/lib/server/imposterMatchEngine';
+import { getMatchPlayerIndex } from '@/lib/server/matchmaking';
 import { publishMatchEvent } from '@/lib/server/ably';
 import { enforceRateLimit } from '@/lib/server/rateLimit';
 
@@ -110,6 +117,19 @@ export async function GET(
     return NextResponse.json({ error: 'Maç bulunamadı.' }, { status: 404 });
   }
   const m = rows[0]!;
+
+  // İMPOSTER (çok-oyunculu): side = match_player index (p1/p2 ternary YETMEZ —
+  // P3-P5 oyuncular orada yok). Erken, izole kol. Diğer modlar aşağıda korunur.
+  if (m.mode === 'imposter') {
+    const idx = await getMatchPlayerIndex(matchId, userId);
+    if (idx === null) {
+      return NextResponse.json(
+        { error: 'Bu maçın oyuncusu değilsin.' },
+        { status: 403 },
+      );
+    }
+    return getImposterMatch(db, m, idx, clientVersion);
+  }
 
   const side =
     m.p1UserId === userId ? 'P1' : m.p2UserId === userId ? 'P2' : null;
@@ -939,6 +959,86 @@ async function getQuizMatch(
     // 🔒 MASKELİ: tur değerleri + doğru cevap + rakip seçimi gizli (spoiler koruması).
     state: maskQuizState(state, side),
     winnerSide: m.winnerSide,
+    turnDeadline: deadline ? deadline.toISOString() : null,
+  });
+}
+
+/**
+ * "İmposter" maçı için GET — ÇOK-OYUNCULU + GİZLİ ROL. `side` = oyuncu index'i
+ * (sayı). Ham state DÖNMEZ; `viewImposterState(state, side)` taraf-özel güvenli
+ * görünüm üretir (kim imposter gizli, imposter'a ipucu/masuma futbolcu adı, oylar
+ * VOTE'a kadar gizli). Süre dolumu lazy, versiyon kısa-devresi aynı.
+ */
+async function getImposterMatch(
+  db: ReturnType<typeof getDb>,
+  m: typeof matchTable.$inferSelect,
+  side: number,
+  clientVersion: number,
+) {
+  let state = m.state as ImposterMatchState;
+  let deadline = m.turnDeadline ? new Date(m.turnDeadline) : null;
+  let currentVersion = m.version;
+
+  let timed: { state: ImposterMatchState; changed: boolean };
+  try {
+    timed = await applyImposterTimeout(
+      state,
+      deadline ? deadline.getTime() : null,
+      Date.now(),
+    );
+  } catch (err) {
+    console.error('applyImposterTimeout hatası (maç çökmesi önlendi):', err);
+    timed = { state, changed: false };
+  }
+
+  if (
+    !timed.changed &&
+    Number.isFinite(clientVersion) &&
+    clientVersion === m.version
+  ) {
+    return NextResponse.json({
+      unchanged: true,
+      version: m.version,
+      turnDeadline: deadline ? deadline.toISOString() : null,
+    });
+  }
+
+  if (timed.changed) {
+    const secs = imposterSceneDeadlineSeconds(timed.state);
+    const newDeadline = secs ? new Date(Date.now() + secs * 1000) : null;
+    const updated = await db
+      .update(matchTable)
+      .set({
+        state: timed.state,
+        currentScene: timed.state.scene,
+        turnDeadline: newDeadline,
+        version: m.version + 1,
+        winnerSide: null, // kazanan takım state'te (imposter/crew)
+        status: timed.state.scene === 'RESULT' ? 'finished' : 'active',
+        updatedAt: new Date(),
+      })
+      .where(and(eq(matchTable.id, m.id), eq(matchTable.version, m.version)))
+      .returning({ id: matchTable.id });
+    if (updated.length > 0) {
+      state = timed.state;
+      deadline = newDeadline;
+      currentVersion = m.version + 1;
+      await publishMatchEvent(m.id, 'state-changed', {
+        scene: state.scene,
+        round: state.round,
+      });
+    }
+  }
+
+  return NextResponse.json({
+    matchId: m.id,
+    mode: m.mode,
+    status: m.status,
+    version: currentVersion,
+    yourSide: side,
+    seed: m.seed,
+    // 🔒 MASKELİ taraf-özel görünüm — ham state DÖNMEZ (rol/oy/cevap gizli).
+    view: viewImposterState(state, side),
     turnDeadline: deadline ? deadline.toISOString() : null,
   });
 }

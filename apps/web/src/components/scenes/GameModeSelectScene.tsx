@@ -5,7 +5,7 @@ import { cn } from '@/lib/cn';
 import { SwordsIcon, CardsIcon, TrophyIcon, QuestionIcon } from '@/components/icons';
 
 /** Oynanabilir oyun modu kimliği (rakip türünden FARKLI — bu oyunun türü). */
-export type PlayableMode = 'vs' | 'squad' | 'target' | 'list' | 'kareler' | 'zincir' | 'ortak' | 'kariyer' | 'kiyas';
+export type PlayableMode = 'vs' | 'squad' | 'target' | 'list' | 'kareler' | 'zincir' | 'ortak' | 'kariyer' | 'kiyas' | 'imposter';
 
 interface GameModeSelectSceneProps {
   onPick: (mode: PlayableMode) => void;
@@ -93,6 +93,14 @@ const MODES: ModeDef[] = [
     body: '4 futbolcu, 1 ölçüt: hangisinin golü/kupası/boyu en fazla? Doğru bil, puanı kap. %50 ve x2 jokerli.',
     ready: true,
   },
+  {
+    id: 'imposter',
+    emoji: '🕵️',
+    icon: <QuestionIcon size={26} />,
+    title: 'İmposter',
+    body: '3-5 kişilik online sosyal dedüksiyon: gizli futbolcuyu bilmeyen imposter kim? Sırayla kelime yaz, oyla, yakala.',
+    ready: true,
+  },
 ];
 
 export function GameModeSelectScene({ onPick }: GameModeSelectSceneProps) {
@@ -128,7 +136,8 @@ export function GameModeSelectScene({ onPick }: GameModeSelectSceneProps) {
                 m.id === 'zincir' ||
                 m.id === 'ortak' ||
                 m.id === 'kariyer' ||
-                m.id === 'kiyas')
+                m.id === 'kiyas' ||
+                m.id === 'imposter')
                 ? () => onPick(m.id as PlayableMode)
                 : undefined
             }

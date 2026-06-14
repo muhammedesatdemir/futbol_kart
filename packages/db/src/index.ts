@@ -16,4 +16,6 @@ export {
   lt,
   isNull,
   isNotNull,
+  inArray,
+  count,
 } from 'drizzle-orm';

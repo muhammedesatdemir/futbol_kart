@@ -207,6 +207,35 @@ export const match = pgTable(
 );
 
 /**
+ * ÇOK-OYUNCULU maçlarda (3+ kişi, örn. İmposter) oyuncu kimlikleri. 2-kişilik
+ * modlar (VS Düello/Hedef/…) `match.p1UserId`/`p2UserId`'yi kullanmaya DEVAM eder
+ * — bu tablo YALNIZ N-kişi modları (imposter) için. `playerIndex` 0-tabanlı
+ * koltuk no (state'teki players[] sırasıyla eşleşir); side = `P{index+1}`.
+ * Yetki/aktif-maç sorgusu (findActiveMatchFor) bu tablodan indexli okur →
+ * jsonb taraması yok. 2-kişi şeması (p1/p2) bozulmaz.
+ */
+export const matchPlayer = pgTable(
+  'match_player',
+  {
+    matchId: text('match_id')
+      .notNull()
+      .references(() => match.id, { onDelete: 'cascade' }),
+    userId: text('user_id')
+      .notNull()
+      .references(() => user.id, { onDelete: 'cascade' }),
+    /** 0-tabanlı koltuk no (state.players[] sırası). */
+    playerIndex: integer('player_index').notNull(),
+    createdAt: timestamp('created_at', { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => ({
+    pk: uniqueIndex('match_player_match_user_idx').on(t.matchId, t.userId),
+    userIdx: index('match_player_user_idx').on(t.userId),
+  }),
+);
+
+/**
  * Bir maçtaki tek bir event (CARD_PLAYED, ROUND_RESOLVED, vb.).
  * `seq` maç içinde artan sıra no — idempotent uygulama ve çift gönderim/
  * yeniden bağlanma güvenliği için. (match_id, seq) benzersiz.

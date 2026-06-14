@@ -16,10 +16,12 @@ import {
   eq,
   getDb,
   gte,
+  inArray,
   isNotNull,
   isNull,
   lte,
   match as matchTable,
+  matchPlayer as matchPlayerTable,
   matchmakingQueue,
   ne,
   or,
@@ -63,6 +65,11 @@ import {
   buildInitialQuizState,
   quizSceneDeadlineSeconds,
 } from '@/lib/server/quizMatchEngine';
+import {
+  buildInitialImposterState,
+  imposterSceneDeadlineSeconds,
+} from '@/lib/server/imposterMatchEngine';
+import { IMPOSTER_MIN_PLAYERS, IMPOSTER_MAX_PLAYERS } from '@/lib/imposterMode';
 
 /**
  * Online oynanabilen modlar. Her yeni mod buraya eklenir; `matchmaking_queue`
@@ -78,8 +85,13 @@ import {
  *  - 'kariyer'   : Kariyer Yolu — CareerMatchState (kademeli ipucu, doğru cevap maskeli)
  *  - 'kiyas'     : 4'lü Kıyas — QuizMatchState (eşzamanlı, 4 kart kıyas, değer maskeli)
  */
-export const ONLINE_MODES = ['vs-duello', 'hedef', 'kadro', 'liste', 'kareler', 'zincir', 'ortak', 'kariyer', 'kiyas'] as const;
+export const ONLINE_MODES = ['vs-duello', 'hedef', 'kadro', 'liste', 'kareler', 'zincir', 'ortak', 'kariyer', 'kiyas', 'imposter'] as const;
 export type OnlineMode = (typeof ONLINE_MODES)[number];
+
+/** İmposter = N-kişilik lobi modu (3-5). Diğer tüm modlar 2-kişilik. */
+export function isLobbyMode(mode: OnlineMode): boolean {
+  return mode === 'imposter';
+}
 
 export interface MatchmakingResult {
   /** Eşleşme oldu mu? */
@@ -88,6 +100,10 @@ export interface MatchmakingResult {
   matchId?: string;
   /** Eşleşme beklemedeyse: kuyrukta olduğunu bildirir. */
   queued?: boolean;
+  /** LOBİ modu (imposter): kuyrukta kaç kişi bekliyor (N/MAX göstergesi için). */
+  lobbyCount?: number;
+  /** LOBİ modu: lobi kapasitesi (MAX). */
+  lobbyMax?: number;
 }
 
 /**
@@ -187,6 +203,11 @@ export async function joinMatchmaking(
   const existingMatch = await findActiveMatchFor(userId, mode);
   if (existingMatch) {
     return { matched: true, matchId: existingMatch };
+  }
+
+  // LOBİ MODU (imposter): 2-kişilik atomik claim yerine N-kişilik lobi akışı.
+  if (isLobbyMode(mode)) {
+    return joinImposterLobby(userId, mode, null);
   }
 
   // 2) Önce KENDİMİ kuyruktan çıkar — eski/bayat bir kayıt kendimle eşleşmeyi
@@ -291,6 +312,194 @@ async function createMatchBetween(
     );
 
   return matchId;
+}
+
+/* ============================================================================
+ * LOBİ MODU (İmposter) — N-kişilik (3-5). 2-kişilik atomik claim'in çok-oyunculu
+ * uyarlaması: kuyruk = lobi havuzu; 5 dolunca VEYA en eski bekleyen ≥30sn ise
+ * (en az 3 kişi) atomik olarak 3-5 oyuncu kapılır → maç kurulur (match_player).
+ * Mevcut 2-kişi akışı (joinMatchmaking/createMatchBetween) HİÇ değişmez.
+ * ========================================================================= */
+
+/** Lobi: en eski bekleyen bu süreyi aşınca (≥MIN kişiyle) maç başlat. */
+const IMPOSTER_LOBBY_WAIT_MS = 30 * 1000;
+
+/**
+ * İmposter lobisine katıl (rastgele VEYA davet kodlu). Kuyruğa girer, ardından
+ * lobi oluşturmayı dener (5 dolu / ≥3 + 30sn). `inviteCode` null → rastgele;
+ * dolu → yalnız aynı kodlular birbiriyle.
+ */
+export async function joinImposterLobby(
+  userId: string,
+  mode: OnlineMode,
+  inviteCode: string | null,
+): Promise<MatchmakingResult> {
+  const db = getDb();
+
+  // 0) Zaten bu modda aktif maçtaysam (lobi kurulmuş, ben içindeyim) → o maça.
+  //    GET-poll bu fonksiyonu çağırınca eşleşmişleri tekrar kuyruğa SOKMAMAK için şart.
+  const existing = await findActiveMatchFor(userId, mode);
+  if (existing) return { matched: true, matchId: existing };
+
+  // Kuyruğa gir (upsert — tekrar çağrılırsa kod/saat tazelenmez, ilk giriş anı korunur
+  //  ki "30sn bekleme" doğru başlasın; ama mode/inviteCode güncellenir).
+  await db
+    .insert(matchmakingQueue)
+    .values({ userId, mode, inviteCode })
+    .onConflictDoUpdate({
+      target: matchmakingQueue.userId,
+      // enqueuedAt'i KORU (tekrar poll'de sıfırlanmasın → 30sn doğru işler).
+      set: { mode, inviteCode },
+    });
+
+  // Lobi oluşturmayı dene (atomik). Maç kurulduysa katılan da o maça yönlendirilir.
+  const formed = await tryFormImposterLobby(db, mode, inviteCode);
+  if (formed) {
+    // Maç kuruldu; ben içinde miyim? (findActiveMatchFor match_player'a da bakar)
+    const mine = await findActiveMatchFor(userId, mode);
+    if (mine) return { matched: true, matchId: mine };
+  }
+
+  // Henüz kurulmadı → kuyrukta beklemedeyim. Lobi sayacını döndür (UI N/MAX).
+  const waiting = await countLobby(db, mode, inviteCode);
+  return { matched: false, queued: true, lobbyCount: waiting, lobbyMax: IMPOSTER_MAX_PLAYERS };
+}
+
+/** Belirli mod+kod kuyruğunda kaç kişi bekliyor. */
+async function countLobby(
+  db: ReturnType<typeof getDb>,
+  mode: OnlineMode,
+  inviteCode: string | null,
+): Promise<number> {
+  const codeCond = inviteCode
+    ? eq(matchmakingQueue.inviteCode, inviteCode)
+    : isNull(matchmakingQueue.inviteCode);
+  const rows = await db
+    .select({ userId: matchmakingQueue.userId })
+    .from(matchmakingQueue)
+    .where(and(eq(matchmakingQueue.mode, mode), codeCond));
+  return rows.length;
+}
+
+/**
+ * Lobi oluşturmayı dene (ATOMİK). Koşul: 5 dolu VEYA (≥3 + en eski bekleyen ≥30sn).
+ * Sağlanırsa 3-5 oyuncuyu kuyruktan tek işlemde çıkarır (DELETE ... WHERE userId
+ * IN (SELECT ... LIMIT N) RETURNING) → yalnız BİR eşzamanlı istek bu satırları
+ * silebilir (Postgres satır kilidi) → çift lobi imkansız. Kurulursa matchId döner.
+ */
+async function tryFormImposterLobby(
+  db: ReturnType<typeof getDb>,
+  mode: OnlineMode,
+  inviteCode: string | null,
+): Promise<string | null> {
+  const codeCond = inviteCode
+    ? eq(matchmakingQueue.inviteCode, inviteCode)
+    : isNull(matchmakingQueue.inviteCode);
+
+  // Bekleyenleri en eskiden yeniye sırala (FIFO).
+  const waiting = await db
+    .select({ userId: matchmakingQueue.userId, enqueuedAt: matchmakingQueue.enqueuedAt })
+    .from(matchmakingQueue)
+    .where(and(eq(matchmakingQueue.mode, mode), codeCond))
+    .orderBy(asc(matchmakingQueue.enqueuedAt));
+
+  if (waiting.length < IMPOSTER_MIN_PLAYERS) return null;
+
+  const full = waiting.length >= IMPOSTER_MAX_PLAYERS;
+  const oldestMs = waiting[0]!.enqueuedAt.getTime();
+  const waitedEnough = Date.now() - oldestMs >= IMPOSTER_LOBBY_WAIT_MS;
+  if (!full && !waitedEnough) return null;
+
+  // Kaç kişi alacağız: dolu ise tam MAX, değilse mevcut hepsi (3-MAX arası).
+  const take = Math.min(waiting.length, IMPOSTER_MAX_PLAYERS);
+  const ids = waiting.slice(0, take).map((w) => w.userId);
+
+  // ATOMİK claim: bu id'leri kuyruktan tek işlemde sil + döndür. Eşzamanlı başka
+  // istek aynı satırları silemez → yalnız biri lobiyi kurar.
+  const claimed = await db
+    .delete(matchmakingQueue)
+    .where(
+      and(
+        eq(matchmakingQueue.mode, mode),
+        codeCond,
+        inArray(matchmakingQueue.userId, ids),
+      ),
+    )
+    .returning({ userId: matchmakingQueue.userId });
+
+  // Yarış: başkası bazılarını kapmış olabilir → MIN'in altına düştüyse iptal,
+  // kapılanları geri kuyruğa koy (enqueuedAt tazelenir; sıradaki denemede tekrar).
+  if (claimed.length < IMPOSTER_MIN_PLAYERS) {
+    if (claimed.length > 0) {
+      await db
+        .insert(matchmakingQueue)
+        .values(claimed.map((c) => ({ userId: c.userId, mode, inviteCode })))
+        .onConflictDoNothing();
+    }
+    return null;
+  }
+
+  return createImposterMatch(db, claimed.map((c) => c.userId), mode);
+}
+
+/**
+ * N oyuncu (3-5) ile İmposter maçı kurar. Oyuncu kimlikleri `match_player`
+ * tablosunda (playerIndex 0-tabanlı). `match.p1/p2UserId` NOT NULL olduğundan
+ * ilk iki oyuncuyla doldurulur (şema uyumu; yetki match_player'dan okunur).
+ */
+async function createImposterMatch(
+  db: ReturnType<typeof getDb>,
+  userIds: string[],
+  mode: OnlineMode,
+): Promise<string> {
+  const matchId = nanoid();
+  const seed = `${matchId}-${mode}`;
+  const names = await Promise.all(userIds.map((uid) => displayNameOf(db, uid)));
+  const state = await buildInitialImposterState(seed, names);
+  const deadlineSecs = imposterSceneDeadlineSeconds(state);
+  const turnDeadline = deadlineSecs ? new Date(Date.now() + deadlineSecs * 1000) : null;
+
+  await db.insert(matchTable).values({
+    id: matchId,
+    mode,
+    seed,
+    status: 'active',
+    // Şema NOT NULL uyumu — yetki match_player'dan; p1/p2 ilk iki oyuncu.
+    p1UserId: userIds[0]!,
+    p2UserId: userIds[1] ?? userIds[0]!,
+    currentScene: state.scene,
+    state,
+    turnDeadline,
+  });
+
+  // Tüm oyuncuları match_player'a yaz (playerIndex = state.playerNames sırası).
+  await db.insert(matchPlayerTable).values(
+    userIds.map((uid, i) => ({ matchId, userId: uid, playerIndex: i })),
+  );
+
+  // Güvenlik ağı: bu oyuncuları kuyruktan temizle (claim zaten sildi).
+  await db.delete(matchmakingQueue).where(inArray(matchmakingQueue.userId, userIds));
+
+  return matchId;
+}
+
+/**
+ * Bir maçta kullanıcının oyuncu index'i (lobi modu / match_player). Yoksa null
+ * (maçın oyuncusu değil). İmposter side = bu index (0-tabanlı).
+ */
+export async function getMatchPlayerIndex(
+  matchId: string,
+  userId: string,
+): Promise<number | null> {
+  const db = getDb();
+  const rows = await db
+    .select({ playerIndex: matchPlayerTable.playerIndex })
+    .from(matchPlayerTable)
+    .where(
+      and(eq(matchPlayerTable.matchId, matchId), eq(matchPlayerTable.userId, userId)),
+    )
+    .limit(1);
+  return rows[0]?.playerIndex ?? null;
 }
 
 /** Kullanıcıyı kuyruktan çıkar (vazgeçti / sayfadan ayrıldı). */
@@ -442,6 +651,26 @@ export async function findActiveMatchFor(
   mode?: OnlineMode,
 ): Promise<string | null> {
   const db = getDb();
+
+  // LOBİ modu (imposter): oyuncu P3-P5 olabilir → match_player'dan (indexli) bak.
+  // p1/p2 kolonları yalnız ilk iki oyuncuyu tutar; bu sorgu hepsini kapsar.
+  if (mode && isLobbyMode(mode)) {
+    const rows = await db
+      .select({ id: matchTable.id, createdAt: matchTable.createdAt })
+      .from(matchPlayerTable)
+      .innerJoin(matchTable, eq(matchPlayerTable.matchId, matchTable.id))
+      .where(
+        and(
+          eq(matchPlayerTable.userId, userId),
+          eq(matchTable.status, 'active'),
+          eq(matchTable.mode, mode),
+        ),
+      )
+      .orderBy(desc(matchTable.createdAt))
+      .limit(1);
+    return rows[0]?.id ?? null;
+  }
+
   const conditions = [
     eq(matchTable.status, 'active'),
     or(eq(matchTable.p1UserId, userId), eq(matchTable.p2UserId, userId)),

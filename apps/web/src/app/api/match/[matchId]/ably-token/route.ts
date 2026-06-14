@@ -3,6 +3,7 @@ import { headers } from 'next/headers';
 import { eq, getDb, match as matchTable } from '@futbol-kart/db';
 import { auth } from '@/lib/auth';
 import { createMatchToken, isAblyEnabled } from '@/lib/server/ably';
+import { getMatchPlayerIndex } from '@/lib/server/matchmaking';
 import { enforceRateLimit } from '@/lib/server/rateLimit';
 
 export const runtime = 'nodejs';
@@ -39,7 +40,7 @@ export async function GET(
   // Yetki: yalnızca maçın oyuncusu.
   const db = getDb();
   const rows = await db
-    .select({ p1: matchTable.p1UserId, p2: matchTable.p2UserId })
+    .select({ p1: matchTable.p1UserId, p2: matchTable.p2UserId, mode: matchTable.mode })
     .from(matchTable)
     .where(eq(matchTable.id, matchId))
     .limit(1);
@@ -47,7 +48,12 @@ export async function GET(
     return NextResponse.json({ error: 'Maç bulunamadı.' }, { status: 404 });
   }
   const m = rows[0]!;
-  if (m.p1 !== userId && m.p2 !== userId) {
+  let isPlayer = m.p1 === userId || m.p2 === userId;
+  // İMPOSTER (çok-oyunculu): P3-P5 oyuncular p1/p2'de değil → match_player'a bak.
+  if (!isPlayer && m.mode === 'imposter') {
+    isPlayer = (await getMatchPlayerIndex(matchId, userId)) !== null;
+  }
+  if (!isPlayer) {
     return NextResponse.json(
       { error: 'Bu maçın oyuncusu değilsin.' },
       { status: 403 },

@@ -30,8 +30,14 @@ export const IMPOSTER_MAX_PLAYERS = 5;
  * Rol açılış ekranı (sen imposter'sın/değilsin) — herkes "Hazırım"a basınca HEMEN
  * geçer; basmasa(lar) bile en geç bu süre sonunda otomatik başlar. Ekranda SESSİZ +
  * SAYISIZ bir ilerleme halkası gösterilir (tik-tak/sayı yok, sadece dolan yay).
+ *
+ * ⚠️ FOUND-GECİKMESİ TELAFİSİ: deadline maç KURULURKEN başlar, ama oyuncu önce
+ * OnlineMatchmaking "Lobi dolu!" ekranını ~4sn (FOUND_SHOW_MS) görüp SONRA sayfaya
+ * geçer. Bu yüzden süre ~4sn found + ~8sn rahat okuma = 12sn. DAHA DÜŞÜK YAPMA —
+ * yoksa oyuncu sayfaya vardığında deadline çoktan dolar, rol/gizli-futbolcu
+ * OKUNAMADAN sahne WORDS'e atlar (Hedefe/Kadro REVEAL=14sn aynı gerekçeyle uzun).
  */
-export const IMPOSTER_ROLE_SECONDS = 5;
+export const IMPOSTER_ROLE_SECONDS = 12;
 /** Bir oyuncunun kelime yazma süresi. */
 export const IMPOSTER_WORD_SECONDS = 30;
 /** Oylama süresi. */

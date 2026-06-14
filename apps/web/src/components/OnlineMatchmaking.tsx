@@ -570,9 +570,9 @@ function MatchFound({ found }: { found: FoundInfo }) {
       </motion.h2>
 
       {isLobby ? (
-        <div className="flex w-full max-w-5xl items-center justify-center gap-2 px-2 sm:gap-3">
+        <div className="flex w-full max-w-5xl flex-wrap items-center justify-center gap-2 px-2 sm:gap-3">
           {found.playerNames!.map((nm, i) => (
-            <div key={i} className="flex min-w-0 flex-1 items-center gap-2 sm:gap-3">
+            <div key={i} className="flex items-center gap-2 sm:gap-3">
               <LobbyUserCard
                 name={nm || `Oyuncu ${i + 1}`}
                 colorIndex={i}
@@ -646,15 +646,16 @@ function LobbyUserCard({
 }) {
   const c = LOBBY_COLORS[colorIndex % LOBBY_COLORS.length]!;
   const initial = name.charAt(0).toUpperCase();
-  // 3-4 kart geniş, 5 kart biraz dar → her zaman tek satır.
-  const widthCls = count >= 5 ? 'max-w-[112px]' : 'max-w-[150px]';
+  // SABİT boyut → tüm kartlar TAM EŞİT (aspect-ratio yok; o, genişliğe göre yükseklik
+  //  hesapladığı için kartlar farklı uzunlukta çıkıyordu). 5 kartta biraz dar.
+  const sizeCls = count >= 5 ? 'w-[104px] h-[156px]' : 'w-[136px] h-[204px]';
 
   return (
     <motion.div
       initial={{ opacity: 0, y: 24, scale: 0.85 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ delay, type: 'spring', stiffness: 240, damping: 20 }}
-      className={cn('group relative aspect-[2/3] min-w-0 flex-1 select-none', widthCls)}
+      className={cn('group relative shrink-0 select-none', sizeCls)}
     >
       {isYou && (
         <span className="absolute -top-2.5 left-1/2 z-40 -translate-x-1/2 rounded-full bg-accent-gold px-3 py-0.5 text-[10px] font-black tracking-wide text-[#1f1500] shadow-lg">
@@ -672,8 +673,9 @@ function LobbyUserCard({
             {initial}
           </span>
         </div>
-        <div className="relative z-20 border-t border-white/10 bg-black/45 px-1.5 py-2 text-center backdrop-blur-sm">
-          <div className="truncate text-xs font-bold text-white sm:text-sm">{name}</div>
+        {/* İsim alanı SABİT yükseklik → tek/çok-harf fark etmez, kartlar eşit kalır. */}
+        <div className="relative z-20 flex h-9 items-center justify-center border-t border-white/10 bg-black/45 px-1.5 backdrop-blur-sm">
+          <div className="w-full truncate text-center text-xs font-bold text-white sm:text-sm">{name}</div>
         </div>
       </div>
     </motion.div>

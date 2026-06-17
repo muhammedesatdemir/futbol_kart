@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from 'react';
+import { useCallback, useDeferredValue, useMemo, useState } from 'react';
 import {
   FlatList,
   Pressable,
@@ -41,6 +41,9 @@ export function CardPickScene({
   onSubmit: (cards: string[]) => void;
 }) {
   const [query, setQuery] = useState('');
+  // Klavye anında yazar (value={query}) ama liste/foto işi yazma duraksayınca
+  // hesaplanır → her tuşta 40 foto fetch + render baskısı yok.
+  const deferredQuery = useDeferredValue(query);
   const [selected, setSelected] = useState<string[]>([]);
   const selectedSet = useMemo(() => new Set(selected), [selected]);
 
@@ -50,12 +53,12 @@ export function CardPickScene({
     [players, exclude],
   );
 
-  // Arama: önce-filtrelenmiş diziyi tara (arama yokken ilk 120 — grid hafif).
+  // Arama: önce-filtrelenmiş diziyi tara. 40 sonuç → tek seferde max 40 foto fetch.
   const pool = useMemo(() => {
-    const q = query.trim().toLocaleLowerCase('tr');
-    if (!q) return available.slice(0, 120);
-    return available.filter((p) => p.name.toLocaleLowerCase('tr').includes(q)).slice(0, 120);
-  }, [available, query]);
+    const q = deferredQuery.trim().toLocaleLowerCase('tr');
+    if (!q) return available.slice(0, 40);
+    return available.filter((p) => p.name.toLocaleLowerCase('tr').includes(q)).slice(0, 40);
+  }, [available, deferredQuery]);
 
   const toggle = useCallback(
     (id: string) => {

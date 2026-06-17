@@ -1,9 +1,18 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Animated, { FadeIn, FadeInUp } from 'react-native-reanimated';
 import type { Player } from '@futbol-kart/shared-types';
-import type { SessionState, RoundLog } from '@futbol-kart/game-engine';
+import {
+  canUseMultiplier,
+  canUseTransfer,
+  transferableCards,
+  revealHand,
+  type SessionState,
+  type RoundLog,
+  type FlowContext,
+} from '@futbol-kart/game-engine';
+import { templateById } from '@futbol-kart/question-templates';
 import { PlayerCard } from '../components/PlayerCard';
 import { CountUp, WinFx } from '../fx';
 import { colors, radius } from '../theme';
@@ -19,24 +28,69 @@ import { useSfx } from '../lib/useSfx';
  */
 export function RoundScene({
   state,
+  flow,
   questionTitle,
   playersById,
+  isBot,
   yourName,
   oppName,
   onPlayCard,
+  onMultiplier,
+  onReveal,
+  onTransfer,
   onAck,
 }: {
   state: SessionState;
+  flow: FlowContext | null;
   questionTitle: string;
   playersById: Map<string, Player>;
+  /** vs-bot mu? (P2 otomatik oynar — hot-seat'te P2 de manuel seçer.) */
+  isBot: boolean;
   yourName: string;
   oppName: string;
-  onPlayCard: (cardId: string) => void;
+  onPlayCard: (side: 'P1' | 'P2', cardId: string) => void;
+  onMultiplier: (side: 'P1' | 'P2') => void;
+  onReveal: (side: 'P1' | 'P2') => void;
+  onTransfer: (side: 'P1' | 'P2') => void;
   onAck: () => void;
 }) {
   const playSfx = useSfx();
   const scene = state.scene;
   const lastLog: RoundLog | undefined = state.history[state.history.length - 1];
+
+  // Aktif oyuncu: P1 henüz oynamadıysa P1, oynadıysa P2 (web ile aynı mantık).
+  // Bot modunda P2'yi useOfflineGame otomatik oynatır → aktif el yalnız P1.
+  const activeSide: 'P1' | 'P2' = state.currentP1Card === null ? 'P1' : 'P2';
+  const activeHand = activeSide === 'P1' ? state.p1Hand : state.p2Hand;
+  const activeName = activeSide === 'P1' ? yourName : oppName;
+  // Hot-seat'te P2 sırasındayken el gösterilir; bot modunda P2 otomatik (el yok).
+  const showHand = scene === 'ROUND_PLAY' && !(isBot && activeSide === 'P2');
+
+  // ── Jokerler (aktif oyuncu için) ─────────────────────────────────────────────
+  const template = state.currentQuestionId ? templateById(state.currentQuestionId) : null;
+  const activeJokers = activeSide === 'P1' ? state.p1Jokers : state.p2Jokers;
+  const revealActive = activeSide === 'P1' ? state.p1RevealActive : state.p2RevealActive;
+  // Çarpan: soru uygun + henüz kullanılmamış + bu turda kart oynanmamış.
+  const canMultiplier =
+    showHand && canUseMultiplier(template ?? null) && !activeJokers.multiplierUsed;
+  const canReveal = showHand && !activeJokers.revealUsed;
+  const multiplierPendingHere = state.pendingMultiplier === activeSide;
+  // Transfer: hak var + son tur değil + kendi havuzu boş değil + henüz oynamadı.
+  const isLastRound = state.roundIndex + 1 >= state.totalRounds;
+  const ownPool =
+    activeSide === 'P1'
+      ? transferableCards(state.p1Hand, state.p1BonusCards, state.transferLockedIds)
+      : transferableCards(state.p2Hand, state.p2BonusCards, state.transferLockedIds);
+  const canTransfer =
+    showHand && canUseTransfer(activeJokers.transferUsed, isLastRound, ownPool.length);
+
+  // Reveal jokeri aktifse: aktif elin her kartının bu sorudaki değeri.
+  const revealValues = useMemo(() => {
+    if (!revealActive || !flow || !template) return null;
+    const map = new Map<string, number | boolean | null>();
+    for (const rv of revealHand(flow, template, activeHand)) map.set(rv.cardId, rv.value);
+    return map;
+  }, [revealActive, flow, template, activeHand]);
 
   // Reveal sesi
   useEffect(() => {
@@ -102,36 +156,98 @@ export function RoundScene({
         </View>
       </View>
 
-      {/* Alt alan: PLAY'de el, RESULT'ta devam */}
-      {scene === 'ROUND_PLAY' && (
+      {/* Alt alan: aktif oyuncunun eli (hot-seat'te P1 sonra P2; bot otomatik) */}
+      {showHand && (
         <View style={styles.handArea}>
+          {/* Joker barı */}
+          <View style={styles.jokerBar}>
+            <JokerButton
+              label={multiplierPendingHere ? '✓ Çarpan' : '×2 Çarpan'}
+              active={multiplierPendingHere}
+              disabled={!canMultiplier || multiplierPendingHere}
+              onPress={() => {
+                playSfx('joker');
+                haptics.medium();
+                onMultiplier(activeSide);
+              }}
+            />
+            <JokerButton
+              label={revealActive ? '✓ Değerler' : '👁 Değerleri Gör'}
+              active={!!revealActive}
+              disabled={!canReveal || !!revealActive}
+              onPress={() => {
+                playSfx('joker');
+                haptics.medium();
+                onReveal(activeSide);
+              }}
+            />
+            {canTransfer && (
+              <JokerButton
+                label="🔄 Transfer"
+                active={false}
+                disabled={false}
+                onPress={() => {
+                  playSfx('joker');
+                  haptics.medium();
+                  onTransfer(activeSide);
+                }}
+              />
+            )}
+          </View>
+
           <Text style={styles.handHint}>
-            {state.currentP1Card ? 'Rakip bekleniyor...' : 'Bir kart oyna'}
+            {isBot ? 'Bir kart oyna' : `${activeName} · bir kart oyna`}
+            {activeHand.length > 4 ? '  (← kaydır →)' : ''}
           </Text>
           <ScrollView
             horizontal
-            showsHorizontalScrollIndicator={false}
+            showsHorizontalScrollIndicator
             contentContainerStyle={styles.hand}
           >
-            {state.p1Hand.map((id) => {
+            {activeHand.map((id) => {
               const p = playersById.get(id);
               if (!p) return null;
-              const disabled = !!state.currentP1Card;
+              const revealVal = revealValues?.get(id);
               return (
                 <Pressable
                   key={id}
-                  disabled={disabled}
                   onPress={() => {
                     haptics.medium();
-                    onPlayCard(id);
+                    onPlayCard(activeSide, id);
                   }}
-                  style={disabled && { opacity: 0.5 }}
                 >
-                  <PlayerCard player={p} width={88} side="red" />
+                  <View>
+                    <PlayerCard
+                      player={p}
+                      width={76}
+                      side={activeSide === 'P1' ? 'red' : 'blue'}
+                    />
+                    {/* Reveal jokeri: kartın bu sorudaki değeri rozet olarak */}
+                    {revealValues && (
+                      <View style={styles.revealBadge}>
+                        <Text style={styles.revealBadgeText}>
+                          {typeof revealVal === 'number'
+                            ? revealVal
+                            : revealVal === true
+                              ? '✓'
+                              : revealVal === false
+                                ? '✗'
+                                : '—'}
+                        </Text>
+                      </View>
+                    )}
+                  </View>
                 </Pressable>
               );
             })}
           </ScrollView>
+        </View>
+      )}
+
+      {/* Bot oynarken bekleme göstergesi */}
+      {scene === 'ROUND_PLAY' && isBot && activeSide === 'P2' && (
+        <View style={styles.handArea}>
+          <Text style={styles.handHint}>Bot oynuyor...</Text>
         </View>
       )}
 
@@ -159,6 +275,32 @@ export function RoundScene({
         <WinFx side={lastLog.winner} fireKey={state.roundIndex} />
       )}
     </SafeAreaView>
+  );
+}
+
+function JokerButton({
+  label,
+  active,
+  disabled,
+  onPress,
+}: {
+  label: string;
+  active: boolean;
+  disabled: boolean;
+  onPress: () => void;
+}) {
+  return (
+    <Pressable
+      disabled={disabled}
+      onPress={onPress}
+      style={[
+        styles.jokerBtn,
+        active && styles.jokerBtnActive,
+        disabled && !active && styles.jokerBtnDisabled,
+      ]}
+    >
+      <Text style={[styles.jokerBtnText, active && styles.jokerBtnTextActive]}>{label}</Text>
+    </Pressable>
   );
 }
 
@@ -247,6 +389,52 @@ const styles = StyleSheet.create({
   handArea: { paddingBottom: 12 },
   handHint: { color: colors.text.muted, fontSize: 13, textAlign: 'center', marginBottom: 8 },
   hand: { gap: 8, paddingHorizontal: 4 },
+  jokerBar: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+    marginBottom: 8,
+  },
+  jokerBtn: {
+    borderRadius: radius.pill,
+    borderWidth: 1,
+    borderColor: 'rgba(240,193,75,0.45)',
+    backgroundColor: 'rgba(240,193,75,0.12)',
+    paddingVertical: 7,
+    paddingHorizontal: 14,
+  },
+  jokerBtnActive: {
+    backgroundColor: colors.accent.gold,
+    borderColor: colors.accent.goldHi,
+  },
+  jokerBtnDisabled: {
+    opacity: 0.35,
+  },
+  jokerBtnText: {
+    color: colors.accent.goldHi,
+    fontSize: 12,
+    fontWeight: '800',
+  },
+  jokerBtnTextActive: {
+    color: '#1f1500',
+  },
+  revealBadge: {
+    position: 'absolute',
+    top: -6,
+    alignSelf: 'center',
+    minWidth: 28,
+    paddingHorizontal: 5,
+    paddingVertical: 2,
+    borderRadius: 8,
+    backgroundColor: colors.pitch.neon,
+    alignItems: 'center',
+  },
+  revealBadgeText: {
+    color: '#06210f',
+    fontSize: 12,
+    fontWeight: '900',
+    fontVariant: ['tabular-nums'],
+  },
   resultArea: { alignItems: 'center', paddingBottom: 24, gap: 12 },
   resultText: { color: colors.accent.goldHi, fontSize: 22, fontWeight: '900' },
   continueBtn: {

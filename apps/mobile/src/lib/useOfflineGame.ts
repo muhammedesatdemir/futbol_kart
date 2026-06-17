@@ -5,6 +5,10 @@ import {
   resolvedTitle,
   botPickCard,
   botMultiplierDecision,
+  pickBonus,
+  autoAssignBonus,
+  transferableCards,
+  botTransferChoice,
   type SessionState,
 } from '@futbol-kart/game-engine';
 import { templateById } from '@futbol-kart/question-templates';
@@ -29,6 +33,7 @@ export function useOfflineGame() {
   const flow = session.ready ? session.getFlow(state.seed) : null;
 
   const botTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const botTransferHandledRef = useRef<string | null>(null);
 
   // ── Bot el seçimi (vs-bot): P1 elini verince bota rastgele handSize kart ─────
   useEffect(() => {
@@ -55,16 +60,73 @@ export function useOfflineGame() {
     dispatch,
   ]);
 
+  // ── Bonus tur: ana maç ilk turundan ÖNCE 3 kategori koşulu belirle ──────────
+  // Eller hazır + henüz çözülmemişse → koşulları seç, BONUS_CONDITIONS_SET dispatch
+  // (fizibilse BONUS_ASSIGN'a, değilse ROUND_INTRO'da kalır). Web page.tsx mantığı.
+  useEffect(() => {
+    if (!flow) return;
+    if (state.scene !== 'ROUND_INTRO') return;
+    if (state.phase !== 'main' || state.roundIndex !== 0) return;
+    if (state.bonusResolved) return;
+    if (state.p1Hand.length === 0 || state.p2Hand.length === 0) return;
+    const conditions = pickBonus(flow, state.p1Hand, state.p2Hand);
+    const p2Cards =
+      conditions.length === 3 && state.mode === 'vs-bot'
+        ? autoAssignBonus(flow, conditions.map((c) => c.id), state.p2Hand)
+        : undefined;
+    dispatch({ type: 'BONUS_CONDITIONS_SET', conditions, p2Cards });
+  }, [
+    state.scene,
+    state.phase,
+    state.roundIndex,
+    state.bonusResolved,
+    state.p1Hand,
+    state.p2Hand,
+    state.mode,
+    flow,
+    dispatch,
+  ]);
+
+  // ── ROUND_INTRO bot transfer kararı (vs-bot) — ~%25 kör değiş-tokuş ──────────
+  useEffect(() => {
+    if (!flow) return;
+    if (state.mode !== 'vs-bot') return;
+    if (state.scene !== 'ROUND_INTRO') return;
+    if (state.p1Hand.length === 0 || state.p2Hand.length === 0) return;
+    if (state.phase === 'main' && state.roundIndex === 0 && !state.bonusResolved) return;
+    const roundKey = `${state.phase}-${state.roundIndex}`;
+    if (botTransferHandledRef.current === roundKey) return;
+    botTransferHandledRef.current = roundKey;
+
+    const isLast = state.roundIndex + 1 >= state.totalRounds;
+    const botPool = transferableCards(state.p2Hand, state.p2BonusCards, state.transferLockedIds);
+    const p1Pool = transferableCards(state.p1Hand, state.p1BonusCards, state.transferLockedIds);
+    const choice = botTransferChoice(
+      state.p2Jokers.transferUsed,
+      isLast,
+      botPool,
+      p1Pool,
+      () => flow.prng.next(),
+    );
+    if (choice) {
+      dispatch({ type: 'JOKER_TRANSFER_OPEN', side: 'P2' });
+      dispatch({ type: 'TRANSFER_EXECUTE', side: 'P2', give: choice.give, take: choice.take });
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [state.mode, state.scene, state.phase, state.roundIndex, state.bonusResolved]);
+
   // ── ROUND_INTRO → soru seç → ROUND_STARTED (stinger için ~750ms) ─────────────
   useEffect(() => {
     if (!flow) return;
     if (state.scene !== 'ROUND_INTRO') return;
     if (state.p1Hand.length === 0 || state.p2Hand.length === 0) return;
+    // Bonus kararı verilmeden soru seçme (ana maç ilk turunda BONUS_ASSIGN'a gidilir).
+    if (state.phase === 'main' && state.roundIndex === 0 && !state.bonusResolved) return;
     const q = pickQuestion(flow, state.p1Hand, state.p2Hand);
     if (!q) return;
     const t = setTimeout(() => dispatch({ type: 'ROUND_STARTED', questionId: q.id }), 750);
     return () => clearTimeout(t);
-  }, [state.scene, state.p1Hand, state.p2Hand, state.phase, state.roundIndex, flow, dispatch]);
+  }, [state.scene, state.p1Hand, state.p2Hand, state.phase, state.roundIndex, state.bonusResolved, flow, dispatch]);
 
   // ── ROUND_PLAY: P1 oynadıysa bot oynar (çarpan kararı + kart) ─────────────────
   useEffect(() => {
@@ -162,6 +224,21 @@ export function useOfflineGame() {
     }, [dispatch]),
     useReveal: useCallback((side: 'P1' | 'P2') => {
       dispatch({ type: 'JOKER_REVEAL', side });
+    }, [dispatch]),
+    assignBonus: useCallback((side: 'P1' | 'P2', slot: number, cardId: string | null) => {
+      dispatch({ type: 'BONUS_CARD_ASSIGNED', side, slot, cardId });
+    }, [dispatch]),
+    confirmBonus: useCallback((side: 'P1' | 'P2') => {
+      dispatch({ type: 'BONUS_CONFIRMED', side });
+    }, [dispatch]),
+    openTransfer: useCallback((side: 'P1' | 'P2') => {
+      dispatch({ type: 'JOKER_TRANSFER_OPEN', side });
+    }, [dispatch]),
+    executeTransfer: useCallback((side: 'P1' | 'P2', give: string, take: string) => {
+      dispatch({ type: 'TRANSFER_EXECUTE', side, give, take });
+    }, [dispatch]),
+    skipTransfer: useCallback((side: 'P1' | 'P2') => {
+      dispatch({ type: 'TRANSFER_SKIP', side });
     }, [dispatch]),
     ackRound: useCallback(() => dispatch({ type: 'ROUND_ACK' }), [dispatch]),
     ackPhaseTransition: useCallback(() => dispatch({ type: 'PHASE_TRANSITION_ACK' }), [dispatch]),

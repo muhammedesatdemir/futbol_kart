@@ -64,7 +64,26 @@ export async function loadGameData(forceRefresh = false): Promise<GameData> {
     }
 
     // 2. Cache'den oku + parse.
-    const players = JSON.parse(await playersFile.text()) as Player[];
+    const rawPlayers = JSON.parse(await playersFile.text()) as Player[];
+
+    // Duplike tekilleştirme: veride aynı kişi farklı id'lerle iki kez var
+    // (örn. p_q-nguyen + p_q-nguyen-1985, ikisi de "Quang Hai Nguyen" aynı foto).
+    // Kart seçiminde yan yana çıkıyorlardı. Aynı (isim + imageUrl) ilk görüleni
+    // tut. game-engine de bu tekilleştirilmiş havuzu kullanır → tutarlı.
+    const seen = new Set<string>();
+    const players: Player[] = [];
+    for (const p of rawPlayers) {
+      const key = `${p.name}|${p.imageUrl ?? ''}`;
+      if (seen.has(key)) continue;
+      seen.add(key);
+      // Görsel optimizasyonu: transfermarkt 'big' (300×390, ~18KB) → 'medium'
+      // (100×130, ~3.7KB). Kart ~104px render ediyor; medium tam oturur, ağ/decode
+      // ~5× azalır. Web'e dokunmuyoruz — sadece mobilde URL'i daraltıyoruz.
+      if (p.imageUrl) {
+        p.imageUrl = p.imageUrl.replace('/portrait/big/', '/portrait/medium/');
+      }
+      players.push(p);
+    }
     const clubsRaw = JSON.parse(await clubsFile.text()) as ClubRaw[];
     const clubsLite: ClubLite[] = clubsRaw.map((c) => ({
       id: c.id,

@@ -73,17 +73,16 @@ function PlayerCardImpl({
         style={StyleSheet.absoluteFill}
       />
 
-      {/* Portre alanı */}
-      <View style={[styles.media, hideName && { height: '100%' }]}>
+      {/* Portre alanı — foto yüklenene kadar tema rengi (siyah flaş önlenir) */}
+      <View style={[styles.media, { backgroundColor: theme.gradient[1] }, hideName && { height: '100%' }]}>
         {player.imageUrl ? (
           <Image
+            key={player.id}
             source={{ uri: player.imageUrl }}
             style={styles.photo}
             contentFit="cover"
             contentPosition="top"
             cachePolicy="memory-disk"
-            recyclingKey={player.id}
-            priority="low"
             transition={120}
           />
         ) : (

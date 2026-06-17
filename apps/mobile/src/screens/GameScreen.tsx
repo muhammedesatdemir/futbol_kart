@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { PrimaryButton } from '../components/Buttons';
-import { resolvedTitle } from '@futbol-kart/game-engine';
+import { resolvedTitle, bonusConditionContext } from '@futbol-kart/game-engine';
 import { templateById } from '@futbol-kart/question-templates';
 import { SceneBackground } from '../components/SceneBackground';
 import { SceneShell } from '../components/SceneShell';
@@ -10,6 +10,8 @@ import { ModeSelectScene } from '../scenes/ModeSelectScene';
 import { CardPickScene } from '../scenes/CardPickScene';
 import { HandoffScene } from '../scenes/HandoffScene';
 import { RoundScene } from '../scenes/RoundScene';
+import { BonusAssignScene } from '../scenes/BonusAssignScene';
+import { TransferScene } from '../scenes/TransferScene';
 import { FinalScene } from '../scenes/FinalScene';
 import { useOfflineGame } from '../lib/useOfflineGame';
 import { useGameSession } from '../lib/GameSessionProvider';
@@ -143,13 +145,52 @@ export function GameScreen({ onExit }: { onExit: () => void }) {
         state.scene === 'ROUND_RESULT') && (
         <RoundScene
           state={state}
+          flow={flow}
           questionTitle={questionTitle}
           playersById={playersById}
+          isBot={state.mode === 'vs-bot'}
           yourName={p1Name}
           oppName={oppName}
-          onPlayCard={(id) => actions.playCard('P1', id)}
+          onPlayCard={(side, id) => actions.playCard(side, id)}
+          onMultiplier={(side) => actions.useMultiplier(side)}
+          onReveal={(side) => actions.useReveal(side)}
+          onTransfer={(side) => actions.openTransfer(side)}
           onAck={actions.ackRound}
         />
+      )}
+
+      {/* BONUS_ASSIGN: ana maç ilk turu — 3 kategoriye kart ata (+2 puan) */}
+      {state.scene === 'BONUS_ASSIGN' && flow && (
+        <SceneShell>
+          <BonusAssignScene
+            sideName={state.bonusAssignSide === 'P1' ? p1Name : oppName}
+            conditions={state.bonusConditions}
+            hand={(state.bonusAssignSide === 'P1' ? state.p1Hand : state.p2Hand)
+              .map((id) => playersById.get(id))
+              .filter((p): p is NonNullable<typeof p> => !!p)}
+            assigned={state.bonusAssignSide === 'P1' ? state.p1BonusCards : state.p2BonusCards}
+            ctx={bonusConditionContext(flow)}
+            onAssign={(slot, cardId) =>
+              actions.assignBonus(state.bonusAssignSide, slot, cardId)
+            }
+            onConfirm={() => actions.confirmBonus(state.bonusAssignSide)}
+          />
+        </SceneShell>
+      )}
+
+      {/* ROUND_TRANSFER: transfer jokeri açıldı — kart değiş-tokuş */}
+      {state.scene === 'ROUND_TRANSFER' && state.transferOpenSide && (
+        <SceneShell>
+          <TransferScene
+            state={state}
+            side={state.transferOpenSide}
+            playersById={playersById}
+            onExecute={(give, take) =>
+              actions.executeTransfer(state.transferOpenSide!, give, take)
+            }
+            onSkip={() => actions.skipTransfer(state.transferOpenSide!)}
+          />
+        </SceneShell>
       )}
 
       {/* PHASE_TRANSITION: berabere → uzatma/penaltı duyurusu */}

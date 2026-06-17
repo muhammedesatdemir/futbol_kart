@@ -27,8 +27,10 @@ export function FinalScene({
   onHome: () => void;
 }) {
   const playSfx = useSfx();
-  const winner =
-    state.p1Score > state.p2Score ? 'P1' : state.p2Score > state.p1Score ? 'P2' : 'tie';
+  // Toplam skor = bu faz + önceki fazların kümülatifi (uzatma/penaltı olduysa).
+  const p1Total = state.cumulativeP1 + state.p1Score;
+  const p2Total = state.cumulativeP2 + state.p2Score;
+  const winner = p1Total > p2Total ? 'P1' : p2Total > p1Total ? 'P2' : 'tie';
   const winnerName = winner === 'P1' ? yourName : winner === 'P2' ? oppName : null;
 
   useEffect(() => {
@@ -50,12 +52,12 @@ export function FinalScene({
         <Animated.View entering={FadeInDown.delay(380).duration(500)} style={styles.scoreRow}>
           <View style={styles.scoreCol}>
             <Text style={[styles.scoreName, { color: colors.side.red }]}>{yourName}</Text>
-            <CountUp target={state.p1Score} style={styles.scoreNum} delayMs={400} />
+            <CountUp target={p1Total} style={styles.scoreNum} delayMs={400} />
           </View>
           <Text style={styles.dash}>–</Text>
           <View style={styles.scoreCol}>
             <Text style={[styles.scoreName, { color: colors.side.blue }]}>{oppName}</Text>
-            <CountUp target={state.p2Score} style={styles.scoreNum} delayMs={400} />
+            <CountUp target={p2Total} style={styles.scoreNum} delayMs={400} />
           </View>
         </Animated.View>
       </View>

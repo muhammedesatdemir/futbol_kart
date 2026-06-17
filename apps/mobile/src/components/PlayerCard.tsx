@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { StyleSheet, Text, View, type ViewStyle } from 'react-native';
 import { Image } from 'expo-image';
 import { LinearGradient } from 'expo-linear-gradient';
@@ -13,21 +14,13 @@ import { colors } from '../theme';
 /**
  * Oyuncu kartı (mobil). Web karşılığı: PlayerCard.tsx
  *
- * Sadeleştirildi: web'in 3D tilt + holo + shine band efektleri mobilde atlandı
- * (mouse yok, performans). Korunan "his": pozisyon gradyanı, portre, numara/bayrak
- * rozetleri, isim, seçili glow. Boyut `width` prop'uyla; aspect 2:3 sabit.
+ * PERFORMANS: React.memo ile sarılı (CardPick'te 100+ kez render edilir; memo
+ * olmadan tek seçim tüm listeyi yeniden çiziyordu → 96s donma). Tek LinearGradient
+ * (üst+alt birleşik 4-durak) — eskiden 2 ayrı gradient kart başına 2× GPU katmanı.
+ *
+ * Web'in 3D tilt + holo + shine efektleri mobilde atlandı (mouse yok, performans).
  */
-export function PlayerCard({
-  player,
-  faceDown = false,
-  index,
-  side = 'red',
-  selected = false,
-  width = 144,
-  hideName = false,
-  hideBadges = false,
-  style,
-}: {
+interface PlayerCardProps {
   player?: Player;
   faceDown?: boolean;
   index?: number;
@@ -37,7 +30,19 @@ export function PlayerCard({
   hideName?: boolean;
   hideBadges?: boolean;
   style?: ViewStyle;
-}) {
+}
+
+function PlayerCardImpl({
+  player,
+  faceDown = false,
+  index,
+  side = 'red',
+  selected = false,
+  width = 144,
+  hideName = false,
+  hideBadges = false,
+  style,
+}: PlayerCardProps) {
   const height = width * 1.5; // aspect 2:3
 
   if (faceDown || !player) {
@@ -58,17 +63,13 @@ export function PlayerCard({
         style,
       ]}
     >
-      {/* Üst pozisyon gradyanı */}
+      {/* Tek gradyan: üst pozisyon rengi → orta koyu → alt siyah (eski 2 gradienti
+          birleştirir → kart başına 1 GPU katmanı). */}
       <LinearGradient
-        colors={theme.gradient}
+        colors={[theme.gradient[0], theme.gradient[2], '#18181b', 'rgba(9,9,11,0.97)']}
+        locations={[0, 0.42, 0.62, 1]}
         start={{ x: 0.5, y: 0 }}
         end={{ x: 0.5, y: 1 }}
-        style={StyleSheet.absoluteFill}
-      />
-      {/* Alt koyu base */}
-      <LinearGradient
-        colors={['transparent', 'rgba(9,9,11,0.95)']}
-        locations={[0.55, 1]}
         style={StyleSheet.absoluteFill}
       />
 
@@ -81,7 +82,9 @@ export function PlayerCard({
             contentFit="cover"
             contentPosition="top"
             cachePolicy="memory-disk"
-            transition={150}
+            recyclingKey={player.id}
+            priority="low"
+            transition={120}
           />
         ) : (
           <View style={[styles.monogram, { backgroundColor: theme.hexLight }]}>
@@ -122,6 +125,8 @@ export function PlayerCard({
     </View>
   );
 }
+
+export const PlayerCard = memo(PlayerCardImpl);
 
 function CardBack({
   index,
@@ -165,11 +170,8 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     overflow: 'hidden',
     backgroundColor: '#18181b',
-    shadowColor: '#000',
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 6 },
-    elevation: 6,
+    // Gölge KALDIRILDI — CardPick'te 100+ kart × Android elevation çok pahalıydı.
+    // "Derinlik" his'i seçili glow + büyük kartlarda yeterli.
   },
   selectedGlow: {
     shadowColor: colors.accent.goldHi,

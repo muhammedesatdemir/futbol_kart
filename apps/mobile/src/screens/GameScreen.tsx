@@ -52,6 +52,14 @@ export function GameScreen({ onExit }: { onExit: () => void }) {
     return m;
   }, [session.players]);
 
+  // exclude Set'leri — render gövdesinde her seferinde yeni Set yaratmak yerine
+  // memoize (yoksa CardPick'in pool useMemo'su her render'da 8912 elemanı tarar).
+  const excludeP1 = useMemo(() => new Set(state.usedCardIds), [state.usedCardIds]);
+  const excludeP2 = useMemo(
+    () => new Set([...state.usedCardIds, ...state.p1Hand]),
+    [state.usedCardIds, state.p1Hand],
+  );
+
   // Mevcut sorunun başlığı (reveal/play'de gösterilir).
   const questionTitle = useMemo(() => {
     if (!flow || !state.currentQuestionId) return '';
@@ -95,7 +103,7 @@ export function GameScreen({ onExit }: { onExit: () => void }) {
           <CardPickScene
             players={session.players}
             handSize={state.handSize}
-            exclude={new Set(state.usedCardIds)}
+            exclude={excludeP1}
             side="P1"
             playerName={p1Name}
             onSubmit={(cards) => actions.submitHand('P1', cards)}
@@ -116,7 +124,7 @@ export function GameScreen({ onExit }: { onExit: () => void }) {
           <CardPickScene
             players={session.players}
             handSize={state.handSize}
-            exclude={new Set([...state.usedCardIds, ...state.p1Hand])}
+            exclude={excludeP2}
             side="P2"
             playerName={oppName}
             onSubmit={(cards) => actions.submitHand('P2', cards)}
@@ -144,6 +152,13 @@ export function GameScreen({ onExit }: { onExit: () => void }) {
         />
       )}
 
+      {/* PHASE_TRANSITION: berabere → uzatma/penaltı duyurusu */}
+      {state.scene === 'PHASE_TRANSITION' && (
+        <SceneShell>
+          <PhaseTransition phase={state.phase} onContinue={actions.ackPhaseTransition} />
+        </SceneShell>
+      )}
+
       {/* FINAL */}
       {state.scene === 'FINAL' && (
         <SceneShell>
@@ -156,6 +171,31 @@ export function GameScreen({ onExit }: { onExit: () => void }) {
           />
         </SceneShell>
       )}
+    </View>
+  );
+}
+
+/** Faz geçiş duyurusu (berabere → uzatma/sudden death). */
+function PhaseTransition({
+  phase,
+  onContinue,
+}: {
+  phase: string;
+  onContinue: () => void;
+}) {
+  const label = phase === 'extra' ? 'UZATMA' : phase === 'sudden' ? 'ANİ ÖLÜM' : 'DEVAM';
+  const sub =
+    phase === 'extra'
+      ? 'Berabere! Uzatmalara gidiyoruz.'
+      : phase === 'sudden'
+        ? 'Hâlâ berabere! Ani ölüm turu.'
+        : '';
+  return (
+    <View style={styles.phaseRoot}>
+      <Text style={styles.phaseChip}>{label}</Text>
+      <Text style={styles.phaseSub}>{sub}</Text>
+      <View style={{ height: 24 }} />
+      <PrimaryButton label="Devam" pulse={false} onPress={onContinue} />
     </View>
   );
 }
@@ -179,4 +219,7 @@ const styles = StyleSheet.create({
   errorEmoji: { fontSize: 48, marginBottom: 8 },
   errorTitle: { color: colors.text.primary, fontSize: 20, fontWeight: '900' },
   errorMsg: { color: colors.text.muted, fontSize: 14, textAlign: 'center', marginTop: 6, lineHeight: 20 },
+  phaseRoot: { flex: 1, alignItems: 'center', justifyContent: 'center', paddingHorizontal: 24 },
+  phaseChip: { color: colors.accent.goldHi, fontSize: 36, fontWeight: '900', letterSpacing: 3 },
+  phaseSub: { color: colors.text.muted, fontSize: 16, textAlign: 'center', marginTop: 12 },
 });

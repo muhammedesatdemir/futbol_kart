@@ -1,4 +1,5 @@
-import { StyleSheet, View } from 'react-native';
+import { useState } from 'react';
+import { Modal, StyleSheet, Text, View } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -22,14 +23,9 @@ import { logos } from '../theme/assets';
  *
  * Bu ekran web ana sayfasının (apps/web/src/components/HomeHero.tsx) mobil ruhu.
  */
-export function HeroScreen({
-  onPlay,
-  onHowTo,
-}: {
-  onPlay?: () => void;
-  onHowTo?: () => void;
-}) {
+export function HeroScreen({ onPlay }: { onPlay?: () => void }) {
   const D = motion.duration;
+  const [howToOpen, setHowToOpen] = useState(false);
 
   return (
     <View style={styles.root}>
@@ -71,13 +67,44 @@ export function HeroScreen({
             }}
           />
           <View style={{ height: 14 }} />
-          <GhostButton label="Nasıl oynanır?" onPress={onHowTo} />
+          <GhostButton label="Nasıl oynanır?" onPress={() => setHowToOpen(true)} />
         </Animated.View>
 
         {/* Alt boşluk — layout'u dengelemek için (top ↔ center ↔ bu) */}
         <View style={styles.bottomSpacer} />
       </SafeAreaView>
+
+      <HowToModal visible={howToOpen} onClose={() => setHowToOpen(false)} />
     </View>
+  );
+}
+
+/** Basit kurallar modalı — VS Düello nasıl oynanır. */
+function HowToModal({ visible, onClose }: { visible: boolean; onClose: () => void }) {
+  return (
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={onClose}>
+      <View style={styles.modalBackdrop}>
+        <View style={styles.modalCard}>
+          <Text style={styles.modalTitle}>Nasıl oynanır?</Text>
+          {[
+            ['🃏', 'Kör seçim', 'Önce 8 futbolcu kartını seçersin — hangi soruya hangisini süreceğini bilmeden.'],
+            ['❓', 'Sürpriz soru', 'Her turda rastgele bir karşılaştırma sorusu çıkar (gol, boy, maç sayısı...).'],
+            ['⚔️', 'Kapış', 'Sen ve rakip birer kart sürer; sorunun cevabına göre kazanan turu alır.'],
+            ['🏆', 'Kazan', '7 tur sonunda en çok turu kazanan oyunu kazanır.'],
+          ].map(([emoji, title, desc]) => (
+            <View key={title} style={styles.ruleRow}>
+              <Text style={styles.ruleEmoji}>{emoji}</Text>
+              <View style={{ flex: 1 }}>
+                <Text style={styles.ruleTitle}>{title}</Text>
+                <Text style={styles.ruleDesc}>{desc}</Text>
+              </View>
+            </View>
+          ))}
+          <View style={{ height: 8 }} />
+          <PrimaryButton label="Anladım" pulse={false} onPress={onClose} />
+        </View>
+      </View>
+    </Modal>
   );
 }
 
@@ -129,4 +156,36 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
+  modalBackdrop: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.7)',
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 24,
+  },
+  modalCard: {
+    width: '100%',
+    maxWidth: 380,
+    backgroundColor: '#0a2614',
+    borderColor: 'rgba(255,255,255,0.12)',
+    borderWidth: 1,
+    borderRadius: 20,
+    padding: 24,
+  },
+  modalTitle: {
+    color: colors.accent.goldHi,
+    fontSize: 22,
+    fontWeight: '900',
+    marginBottom: 16,
+    textAlign: 'center',
+  },
+  ruleRow: {
+    flexDirection: 'row',
+    gap: 12,
+    marginBottom: 14,
+    alignItems: 'flex-start',
+  },
+  ruleEmoji: { fontSize: 24 },
+  ruleTitle: { color: colors.text.primary, fontSize: 15, fontWeight: '800' },
+  ruleDesc: { color: colors.text.muted, fontSize: 13, marginTop: 2, lineHeight: 18 },
 });

@@ -1,5 +1,6 @@
 import { useEffect } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
+import { Canvas, Circle, Group, Path, Skia } from '@shopify/react-native-skia';
 import Animated, {
   useAnimatedStyle,
   useSharedValue,
@@ -14,9 +15,8 @@ import { colors } from '../theme';
 /**
  * Futbol topu yükleme/bekleme animasyonu. Web karşılığı: BallLoader.tsx
  *
- * Bekleme ekranlarında (rakip aranıyor, el bekleniyor) kullanıcı sıkılmasın diye:
- * sağ-sola süzülürken zıplayan + dönen bir top, altında küçülüp büyüyen gölge.
- * Saf Reanimated (UI thread) — hafif ve akıcı.
+ * Top Skia ile çizilir (emoji yerine — emoji platforma göre kırpılıyordu).
+ * Sağ-sola süzülürken zıplayan + dönen top, altında küçülüp büyüyen gölge.
  */
 export function BallLoader({
   label,
@@ -27,7 +27,6 @@ export function BallLoader({
   sub?: string;
   size?: number;
 }) {
-  // İki bağımsız faz: bounce (zıplama, 0.6s) ve sway (yatay, 1.2s).
   const bounce = useSharedValue(0);
   const sway = useSharedValue(0);
   const spin = useSharedValue(0);
@@ -75,13 +74,9 @@ export function BallLoader({
     <View style={styles.wrap}>
       <View style={{ width: size * 3, height: size * 1.8 }}>
         <Animated.View
-          style={[
-            styles.ball,
-            { width: size, height: size, left: size }, // konteynerde yatay merkez
-            ballStyle,
-          ]}
+          style={[styles.ball, { width: size, height: size, left: size }, ballStyle]}
         >
-          <Text style={{ fontSize: size * 0.92 }}>⚽</Text>
+          <SoccerBall size={size} />
         </Animated.View>
         <Animated.View
           style={[
@@ -99,6 +94,59 @@ export function BallLoader({
         </View>
       )}
     </View>
+  );
+}
+
+/**
+ * Skia ile çizilen futbol topu: beyaz daire + merkez siyah beşgen + 5 dış beşgen.
+ * Tam yuvarlak, kırpılmaz (emoji sorunu çözüldü).
+ */
+function SoccerBall({ size }: { size: number }) {
+  const c = size / 2;
+  const r = size / 2 - 1;
+
+  // viewBox 0..100 koordinatlarını gerçek boyuta ölçekle.
+  const s = size / 100;
+  const px = (x: number) => x * s;
+
+  // Merkez beşgen + 5 dış beşgen (web BallLoader geometrisi). PathBuilder (yeni API).
+  const pentagon = (cx: number, cy: number, pr: number, startDeg: number) => {
+    const b = Skia.PathBuilder.Make();
+    for (let i = 0; i < 5; i++) {
+      const a = ((startDeg + i * 72) * Math.PI) / 180;
+      const x = px(cx + pr * Math.cos(a));
+      const y = px(cy + pr * Math.sin(a));
+      if (i === 0) b.moveTo(x, y);
+      else b.lineTo(x, y);
+    }
+    b.close();
+    return b.build();
+  };
+
+  const center = pentagon(50, 50, 15, -90);
+  const outerR = 34;
+  const outerPents = [-90, -18, 54, 126, 198].map((a) =>
+    pentagon(
+      50 + outerR * Math.cos((a * Math.PI) / 180),
+      50 + outerR * Math.sin((a * Math.PI) / 180),
+      9,
+      a + 180,
+    ),
+  );
+
+  return (
+    <Canvas style={{ width: size, height: size }}>
+      {/* Beyaz top gövdesi */}
+      <Circle cx={c} cy={c} r={r} color="#f1f5f9" />
+      <Circle cx={c} cy={c} r={r} color="#11161d" style="stroke" strokeWidth={size * 0.025} />
+      {/* Siyah beşgenler */}
+      <Group color="#11161d">
+        <Path path={center} />
+        {outerPents.map((p, i) => (
+          <Path key={i} path={p} />
+        ))}
+      </Group>
+    </Canvas>
   );
 }
 

@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useCallback, useMemo, useState } from 'react';
 import {
   FlatList,
   Pressable,
@@ -15,11 +15,15 @@ import { colors, radius } from '../theme';
 import { haptics } from '../lib/haptics';
 
 const COLUMNS = 3;
+const CARD_W = 104;
+const ROW_H = CARD_W * 1.5 + 12; // kart yüksekliği + satır boşluğu
 
 /**
  * El seçimi sahnesi (CARD_PICK). Web karşılığı: CardPickScene.tsx
- * Oyuncu havuzundan `handSize` kart seç (arama + grid). Sade ama işlevsel:
- * web'in filtre/sayfalama zenginliği yerine arama + sanal liste (FlatList).
+ *
+ * PERFORMANS: renderItem useCallback, selected → Set, FlatList sanallaştırma
+ * (windowSize/getItemLayout/removeClippedSubviews). PlayerCard React.memo'lu.
+ * exclude filtresi query'den ayrı memoize → her tuşta 8912 elemanı 2× taramaz.
  */
 export function CardPickScene({
   players,
@@ -31,7 +35,6 @@ export function CardPickScene({
 }: {
   players: Player[];
   handSize: number;
-  /** Seçilemeyecek kart id'leri (rakip eli + kullanılmışlar). */
   exclude: Set<string>;
   side: 'P1' | 'P2';
   playerName: string;
@@ -39,35 +42,61 @@ export function CardPickScene({
 }) {
   const [query, setQuery] = useState('');
   const [selected, setSelected] = useState<string[]>([]);
+  const selectedSet = useMemo(() => new Set(selected), [selected]);
 
+  // exclude filtresi query'den BAĞIMSIZ → bir kez hesaplanır (8912 tarama).
+  const available = useMemo(
+    () => players.filter((p) => !exclude.has(p.id)),
+    [players, exclude],
+  );
+
+  // Arama: önce-filtrelenmiş diziyi tara (arama yokken ilk 120 — grid hafif).
   const pool = useMemo(() => {
     const q = query.trim().toLocaleLowerCase('tr');
-    return players
-      .filter((p) => !exclude.has(p.id))
-      .filter((p) => (q ? p.name.toLocaleLowerCase('tr').includes(q) : true))
-      .slice(0, 120); // arama yokken ilk 120 (performans); arama daralt
-  }, [players, exclude, query]);
+    if (!q) return available.slice(0, 120);
+    return available.filter((p) => p.name.toLocaleLowerCase('tr').includes(q)).slice(0, 120);
+  }, [available, query]);
 
-  const toggle = (id: string) => {
-    setSelected((cur) => {
-      if (cur.includes(id)) {
-        haptics.light();
-        return cur.filter((c) => c !== id);
-      }
-      if (cur.length >= handSize) {
-        haptics.warning();
-        return cur; // dolu
-      }
-      haptics.selection();
-      return [...cur, id];
-    });
-  };
+  const toggle = useCallback(
+    (id: string) => {
+      setSelected((cur) => {
+        if (cur.includes(id)) {
+          haptics.light();
+          return cur.filter((c) => c !== id);
+        }
+        if (cur.length >= handSize) {
+          haptics.warning();
+          return cur;
+        }
+        haptics.selection();
+        return [...cur, id];
+      });
+    },
+    [handSize],
+  );
+
+  const renderItem = useCallback(
+    ({ item }: { item: Player }) => (
+      <Pressable onPress={() => toggle(item.id)} style={styles.cell}>
+        <PlayerCard player={item} width={CARD_W} selected={selectedSet.has(item.id)} />
+      </Pressable>
+    ),
+    [toggle, selectedSet],
+  );
+
+  const getItemLayout = useCallback(
+    (_: unknown, index: number) => {
+      const row = Math.floor(index / COLUMNS);
+      return { length: ROW_H, offset: ROW_H * row, index };
+    },
+    [],
+  );
 
   const remaining = handSize - selected.length;
   const sideColor = side === 'P1' ? colors.side.red : colors.side.blue;
 
   return (
-    <SafeAreaView style={styles.root}>
+    <SafeAreaView style={styles.root} edges={['top']}>
       <View style={styles.header}>
         <Text style={[styles.who, { color: sideColor }]}>{playerName}</Text>
         <Text style={styles.title}>{handSize} kartını seç</Text>
@@ -89,21 +118,17 @@ export function CardPickScene({
         data={pool}
         keyExtractor={(p) => p.id}
         numColumns={COLUMNS}
+        renderItem={renderItem}
+        extraData={selectedSet}
+        getItemLayout={getItemLayout}
         columnWrapperStyle={styles.row}
         contentContainerStyle={styles.grid}
         keyboardShouldPersistTaps="handled"
-        renderItem={({ item }) => (
-          <Pressable onPress={() => toggle(item.id)} style={styles.cell}>
-            <PlayerCard
-              player={item}
-              width={98}
-              selected={selected.includes(item.id)}
-            />
-          </Pressable>
-        )}
-        ListEmptyComponent={
-          <Text style={styles.empty}>Sonuç yok — aramayı değiştir.</Text>
-        }
+        initialNumToRender={9}
+        maxToRenderPerBatch={9}
+        windowSize={5}
+        removeClippedSubviews
+        ListEmptyComponent={<Text style={styles.empty}>Sonuç yok — aramayı değiştir.</Text>}
       />
 
       <View style={styles.footer}>
@@ -126,7 +151,7 @@ export function CardPickScene({
 
 const styles = StyleSheet.create({
   root: { flex: 1, paddingHorizontal: 16 },
-  header: { alignItems: 'center', paddingTop: 8, paddingBottom: 12 },
+  header: { alignItems: 'center', paddingTop: 8, paddingBottom: 10 },
   who: { fontSize: 14, fontWeight: '800', textTransform: 'uppercase', letterSpacing: 1 },
   title: { color: colors.text.primary, fontSize: 22, fontWeight: '900', marginTop: 2 },
   counter: { color: colors.accent.goldHi, fontSize: 13, fontWeight: '700', marginTop: 4 },
@@ -139,9 +164,11 @@ const styles = StyleSheet.create({
     paddingVertical: 10,
     color: colors.text.primary,
     fontSize: 15,
-    marginBottom: 12,
+    marginBottom: 10,
   },
-  grid: { paddingBottom: 90 },
+  // Footer artık akışta DEĞİL ama grid'e yeterli alt boşluk → son satır footer
+  // arkasında kalmaz.
+  grid: { paddingBottom: 96 },
   row: { justifyContent: 'space-between', marginBottom: 12 },
   cell: {},
   empty: { color: colors.text.muted, textAlign: 'center', marginTop: 40 },
@@ -151,7 +178,8 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     alignItems: 'center',
-    paddingVertical: 16,
-    backgroundColor: 'rgba(6,26,14,0.85)',
+    paddingTop: 12,
+    paddingBottom: 28,
+    backgroundColor: 'rgba(6,26,14,0.95)',
   },
 });

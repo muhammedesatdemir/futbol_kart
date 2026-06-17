@@ -23,24 +23,23 @@ interface SessionStore {
   reset: () => void;
 }
 
-export const useSessionStore = create<SessionStore>()(
-  persist(
-    (set, get) => ({
-      state: initialSession('', ''),
-      dispatch: (event) => set((s) => ({ state: reduceSession(s.state, event) })),
-      init: (gameId, seed) => set({ state: initialSession(gameId, seed) }),
-      reset: () => {
-        const { gameId, seed } = get().state;
-        set({ state: initialSession(gameId, seed) });
-      },
-    }),
-    {
-      name: 'fk:session:v1',
-      storage: createJSONStorage(() => AsyncStorage),
-      partialize: (s) => ({ state: s.state }),
-    },
-  ),
-);
+/**
+ * Oyun oturumu — PERSIST YOK (bilinçli).
+ *
+ * Eskiden persist(AsyncStorage) vardı: her dispatch'te (bot turlarında saniyede
+ * birden çok) state JSON'a serialize edilip diske yazılıyordu → emülatörde
+ * köprü trafiği + gecikme. Offline VS Düello kısa ömürlü; ortada bırakıp devam
+ * etme özelliğine değmez. Persist kaldırıldı → her hamle anında, gecikmesiz.
+ */
+export const useSessionStore = create<SessionStore>((set, get) => ({
+  state: initialSession('', ''),
+  dispatch: (event) => set((s) => ({ state: reduceSession(s.state, event) })),
+  init: (gameId, seed) => set({ state: initialSession(gameId, seed) }),
+  reset: () => {
+    const { gameId, seed } = get().state;
+    set({ state: initialSession(gameId, seed) });
+  },
+}));
 
 interface ProfileState {
   p1Name: string;

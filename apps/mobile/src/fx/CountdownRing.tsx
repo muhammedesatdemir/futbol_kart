@@ -137,13 +137,11 @@ export function CountdownRing({
   const r = (size - stroke) / 2;
 
   // Dolu arc path'i: oval üzerinde -90° başlangıç, ratio*360° süpürme.
-  const arc = Skia.Path.Make();
+  // PathBuilder (yeni immutable API; eski Skia.Path.Make()+addArc deprecated).
   const sweep = 360 * ratio;
-  arc.addArc(
-    { x: cx - r, y: cy - r, width: r * 2, height: r * 2 },
-    -90,
-    sweep,
-  );
+  const arc = Skia.PathBuilder.Make()
+    .addArc({ x: cx - r, y: cy - r, width: r * 2, height: r * 2 }, -90, sweep)
+    .build();
 
   return (
     <View style={{ width: size, height: size }}>

@@ -5,29 +5,35 @@ import { StatusBar } from 'expo-status-bar';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { HeroScreen } from './src/screens/HeroScreen';
-import { FxGalleryScreen } from './src/screens/FxGalleryScreen';
+import { GameScreen } from './src/screens/GameScreen';
+import { GameSessionProvider } from './src/lib/GameSessionProvider';
+import { useSessionStore } from './src/lib/stores';
 
-// FAZ 1-2 — tek ekran + geçici efekt galerisi. Gerçek navigasyon (expo-router)
-// Faz 3'te eklenecek; şimdilik basit state toggle yeterli.
-type Screen = 'hero' | 'fx';
+// FAZ 3 — Offline VS Düello. Basit state toggle (expo-router Faz 5'te değerlendirilir).
+type Screen = 'hero' | 'game';
 
 export default function App() {
   const [screen, setScreen] = useState<Screen>('hero');
+  const init = useSessionStore((s) => s.init);
+
+  const startGame = () => {
+    // Yeni oturum: rastgele seed yerine sabit-ish (Math.random RN'de mevcut).
+    const id = Math.random().toString(36).slice(2, 10);
+    init(id, id); // gameId = seed (deterministik soru sırası bu seed'den)
+    setScreen('game');
+  };
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
       <SafeAreaProvider>
-        <StatusBar style="light" />
-        {screen === 'hero' ? (
-          <HeroScreen
-            onPlay={() => {
-              // Faz 3'te ModeSelect ekranına gidecek.
-            }}
-            onHowTo={() => setScreen('fx')}
-          />
-        ) : (
-          <FxGalleryScreen onBack={() => setScreen('hero')} />
-        )}
+        <GameSessionProvider>
+          <StatusBar style="light" />
+          {screen === 'hero' ? (
+            <HeroScreen onPlay={startGame} />
+          ) : (
+            <GameScreen onExit={() => setScreen('hero')} />
+          )}
+        </GameSessionProvider>
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

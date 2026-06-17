@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react';
-import { AccessibilityInfo, Text, type TextStyle } from 'react-native';
+import { AccessibilityInfo, Text, type StyleProp, type TextStyle } from 'react-native';
 
 interface CountUpProps {
   target: number;
   durationMs?: number;
   delayMs?: number;
   format?: (v: number) => string;
-  style?: TextStyle | TextStyle[];
+  style?: StyleProp<TextStyle>;
 }
 
 const easeOutCubic = (t: number) => 1 - Math.pow(1 - t, 3);

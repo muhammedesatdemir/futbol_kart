@@ -28,7 +28,7 @@ config.resolver.nodeModulesPaths = [
   path.resolve(monorepoRoot, 'node_modules'),
 ];
 
-// 3. pnpm sembolik linklerini Metro'nun takip etmesini garanti et.
-config.resolver.unstable_enableSymlinks = true;
+// NOT: unstable_enableSymlinks KALDIRILDI — Expo SDK 56 Metro'su symlink'leri zaten
+// otomatik çözüyor (expo-doctor bunu gereksiz override olarak işaretliyordu).
 
 module.exports = config;

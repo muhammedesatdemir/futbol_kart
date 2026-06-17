@@ -16,12 +16,14 @@ import { colors, motion, radius } from '../theme';
 const AnimatedPressable = Animated.createAnimatedComponent(Pressable);
 
 /**
- * PrimaryButton — web `.btn-primary` + `cta-pulse` karşılığı.
+ * PrimaryButton — web `.btn-primary` + `cta-pulse`/`cta-ring` karşılığı.
  *
  * Native "his" katmanı (web'de YOK):
  *   - Basınca spring ile küçülür (press-scale 0.95) → dokunuş fiziksel hissedilir.
  *   - Haptic geri bildirim (medium impact) → parmakta titreşim.
- *   - Sürekli nabız atan altın glow (pulse) → dikkat çeker, "canlı" durur.
+ *   - HALO: butonun arkasında, ondan geniş, yumuşak altın bir katman sürekli
+ *     yavaşça büyüyüp sönerek "nefes alır" (scale 1→1.18, opacity 0.55→0).
+ *     Yormayan, dikkat çeken canlı bir gölge — kullanıcının istediği efekt.
  */
 export function PrimaryButton({
   label,
@@ -39,42 +41,54 @@ export function PrimaryButton({
 
   useEffect(() => {
     if (!pulse) return;
-    // cta-pulse: glow yoğunluğu 0↔1 gidip gelir (2.6s, web ile aynı ritim).
+    // Nefes ritmi: 0↔1, 1900ms — yavaş ve sakin, göz yormaz.
     glow.value = withRepeat(
-      withTiming(1, { duration: 1300, easing: Easing.inOut(Easing.ease) }),
+      withTiming(1, { duration: 1900, easing: Easing.inOut(Easing.ease) }),
       -1,
       true,
     );
     return () => cancelAnimation(glow);
   }, [pulse]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const containerStyle = useAnimatedStyle(() => ({
+  const buttonStyle = useAnimatedStyle(() => ({
     transform: [{ scale: scale.value }],
-    shadowRadius: 24 + glow.value * 20, // 24→44px, cta-pulse aralığı
-    shadowOpacity: 0.35 + glow.value * 0.35, // 0.35→0.7
+    // Butonun kendi gölgesi de nabızla hafifçe güçlenir (ekstra derinlik).
+    shadowRadius: 20 + glow.value * 14,
+    shadowOpacity: 0.3 + glow.value * 0.3,
+  }));
+
+  // Arkadaki halo: büyür + sönükleşir. glow 0→1 boyunca scale 1→1.18, opacity 0.55→0.
+  const haloStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: 1 + glow.value * 0.18 }],
+    opacity: (0.55 - glow.value * 0.55) * (pulse ? 1 : 0),
   }));
 
   return (
-    <AnimatedPressable
-      onPressIn={() => {
-        scale.value = withSpring(0.95, motion.spring.snappy);
-        Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
-      }}
-      onPressOut={() => {
-        scale.value = withSpring(1, motion.spring.snappy);
-      }}
-      onPress={onPress}
-      style={[styles.primaryShadow, containerStyle, style]}
-    >
-      <LinearGradient
-        colors={[colors.accent.goldHi, colors.accent.gold]}
-        start={{ x: 0, y: 0 }}
-        end={{ x: 0, y: 1 }}
-        style={styles.primaryInner}
+    <View style={styles.primaryWrap}>
+      {/* HALO — butonun arkasında, geniş, yumuşak altın katman */}
+      <Animated.View pointerEvents="none" style={[styles.halo, haloStyle]} />
+
+      <AnimatedPressable
+        onPressIn={() => {
+          scale.value = withSpring(0.95, motion.spring.snappy);
+          Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
+        }}
+        onPressOut={() => {
+          scale.value = withSpring(1, motion.spring.snappy);
+        }}
+        onPress={onPress}
+        style={[styles.primaryShadow, buttonStyle, style]}
       >
-        <Text style={styles.primaryLabel}>{label}</Text>
-      </LinearGradient>
-    </AnimatedPressable>
+        <LinearGradient
+          colors={[colors.accent.goldHi, colors.accent.gold]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 0, y: 1 }}
+          style={styles.primaryInner}
+        >
+          <Text style={styles.primaryLabel}>{label}</Text>
+        </LinearGradient>
+      </AnimatedPressable>
+    </View>
   );
 }
 
@@ -116,6 +130,24 @@ export function GhostButton({
 }
 
 const styles = StyleSheet.create({
+  primaryWrap: {
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  // Halo: butonun arkasında, ondan geniş; nefes alan yumuşak altın gölge.
+  halo: {
+    position: 'absolute',
+    width: 220,
+    height: 92,
+    borderRadius: radius.pill,
+    backgroundColor: colors.accent.goldHi,
+    // Yumuşak kenar hissi: gölgeyi halonun kendisine de uygula (Android'de elevation
+    // yerine geniş shadowRadius bulanıklık verir).
+    shadowColor: colors.accent.goldHi,
+    shadowOpacity: 0.9,
+    shadowRadius: 28,
+    shadowOffset: { width: 0, height: 0 },
+  },
   primaryShadow: {
     borderRadius: radius.pill,
     shadowColor: colors.accent.gold,

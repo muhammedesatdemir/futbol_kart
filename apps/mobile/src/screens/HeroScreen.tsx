@@ -1,4 +1,4 @@
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 import { Image } from 'expo-image';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
@@ -22,7 +22,13 @@ import { logos } from '../theme/assets';
  *
  * Bu ekran web ana sayfasının (apps/web/src/components/HomeHero.tsx) mobil ruhu.
  */
-export function HeroScreen({ onPlay }: { onPlay?: () => void }) {
+export function HeroScreen({
+  onPlay,
+  onHowTo,
+}: {
+  onPlay?: () => void;
+  onHowTo?: () => void;
+}) {
   const D = motion.duration;
 
   return (
@@ -51,7 +57,7 @@ export function HeroScreen({ onPlay }: { onPlay?: () => void }) {
           </Animated.Text>
         </View>
 
-        {/* Alt blok: CTA'lar — alttan staggered girer */}
+        {/* CTA'lar — ekranın DİKEY ORTASINDA, staggered girer */}
         <Animated.View
           entering={FadeInUp.delay(480).duration(D.slow)}
           style={styles.actions}
@@ -64,9 +70,12 @@ export function HeroScreen({ onPlay }: { onPlay?: () => void }) {
               onPlay?.();
             }}
           />
-          <View style={{ height: 12 }} />
-          <GhostButton label="Nasıl oynanır?" />
+          <View style={{ height: 14 }} />
+          <GhostButton label="Nasıl oynanır?" onPress={onHowTo} />
         </Animated.View>
+
+        {/* Alt boşluk — layout'u dengelemek için (top ↔ center ↔ bu) */}
+        <View style={styles.bottomSpacer} />
       </SafeAreaView>
     </View>
   );
@@ -79,13 +88,16 @@ const styles = StyleSheet.create({
   },
   safe: {
     flex: 1,
-    justifyContent: 'space-between',
     paddingHorizontal: 28,
     paddingVertical: 24,
   },
   top: {
     alignItems: 'center',
     marginTop: 24,
+  },
+  // actions flex:1 ile esner → butonlar top ile bottomSpacer arasının ORTASINDA.
+  bottomSpacer: {
+    height: 64,
   },
   logo: {
     width: 96,
@@ -113,7 +125,8 @@ const styles = StyleSheet.create({
     textShadowRadius: 6,
   },
   actions: {
+    flex: 1,
     alignItems: 'center',
-    marginBottom: 16,
+    justifyContent: 'center',
   },
 });

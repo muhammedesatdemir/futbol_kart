@@ -187,11 +187,15 @@ export function SquaresPlayScene({
 
   return (
     <section className="flex flex-col gap-4 pb-10">
-      {/* DİNAMİK sıra/süre/can paneli — aktif taraf P1 ise solda, P2 ise sağda. */}
+      {/* DİNAMİK sıra/süre/can paneli — aktif taraf P1 ise solda, P2 ise sağda.
+          MOBİL (9:16, <640px): viewport'a `fixed`lenince dar ekranda matrisin/
+          havuzun ÜSTÜNE biniyordu. Bu yüzden mobilde panel AKIŞ İÇİNDE (static),
+          tam-genişlik ve YATAY kompakt şerit olur → içeriği kapatmaz. ≥640px'te
+          (PC/TV) `sm:` ile BUGÜNKÜ fixed-yan-panel davranışı BİREBİR korunur. */}
       <div
         className={cn(
-          'pointer-events-none fixed top-1/4 z-40 flex flex-col items-center gap-3',
-          activeSide === 'P1' ? 'left-4 sm:left-8' : 'right-4 sm:right-8',
+          'z-40 flex w-full justify-center sm:pointer-events-none sm:fixed sm:top-1/4 sm:w-auto sm:flex-col sm:items-center sm:gap-3',
+          activeSide === 'P1' ? 'sm:left-8' : 'sm:right-8',
         )}
       >
         <motion.div
@@ -200,7 +204,13 @@ export function SquaresPlayScene({
           animate={{ opacity: 1, x: 0, scale: 1 }}
           transition={{ type: 'spring', stiffness: 260, damping: 22 }}
           className={cn(
-            'glass-panel-strong pointer-events-auto flex flex-col items-center gap-2 rounded-3xl border-2 px-4 py-4',
+            // Mobil: yatay satır, küçük padding/radius (şerit). ≥640px: bugünkü
+            // dikey kolon + büyük padding/radius AYNEN.
+            // SABİT GENİŞLİK (sm:w-44): panel içeriğe göre büzülüp genişlemesin →
+            // P1 (Öneri jokeri butonu) ile P2 (Rakip oynuyor etiketi) AYNI boyutta
+            // kalır. Eskiden w-auto idi → taraf/duruma göre genişlik değişiyordu.
+            'glass-panel-strong pointer-events-auto flex w-full flex-row flex-wrap items-center justify-center gap-x-3 gap-y-1.5 rounded-2xl border-2 px-3 py-2',
+            'sm:w-44 sm:flex-col sm:flex-nowrap sm:gap-2 sm:rounded-3xl sm:px-4 sm:py-4',
             sideCls.border,
             sideCls.glow,
           )}

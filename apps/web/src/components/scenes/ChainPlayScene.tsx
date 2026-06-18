@@ -172,11 +172,14 @@ export function ChainPlayScene({
 
   return (
     <section className="flex flex-col gap-4 pb-10">
-      {/* Dinamik sıra/süre paneli */}
+      {/* Dinamik sıra/süre paneli.
+          MOBİL (9:16, <640px): viewport'a `fixed`lenince dar ekranda içeriğin
+          ÜSTÜNE biniyordu → mobilde AKIŞ İÇİNDE (static), tam-genişlik YATAY
+          kompakt şerit. ≥640px'te (PC/TV) `sm:` ile BUGÜNKÜ fixed-yan-panel AYNEN. */}
       <div
         className={cn(
-          'pointer-events-none fixed top-1/4 z-40 flex flex-col items-center gap-3',
-          activeSide === 'P1' ? 'left-4 sm:left-8' : 'right-4 sm:right-8',
+          'z-40 flex w-full justify-center sm:pointer-events-none sm:fixed sm:top-1/4 sm:w-auto sm:flex-col sm:items-center sm:gap-3',
+          activeSide === 'P1' ? 'sm:left-8' : 'sm:right-8',
         )}
       >
         <motion.div
@@ -185,7 +188,11 @@ export function ChainPlayScene({
           animate={{ opacity: 1, x: 0, scale: 1 }}
           transition={{ type: 'spring', stiffness: 260, damping: 22 }}
           className={cn(
-            'glass-panel-strong pointer-events-auto flex flex-col items-center gap-2 rounded-3xl border-2 px-4 py-4',
+            // Mobil: yatay satır, küçük padding/radius. ≥640px: dikey kolon AYNEN.
+            // SABİT GENİŞLİK (sm:w-44): P1 (Öneri jokeri) ile P2 (Rakip oynuyor)
+            // panel boyutu içeriğe göre değişmesin → her durumda eşit.
+            'glass-panel-strong pointer-events-auto flex w-full flex-row flex-wrap items-center justify-center gap-x-3 gap-y-1.5 rounded-2xl border-2 px-3 py-2',
+            'sm:w-44 sm:flex-col sm:flex-nowrap sm:gap-2 sm:rounded-3xl sm:px-4 sm:py-4',
             sideCls.border,
             sideCls.glow,
           )}

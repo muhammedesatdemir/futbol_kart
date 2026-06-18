@@ -409,7 +409,7 @@ function WordsScene({
       )}
 
       {/* Oyuncu kartları — yan yana, tek satır, içinde dikey kelimeler */}
-      <div className="flex w-full max-w-5xl items-stretch justify-center gap-2 sm:gap-3">
+      <div className="flex w-full max-w-5xl flex-wrap items-stretch justify-center gap-2 sm:flex-nowrap sm:gap-3">
         {view.playerNames.map((name, pi) => (
           <PlayerWordCard
             key={pi}
@@ -462,7 +462,7 @@ function VoteScene({
       </div>
 
       {/* Oyuncu kartları — yan yana tek satır, tıklanabilir (oy). Kelimeler dikey. */}
-      <div className="flex w-full max-w-5xl items-stretch justify-center gap-2 sm:gap-3">
+      <div className="flex w-full max-w-5xl flex-wrap items-stretch justify-center gap-2 sm:flex-nowrap sm:gap-3">
         {view.playerNames.map((name, pi) => (
           <PlayerWordCard
             key={pi}
@@ -526,6 +526,11 @@ function PlayerWordCard({
   const initial = name.charAt(0).toLocaleUpperCase('tr-TR');
   // 3-4 kart geniş, 5 kart dar → her zaman tek satır (flex-1 eşit böl + max-w).
   const maxW = count >= 5 ? 'max-w-[118px]' : count === 4 ? 'max-w-[150px]' : 'max-w-[180px]';
+  // MOBİL (9:16, <640px): tek satıra sığdırmak 5 kişide kartları okunamayacak
+  // kadar daraltıyordu → kapsayıcı `flex-wrap` (mobil). Burada wrap'te kartlara
+  // SABİT TEMEL GENİŞLİK ver ki satır başına ~2 (3-4 kişi) / ~3 (5 kişi) kart
+  // okunaklı kalsın. ≥640px'te `sm:flex-1` ile BUGÜNKÜ tek-satır eşit-böl AYNEN.
+  const mobileBasis = count >= 5 ? 'basis-[30%]' : 'basis-[44%]';
 
   const inner = (
     <motion.div
@@ -570,7 +575,10 @@ function PlayerWordCard({
     </motion.div>
   );
 
-  const wrapCls = cn('min-w-0 flex-1', maxW);
+  // Mobil: grow + sabit basis (wrap'li). ≥640px: flex-1 (tek satır eşit böl) + maxW.
+  // sm:basis-0 → masaüstünde eski `flex-1` (flex:1 1 0%) davranışı BİREBİR korunur
+  // (basis-[30%] mobil değerini ezer; eşit-böl tek satır).
+  const wrapCls = cn('min-w-0 grow', mobileBasis, 'sm:flex-1 sm:basis-0', maxW);
   if (voteable && onVote) {
     return (
       <button type="button" onClick={onVote} className={cn(wrapCls, 'block text-left')}>

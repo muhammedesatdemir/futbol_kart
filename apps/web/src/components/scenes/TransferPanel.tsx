@@ -32,18 +32,20 @@ export function TransferPanel({
   const byId = new Map(players.map((p) => [p.id, p]));
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-4 backdrop-blur-sm">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/75 p-2 backdrop-blur-sm sm:p-4">
       {/* Geniş pencere (max-w-5xl) + büyük kartlar (size md) — kartlar rahat
-          görünsün. İç içerik dikeyde taşarsa kaydırılabilir (max-h + overflow). */}
-      <div className="glass-panel-strong max-h-[92vh] w-full max-w-5xl overflow-y-auto p-6 sm:p-8">
-        <h3 className="text-center text-2xl font-black text-accent-goldHi">
+          görünsün. İç içerik dikeyde taşarsa kaydırılabilir (max-h + overflow).
+          MOBİL (9:16, <640px): kap (p-3) + kartlar (max-sm:w-20) küçültülür ki
+          dar ekranda yarım ekranı kaplayıp taşmasın. ≥640px AYNEN (p-8, md kart). */}
+      <div className="glass-panel-strong max-h-[92vh] w-full max-w-5xl overflow-y-auto p-3 sm:p-8">
+        <h3 className="text-center text-lg font-black text-accent-goldHi sm:text-2xl">
           🔄 Transfer Hamlesi
         </h3>
-        <p className="mt-1 text-center text-sm text-white/55">
+        <p className="mt-1 text-center text-xs text-white/55 sm:text-sm">
           Bir kartını ver, rakipten bir kart al. Hak bir kez — değişim kalıcı.
         </p>
 
-        <div className="mt-6 grid grid-cols-1 gap-8 sm:grid-cols-2">
+        <div className="mt-4 grid grid-cols-1 gap-4 sm:mt-6 sm:grid-cols-2 sm:gap-8">
           <div>
             <p className="mb-3 text-center text-sm font-semibold uppercase tracking-wide text-side-red">
               Vereceğin kart
@@ -67,7 +69,7 @@ export function TransferPanel({
                         : 'opacity-80 hover:-translate-y-1 hover:opacity-100',
                     )}
                   >
-                    <PlayerCard player={p} size="md" />
+                    <PlayerCard player={p} size="md" className="max-sm:w-20" />
                   </button>
                 );
               })}
@@ -96,7 +98,7 @@ export function TransferPanel({
                         : 'opacity-80 hover:-translate-y-1 hover:opacity-100',
                     )}
                   >
-                    <PlayerCard player={p} size="md" />
+                    <PlayerCard player={p} size="md" className="max-sm:w-20" />
                   </button>
                 );
               })}
@@ -104,7 +106,7 @@ export function TransferPanel({
           </div>
         </div>
 
-        <div className="mt-8 flex justify-center gap-3">
+        <div className="mt-6 flex justify-center gap-3 sm:mt-8">
           <button type="button" onClick={onCancel} className="btn-ghost">
             Vazgeç
           </button>
